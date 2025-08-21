@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "vercel:preview": "npx vercel deploy --yes --prebuilt",
+    "vercel:prod": "npx vercel deploy --prod --yes --prebuilt"
   },
   "dependencies": {
     "next": "15.5.0",
