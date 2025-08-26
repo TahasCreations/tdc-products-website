@@ -25,7 +25,7 @@ export default function Home() {
             opacity: 0.3
           }}
         />
-        
+
         <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
           <div className={`transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
             <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight">
@@ -59,7 +59,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Link href="/products?category=anime" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-100 to-orange-50 p-8 hover:scale-105 transition-all duration-500 hover:shadow-2xl transform hover:-translate-y-2">
-              <div 
+              <div
                 className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
                 style={{
                   backgroundImage: `url('https://readdy.ai/api/search-image?query=Beautiful%20collection%20of%20detailed%20anime%20figurines%20and%20characters%20displayed%20on%20clean%20white%20shelves%2C%20colorful%20and%20vibrant%20anime%20style%20figures%2C%20professional%20product%20photography%2C%20soft%20lighting%2C%20modern%20display%20setup&width=800&height=600&seq=anime1&orientation=landscape')`,
@@ -81,7 +81,7 @@ export default function Home() {
             </Link>
 
             <Link href="/products?category=oyun" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-100 to-orange-50 p-8 hover:scale-105 transition-all duration-500 hover:shadow-2xl transform hover:-translate-y-2">
-              <div 
+              <div
                 className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
                 style={{
                   backgroundImage: `url('https://readdy.ai/api/search-image?query=Gaming%20character%20figurines%20and%20collectibles%20from%20popular%20video%20games%2C%20detailed%20miniatures%20and%20action%20figures%20on%20modern%20display%2C%20professional%20photography%2C%20orange%20and%20tech-inspired%20lighting&width=800&height=600&seq=gaming1&orientation=landscape')`,
@@ -103,7 +103,7 @@ export default function Home() {
             </Link>
 
             <Link href="/products?category=film" className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-100 to-orange-50 p-8 hover:scale-105 transition-all duration-500 hover:shadow-2xl transform hover:-translate-y-2">
-              <div 
+              <div
                 className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-300"
                 style={{
                   backgroundImage: `url('https://readdy.ai/api/search-image?query=Movie%20character%20figurines%20and%20collectible%20statues%20from%20popular%20films%2C%20cinematic%20heroes%20and%20villains%20displayed%20professionally%2C%20warm%20lighting%2C%20premium%20collectibles%20showcase&width=800&height=600&seq=movie1&orientation=landscape')`,
@@ -146,7 +146,7 @@ export default function Home() {
                 image: "https://readdy.ai/api/search-image?query=Detailed%20Naruto%20Uzumaki%203D%20printed%20figurine%20with%20orange%20jumpsuit%20and%20ninja%20headband%2C%20high%20quality%20collectible%20figure%20on%20clean%20white%20background%2C%20professional%20product%20photography&width=400&height=400&seq=naruto1&orientation=squarish"
               },
               {
-                name: "Link Zelda Figürü", 
+                name: "Link Zelda Figürü",
                 price: "₺349",
                 category: "Oyun",
                 image: "https://readdy.ai/api/search-image?query=Link%20from%20Legend%20of%20Zelda%203D%20printed%20figure%20with%20green%20tunic%20and%20Master%20sword%2C%20detailed%20gaming%20collectible%20on%20white%20background%2C%20premium%20quality%20figurine&width=400&height=400&seq=link1&orientation=squarish"
@@ -154,7 +154,7 @@ export default function Home() {
               {
                 name: "Spider-Man Figürü",
                 price: "₺279",
-                category: "Film", 
+                category: "Film",
                 image: "https://readdy.ai/api/search-image?query=Spider-Man%203D%20printed%20action%20figure%20in%20classic%20red%20and%20blue%20suit%2C%20dynamic%20pose%2C%20high%20detail%20superhero%20collectible%20on%20white%20background%2C%20professional%20photography&width=400&height=400&seq=spiderman1&orientation=squarish"
               },
               {
@@ -166,7 +166,7 @@ export default function Home() {
             ].map((product, index) => (
               <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 group cursor-pointer transform hover:-translate-y-3 hover:scale-105">
                 <div className="aspect-square overflow-hidden bg-gray-50">
-                  <img 
+                  <img
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
