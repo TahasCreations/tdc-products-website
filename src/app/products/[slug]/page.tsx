@@ -1,17 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
-import Header from "@components/Header";
-import Footer from "@components/Footer";
-import { findProductBySlug, products } from "@/data/products";
+import Header from "../../../../components/Header";
+import Footer from "../../../../components/Footer";
+import { findProductBySlug, products } from "../../../data/products";
 
-type Props = { params: { slug: string } };
+type Props = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
   return products.map((p) => ({ slug: p.slug }));
 }
 
-export default function ProductDetailPage({ params }: Props) {
-  const product = findProductBySlug(params.slug);
+export default async function ProductDetailPage({ params }: Props) {
+  const { slug } = await params;
+  const product = findProductBySlug(slug);
   if (!product) {
     return (
       <div className="min-h-screen flex items-center justify-center">Ürün bulunamadı</div>
