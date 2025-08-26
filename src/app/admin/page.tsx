@@ -93,10 +93,8 @@ export default function AdminPage() {
           loadProducts();
         }
       } else {
-        // Supabase yapılandırılmamışsa demo modu
-        setUser({ email: 'demo@tdc.com' });
+        // Supabase yapılandırılmamışsa hata göster
         setLoading(false);
-        loadProducts();
       }
     };
 
@@ -277,8 +275,44 @@ export default function AdminPage() {
     );
   }
 
-  // Supabase yapılandırılmışsa ve kullanıcı yoksa login göster
-  if (isSupabaseConfigured() && !user) {
+  // Supabase yapılandırılmamışsa hata göster
+  if (!isSupabaseConfigured()) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md w-full mx-4">
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-red-100">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="ri-error-warning-line text-2xl text-red-600"></i>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Yapılandırma Hatası</h1>
+              <p className="text-gray-600">Supabase bağlantısı yapılandırılmamış</p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800">
+                  <strong>Hata:</strong> Supabase environment variables ayarlanmamış.
+                </p>
+              </div>
+              
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800 font-semibold mb-2">Çözüm:</p>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• Vercel Dashboard'da Environment Variables ayarla</li>
+                  <li>• Supabase projesini yapılandır</li>
+                  <li>• Admin kullanıcısı oluştur</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Kullanıcı yoksa login göster
+  if (!user) {
     return <Auth onLogin={() => {}} />;
   }
 
@@ -290,14 +324,6 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Yönetim Paneli</h1>
             <p className="text-gray-600">TDC Products yönetim sistemi</p>
             <p className="text-sm text-gray-500 mt-1">Hoş geldin, {user.email}</p>
-            {!isSupabaseConfigured() && (
-              <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  <i className="ri-information-line mr-1"></i>
-                  Demo modu - Supabase bağlantısı yapılandırılmamış
-                </p>
-              </div>
-            )}
           </div>
           <button
             onClick={handleSignOut}
