@@ -37,8 +37,13 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-1">Telefon</h3>
-                      <p className="text-gray-600">0555 898 82 42</p>
-                      <p className="text-sm text-gray-500">Pazartesi - Cuma: 09:00 - 18:00</p>
+                      <a
+                        href="tel:+905558988242"
+                        className="text-gray-600 hover:text-orange-600 transition-colors"
+                      >
+                        0555 898 82 42
+                      </a>
+                      <p className="text-sm text-gray-500 mt-1">Pazartesi - Cuma: 09:00 - 18:00</p>
                     </div>
                   </div>
 
@@ -50,8 +55,13 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-1">E-posta</h3>
-                      <p className="text-gray-600">bentahasarii@gmail.com</p>
-                      <p className="text-sm text-gray-500">24 saat içinde yanıt alacaksınız</p>
+                      <a
+                        href="mailto:bentahasarii@gmail.com"
+                        className="text-gray-600 hover:text-orange-600 transition-colors"
+                      >
+                        bentahasarii@gmail.com
+                      </a>
+                      <p className="text-sm text-gray-500 mt-1">24 saat içinde yanıt alacaksınız</p>
                     </div>
                   </div>
 
