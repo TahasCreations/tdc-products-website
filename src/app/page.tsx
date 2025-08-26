@@ -1,7 +1,5 @@
 'use client';
 
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -15,9 +13,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      
+    <div className="bg-white">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-orange-50 to-white min-h-screen flex items-center justify-center">
         <div 
@@ -229,7 +225,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
       <WhatsAppButton />
     </div>
   );
