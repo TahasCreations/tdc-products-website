@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { supabase } from '../../../lib/supabase';
+import Auth from './auth';
 
 interface Product {
   id: string;
@@ -12,6 +14,8 @@ interface Product {
   slug: string;
   image: string;
   description: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Coupon {
@@ -36,16 +40,15 @@ interface Order {
 }
 
 export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginData, setLoginData] = useState({ username: '', password: '' });
-  const [loginError, setLoginError] = useState('');
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [loading, setLoading] = useState(false);
+  const [apiLoading, setApiLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [isDemoMode, setIsDemoMode] = useState(false);
   
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [showProductForm, setShowProductForm] = useState(false);
 
   const [coupons, setCoupons] = useState<Coupon[]>([
     { id: '1', code: 'WELCOME10', discount: 10, type: 'percent', status: 'active', expiryDate: '2024-12-31', usageCount: 45, maxUsage: 100 },
@@ -73,16 +76,50 @@ export default function AdminPage() {
 
   const [newCoupon, setNewCoupon] = useState({ code: '', discount: '', type: 'percent', expiryDate: '', maxUsage: '' });
 
-  // Demo giriş bilgileri
-  const DEMO_CREDENTIALS = {
-    username: 'admin',
-    password: 'demo123'
+  // Supabase bağlantısını kontrol et
+  const isSupabaseConfigured = () => {
+    return process.env.NEXT_PUBLIC_SUPABASE_URL && 
+           process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co';
   };
+
+  // Auth state kontrolü
+  useEffect(() => {
+    const getUser = async () => {
+      if (isSupabaseConfigured()) {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+        setLoading(false);
+        
+        if (user) {
+          loadProducts();
+        }
+      } else {
+        // Demo modu
+        setIsDemoMode(true);
+        setUser({ email: 'demo@tdc.com' });
+        setLoading(false);
+        loadProducts();
+      }
+    };
+
+    getUser();
+
+    if (isSupabaseConfigured()) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          loadProducts();
+        }
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, []);
 
   // Ürünleri yükle
   const loadProducts = async () => {
     try {
-      setLoading(true);
+      setApiLoading(true);
       const response = await fetch('/api/products');
       if (response.ok) {
         const data = await response.json();
@@ -93,14 +130,14 @@ export default function AdminPage() {
     } catch (error) {
       setMessage('Bağlantı hatası');
     } finally {
-      setLoading(false);
+      setApiLoading(false);
     }
   };
 
   // Ürün ekle
   const handleAddProduct = async () => {
     try {
-      setLoading(true);
+      setApiLoading(true);
       const response = await fetch('/api/products', {
         method: 'POST',
         headers: {
@@ -119,17 +156,18 @@ export default function AdminPage() {
 
       if (response.ok) {
         const addedProduct = await response.json();
-        setProducts([...products, addedProduct]);
+        setProducts([addedProduct, ...products]);
         setNewProduct({ title: '', price: '', category: '', stock: '', image: '', description: '', slug: '' });
         setMessage('Ürün başarıyla eklendi!');
         setTimeout(() => setMessage(''), 3000);
       } else {
-        setMessage('Ürün eklenemedi');
+        const error = await response.json();
+        setMessage(error.error || 'Ürün eklenemedi');
       }
     } catch (error) {
       setMessage('Bağlantı hatası');
     } finally {
-      setLoading(false);
+      setApiLoading(false);
     }
   };
 
@@ -138,7 +176,7 @@ export default function AdminPage() {
     if (!editingProduct) return;
     
     try {
-      setLoading(true);
+      setApiLoading(true);
       const response = await fetch('/api/products', {
         method: 'PUT',
         headers: {
@@ -154,12 +192,13 @@ export default function AdminPage() {
         setMessage('Ürün başarıyla güncellendi!');
         setTimeout(() => setMessage(''), 3000);
       } else {
-        setMessage('Ürün güncellenemedi');
+        const error = await response.json();
+        setMessage(error.error || 'Ürün güncellenemedi');
       }
     } catch (error) {
       setMessage('Bağlantı hatası');
     } finally {
-      setLoading(false);
+      setApiLoading(false);
     }
   };
 
@@ -168,7 +207,7 @@ export default function AdminPage() {
     if (!confirm('Bu ürünü silmek istediğinizden emin misiniz?')) return;
     
     try {
-      setLoading(true);
+      setApiLoading(true);
       const response = await fetch(`/api/products?id=${id}`, {
         method: 'DELETE',
       });
@@ -183,19 +222,17 @@ export default function AdminPage() {
     } catch (error) {
       setMessage('Bağlantı hatası');
     } finally {
-      setLoading(false);
+      setApiLoading(false);
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loginData.username === DEMO_CREDENTIALS.username && loginData.password === DEMO_CREDENTIALS.password) {
-      setIsAuthenticated(true);
-      setLoginError('');
-      loadProducts(); // Giriş yapıldığında ürünleri yükle
-    } else {
-      setLoginError('Hatalı kullanıcı adı veya şifre');
+  // Çıkış yap
+  const handleSignOut = async () => {
+    if (isSupabaseConfigured()) {
+      await supabase.auth.signOut();
     }
+    setUser(null);
+    setIsDemoMode(false);
   };
 
   const handleAddCoupon = () => {
@@ -232,69 +269,19 @@ export default function AdminPage() {
     { id: 'finance', name: 'Finans', icon: 'ri-money-dollar-circle-line' }
   ];
 
-  if (!isAuthenticated) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-100 to-white flex items-center justify-center">
-        <div className="max-w-md w-full mx-4">
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-orange-100">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Yönetim Paneli</h1>
-              <p className="text-gray-600">TDC Products Admin Girişi</p>
-            </div>
-
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Kullanıcı Adı
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={loginData.username}
-                  onChange={(e) => setLoginData({...loginData, username: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                  placeholder="Kullanıcı adınız"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Şifre
-                </label>
-                <input
-                  type="password"
-                  required
-                  value={loginData.password}
-                  onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                  placeholder="Şifreniz"
-                />
-              </div>
-
-              {loginError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center space-x-2">
-                  <i className="ri-error-warning-line text-red-500"></i>
-                  <span className="text-red-700 text-sm">{loginError}</span>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
-              >
-                Giriş Yap
-              </button>
-            </form>
-
-            <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-sm text-blue-800 font-semibold mb-2">Demo Sürümü İçin:</p>
-              <p className="text-sm text-blue-700">Kullanıcı Adı: <strong>admin</strong></p>
-              <p className="text-sm text-blue-700">Şifre: <strong>demo123</strong></p>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Yükleniyor...</p>
         </div>
       </div>
     );
+  }
+
+  if (!user) {
+    return <Auth onLogin={() => {}} />;
   }
 
   return (
@@ -304,9 +291,18 @@ export default function AdminPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Yönetim Paneli</h1>
             <p className="text-gray-600">TDC Products yönetim sistemi</p>
+            <p className="text-sm text-gray-500 mt-1">Hoş geldin, {user.email}</p>
+            {isDemoMode && (
+              <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  <i className="ri-information-line mr-1"></i>
+                  Demo modu - Supabase bağlantısı yapılandırılmamış
+                </p>
+              </div>
+            )}
           </div>
           <button
-            onClick={() => setIsAuthenticated(false)}
+            onClick={handleSignOut}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300 flex items-center space-x-2"
           >
             <i className="ri-logout-box-line"></i>
@@ -545,10 +541,10 @@ export default function AdminPage() {
               <div className="mt-4 flex gap-3">
                 <button
                   onClick={editingProduct ? handleUpdateProduct : handleAddProduct}
-                  disabled={loading}
+                  disabled={apiLoading}
                   className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300 whitespace-nowrap flex items-center space-x-2"
                 >
-                  {loading ? (
+                  {apiLoading ? (
                     <>
                       <i className="ri-loader-4-line animate-spin"></i>
                       <span>İşleniyor...</span>
@@ -563,7 +559,7 @@ export default function AdminPage() {
                 
                 <button
                   onClick={() => loadProducts()}
-                  disabled={loading}
+                  disabled={apiLoading}
                   className="bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300"
                 >
                   <i className="ri-refresh-line mr-2"></i>
