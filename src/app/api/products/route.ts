@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import fs from 'fs/promises';
 import path from 'path';
 
 const productsFilePath = path.join(process.cwd(), 'src/data/products.json');
+
+// Supabase client'ları
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key';
+
+// Admin client (service role ile)
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+// Normal client (anon key ile)
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Supabase bağlantısını kontrol et
 const isSupabaseConfigured = () => {
@@ -45,8 +56,8 @@ export async function POST(request: NextRequest) {
     const newProduct = await request.json();
     
     if (isSupabaseConfigured()) {
-      // Supabase kullan
-      const { data: existingProduct } = await supabase
+      // Supabase kullan (admin client ile)
+      const { data: existingProduct } = await supabaseAdmin
         .from('products')
         .select('id')
         .eq('slug', newProduct.slug)
@@ -56,7 +67,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Bu slug zaten kullanılıyor' }, { status: 400 });
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('products')
         .insert([{
           title: newProduct.title,
@@ -106,9 +117,9 @@ export async function PUT(request: NextRequest) {
     const { id, ...updateData } = await request.json();
     
     if (isSupabaseConfigured()) {
-      // Supabase kullan
+      // Supabase kullan (admin client ile)
       if (updateData.slug) {
-        const { data: existingProduct } = await supabase
+        const { data: existingProduct } = await supabaseAdmin
           .from('products')
           .select('id')
           .eq('slug', updateData.slug)
@@ -120,7 +131,7 @@ export async function PUT(request: NextRequest) {
         }
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('products')
         .update(updateData)
         .eq('id', id)
@@ -169,8 +180,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     if (isSupabaseConfigured()) {
-      // Supabase kullan
-      const { error } = await supabase
+      // Supabase kullan (admin client ile)
+      const { error } = await supabaseAdmin
         .from('products')
         .delete()
         .eq('id', id);
