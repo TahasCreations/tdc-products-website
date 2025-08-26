@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Product {
   id: string;
-  name: string;
+  title: string;
   price: number;
   category: string;
   stock: number;
   status: string;
+  slug: string;
+  image: string;
+  description: string;
 }
 
 interface Coupon {
@@ -37,15 +40,12 @@ export default function AdminPage() {
   const [loginData, setLoginData] = useState({ username: '', password: '' });
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
   
-  const [products, setProducts] = useState<Product[]>([
-    { id: '1', name: 'Naruto Figürü', price: 299, category: 'Anime', stock: 15, status: 'active' },
-    { id: '2', name: 'Link Zelda', price: 349, category: 'Oyun', stock: 8, status: 'active' },
-    { id: '3', name: 'Spider-Man', price: 279, category: 'Film', stock: 22, status: 'active' },
-    { id: '4', name: 'Goku Super Saiyan', price: 399, category: 'Anime', stock: 12, status: 'active' },
-    { id: '5', name: 'Batman Dark Knight', price: 329, category: 'Film', stock: 18, status: 'active' },
-    { id: '6', name: 'Pikachu Figürü', price: 249, category: 'Oyun', stock: 25, status: 'active' }
-  ]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [showProductForm, setShowProductForm] = useState(false);
 
   const [coupons, setCoupons] = useState<Coupon[]>([
     { id: '1', code: 'WELCOME10', discount: 10, type: 'percent', status: 'active', expiryDate: '2024-12-31', usageCount: 45, maxUsage: 100 },
@@ -61,7 +61,16 @@ export default function AdminPage() {
     { id: 'ORD-005', customer: 'Can Şen', email: 'can@example.com', total: 729, status: 'delivered', date: '2024-01-19', items: 2 }
   ]);
 
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', category: '', stock: '' });
+  const [newProduct, setNewProduct] = useState({
+    title: '',
+    price: '',
+    category: '',
+    stock: '',
+    image: '',
+    description: '',
+    slug: ''
+  });
+
   const [newCoupon, setNewCoupon] = useState({ code: '', discount: '', type: 'percent', expiryDate: '', maxUsage: '' });
 
   // Demo giriş bilgileri
@@ -70,28 +79,122 @@ export default function AdminPage() {
     password: 'demo123'
   };
 
+  // Ürünleri yükle
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/products');
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data);
+      } else {
+        setMessage('Ürünler yüklenemedi');
+      }
+    } catch (error) {
+      setMessage('Bağlantı hatası');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Ürün ekle
+  const handleAddProduct = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: newProduct.title,
+          price: parseFloat(newProduct.price),
+          category: newProduct.category,
+          stock: parseInt(newProduct.stock),
+          image: newProduct.image,
+          description: newProduct.description,
+          slug: newProduct.slug || newProduct.title.toLowerCase().replace(/\s+/g, '-')
+        }),
+      });
+
+      if (response.ok) {
+        const addedProduct = await response.json();
+        setProducts([...products, addedProduct]);
+        setNewProduct({ title: '', price: '', category: '', stock: '', image: '', description: '', slug: '' });
+        setMessage('Ürün başarıyla eklendi!');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        setMessage('Ürün eklenemedi');
+      }
+    } catch (error) {
+      setMessage('Bağlantı hatası');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Ürün güncelle
+  const handleUpdateProduct = async () => {
+    if (!editingProduct) return;
+    
+    try {
+      setLoading(true);
+      const response = await fetch('/api/products', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editingProduct),
+      });
+
+      if (response.ok) {
+        const updatedProduct = await response.json();
+        setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+        setEditingProduct(null);
+        setMessage('Ürün başarıyla güncellendi!');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        setMessage('Ürün güncellenemedi');
+      }
+    } catch (error) {
+      setMessage('Bağlantı hatası');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Ürün sil
+  const deleteProduct = async (id: string) => {
+    if (!confirm('Bu ürünü silmek istediğinizden emin misiniz?')) return;
+    
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/products?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setProducts(products.filter(p => p.id !== id));
+        setMessage('Ürün başarıyla silindi!');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        setMessage('Ürün silinemedi');
+      }
+    } catch (error) {
+      setMessage('Bağlantı hatası');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (loginData.username === DEMO_CREDENTIALS.username && loginData.password === DEMO_CREDENTIALS.password) {
       setIsAuthenticated(true);
       setLoginError('');
+      loadProducts(); // Giriş yapıldığında ürünleri yükle
     } else {
       setLoginError('Hatalı kullanıcı adı veya şifre');
-    }
-  };
-
-  const handleAddProduct = () => {
-    if (newProduct.name && newProduct.price && newProduct.category && newProduct.stock) {
-      const product: Product = {
-        id: Date.now().toString(),
-        name: newProduct.name,
-        price: parseFloat(newProduct.price),
-        category: newProduct.category,
-        stock: parseInt(newProduct.stock),
-        status: 'active'
-      };
-      setProducts([...products, product]);
-      setNewProduct({ name: '', price: '', category: '', stock: '' });
     }
   };
 
@@ -112,16 +215,8 @@ export default function AdminPage() {
     }
   };
 
-  const deleteProduct = (id: string) => {
-    setProducts(products.filter(p => p.id !== id));
-  };
-
   const deleteCoupon = (id: string) => {
     setCoupons(coupons.filter(c => c.id !== id));
-  };
-
-  const updateProductPrice = (id: string, newPrice: number) => {
-    setProducts(products.map(p => p.id === id ? { ...p, price: newPrice } : p));
   };
 
   const updateOrderStatus = (id: string, newStatus: Order['status']) => {
@@ -218,6 +313,16 @@ export default function AdminPage() {
             <span>Çıkış Yap</span>
           </button>
         </div>
+
+        {/* Message */}
+        {message && (
+          <div className={`mb-6 p-4 rounded-lg flex items-center space-x-2 ${
+            message.includes('başarıyla') ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+          }`}>
+            <i className={`${message.includes('başarıyla') ? 'ri-check-line text-green-500' : 'ri-error-warning-line text-red-500'}`}></i>
+            <span className={message.includes('başarıyla') ? 'text-green-700' : 'text-red-700'}>{message}</span>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="mb-8">
@@ -343,25 +448,50 @@ export default function AdminPage() {
           <div className="space-y-6">
             {/* Add Product Form */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Yeni Ürün Ekle</h3>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingProduct ? 'Ürün Düzenle' : 'Yeni Ürün Ekle'}
+                </h3>
+                {editingProduct && (
+                  <button
+                    onClick={() => {
+                      setEditingProduct(null);
+                      setNewProduct({ title: '', price: '', category: '', stock: '', image: '', description: '', slug: '' });
+                    }}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <i className="ri-close-line text-xl"></i>
+                  </button>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <input
                   type="text"
                   placeholder="Ürün Adı"
-                  value={newProduct.name}
-                  onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                  value={editingProduct ? editingProduct.title : newProduct.title}
+                  onChange={(e) => editingProduct 
+                    ? setEditingProduct({...editingProduct, title: e.target.value})
+                    : setNewProduct({...newProduct, title: e.target.value})
+                  }
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
                 <input
                   type="number"
                   placeholder="Fiyat (₺)"
-                  value={newProduct.price}
-                  onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                  value={editingProduct ? editingProduct.price : newProduct.price}
+                  onChange={(e) => editingProduct 
+                    ? setEditingProduct({...editingProduct, price: parseFloat(e.target.value)})
+                    : setNewProduct({...newProduct, price: e.target.value})
+                  }
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
                 <select
-                  value={newProduct.category}
-                  onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                  value={editingProduct ? editingProduct.category : newProduct.category}
+                  onChange={(e) => editingProduct 
+                    ? setEditingProduct({...editingProduct, category: e.target.value})
+                    : setNewProduct({...newProduct, category: e.target.value})
+                  }
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 pr-8"
                 >
                   <option value="">Kategori Seç</option>
@@ -372,24 +502,80 @@ export default function AdminPage() {
                 <input
                   type="number"
                   placeholder="Stok"
-                  value={newProduct.stock}
-                  onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
+                  value={editingProduct ? editingProduct.stock : newProduct.stock}
+                  onChange={(e) => editingProduct 
+                    ? setEditingProduct({...editingProduct, stock: parseInt(e.target.value)})
+                    : setNewProduct({...newProduct, stock: e.target.value})
+                  }
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Resim URL"
+                  value={editingProduct ? editingProduct.image : newProduct.image}
+                  onChange={(e) => editingProduct 
+                    ? setEditingProduct({...editingProduct, image: e.target.value})
+                    : setNewProduct({...newProduct, image: e.target.value})
+                  }
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Slug (URL)"
+                  value={editingProduct ? editingProduct.slug : newProduct.slug}
+                  onChange={(e) => editingProduct 
+                    ? setEditingProduct({...editingProduct, slug: e.target.value})
+                    : setNewProduct({...newProduct, slug: e.target.value})
+                  }
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
               </div>
-              <button
-                onClick={handleAddProduct}
-                className="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300 whitespace-nowrap"
-              >
-                <i className="ri-add-line mr-2"></i>
-                Ürün Ekle
-              </button>
+              
+              <textarea
+                placeholder="Ürün Açıklaması"
+                value={editingProduct ? editingProduct.description : newProduct.description}
+                onChange={(e) => editingProduct 
+                  ? setEditingProduct({...editingProduct, description: e.target.value})
+                  : setNewProduct({...newProduct, description: e.target.value})
+                }
+                rows={3}
+                className="mt-4 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
+              />
+              
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={editingProduct ? handleUpdateProduct : handleAddProduct}
+                  disabled={loading}
+                  className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300 whitespace-nowrap flex items-center space-x-2"
+                >
+                  {loading ? (
+                    <>
+                      <i className="ri-loader-4-line animate-spin"></i>
+                      <span>İşleniyor...</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className={`${editingProduct ? 'ri-save-line' : 'ri-add-line'} mr-2`}></i>
+                      <span>{editingProduct ? 'Güncelle' : 'Ürün Ekle'}</span>
+                    </>
+                  )}
+                </button>
+                
+                <button
+                  onClick={() => loadProducts()}
+                  disabled={loading}
+                  className="bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300"
+                >
+                  <i className="ri-refresh-line mr-2"></i>
+                  Yenile
+                </button>
+              </div>
             </div>
 
             {/* Products List */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
               <div className="p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Ürün Listesi</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Ürün Listesi ({products.length})</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -407,7 +593,8 @@ export default function AdminPage() {
                     {products.map((product) => (
                       <tr key={product.id} className="hover:bg-gray-50 transition-colors duration-200">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                          <div className="text-sm font-medium text-gray-900">{product.title}</div>
+                          <div className="text-sm text-gray-500">{product.slug}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
@@ -415,13 +602,7 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <input
-                            type="number"
-                            value={product.price}
-                            onChange={(e) => updateProductPrice(product.id, parseFloat(e.target.value))}
-                            className="text-sm text-gray-900 bg-transparent border-0 focus:ring-2 focus:ring-orange-500 rounded w-20"
-                          />
-                          <span className="text-sm text-gray-900"> ₺</span>
+                          <div className="text-sm font-medium text-gray-900">₺{product.price}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {product.stock}
@@ -432,12 +613,22 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => deleteProduct(product.id)}
-                            className="text-red-600 hover:text-red-900 transition-colors duration-200"
-                          >
-                            <i className="ri-delete-bin-line"></i>
-                          </button>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => setEditingProduct(product)}
+                              className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
+                              title="Düzenle"
+                            >
+                              <i className="ri-edit-line"></i>
+                            </button>
+                            <button
+                              onClick={() => deleteProduct(product.id)}
+                              className="text-red-600 hover:text-red-900 transition-colors duration-200"
+                              title="Sil"
+                            >
+                              <i className="ri-delete-bin-line"></i>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

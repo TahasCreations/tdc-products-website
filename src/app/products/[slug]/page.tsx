@@ -1,19 +1,56 @@
 import Image from "next/image";
 import Link from "next/link";
-import { findProductBySlug, products } from "../../../data/products";
 
 type Props = { params: Promise<{ slug: string }> };
 
+// API'den ürünleri getir
+async function getProducts() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`, {
+      cache: 'no-store'
+    });
+    
+    if (!response.ok) {
+      throw new Error('Ürünler yüklenemedi');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Ürünler yüklenirken hata:', error);
+    return [];
+  }
+}
+
+// Slug'a göre ürün bul
+function findProductBySlug(products: any[], slug: string) {
+  return products.find(p => p.slug === slug);
+}
+
 export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+  // Statik ürünler için fallback
+  return [
+    { slug: 'naruto-uzumaki-figur' },
+    { slug: 'link-zelda-figur' },
+    { slug: 'spider-man-figur' },
+    { slug: 'goku-super-saiyan' }
+  ];
 }
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
-  const product = findProductBySlug(slug);
+  const products = await getProducts();
+  const product = findProductBySlug(products, slug);
+  
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">Ürün bulunamadı</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Ürün bulunamadı</h1>
+          <Link href="/products" className="text-orange-600 hover:text-orange-700">
+            ← Ürünlere geri dön
+          </Link>
+        </div>
+      </div>
     );
   }
 
