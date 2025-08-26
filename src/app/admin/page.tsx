@@ -45,7 +45,6 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [apiLoading, setApiLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [isDemoMode, setIsDemoMode] = useState(false);
   
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -94,8 +93,7 @@ export default function AdminPage() {
           loadProducts();
         }
       } else {
-        // Demo modu
-        setIsDemoMode(true);
+        // Supabase yapılandırılmamışsa demo modu
         setUser({ email: 'demo@tdc.com' });
         setLoading(false);
         loadProducts();
@@ -232,7 +230,6 @@ export default function AdminPage() {
       await supabase.auth.signOut();
     }
     setUser(null);
-    setIsDemoMode(false);
   };
 
   const handleAddCoupon = () => {
@@ -280,7 +277,8 @@ export default function AdminPage() {
     );
   }
 
-  if (!user) {
+  // Supabase yapılandırılmışsa ve kullanıcı yoksa login göster
+  if (isSupabaseConfigured() && !user) {
     return <Auth onLogin={() => {}} />;
   }
 
@@ -292,7 +290,7 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Yönetim Paneli</h1>
             <p className="text-gray-600">TDC Products yönetim sistemi</p>
             <p className="text-sm text-gray-500 mt-1">Hoş geldin, {user.email}</p>
-            {isDemoMode && (
+            {!isSupabaseConfigured() && (
               <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm text-yellow-800">
                   <i className="ri-information-line mr-1"></i>
