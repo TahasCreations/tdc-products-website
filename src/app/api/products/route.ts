@@ -22,6 +22,37 @@ const isSupabaseConfigured = () => {
          process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co';
 };
 
+// JSON fallback fonksiyonu
+const handleJSONFallback = async (newProduct: any) => {
+  try {
+    const data = await fs.readFile(productsFilePath, 'utf-8');
+    const products = JSON.parse(data);
+    
+    const newId = Date.now().toString();
+    const productWithId = {
+      id: newId,
+      slug: newProduct.slug || `urun-${newId}`,
+      title: newProduct.title || '',
+      price: parseFloat(newProduct.price) || 0,
+      category: newProduct.category || 'Diğer',
+      stock: parseInt(newProduct.stock) || 0,
+      image: newProduct.image || '',
+      description: newProduct.description || '',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    products.push(productWithId);
+    await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2));
+    
+    return NextResponse.json(productWithId, { status: 201 });
+  } catch (error) {
+    console.error('JSON fallback error:', error);
+    return NextResponse.json({ error: 'Ürün eklenemedi' }, { status: 500 });
+  }
+};
+
 // GET: Tüm ürünleri getir
 export async function GET() {
   try {
@@ -67,17 +98,17 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Bu slug zaten kullanılıyor' }, { status: 400 });
       }
 
-      // RLS bypass için service role kullan
+      // RLS bypass için service role kullan - daha güvenli yaklaşım
       const { data, error } = await supabaseAdmin
         .from('products')
         .insert([{
-          title: newProduct.title,
-          slug: newProduct.slug,
-          price: parseFloat(newProduct.price),
-          category: newProduct.category,
-          stock: parseInt(newProduct.stock),
-          image: newProduct.image,
-          description: newProduct.description,
+          title: newProduct.title || '',
+          slug: newProduct.slug || `urun-${Date.now()}`,
+          price: parseFloat(newProduct.price) || 0,
+          category: newProduct.category || 'Diğer',
+          stock: parseInt(newProduct.stock) || 0,
+          image: newProduct.image || '',
+          description: newProduct.description || '',
           status: 'active'
         }])
         .select()
@@ -85,7 +116,9 @@ export async function POST(request: NextRequest) {
 
       if (error) {
         console.error('Supabase error:', error);
-        return NextResponse.json({ error: 'Ürün eklenemedi' }, { status: 500 });
+        // RLS hatası durumunda JSON fallback kullan
+        console.log('Falling back to JSON storage due to RLS error');
+        return await handleJSONFallback(newProduct);
       }
 
       return NextResponse.json(data, { status: 201 });

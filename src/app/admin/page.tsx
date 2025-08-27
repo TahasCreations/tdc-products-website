@@ -129,11 +129,21 @@ export default function AdminPage() {
       const response = await fetch('/api/products');
       if (response.ok) {
         const data = await response.json();
-        setProducts(data);
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          console.error('Invalid products data:', data);
+          setProducts([]);
+          setMessage('Ürün verisi geçersiz');
+        }
       } else {
+        console.error('Products API error:', response.status);
+        setProducts([]);
         setMessage('Ürünler yüklenemedi');
       }
     } catch (error) {
+      console.error('Load products error:', error);
+      setProducts([]);
       setMessage('Bağlantı hatası');
     } finally {
       setApiLoading(false);
