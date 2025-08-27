@@ -5,7 +5,7 @@ import ProductCard from '../blog/BlogCard';
 async function getProducts() {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`, {
-      cache: 'no-store'
+      next: { revalidate: 60 } // 60 saniye cache
     });
     
     if (response.ok) {
@@ -22,7 +22,7 @@ async function getProducts() {
 async function getCategories() {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/categories`, {
-      cache: 'no-store'
+      next: { revalidate: 60 } // 60 saniye cache
     });
     
     if (response.ok) {
