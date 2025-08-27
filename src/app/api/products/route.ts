@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Bu slug zaten kullanılıyor' }, { status: 400 });
       }
 
-      // RLS bypass için service role kullan - daha güvenli yaklaşım
+      // Service role ile insert - RLS bypass
       const { data, error } = await supabaseAdmin
         .from('products')
         .insert([{
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       if (error) {
         console.error('Supabase error:', error);
         // RLS hatası durumunda JSON fallback kullan
-        console.log('Falling back to JSON storage due to RLS error');
+        console.log('Falling back to JSON storage due to RLS error:', error.message);
         return await handleJSONFallback(newProduct);
       }
 
