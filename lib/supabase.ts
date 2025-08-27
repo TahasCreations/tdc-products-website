@@ -4,12 +4,18 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-// Eğer environment variables yoksa hata fırlat
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase environment variables are not configured. Please check your .env.local file.')
-}
+// Eğer environment variables yoksa placeholder değerler kullan
+const finalSupabaseUrl = supabaseUrl || 'https://placeholder.supabase.co'
+const finalSupabaseAnonKey = supabaseAnonKey || 'placeholder-key'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(finalSupabaseUrl, finalSupabaseAnonKey)
+
+// Environment variables kontrolü için helper function
+export const isSupabaseConfigured = () => {
+  return supabaseUrl && supabaseAnonKey && 
+         supabaseUrl !== 'https://placeholder.supabase.co' &&
+         supabaseAnonKey !== 'placeholder-key'
+}
 
 // Types
 export interface Product {

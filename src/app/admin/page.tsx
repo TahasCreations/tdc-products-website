@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../../../lib/supabase';
 import Auth from './auth';
+
+// Dynamic export - admin sayfası static generation yapılmasın
+export const dynamic = 'force-dynamic';
 
 interface Product {
   id: string;
@@ -84,22 +87,9 @@ export default function AdminPage() {
   });
   const [editingCategory, setEditingCategory] = useState<any>(null);
 
-  // Supabase bağlantısını kontrol et
-  const isSupabaseConfigured = () => {
-    // Client-side'da environment variables'ları kontrol et
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    // Environment variables varsa ve geçerliyse true döndür
-    if (supabaseUrl && supabaseAnonKey) {
-      return supabaseUrl !== 'https://placeholder.supabase.co' &&
-             supabaseUrl.includes('supabase.co');
-    }
-    
-    // Environment variables yoksa, production'da olduğumuzu varsayalım
-    return typeof window !== 'undefined' && 
-           window.location.hostname !== 'localhost' && 
-           window.location.hostname !== '127.0.0.1';
+      // Supabase bağlantısını kontrol et
+  const checkSupabaseConfig = () => {
+    return isSupabaseConfigured();
   };
 
   // Auth state kontrolü
