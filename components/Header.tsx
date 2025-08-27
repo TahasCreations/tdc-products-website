@@ -10,8 +10,10 @@ export default function Header() {
     <header className="bg-white border-b border-orange-100 sticky top-0 z-50 shadow-sm">
       <div className="max-w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-['Pacifico'] text-orange-600 hover:text-orange-700 transition-colors duration-300">TDC Products</span>
+          <Link href="/" className="flex items-center space-x-2 group">
+            <span className="text-2xl md:text-3xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:scale-105 transition-all duration-300 group-hover:animate-pulse">
+              TDC Products
+            </span>
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8">
