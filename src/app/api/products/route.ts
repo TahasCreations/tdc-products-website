@@ -59,16 +59,32 @@ const handleJSONFallback = async (newProduct: any) => {
 };
 
 // GET: Tüm ürünleri getir
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     console.log('Supabase configured:', isSupabaseConfigured());
+    const { searchParams } = new URL(request.url);
+    const slug = searchParams.get('slug');
     
     if (isSupabaseConfigured()) {
       console.log('Using Supabase for data retrieval');
       
       const { supabase } = createSupabaseClient();
       
-      // Basit sorgu - ChatGPT'nin önerdiği gibi
+      if (slug) {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+
+        if (error) {
+          console.error('Supabase error:', error);
+          return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
+        }
+
+        return NextResponse.json(data);
+      }
+
       const { data, error } = await supabase
         .from('products')
         .select('*');
@@ -88,6 +104,13 @@ export async function GET() {
       console.log('Using JSON fallback - Supabase not configured');
       const data = await fs.readFile(productsFilePath, 'utf-8');
       const products = JSON.parse(data);
+      if (slug) {
+        const product = products.find((p: any) => p.slug === slug);
+        if (!product) {
+          return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
+        }
+        return NextResponse.json(product);
+      }
       return NextResponse.json(products);
     }
   } catch (error) {
@@ -117,6 +140,7 @@ export async function POST(request: NextRequest) {
           category: newProduct.category || 'Diğer',
           stock: parseInt(newProduct.stock) || 0,
           image: newProduct.image || '',
+          images: (newProduct as any).images || null,
           description: newProduct.description || '',
           status: 'active'
         }])
@@ -191,14 +215,33 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const bulk = searchParams.get('bulk');
+    const token = request.headers.get('x-admin-token') || '';
     
-    if (!id) {
+    if (!id && !bulk) {
       return NextResponse.json({ error: 'Ürün ID gerekli' }, { status: 400 });
     }
 
     if (isSupabaseConfigured()) {
       const { supabaseAdmin } = createSupabaseClient();
       
+      if (bulk === 'true') {
+        // Simple header-based token check to protect bulk delete
+        const expected = process.env.ADMIN_CLEANUP_TOKEN || '';
+        if (!expected || token !== expected) {
+          return NextResponse.json({ error: 'Yetkisiz istek' }, { status: 401 });
+        }
+        const { error } = await supabaseAdmin
+          .from('products')
+          .delete()
+          .neq('id', '');
+        if (error) {
+          console.error('Supabase error:', error);
+          return NextResponse.json({ error: 'Toplu silme başarısız' }, { status: 500 });
+        }
+        return NextResponse.json({ message: 'Tüm ürünler silindi' });
+      }
+
       const { error } = await supabaseAdmin
         .from('products')
         .delete()

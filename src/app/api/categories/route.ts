@@ -190,12 +190,30 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const bulk = searchParams.get('bulk');
+    const token = request.headers.get('x-admin-token') || '';
 
-    if (!id) {
+    if (!id && !bulk) {
       return NextResponse.json({ error: 'Kategori ID gerekli' }, { status: 400 });
     }
 
     if (isSupabaseConfigured()) {
+      if (bulk === 'true') {
+        const expected = process.env.ADMIN_CLEANUP_TOKEN || '';
+        if (!expected || token !== expected) {
+          return NextResponse.json({ error: 'Yetkisiz istek' }, { status: 401 });
+        }
+        const { error } = await supabaseAdmin
+          .from('categories')
+          .delete()
+          .neq('id', '');
+        if (error) {
+          console.error('Supabase error:', error);
+          return NextResponse.json({ error: 'Toplu silme başarısız' }, { status: 500 });
+        }
+        return NextResponse.json({ success: true });
+      }
+
       const { error } = await supabaseAdmin
         .from('categories')
         .delete()

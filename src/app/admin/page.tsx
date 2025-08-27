@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured } from '../../../lib/supabase';
 import Auth from './auth';
+import { useRouter } from 'next/navigation';
 
 // Dynamic export - admin sayfası static generation yapılmasın
 export const dynamic = 'force-dynamic';
@@ -16,6 +17,7 @@ interface Product {
   status: string;
   slug: string;
   image: string;
+  images?: string[];
   description: string;
   created_at: string;
   updated_at: string;
@@ -43,29 +45,21 @@ interface Order {
 }
 
 export default function AdminPage() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [apiLoading, setApiLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
-  const [coupons, setCoupons] = useState<Coupon[]>([
-    { id: '1', code: 'WELCOME10', discount: 10, type: 'percent', status: 'active', expiryDate: '2024-12-31', usageCount: 45, maxUsage: 100 },
-    { id: '2', code: 'ANIME50', discount: 50, type: 'fixed', status: 'active', expiryDate: '2024-06-30', usageCount: 23, maxUsage: 50 },
-    { id: '3', code: 'WINTER2024', discount: 15, type: 'percent', status: 'active', expiryDate: '2024-03-31', usageCount: 67, maxUsage: 200 }
-  ]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
 
-  const [orders, setOrders] = useState<Order[]>([
-    { id: 'ORD-001', customer: 'Ahmet Yılmaz', email: 'ahmet@example.com', total: 648, status: 'delivered', date: '2024-01-15', items: 2 },
-    { id: 'ORD-002', customer: 'Elif Kaya', email: 'elif@example.com', total: 399, status: 'shipped', date: '2024-01-16', items: 1 },
-    { id: 'ORD-003', customer: 'Mehmet Demir', email: 'mehmet@example.com', total: 527, status: 'processing', date: '2024-01-17', items: 3 },
-    { id: 'ORD-004', customer: 'Zeynep Öz', email: 'zeynep@example.com', total: 299, status: 'pending', date: '2024-01-18', items: 1 },
-    { id: 'ORD-005', customer: 'Can Şen', email: 'can@example.com', total: 729, status: 'delivered', date: '2024-01-19', items: 2 }
-  ]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   const [newProduct, setNewProduct] = useState({
     title: '',
@@ -73,6 +67,7 @@ export default function AdminPage() {
     category: '',
     stock: '',
     image: '',
+    images: [] as string[],
     description: '',
     slug: ''
   });
@@ -195,6 +190,108 @@ export default function AdminPage() {
     }
   };
 
+  // Çoklu görsel yükleme (drag & drop ve multi-select desteği)
+  const maxImages = 10;
+  const handleFiles = async (files: FileList | null) => {
+    if (!files) return;
+    const currentImages = editingProduct ? (editingProduct.images || []) : (newProduct.images || []);
+    const availableSlots = Math.max(0, maxImages - currentImages.length);
+    const filesToUpload = Array.from(files).slice(0, availableSlots);
+    if (filesToUpload.length === 0) {
+      setMessage(`En fazla ${maxImages} görsel yükleyebilirsiniz.`);
+      setTimeout(() => setMessage(''), 3000);
+      return;
+    }
+    setUploading(true);
+    const uploaded: string[] = [];
+    for (const f of filesToUpload) {
+      const url = await handleImageUpload(f);
+      if (url) uploaded.push(url);
+    }
+    if (editingProduct) {
+      const nextImages = [...currentImages, ...uploaded];
+      setEditingProduct({
+        ...editingProduct,
+        image: editingProduct.image || uploaded[0] || '',
+        images: nextImages
+      } as Product);
+    } else {
+      setNewProduct(prev => ({
+        ...prev,
+        image: prev.image || uploaded[0] || '',
+        images: [...(prev.images || []), ...uploaded]
+      }));
+    }
+    setUploading(false);
+  };
+
+  const removeImageAt = (index: number) => {
+    if (editingProduct) {
+      const imgs = editingProduct.images || [];
+      const next = imgs.filter((_, i) => i !== index);
+      const cover = index === 0 ? (next[0] || '') : editingProduct.image;
+      setEditingProduct({ ...(editingProduct as Product), images: next, image: cover });
+    } else {
+      const imgs = newProduct.images || [];
+      const next = imgs.filter((_, i) => i !== index);
+      const cover = index === 0 ? (next[0] || '') : newProduct.image;
+      setNewProduct(prev => ({ ...prev, images: next, image: cover }));
+    }
+  };
+
+  const setAsCover = (index: number) => {
+    if (editingProduct) {
+      const imgs = editingProduct.images || [];
+      if (!imgs[index]) return;
+      const next = [imgs[index], ...imgs.filter((_, i) => i !== index)];
+      setEditingProduct({ ...(editingProduct as Product), images: next, image: next[0] });
+    } else {
+      const imgs = newProduct.images || [];
+      if (!imgs[index]) return;
+      const next = [imgs[index], ...imgs.filter((_, i) => i !== index)];
+      setNewProduct(prev => ({ ...prev, images: next, image: next[0] }));
+    }
+  };
+
+  const moveImage = (index: number, direction: -1 | 1) => {
+    const reorder = (arr: string[]) => {
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= arr.length) return arr;
+      const copy = [...arr];
+      const [item] = copy.splice(index, 1);
+      copy.splice(newIndex, 0, item);
+      return copy;
+    };
+    if (editingProduct) {
+      const imgs = editingProduct.images || [];
+      const next = reorder(imgs);
+      setEditingProduct({ ...(editingProduct as Product), images: next, image: next[0] || editingProduct.image });
+    } else {
+      const imgs = newProduct.images || [];
+      const next = reorder(imgs);
+      setNewProduct(prev => ({ ...prev, images: next, image: next[0] || prev.image }));
+    }
+  };
+
+  const reorderByDrag = (from: number, to: number) => {
+    if (from === to) return;
+    const apply = (arr: string[]) => {
+      const copy = [...arr];
+      const [item] = copy.splice(from, 1);
+      copy.splice(to, 0, item);
+      return copy;
+    };
+    if (editingProduct) {
+      const imgs = editingProduct.images || [];
+      const next = apply(imgs);
+      setEditingProduct({ ...(editingProduct as Product), images: next, image: next[0] || editingProduct.image });
+    } else {
+      const imgs = newProduct.images || [];
+      const next = apply(imgs);
+      setNewProduct(prev => ({ ...prev, images: next, image: next[0] || prev.image }));
+    }
+  };
+
   // Ürün ekle
   const handleAddProduct = async () => {
     try {
@@ -218,9 +315,12 @@ export default function AdminPage() {
       if (response.ok) {
         const addedProduct = await response.json();
         setProducts([addedProduct, ...products]);
-        setNewProduct({ title: '', price: '', category: '', stock: '', image: '', description: '', slug: '' });
+        setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '' });
         setMessage('Ürün başarıyla eklendi!');
-        setTimeout(() => setMessage(''), 3000);
+        // Aynı sekmede ürün detay sayfasına yönlendir
+        if (addedProduct?.slug) {
+          router.push(`/products/${addedProduct.slug}`);
+        }
       } else {
         const error = await response.json();
         setMessage(error.error || 'Ürün eklenemedi');
@@ -634,7 +734,7 @@ export default function AdminPage() {
                   <button
                     onClick={() => {
                       setEditingProduct(null);
-                      setNewProduct({ title: '', price: '', category: '', stock: '', image: '', description: '', slug: '' });
+                      setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '' });
                     }}
                     className="text-gray-500 hover:text-gray-700"
                   >
@@ -711,36 +811,59 @@ export default function AdminPage() {
                 />
               </div>
 
-              {/* Resim Yükleme */}
+              {/* Görsel Yükleme (Sürükle-Bırak, Çoklu) */}
               <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Resim Yükle
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Görseller (max 10)</label>
+                <div
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    await handleFiles(e.dataTransfer.files);
+                  }}
+                  className="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer hover:bg-gray-50"
+                  onClick={() => (document.getElementById('multi-image-input') as HTMLInputElement)?.click()}
+                >
+                  <div className="flex flex-col items-center justify-center text-gray-600">
+                    <i className="ri-upload-cloud-2-line text-2xl mb-1"></i>
+                    <div>Dosyaları sürükleyip bırakın veya tıklayıp seçin</div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">JPEG, PNG, WEBP — 5MB sınır</div>
+                </div>
                 <input
+                  id="multi-image-input"
                   type="file"
                   accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const imageUrl = await handleImageUpload(file);
-                      if (imageUrl) {
-                        if (editingProduct) {
-                          setEditingProduct({...editingProduct, image: imageUrl});
-                        } else {
-                          setNewProduct({...newProduct, image: imageUrl});
-                        }
-                        setMessage('Resim başarıyla yüklendi!');
-                        setTimeout(() => setMessage(''), 3000);
-                      }
-                    }
-                  }}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+                  multiple
+                  onChange={async (e) => { await handleFiles(e.target.files); }}
+                  className="hidden"
                   disabled={uploading}
                 />
                 {uploading && (
                   <div className="mt-2 flex items-center text-sm text-gray-600">
                     <i className="ri-loader-4-line animate-spin mr-2"></i>
-                    Resim yükleniyor...
+                    Görseller yükleniyor...
+                  </div>
+                )}
+                {((editingProduct && (editingProduct.images || []).length > 0) || (!editingProduct && newProduct.images.length > 0)) && (
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    {(editingProduct ? (editingProduct.images || []) : newProduct.images).map((src, idx) => (
+                      <div
+                        key={idx}
+                        className="relative group"
+                        draggable
+                        onDragStart={() => setDragIndex(idx)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => { if (dragIndex !== null) { reorderByDrag(dragIndex, idx); setDragIndex(null); } }}
+                      >
+                        <img src={src} alt={`img-${idx}`} className="w-full h-20 object-cover rounded-lg border" />
+                        <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                          <button onClick={() => setAsCover(idx)} className="bg-white/90 rounded-full px-2 text-xs" title="Kapak Yap">★</button>
+                          <button onClick={() => moveImage(idx, -1)} className="bg-white/90 rounded-full px-2 text-xs" title="Sola">←</button>
+                          <button onClick={() => moveImage(idx, 1)} className="bg-white/90 rounded-full px-2 text-xs" title="Sağa">→</button>
+                          <button onClick={() => removeImageAt(idx)} className="bg-white/90 rounded-full px-2 text-xs" title="Kaldır">✕</button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

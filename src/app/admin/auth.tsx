@@ -153,11 +153,7 @@ export default function Auth({ onLogin }: AuthProps) {
             </button>
           </div>
 
-          <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm text-blue-800 font-semibold mb-2">Demo Hesap:</p>
-            <p className="text-sm text-blue-700">E-posta: <strong>admin@tdc.com</strong></p>
-            <p className="text-sm text-blue-700">Şifre: <strong>admin123</strong></p>
-          </div>
+          {/* Demo hesap bilgileri kaldırıldı */}
         </div>
       </div>
     </div>
