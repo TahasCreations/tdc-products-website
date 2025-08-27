@@ -86,8 +86,14 @@ export default function AdminPage() {
 
   // Supabase bağlantısını kontrol et
   const isSupabaseConfigured = () => {
-    return process.env.NEXT_PUBLIC_SUPABASE_URL && 
-           process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co';
+    // Environment variables'ları kontrol et
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    return supabaseUrl && 
+           supabaseAnonKey && 
+           supabaseUrl !== 'https://placeholder.supabase.co' &&
+           supabaseUrl.includes('supabase.co');
   };
 
   // Auth state kontrolü
