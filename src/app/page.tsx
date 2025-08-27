@@ -1,9 +1,7 @@
-'use client';
-
 import WhatsAppButton from '../../components/WhatsAppButton';
-import ProductCard from '../ProductCard';
-import AddToCartButton from '../AddToCartButton';
-import AnimatedText from '../animated-text';
+import ProductCard from '../../ProductCard';
+import AddToCartButton from '../../AddToCartButton';
+import AnimatedText from '../../animated-text';
 
 export default async function HomePage() {
   // Ürünleri API'den çek
