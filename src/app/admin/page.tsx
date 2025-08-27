@@ -76,6 +76,14 @@ export default function AdminPage() {
 
   const [newCoupon, setNewCoupon] = useState({ code: '', discount: '', type: 'percent', expiryDate: '', maxUsage: '' });
 
+  const [categories, setCategories] = useState<any[]>([]);
+  const [newCategory, setNewCategory] = useState({
+    name: '',
+    color: '#6b7280',
+    icon: 'ri-more-line'
+  });
+  const [editingCategory, setEditingCategory] = useState<any>(null);
+
   // Supabase bağlantısını kontrol et
   const isSupabaseConfigured = () => {
     return process.env.NEXT_PUBLIC_SUPABASE_URL && 
@@ -92,6 +100,7 @@ export default function AdminPage() {
         
         if (user) {
           loadProducts();
+          loadCategories();
         }
       } else {
         // Supabase yapılandırılmamışsa hata göster
@@ -128,6 +137,21 @@ export default function AdminPage() {
       setMessage('Bağlantı hatası');
     } finally {
       setApiLoading(false);
+    }
+  };
+
+  // Kategorileri yükle
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      } else {
+        setMessage('Kategoriler yüklenemedi');
+      }
+    } catch (error) {
+      setMessage('Kategoriler yüklenemedi');
     }
   };
 
@@ -276,6 +300,98 @@ export default function AdminPage() {
     }
   };
 
+  // Kategori ekle
+  const handleAddCategory = async () => {
+    if (!newCategory.name) {
+      setMessage('Kategori adı gerekli');
+      return;
+    }
+
+    try {
+      setApiLoading(true);
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newCategory),
+      });
+
+      if (response.ok) {
+        const addedCategory = await response.json();
+        setCategories([...categories, addedCategory]);
+        setNewCategory({ name: '', color: '#6b7280', icon: 'ri-more-line' });
+        setMessage('Kategori başarıyla eklendi!');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        const error = await response.json();
+        setMessage(error.error || 'Kategori eklenemedi');
+      }
+    } catch (error) {
+      setMessage('Bağlantı hatası');
+    } finally {
+      setApiLoading(false);
+    }
+  };
+
+  // Kategori güncelle
+  const handleUpdateCategory = async () => {
+    if (!editingCategory || !editingCategory.name) {
+      setMessage('Kategori adı gerekli');
+      return;
+    }
+
+    try {
+      setApiLoading(true);
+      const response = await fetch('/api/categories', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editingCategory),
+      });
+
+      if (response.ok) {
+        const updatedCategory = await response.json();
+        setCategories(categories.map(cat => cat.id === updatedCategory.id ? updatedCategory : cat));
+        setEditingCategory(null);
+        setMessage('Kategori başarıyla güncellendi!');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        const error = await response.json();
+        setMessage(error.error || 'Kategori güncellenemedi');
+      }
+    } catch (error) {
+      setMessage('Bağlantı hatası');
+    } finally {
+      setApiLoading(false);
+    }
+  };
+
+  // Kategori sil
+  const deleteCategory = async (id: string) => {
+    if (!confirm('Bu kategoriyi silmek istediğinizden emin misiniz?')) return;
+    
+    try {
+      setApiLoading(true);
+      const response = await fetch(`/api/categories?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setCategories(categories.filter(cat => cat.id !== id));
+        setMessage('Kategori başarıyla silindi!');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        setMessage('Kategori silinemedi');
+      }
+    } catch (error) {
+      setMessage('Bağlantı hatası');
+    } finally {
+      setApiLoading(false);
+    }
+  };
+
   const deleteCoupon = (id: string) => {
     setCoupons(coupons.filter(c => c.id !== id));
   };
@@ -287,6 +403,7 @@ export default function AdminPage() {
   const tabs = [
     { id: 'dashboard', name: 'Panel', icon: 'ri-dashboard-line' },
     { id: 'products', name: 'Ürünler', icon: 'ri-shopping-bag-line' },
+    { id: 'categories', name: 'Kategoriler', icon: 'ri-price-tag-3-line' },
     { id: 'coupons', name: 'Kuponlar', icon: 'ri-coupon-line' },
     { id: 'orders', name: 'Siparişler', icon: 'ri-file-list-line' },
     { id: 'bistcontrol', name: 'BİST Kontrol', icon: 'ri-line-chart-line' },
@@ -544,9 +661,11 @@ export default function AdminPage() {
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 pr-8"
                 >
                   <option value="">Kategori Seç</option>
-                  <option value="Anime">Anime</option>
-                  <option value="Oyun">Oyun</option>
-                  <option value="Film">Film</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
                 <input
                   type="number"
@@ -706,6 +825,159 @@ export default function AdminPage() {
                             </button>
                             <button
                               onClick={() => deleteProduct(product.id)}
+                              className="text-red-600 hover:text-red-900 transition-colors duration-200"
+                              title="Sil"
+                            >
+                              <i className="ri-delete-bin-line"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Categories Tab */}
+        {activeTab === 'categories' && (
+          <div className="space-y-6">
+            {/* Add Category Form */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingCategory ? 'Kategori Düzenle' : 'Yeni Kategori Ekle'}
+                </h3>
+                {editingCategory && (
+                  <button
+                    onClick={() => {
+                      setEditingCategory(null);
+                      setNewCategory({ name: '', color: '#6b7280', icon: 'ri-more-line' });
+                    }}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <i className="ri-close-line text-xl"></i>
+                  </button>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input
+                  type="text"
+                  placeholder="Kategori Adı"
+                  value={editingCategory ? editingCategory.name : newCategory.name}
+                  onChange={(e) => editingCategory 
+                    ? setEditingCategory({...editingCategory, name: e.target.value})
+                    : setNewCategory({...newCategory, name: e.target.value})
+                  }
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+                <input
+                  type="color"
+                  value={editingCategory ? editingCategory.color : newCategory.color}
+                  onChange={(e) => editingCategory 
+                    ? setEditingCategory({...editingCategory, color: e.target.value})
+                    : setNewCategory({...newCategory, color: e.target.value})
+                  }
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 h-10"
+                />
+                <select
+                  value={editingCategory ? editingCategory.icon : newCategory.icon}
+                  onChange={(e) => editingCategory 
+                    ? setEditingCategory({...editingCategory, icon: e.target.value})
+                    : setNewCategory({...newCategory, icon: e.target.value})
+                  }
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 pr-8"
+                >
+                  <option value="ri-more-line">Genel</option>
+                  <option value="ri-gamepad-line">Oyun</option>
+                  <option value="ri-controller-line">Kontrol</option>
+                  <option value="ri-movie-line">Film</option>
+                  <option value="ri-user-star-line">Kullanıcı</option>
+                  <option value="ri-heart-line">Kalp</option>
+                  <option value="ri-star-line">Yıldız</option>
+                  <option value="ri-gift-line">Hediye</option>
+                  <option value="ri-shopping-bag-line">Alışveriş</option>
+                  <option value="ri-home-line">Ev</option>
+                </select>
+              </div>
+              
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={editingCategory ? handleUpdateCategory : handleAddCategory}
+                  disabled={apiLoading}
+                  className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300 whitespace-nowrap flex items-center space-x-2"
+                >
+                  {apiLoading ? (
+                    <>
+                      <i className="ri-loader-4-line animate-spin"></i>
+                      <span>İşleniyor...</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className={`${editingCategory ? 'ri-save-line' : 'ri-add-line'} mr-2`}></i>
+                      <span>{editingCategory ? 'Güncelle' : 'Kategori Ekle'}</span>
+                    </>
+                  )}
+                </button>
+                
+                <button
+                  onClick={() => loadCategories()}
+                  disabled={apiLoading}
+                  className="bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300"
+                >
+                  <i className="ri-refresh-line mr-2"></i>
+                  Yenile
+                </button>
+              </div>
+            </div>
+
+            {/* Categories List */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Kategori Listesi ({categories.length})</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Renk</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İkon</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {categories.map((category) => (
+                      <tr key={category.id} className="hover:bg-gray-50 transition-colors duration-200">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center space-x-2">
+                            <div 
+                              className="w-6 h-6 rounded-full border border-gray-300"
+                              style={{ backgroundColor: category.color }}
+                            ></div>
+                            <span className="text-sm text-gray-500">{category.color}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <i className={`${category.icon} text-xl`} style={{ color: category.color }}></i>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => setEditingCategory(category)}
+                              className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
+                              title="Düzenle"
+                            >
+                              <i className="ri-edit-line"></i>
+                            </button>
+                            <button
+                              onClick={() => deleteCategory(category.id)}
                               className="text-red-600 hover:text-red-900 transition-colors duration-200"
                               title="Sil"
                             >

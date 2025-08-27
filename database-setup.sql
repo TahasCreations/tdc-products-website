@@ -1,6 +1,16 @@
 -- TDC Products Database Setup
 -- Bu kodu Supabase Dashboard → SQL Editor'da çalıştır
 
+-- Categories tablosu
+CREATE TABLE categories (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL,
+  color VARCHAR(7) DEFAULT '#6b7280',
+  icon VARCHAR(50) DEFAULT 'ri-more-line',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Products tablosu
 CREATE TABLE products (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -18,9 +28,13 @@ CREATE TABLE products (
 
 -- RLS (Row Level Security) aktif et
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
 
 -- Herkes okuyabilir (public read)
 CREATE POLICY "Public read access" ON products
+  FOR SELECT USING (true);
+
+CREATE POLICY "Public read access categories" ON categories
   FOR SELECT USING (true);
 
 -- Sadece authenticated users yazabilir (admin için)
@@ -31,6 +45,16 @@ CREATE POLICY "Authenticated users can update" ON products
   FOR UPDATE USING (auth.role() = 'authenticated');
 
 CREATE POLICY "Authenticated users can delete" ON products
+  FOR DELETE USING (auth.role() = 'authenticated');
+
+-- Categories için RLS policies
+CREATE POLICY "Authenticated users can insert categories" ON categories
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Authenticated users can update categories" ON categories
+  FOR UPDATE USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Authenticated users can delete categories" ON categories
   FOR DELETE USING (auth.role() = 'authenticated');
 
 -- Updated_at trigger
@@ -46,6 +70,18 @@ CREATE TRIGGER update_products_updated_at
     BEFORE UPDATE ON products 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_categories_updated_at 
+    BEFORE UPDATE ON categories 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Örnek kategoriler ekle
+INSERT INTO categories (name, color, icon) VALUES
+('Anime', '#ec4899', 'ri-gamepad-line'),
+('Gaming', '#3b82f6', 'ri-controller-line'),
+('Film', '#8b5cf6', 'ri-movie-line'),
+('Diğer', '#6b7280', 'ri-more-line');
 
 -- Örnek ürünler ekle
 INSERT INTO products (title, slug, price, category, stock, image, description) VALUES

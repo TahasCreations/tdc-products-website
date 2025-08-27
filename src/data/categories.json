@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "name": "Anime",
+    "color": "#ec4899",
+    "icon": "ri-gamepad-line"
+  },
+  {
+    "id": "2",
+    "name": "Gaming",
+    "color": "#3b82f6",
+    "icon": "ri-controller-line"
+  },
+  {
+    "id": "3",
+    "name": "Film",
+    "color": "#8b5cf6",
+    "icon": "ri-movie-line"
+  },
+  {
+    "id": "4",
+    "name": "Diğer",
+    "color": "#6b7280",
+    "icon": "ri-more-line"
+  }
+]
