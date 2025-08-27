@@ -67,14 +67,15 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Bu slug zaten kullanılıyor' }, { status: 400 });
       }
 
+      // RLS bypass için service role kullan
       const { data, error } = await supabaseAdmin
         .from('products')
         .insert([{
           title: newProduct.title,
           slug: newProduct.slug,
-          price: newProduct.price,
+          price: parseFloat(newProduct.price),
           category: newProduct.category,
-          stock: newProduct.stock,
+          stock: parseInt(newProduct.stock),
           image: newProduct.image,
           description: newProduct.description,
           status: 'active'

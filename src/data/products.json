@@ -1,35 +1,55 @@
 [
   {
+    "id": "1",
     "slug": "naruto-uzumaki-figur",
     "title": "Naruto Uzumaki Figürü",
     "category": "Anime",
     "price": 299,
+    "stock": 10,
     "image": "https://images.unsplash.com/photo-1598550880863-4e8b90e87174?q=80&w=1200&auto=format&fit=crop",
-    "description": "Yüksek detaylı, dayanıklı malzemeden üretilmiş Naruto Uzumaki 3D baskı figürü."
+    "description": "Yüksek detaylı, dayanıklı malzemeden üretilmiş Naruto Uzumaki 3D baskı figürü.",
+    "status": "active",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
   },
   {
+    "id": "2",
     "slug": "link-zelda-figur",
     "title": "Link Zelda Figürü",
-    "category": "Oyun",
+    "category": "Gaming",
     "price": 349,
+    "stock": 8,
     "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop",
-    "description": "The Legend of Zelda serisinden ilham alınarak üretilmiş detaylı Link figürü."
+    "description": "The Legend of Zelda serisinden ilham alınarak üretilmiş detaylı Link figürü.",
+    "status": "active",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
   },
   {
+    "id": "3",
     "slug": "spider-man-figur",
     "title": "Spider-Man Figürü",
     "category": "Film",
     "price": 279,
+    "stock": 15,
     "image": "https://images.unsplash.com/photo-1612036782180-6f0b6b820d4c?q=80&w=1200&auto=format&fit=crop",
-    "description": "İkonik Spider-Man karakterinin dinamik pozda 3D baskı figürü."
+    "description": "İkonik Spider-Man karakterinin dinamik pozda 3D baskı figürü.",
+    "status": "active",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
   },
   {
+    "id": "4",
     "slug": "goku-super-saiyan",
     "title": "Goku Super Saiyan",
     "category": "Anime",
     "price": 399,
+    "stock": 12,
     "image": "https://images.unsplash.com/photo-1613336026275-d6d0d1a82561?q=80&w=1200&auto=format&fit=crop",
-    "description": "Dragon Ball evreninden Goku'nun Super Saiyan formunda detaylı figürü."
+    "description": "Dragon Ball evreninden Goku'nun Super Saiyan formunda detaylı figürü.",
+    "status": "active",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
   }
 ]
 

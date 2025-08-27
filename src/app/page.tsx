@@ -5,13 +5,20 @@ import AnimatedText from '../../animated-text';
 
 export default async function HomePage() {
   // Ürünleri API'den çek
-  const productsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`, {
-    cache: 'no-store'
-  });
-  
   let products = [];
-  if (productsResponse.ok) {
-    products = await productsResponse.json();
+  
+  try {
+    const productsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`, {
+      cache: 'no-store'
+    });
+    
+    if (productsResponse.ok) {
+      products = await productsResponse.json();
+    }
+  } catch (error) {
+    console.error('Ürünler yüklenirken hata:', error);
+    // Hata durumunda boş array kullan
+    products = [];
   }
 
   // Öne çıkan ürünler (ilk 6 ürün)
