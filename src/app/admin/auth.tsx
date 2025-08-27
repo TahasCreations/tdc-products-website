@@ -20,17 +20,6 @@ export default function Auth({ onLogin }: AuthProps) {
     setError('');
 
     try {
-      // Supabase bağlantısını kontrol et
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-      
-      if (!supabaseUrl || !supabaseAnonKey || 
-          supabaseUrl === 'https://placeholder.supabase.co' || 
-          supabaseAnonKey === 'placeholder-key') {
-        throw new Error('Supabase yapılandırması eksik. Lütfen environment variables\'ları kontrol edin.');
-      }
-
-      console.log('Supabase URL:', supabaseUrl);
       console.log('Auth işlemi başlatılıyor...');
 
       if (isSignUp) {
@@ -82,6 +71,8 @@ export default function Auth({ onLogin }: AuthProps) {
         errorMessage = 'E-posta adresiniz henüz onaylanmamış. Lütfen e-postanızı kontrol edin.';
       } else if (error.message.includes('User already registered')) {
         errorMessage = 'Bu e-posta adresi zaten kayıtlı.';
+      } else if (error.message.includes('environment variables')) {
+        errorMessage = 'Supabase yapılandırması eksik. Lütfen environment variables\'ları kontrol edin.';
       }
       
       setError(errorMessage);
@@ -166,17 +157,6 @@ export default function Auth({ onLogin }: AuthProps) {
             <p className="text-sm text-blue-800 font-semibold mb-2">Demo Hesap:</p>
             <p className="text-sm text-blue-700">E-posta: <strong>admin@tdc.com</strong></p>
             <p className="text-sm text-blue-700">Şifre: <strong>admin123</strong></p>
-          </div>
-
-          {/* Debug bilgileri */}
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <p className="text-xs text-gray-600 font-semibold mb-1">Debug Bilgileri:</p>
-            <p className="text-xs text-gray-500">
-              Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Ayarlı' : '❌ Ayarlanmamış'}
-            </p>
-            <p className="text-xs text-gray-500">
-              Supabase Key: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Ayarlı' : '❌ Ayarlanmamış'}
-            </p>
           </div>
         </div>
       </div>
