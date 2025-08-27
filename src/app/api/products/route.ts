@@ -11,15 +11,32 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholde
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key';
 
 // Admin client (service role ile)
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
 
 // Normal client (anon key ile)
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true
+  }
+});
 
 // Supabase bağlantısını kontrol et
 const isSupabaseConfigured = () => {
   return process.env.NEXT_PUBLIC_SUPABASE_URL && 
-         process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co';
+         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+         process.env.SUPABASE_SERVICE_ROLE_KEY &&
+         process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
+         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'placeholder-key' &&
+         process.env.SUPABASE_SERVICE_ROLE_KEY !== 'placeholder-service-key' &&
+         process.env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://') &&
+         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.startsWith('eyJ') &&
+         process.env.SUPABASE_SERVICE_ROLE_KEY.startsWith('eyJ');
 };
 
 // JSON fallback fonksiyonu
@@ -56,8 +73,12 @@ const handleJSONFallback = async (newProduct: any) => {
 // GET: Tüm ürünleri getir
 export async function GET() {
   try {
+    console.log('Supabase configured:', isSupabaseConfigured());
+    
     // Supabase yapılandırılmışsa Supabase kullan, yoksa JSON dosyası
     if (isSupabaseConfigured()) {
+      console.log('Using Supabase for data retrieval');
+      
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -65,11 +86,17 @@ export async function GET() {
 
       if (error) {
         console.error('Supabase error:', error);
-        return NextResponse.json({ error: 'Ürünler yüklenemedi' }, { status: 500 });
+        // Supabase hatası durumunda JSON fallback kullan
+        console.log('Falling back to JSON due to Supabase error');
+        const jsonData = await fs.readFile(productsFilePath, 'utf-8');
+        const products = JSON.parse(jsonData);
+        return NextResponse.json(products);
       }
 
+      console.log('Supabase data retrieved successfully:', data?.length || 0, 'products');
       return NextResponse.json(data || []);
     } else {
+      console.log('Using JSON fallback - Supabase not configured');
       // Fallback: JSON dosyasından oku
       const data = await fs.readFile(productsFilePath, 'utf-8');
       const products = JSON.parse(data);
@@ -85,8 +112,11 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const newProduct = await request.json();
+    console.log('Adding new product:', newProduct.title);
     
     if (isSupabaseConfigured()) {
+      console.log('Using Supabase for product creation');
+      
       // Supabase kullan (admin client ile)
       const { data: existingProduct } = await supabaseAdmin
         .from('products')
@@ -117,27 +147,16 @@ export async function POST(request: NextRequest) {
       if (error) {
         console.error('Supabase error:', error);
         // RLS hatası durumunda JSON fallback kullan
-        console.log('Falling back to JSON storage due to RLS error:', error.message);
+        console.log('Falling back to JSON storage due to Supabase error:', error.message);
         return await handleJSONFallback(newProduct);
       }
 
+      console.log('Product created successfully in Supabase:', data.id);
       return NextResponse.json(data, { status: 201 });
     } else {
+      console.log('Using JSON fallback for product creation');
       // Fallback: JSON dosyasına yaz
-      const data = await fs.readFile(productsFilePath, 'utf-8');
-      const products = JSON.parse(data);
-      
-      const newId = Date.now().toString();
-      const productWithId = {
-        id: newId,
-        slug: newProduct.slug || `urun-${newId}`,
-        ...newProduct
-      };
-      
-      products.push(productWithId);
-      await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2));
-      
-      return NextResponse.json(productWithId, { status: 201 });
+      return await handleJSONFallback(newProduct);
     }
   } catch (error) {
     console.error('API error:', error);

@@ -8,13 +8,44 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const finalSupabaseUrl = supabaseUrl || 'https://placeholder.supabase.co'
 const finalSupabaseAnonKey = supabaseAnonKey || 'placeholder-key'
 
-export const supabase = createClient(finalSupabaseUrl, finalSupabaseAnonKey)
+// Supabase client'ı oluştur
+export const supabase = createClient(finalSupabaseUrl, finalSupabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+})
 
 // Environment variables kontrolü için helper function
 export const isSupabaseConfigured = () => {
   return supabaseUrl && supabaseAnonKey && 
          supabaseUrl !== 'https://placeholder.supabase.co' &&
-         supabaseAnonKey !== 'placeholder-key'
+         supabaseAnonKey !== 'placeholder-key' &&
+         supabaseUrl.startsWith('https://') &&
+         supabaseAnonKey.startsWith('eyJ')
+}
+
+// Supabase bağlantısını test et
+export const testSupabaseConnection = async () => {
+  if (!isSupabaseConfigured()) {
+    return { success: false, error: 'Supabase not configured' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('count')
+      .limit(1)
+
+    if (error) {
+      return { success: false, error: error.message }
+    }
+
+    return { success: true, data }
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
 }
 
 // Types
