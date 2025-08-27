@@ -20,23 +20,71 @@ export default function Auth({ onLogin }: AuthProps) {
     setError('');
 
     try {
+      // Supabase bağlantısını kontrol et
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseAnonKey || 
+          supabaseUrl === 'https://placeholder.supabase.co' || 
+          supabaseAnonKey === 'placeholder-key') {
+        throw new Error('Supabase yapılandırması eksik. Lütfen environment variables\'ları kontrol edin.');
+      }
+
+      console.log('Supabase URL:', supabaseUrl);
+      console.log('Auth işlemi başlatılıyor...');
+
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        console.log('Kayıt işlemi başlatılıyor...');
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
         });
+        
+        console.log('Kayıt sonucu:', { data, error });
+        
         if (error) throw error;
-        setError('Kayıt başarılı! E-posta adresinizi kontrol edin.');
+        
+        if (data.user && data.session) {
+          setError('Kayıt başarılı! Giriş yapıldı.');
+          onLogin();
+        } else {
+          setError('Kayıt başarılı! E-posta adresinizi kontrol edin.');
+        }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        console.log('Giriş işlemi başlatılıyor...');
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
+        
+        console.log('Giriş sonucu:', { data, error });
+        
         if (error) throw error;
-        onLogin();
+        
+        if (data.user && data.session) {
+          setError('Giriş başarılı!');
+          onLogin();
+        } else {
+          throw new Error('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
+        }
       }
     } catch (error: any) {
-      setError(error.message);
+      console.error('Auth hatası:', error);
+      
+      // Hata mesajını daha kullanıcı dostu hale getir
+      let errorMessage = error.message;
+      
+      if (error.message.includes('fetch')) {
+        errorMessage = 'Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.';
+      } else if (error.message.includes('Invalid login credentials')) {
+        errorMessage = 'Geçersiz e-posta veya şifre.';
+      } else if (error.message.includes('Email not confirmed')) {
+        errorMessage = 'E-posta adresiniz henüz onaylanmamış. Lütfen e-postanızı kontrol edin.';
+      } else if (error.message.includes('User already registered')) {
+        errorMessage = 'Bu e-posta adresi zaten kayıtlı.';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -94,7 +142,14 @@ export default function Auth({ onLogin }: AuthProps) {
               disabled={loading}
               className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white py-3 px-4 rounded-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg"
             >
-              {loading ? 'İşleniyor...' : (isSignUp ? 'Kayıt Ol' : 'Giriş Yap')}
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <i className="ri-loader-4-line animate-spin mr-2"></i>
+                  İşleniyor...
+                </div>
+              ) : (
+                isSignUp ? 'Kayıt Ol' : 'Giriş Yap'
+              )}
             </button>
           </form>
 
@@ -111,6 +166,17 @@ export default function Auth({ onLogin }: AuthProps) {
             <p className="text-sm text-blue-800 font-semibold mb-2">Demo Hesap:</p>
             <p className="text-sm text-blue-700">E-posta: <strong>admin@tdc.com</strong></p>
             <p className="text-sm text-blue-700">Şifre: <strong>admin123</strong></p>
+          </div>
+
+          {/* Debug bilgileri */}
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <p className="text-xs text-gray-600 font-semibold mb-1">Debug Bilgileri:</p>
+            <p className="text-xs text-gray-500">
+              Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Ayarlı' : '❌ Ayarlanmamış'}
+            </p>
+            <p className="text-xs text-gray-500">
+              Supabase Key: {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Ayarlı' : '❌ Ayarlanmamış'}
+            </p>
           </div>
         </div>
       </div>
