@@ -1,15 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
+import { headers } from 'next/headers';
+
+export const dynamic = 'force-dynamic';
 
 type Props = { params: Promise<{ slug: string }> };
 
 // API'den ürünleri getir
 async function getProducts() {
   try {
-        // Production'da absolute URL kullan
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://tdc-products-website-7f0ru59qu-tahas-projects-047dfd7b.vercel.app'
-      : (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000');
+    const headersList = await headers();
+    const host = headersList.get('host') || 'localhost:3000';
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
     
     const response = await fetch(`${baseUrl}/api/products`, {
       next: { revalidate: 60 } // 60 saniye cache
