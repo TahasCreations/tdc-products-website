@@ -5,38 +5,22 @@ import path from 'path';
 
 const productsFilePath = path.join(process.cwd(), 'src/data/products.json');
 
-// Supabase client'ları
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key';
+// Basit Supabase client - ChatGPT'nin önerdiği gibi
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-// Admin client (service role ile)
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
+// Normal client (anon key ile) - Sadece okuma için
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Normal client (anon key ile)
-const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true
-  }
-});
+// Admin client (service role ile) - Yazma için
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 // Supabase bağlantısını kontrol et
 const isSupabaseConfigured = () => {
-  return process.env.NEXT_PUBLIC_SUPABASE_URL && 
-         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-         process.env.SUPABASE_SERVICE_ROLE_KEY &&
-         process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co' &&
-         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== 'placeholder-key' &&
-         process.env.SUPABASE_SERVICE_ROLE_KEY !== 'placeholder-service-key' &&
-         process.env.NEXT_PUBLIC_SUPABASE_URL.startsWith('https://') &&
-         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.startsWith('eyJ') &&
-         process.env.SUPABASE_SERVICE_ROLE_KEY.startsWith('eyJ');
+  return supabaseUrl && supabaseAnonKey && 
+         supabaseUrl.startsWith('https://') &&
+         supabaseAnonKey.startsWith('eyJ');
 };
 
 // JSON fallback fonksiyonu
@@ -75,14 +59,13 @@ export async function GET() {
   try {
     console.log('Supabase configured:', isSupabaseConfigured());
     
-    // Supabase yapılandırılmışsa Supabase kullan, yoksa JSON dosyası
     if (isSupabaseConfigured()) {
       console.log('Using Supabase for data retrieval');
       
+      // Basit sorgu - ChatGPT'nin önerdiği gibi
       const { data, error } = await supabase
         .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
 
       if (error) {
         console.error('Supabase error:', error);
@@ -97,7 +80,6 @@ export async function GET() {
       return NextResponse.json(data || []);
     } else {
       console.log('Using JSON fallback - Supabase not configured');
-      // Fallback: JSON dosyasından oku
       const data = await fs.readFile(productsFilePath, 'utf-8');
       const products = JSON.parse(data);
       return NextResponse.json(products);
@@ -117,18 +99,7 @@ export async function POST(request: NextRequest) {
     if (isSupabaseConfigured()) {
       console.log('Using Supabase for product creation');
       
-      // Supabase kullan (admin client ile)
-      const { data: existingProduct } = await supabaseAdmin
-        .from('products')
-        .select('id')
-        .eq('slug', newProduct.slug)
-        .single();
-
-      if (existingProduct) {
-        return NextResponse.json({ error: 'Bu slug zaten kullanılıyor' }, { status: 400 });
-      }
-
-      // Service role ile insert - RLS bypass
+      // Service role ile insert
       const { data, error } = await supabaseAdmin
         .from('products')
         .insert([{
@@ -146,7 +117,6 @@ export async function POST(request: NextRequest) {
 
       if (error) {
         console.error('Supabase error:', error);
-        // RLS hatası durumunda JSON fallback kullan
         console.log('Falling back to JSON storage due to Supabase error:', error.message);
         return await handleJSONFallback(newProduct);
       }
@@ -155,7 +125,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(data, { status: 201 });
     } else {
       console.log('Using JSON fallback for product creation');
-      // Fallback: JSON dosyasına yaz
       return await handleJSONFallback(newProduct);
     }
   } catch (error) {
@@ -170,20 +139,6 @@ export async function PUT(request: NextRequest) {
     const { id, ...updateData } = await request.json();
     
     if (isSupabaseConfigured()) {
-      // Supabase kullan (admin client ile)
-      if (updateData.slug) {
-        const { data: existingProduct } = await supabaseAdmin
-          .from('products')
-          .select('id')
-          .eq('slug', updateData.slug)
-          .neq('id', id)
-          .single();
-
-        if (existingProduct) {
-          return NextResponse.json({ error: 'Bu slug zaten kullanılıyor' }, { status: 400 });
-        }
-      }
-
       const { data, error } = await supabaseAdmin
         .from('products')
         .update(updateData)
@@ -202,7 +157,6 @@ export async function PUT(request: NextRequest) {
 
       return NextResponse.json(data);
     } else {
-      // Fallback: JSON dosyasını güncelle
       const data = await fs.readFile(productsFilePath, 'utf-8');
       const products = JSON.parse(data);
       
@@ -233,7 +187,6 @@ export async function DELETE(request: NextRequest) {
     }
 
     if (isSupabaseConfigured()) {
-      // Supabase kullan (admin client ile)
       const { error } = await supabaseAdmin
         .from('products')
         .delete()
@@ -246,7 +199,6 @@ export async function DELETE(request: NextRequest) {
 
       return NextResponse.json({ message: 'Ürün silindi' });
     } else {
-      // Fallback: JSON dosyasından sil
       const data = await fs.readFile(productsFilePath, 'utf-8');
       const products = JSON.parse(data);
       
