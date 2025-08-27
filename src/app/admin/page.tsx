@@ -86,14 +86,20 @@ export default function AdminPage() {
 
   // Supabase bağlantısını kontrol et
   const isSupabaseConfigured = () => {
-    // Environment variables'ları kontrol et
+    // Client-side'da environment variables'ları kontrol et
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
-    return supabaseUrl && 
-           supabaseAnonKey && 
-           supabaseUrl !== 'https://placeholder.supabase.co' &&
-           supabaseUrl.includes('supabase.co');
+    // Environment variables varsa ve geçerliyse true döndür
+    if (supabaseUrl && supabaseAnonKey) {
+      return supabaseUrl !== 'https://placeholder.supabase.co' &&
+             supabaseUrl.includes('supabase.co');
+    }
+    
+    // Environment variables yoksa, production'da olduğumuzu varsayalım
+    return typeof window !== 'undefined' && 
+           window.location.hostname !== 'localhost' && 
+           window.location.hostname !== '127.0.0.1';
   };
 
   // Auth state kontrolü
