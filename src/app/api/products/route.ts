@@ -5,19 +5,23 @@ import path from 'path';
 
 const productsFilePath = path.join(process.cwd(), 'src/data/products.json');
 
-// Basit Supabase client - ChatGPT'nin önerdiği gibi
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-// Normal client (anon key ile) - Sadece okuma için
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// Admin client (service role ile) - Yazma için
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+// Supabase client'larını lazy olarak oluştur
+const createSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  
+  return {
+    supabase: createClient(supabaseUrl, supabaseAnonKey),
+    supabaseAdmin: createClient(supabaseUrl, supabaseServiceKey)
+  };
+};
 
 // Supabase bağlantısını kontrol et
 const isSupabaseConfigured = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  
   return supabaseUrl && supabaseAnonKey && 
          supabaseUrl.startsWith('https://') &&
          supabaseAnonKey.startsWith('eyJ');
@@ -62,6 +66,8 @@ export async function GET() {
     if (isSupabaseConfigured()) {
       console.log('Using Supabase for data retrieval');
       
+      const { supabase } = createSupabaseClient();
+      
       // Basit sorgu - ChatGPT'nin önerdiği gibi
       const { data, error } = await supabase
         .from('products')
@@ -98,6 +104,8 @@ export async function POST(request: NextRequest) {
     
     if (isSupabaseConfigured()) {
       console.log('Using Supabase for product creation');
+      
+      const { supabaseAdmin } = createSupabaseClient();
       
       // Service role ile insert
       const { data, error } = await supabaseAdmin
@@ -139,6 +147,8 @@ export async function PUT(request: NextRequest) {
     const { id, ...updateData } = await request.json();
     
     if (isSupabaseConfigured()) {
+      const { supabaseAdmin } = createSupabaseClient();
+      
       const { data, error } = await supabaseAdmin
         .from('products')
         .update(updateData)
@@ -187,6 +197,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     if (isSupabaseConfigured()) {
+      const { supabaseAdmin } = createSupabaseClient();
+      
       const { error } = await supabaseAdmin
         .from('products')
         .delete()
