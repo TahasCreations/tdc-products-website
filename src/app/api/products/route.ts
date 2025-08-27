@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
       const { supabaseAdmin } = createSupabaseClient();
       
       // Service role ile insert
-      const { data, error } = await supabaseAdmin
+      let { data, error } = await supabaseAdmin
         .from('products')
         .insert([{
           title: newProduct.title || '',
@@ -148,9 +148,34 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error) {
-        console.error('Supabase error:', error);
-        console.log('Falling back to JSON storage due to Supabase error:', error.message);
-        return await handleJSONFallback(newProduct);
+        // Eğer products tablosunda images kolonu yoksa, images olmadan tekrar dene
+        const msg = (error as any)?.message || '';
+        if (msg.toLowerCase().includes('images') || msg.toLowerCase().includes('column')) {
+          const retry = await supabaseAdmin
+            .from('products')
+            .insert([{
+              title: newProduct.title || '',
+              slug: newProduct.slug || `urun-${Date.now()}`,
+              price: parseFloat(newProduct.price) || 0,
+              category: newProduct.category || 'Diğer',
+              stock: parseInt(newProduct.stock) || 0,
+              image: newProduct.image || '',
+              description: newProduct.description || '',
+              status: 'active'
+            }])
+            .select()
+            .single();
+          if (retry.error) {
+            console.error('Supabase retry error:', retry.error);
+            console.log('Falling back to JSON storage due to Supabase error:', retry.error.message);
+            return await handleJSONFallback(newProduct);
+          }
+          data = retry.data as any;
+        } else {
+          console.error('Supabase error:', error);
+          console.log('Falling back to JSON storage due to Supabase error:', msg);
+          return await handleJSONFallback(newProduct);
+        }
       }
 
       console.log('Product created successfully in Supabase:', data.id);
@@ -173,7 +198,7 @@ export async function PUT(request: NextRequest) {
     if (isSupabaseConfigured()) {
       const { supabaseAdmin } = createSupabaseClient();
       
-      const { data, error } = await supabaseAdmin
+      let { data, error } = await supabaseAdmin
         .from('products')
         .update(updateData)
         .eq('id', id)
@@ -181,8 +206,24 @@ export async function PUT(request: NextRequest) {
         .single();
 
       if (error) {
-        console.error('Supabase error:', error);
-        return NextResponse.json({ error: 'Ürün güncellenemedi' }, { status: 500 });
+        const msg = (error as any)?.message || '';
+        if ((updateData as any)?.images && (msg.toLowerCase().includes('images') || msg.toLowerCase().includes('column'))) {
+          const { images, ...rest } = (updateData as any);
+          const retry = await supabaseAdmin
+            .from('products')
+            .update(rest)
+            .eq('id', id)
+            .select()
+            .single();
+          if (retry.error) {
+            console.error('Supabase retry update error:', retry.error);
+            return NextResponse.json({ error: 'Ürün güncellenemedi' }, { status: 500 });
+          }
+          data = retry.data as any;
+        } else {
+          console.error('Supabase error:', error);
+          return NextResponse.json({ error: 'Ürün güncellenemedi' }, { status: 500 });
+        }
       }
 
       if (!data) {

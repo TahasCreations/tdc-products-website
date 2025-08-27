@@ -53,6 +53,7 @@ export default function AdminPage() {
   const [message, setMessage] = useState('');
   const [uploading, setUploading] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [supabaseReady, setSupabaseReady] = useState<boolean | null>(null);
   
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -90,6 +91,19 @@ export default function AdminPage() {
   // Auth state kontrolü
   useEffect(() => {
     const getUser = async () => {
+      // Runtime kontrol: backend test endpointi ile doğrula
+      try {
+        const res = await fetch('/api/test-supabase', { cache: 'no-store' });
+        if (res.ok) {
+          const json = await res.json();
+          setSupabaseReady(!!json.configured);
+        } else {
+          setSupabaseReady(false);
+        }
+      } catch {
+        setSupabaseReady(false);
+      }
+
       if (isSupabaseConfigured()) {
         const { data: { user } } = await supabase.auth.getUser();
         setUser(user);
@@ -534,7 +548,7 @@ export default function AdminPage() {
   }
 
   // Supabase yapılandırılmamışsa hata göster
-  if (!isSupabaseConfigured()) {
+  if (supabaseReady === false || (!isSupabaseConfigured() && supabaseReady !== null)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md w-full mx-4">
@@ -561,6 +575,9 @@ export default function AdminPage() {
                   <li>• Supabase projesini yapılandır</li>
                   <li>• Admin kullanıcısı oluştur</li>
                 </ul>
+                <div className="mt-3 text-xs text-blue-700">
+                  <a href="/api/public-supabase" className="underline">/api/public-supabase</a> ile prod ortamda URL/ANON key var mı kontrol edin.
+                </div>
               </div>
             </div>
           </div>
