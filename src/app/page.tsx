@@ -3,151 +3,142 @@ import ProductCard from '../../ProductCard';
 import AddToCartButton from '../../AddToCartButton';
 import AnimatedText from '../../animated-text';
 
-export default async function HomePage() {
-  let products = [];
+// Ürünleri API'den çek
+async function getProducts() {
   try {
-    const productsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/products`, {
       cache: 'no-store'
     });
-    if (productsResponse.ok) {
-      products = await productsResponse.json();
+    
+    if (response.ok) {
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
     }
+    return [];
   } catch (error) {
     console.error('Ürünler yüklenirken hata:', error);
-    products = [];
+    return [];
   }
+}
 
+export default async function HomePage() {
+  const products = await getProducts();
   const featuredProducts = products.slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Animated Background Shapes */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Figür Gölgeleri */}
+        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full opacity-30 animate-float"></div>
+        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-pink-100 to-red-100 rounded-full opacity-40 animate-float-delayed"></div>
+        <div className="absolute bottom-40 left-1/4 w-20 h-20 bg-gradient-to-br from-green-100 to-blue-100 rounded-full opacity-30 animate-float-slow"></div>
+        <div className="absolute top-1/3 right-1/3 w-16 h-16 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full opacity-50 animate-float"></div>
+        
+        {/* Geometric Shapes */}
+        <div className="absolute top-60 left-1/2 w-8 h-8 bg-gradient-to-br from-indigo-100 to-purple-100 transform rotate-45 opacity-40 animate-pulse"></div>
+        <div className="absolute bottom-60 right-1/4 w-12 h-12 bg-gradient-to-br from-teal-100 to-cyan-100 rounded-lg opacity-30 animate-bounce-slow"></div>
+        
+        {/* Floating Lines */}
+        <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent opacity-30 animate-slide-right"></div>
+        <div className="absolute bottom-1/3 right-0 w-full h-px bg-gradient-to-l from-transparent via-purple-200 to-transparent opacity-30 animate-slide-left"></div>
+      </div>
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 animate-pulse"></div>
-          <div className="absolute top-0 left-0 w-full h-full">
-            <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-            <div className="absolute top-40 right-20 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-            <div className="absolute -bottom-8 left-40 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="mb-8">
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+              <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                TDC Figür
+              </span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              Premium kalitede anime, gaming ve film karakter figürleri. 
+              Koleksiyonunuzu tamamlayın.
+            </p>
           </div>
-        </div>
-
-        <div className="relative z-10 px-4 py-20 mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="mb-8">
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-                <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
-                  TDC Products
-                </span>
-              </h1>
-              <div className="text-xl md:text-2xl text-gray-300 mb-8">
-                <AnimatedText 
-                  text="Premium Figürler ve Koleksiyon Ürünleri" 
-                  className="font-light"
-                  speed={50}
-                />
-              </div>
-              <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                En sevdiğiniz karakterlerin detaylı ve kaliteli figürlerini keşfedin. 
-                Her ürün özenle seçilmiş malzemelerle üretilmiştir.
-              </p>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a 
-                href="/products" 
-                className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-              >
-                <span className="relative z-10">Ürünleri Keşfet</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </a>
-              <a 
-                href="/about" 
-                className="group px-8 py-4 border-2 border-white/30 text-white font-semibold rounded-full hover:bg-white/10 transition-all duration-300 hover:scale-105"
-              >
-                Hakkımızda
-              </a>
-            </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a
+              href="/products"
+              className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            >
+              <span className="relative z-10">Ürünleri Keşfet</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </a>
+            <a
+              href="/blog"
+              className="px-8 py-4 border-2 border-gray-300 text-gray-700 font-semibold rounded-full hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
+            >
+              Blog
+            </a>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="relative py-20 bg-gradient-to-b from-transparent to-black/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Neden <span className="text-orange-400">TDC Products</span>?
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Neden TDC Figür?
             </h2>
-            <p className="text-xl text-gray-400">Kalite ve güvenilirlik odaklı hizmet</p>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Premium kalite, hızlı teslimat ve müşteri memnuniyeti garantisi
+            </p>
           </div>
-
+          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="group relative p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-6 mx-auto">
-                  <i className="ri-award-line text-2xl text-white"></i>
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-4">Premium Kalite</h3>
-                <p className="text-gray-400">En yüksek kalitede malzemelerle üretilen figürler</p>
+            <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i className="ri-award-line text-2xl text-white"></i>
               </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Premium Kalite</h3>
+              <p className="text-gray-600">En yüksek kalitede üretilen figürler, detaylı işçilik ve dayanıklı malzemeler.</p>
             </div>
-
-            {/* Feature 2 */}
-            <div className="group relative p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105">
-              <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-blue-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mb-6 mx-auto">
-                  <i className="ri-shipping-line text-2xl text-white"></i>
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-4">Hızlı Teslimat</h3>
-                <p className="text-gray-400">Güvenli ve hızlı kargo ile kapınıza kadar</p>
+            
+            <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i className="ri-truck-line text-2xl text-white"></i>
               </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Hızlı Teslimat</h3>
+              <p className="text-gray-600">Türkiye geneli hızlı ve güvenli teslimat, özenli paketleme.</p>
             </div>
-
-            {/* Feature 3 */}
-            <div className="group relative p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105">
-              <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mb-6 mx-auto">
-                  <i className="ri-customer-service-line text-2xl text-white"></i>
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-4">7/24 Destek</h3>
-                <p className="text-gray-400">Her zaman yanınızda olan müşteri hizmetleri</p>
+            
+            <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <i className="ri-customer-service-line text-2xl text-white"></i>
               </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">7/24 Destek</h3>
+              <p className="text-gray-600">Müşteri memnuniyeti odaklı hizmet, her zaman yanınızdayız.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Featured Products */}
-      <section className="relative py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
-                Öne Çıkan
-              </span> Ürünler
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Öne Çıkan Ürünler
             </h2>
-            <p className="text-xl text-gray-400">En popüler ve yeni ürünlerimizi keşfedin</p>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              En popüler ve yeni eklenen figürlerimizi keşfedin
+            </p>
           </div>
-
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product: any) => (
-              <div key={product.id} className="group">
-                <ProductCard product={product} />
-              </div>
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
-
+          
           <div className="text-center mt-12">
-            <a 
-              href="/products" 
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-full hover:scale-105 transition-all duration-300 hover:shadow-2xl"
+            <a
+              href="/products"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             >
               Tüm Ürünleri Gör
               <i className="ri-arrow-right-line ml-2"></i>
@@ -157,22 +148,22 @@ export default async function HomePage() {
       </section>
 
       {/* Newsletter Section */}
-      <section className="relative py-20 bg-gradient-to-r from-purple-900/50 to-pink-900/50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Güncel Kalın
           </h2>
-          <p className="text-xl text-gray-300 mb-8">
+          <p className="text-lg text-gray-600 mb-8">
             Yeni ürünler ve özel fırsatlardan haberdar olun
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input 
-              type="email" 
+            <input
+              type="email"
               placeholder="E-posta adresiniz"
-              className="flex-1 px-6 py-4 bg-white/10 border border-white/20 rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent backdrop-blur-sm"
+              className="flex-1 px-6 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
             />
-            <button className="px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-full hover:scale-105 transition-all duration-300">
+            <button className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:shadow-lg transition-all duration-300 transform hover:scale-105">
               Abone Ol
             </button>
           </div>
