@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import BlogCard from './BlogCard';
+import { supabase } from '../../../lib/supabase';
 
 interface BlogPost {
   id: string;
@@ -16,6 +17,8 @@ interface BlogPost {
 }
 
 export default function BlogPage() {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [blogs, setBlogs] = useState<BlogPost[]>([
     {
       id: '1',
@@ -66,6 +69,28 @@ export default function BlogPage() {
 
   const categories = ['all', 'Anime', 'Gaming', 'Film', 'Diğer'];
 
+  // Admin kontrolü
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        console.error('Kullanıcı kontrolü hatası:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const filteredBlogs = blogs.filter(blog => {
     const matchesCategory = selectedCategory === 'all' || blog.category === selectedCategory;
     const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -75,6 +100,11 @@ export default function BlogPage() {
   });
 
   const handleCreateBlog = () => {
+    if (!user) {
+      alert('Blog yazmak için giriş yapmanız gerekiyor!');
+      return;
+    }
+
     if (newBlog.title && newBlog.content && newBlog.author) {
       const blog: BlogPost = {
         id: Date.now().toString(),
@@ -119,13 +149,26 @@ export default function BlogPage() {
             <p className="text-xl md:text-2xl opacity-90 mb-8">
               Figür dünyasından en güncel haberler ve makaleler
             </p>
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="bg-white text-orange-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300 flex items-center mx-auto space-x-2"
-            >
-              <i className="ri-add-line text-xl"></i>
-              <span>Yeni Blog Yazısı</span>
-            </button>
+            {user && (
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="bg-white text-orange-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300 flex items-center mx-auto space-x-2"
+              >
+                <i className="ri-add-line text-xl"></i>
+                <span>Yeni Blog Yazısı</span>
+              </button>
+            )}
+            {!user && (
+              <div className="text-center">
+                <p className="text-white/80 mb-4">Blog yazmak için giriş yapmanız gerekiyor</p>
+                <a
+                  href="/admin"
+                  className="bg-white/20 text-white px-6 py-2 rounded-lg font-medium hover:bg-white/30 transition-colors duration-300"
+                >
+                  Admin Paneli
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>

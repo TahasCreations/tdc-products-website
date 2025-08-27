@@ -38,24 +38,25 @@ async function getCategories() {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { category?: string; search?: string };
+  searchParams: Promise<{ category?: string; search?: string }>;
 }) {
+  const params = await searchParams;
   const products = await getProducts();
   const categories = await getCategories();
 
   // Filtreleme
   let filteredProducts = products;
   
-  if (searchParams.category) {
+  if (params.category) {
     filteredProducts = products.filter((product: any) => 
-      product.category.toLowerCase() === searchParams.category?.toLowerCase()
+      product.category.toLowerCase() === params.category?.toLowerCase()
     );
   }
   
-  if (searchParams.search) {
+  if (params.search) {
     filteredProducts = filteredProducts.filter((product: any) =>
-      product.title.toLowerCase().includes(searchParams.search?.toLowerCase() || '') ||
-      product.description.toLowerCase().includes(searchParams.search?.toLowerCase() || '')
+      product.title.toLowerCase().includes(params.search?.toLowerCase() || '') ||
+      product.description.toLowerCase().includes(params.search?.toLowerCase() || '')
     );
   }
 
@@ -91,42 +92,42 @@ export default async function ProductsPage({
             {/* Search */}
             <div className="relative flex-1 max-w-md">
               <form method="GET" className="relative">
-                <input
-                  type="text"
-                  name="search"
-                  placeholder="Ürün ara..."
-                  defaultValue={searchParams.search}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                />
+                                 <input
+                   type="text"
+                   name="search"
+                   placeholder="Ürün ara..."
+                   defaultValue={params.search}
+                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                 />
                 <i className="ri-search-line absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
               </form>
             </div>
 
             {/* Categories */}
             <div className="flex flex-wrap gap-3">
-              <a
-                href="/products"
-                className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                  !searchParams.category
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Tümü
-              </a>
-              {categories.map((category: any) => (
-                <a
-                  key={category.id}
-                  href={`/products?category=${category.name}`}
-                  className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                    searchParams.category === category.name
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {category.name}
-                </a>
-              ))}
+                             <a
+                 href="/products"
+                 className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
+                   !params.category
+                     ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                 }`}
+               >
+                 Tümü
+               </a>
+               {categories.map((category: any) => (
+                 <a
+                   key={category.id}
+                   href={`/products?category=${category.name}`}
+                   className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
+                     params.category === category.name
+                       ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                   }`}
+                 >
+                   {category.name}
+                 </a>
+               ))}
             </div>
           </div>
         </div>
@@ -137,14 +138,14 @@ export default async function ProductsPage({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {filteredProducts.length > 0 ? (
             <>
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {searchParams.category ? `${searchParams.category} Kategorisi` : 'Tüm Ürünler'}
-                </h2>
-                <p className="text-gray-600">
-                  {filteredProducts.length} ürün bulundu
-                </p>
-              </div>
+                             <div className="mb-8">
+                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                   {params.category ? `${params.category} Kategorisi` : 'Tüm Ürünler'}
+                 </h2>
+                 <p className="text-gray-600">
+                   {filteredProducts.length} ürün bulundu
+                 </p>
+               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredProducts.map((product: any) => (
