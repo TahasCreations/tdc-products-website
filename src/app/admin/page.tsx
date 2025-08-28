@@ -806,26 +806,6 @@ export default function AdminPage() {
                   }
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
-                <input
-                  type="text"
-                  placeholder="Resim URL"
-                  value={editingProduct ? editingProduct.image : newProduct.image}
-                  onChange={(e) => editingProduct 
-                    ? setEditingProduct({...editingProduct, image: e.target.value})
-                    : setNewProduct({...newProduct, image: e.target.value})
-                  }
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                />
-                <input
-                  type="text"
-                  placeholder="Slug (URL)"
-                  value={editingProduct ? editingProduct.slug : newProduct.slug}
-                  onChange={(e) => editingProduct 
-                    ? setEditingProduct({...editingProduct, slug: e.target.value})
-                    : setNewProduct({...newProduct, slug: e.target.value})
-                  }
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                />
               </div>
 
               {/* Görsel Yükleme (Sürükle-Bırak, Çoklu) */}
@@ -844,7 +824,7 @@ export default function AdminPage() {
                     <i className="ri-upload-cloud-2-line text-2xl mb-1"></i>
                     <div>Dosyaları sürükleyip bırakın veya tıklayıp seçin</div>
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">JPEG, PNG, WEBP — 5MB sınır</div>
+                  <div className="text-xs text-gray-500 mt-1">JPEG, PNG, WEBP — boyut sınırı yok</div>
                 </div>
                 <input
                   id="multi-image-input"

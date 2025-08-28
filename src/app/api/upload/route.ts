@@ -10,10 +10,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Dosya bulunamadı' }, { status: 400 });
     }
 
-    // Dosya boyutu kontrolü (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Dosya boyutu 5MB\'dan küçük olmalı' }, { status: 400 });
-    }
+    // Boyut sınırı kaldırıldı
 
     // Dosya tipi kontrolü
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];

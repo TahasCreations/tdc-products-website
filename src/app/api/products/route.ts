@@ -10,6 +10,13 @@ const productsFilePath = path.join(process.cwd(), 'src/data/products.json');
 // JSON fallback fonksiyonu
 const handleJSONFallback = async (newProduct: any) => {
   try {
+    // Dosya yoksa oluştur
+    try {
+      await fs.access(productsFilePath);
+    } catch {
+      await fs.mkdir(path.dirname(productsFilePath), { recursive: true });
+      await fs.writeFile(productsFilePath, JSON.stringify([], null, 2));
+    }
     const data = await fs.readFile(productsFilePath, 'utf-8');
     const products = JSON.parse(data);
     
@@ -86,6 +93,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(data || []);
     } else {
       console.log('Using JSON fallback - Supabase not configured');
+      // Dosya yoksa oluştur
+      try {
+        await fs.access(productsFilePath);
+      } catch {
+        await fs.mkdir(path.dirname(productsFilePath), { recursive: true });
+        await fs.writeFile(productsFilePath, JSON.stringify([], null, 2));
+      }
       const data = await fs.readFile(productsFilePath, 'utf-8');
       const products = JSON.parse(data);
       if (slug) {

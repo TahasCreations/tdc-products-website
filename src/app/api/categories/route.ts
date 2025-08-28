@@ -32,6 +32,13 @@ export async function GET() {
     } else {
       // JSON fallback
       try {
+        // Dosya yoksa oluştur
+        try {
+          await fs.access(categoriesFilePath);
+        } catch {
+          await fs.mkdir(path.dirname(categoriesFilePath), { recursive: true });
+          await fs.writeFile(categoriesFilePath, JSON.stringify([], null, 2));
+        }
         const data = await fs.readFile(categoriesFilePath, 'utf-8');
         return NextResponse.json(JSON.parse(data));
       } catch (error) {
@@ -97,6 +104,13 @@ export async function POST(request: NextRequest) {
     } else {
       // JSON fallback
       try {
+        // Dosya yoksa oluştur
+        try {
+          await fs.access(categoriesFilePath);
+        } catch {
+          await fs.mkdir(path.dirname(categoriesFilePath), { recursive: true });
+          await fs.writeFile(categoriesFilePath, JSON.stringify([], null, 2));
+        }
         const data = await fs.readFile(categoriesFilePath, 'utf-8');
         const categories = JSON.parse(data);
         
