@@ -7,7 +7,9 @@ const categoriesFilePath = path.join(process.cwd(), 'src/data/categories.json');
 
 const isSupabaseConfigured = () => {
   const clients = getServerSupabaseClients();
-  return clients.configured;
+  // Service key yoksa yazma işlemleri zaten JSON'a düşüyor. Tutarlılık için
+  // okuma dahil tüm işlemleri JSON'a yönlendirelim.
+  return clients.configured && Boolean((clients as any).supabaseAdmin);
 };
 
 // Kategorileri getir
@@ -71,7 +73,7 @@ export async function POST(request: NextRequest) {
     if (isSupabaseConfigured()) {
       // Kategori adının benzersiz olduğunu kontrol et
       const clients = getServerSupabaseClients();
-      if (!clients.configured || !clients.supabase) {
+      if (!clients.configured || !clients.supabase || !(clients as any).supabaseAdmin) {
         throw new Error('Supabase not configured');
       }
       const { data: existingCategory } = await clients.supabase
