@@ -1,31 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import fs from 'fs/promises';
 import path from 'path';
+import { getServerSupabaseClients } from '../../../../lib/supabase';
 
 const productsFilePath = path.join(process.cwd(), 'src/data/products.json');
 
-// Supabase client'larını lazy olarak oluştur
-const createSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-  
-  return {
-    supabase: createClient(supabaseUrl, supabaseAnonKey),
-    supabaseAdmin: createClient(supabaseUrl, supabaseServiceKey)
-  };
-};
-
-// Supabase bağlantısını kontrol et
-const isSupabaseConfigured = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-  
-  return supabaseUrl && supabaseAnonKey && 
-         supabaseUrl.startsWith('https://') &&
-         supabaseAnonKey.startsWith('eyJ');
-};
+// Supabase bağlantısını kontrol yardımcıları lib üzerinden yönetiliyor
 
 // JSON fallback fonksiyonu
 const handleJSONFallback = async (newProduct: any) => {
@@ -61,14 +41,18 @@ const handleJSONFallback = async (newProduct: any) => {
 // GET: Tüm ürünleri getir
 export async function GET(request: NextRequest) {
   try {
-    console.log('Supabase configured:', isSupabaseConfigured());
+    const clients = getServerSupabaseClients();
+    const isConfigured = clients.configured;
+    console.log('Supabase configured:', isConfigured);
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
     
-    if (isSupabaseConfigured()) {
+    if (isConfigured) {
       console.log('Using Supabase for data retrieval');
-      
-      const { supabase } = createSupabaseClient();
+      if (!clients.supabase) {
+        throw new Error('Supabase client not available');
+      }
+      const supabase = clients.supabase;
       
       if (slug) {
         const { data, error } = await supabase
@@ -125,10 +109,10 @@ export async function POST(request: NextRequest) {
     const newProduct = await request.json();
     console.log('Adding new product:', newProduct.title);
     
-    if (isSupabaseConfigured()) {
+    const clients = getServerSupabaseClients();
+    if (clients.configured && clients.supabaseAdmin) {
       console.log('Using Supabase for product creation');
-      
-      const { supabaseAdmin } = createSupabaseClient();
+      const supabaseAdmin = clients.supabaseAdmin;
       
       // Service role ile insert
       let { data, error } = await supabaseAdmin
@@ -195,8 +179,9 @@ export async function PUT(request: NextRequest) {
   try {
     const { id, ...updateData } = await request.json();
     
-    if (isSupabaseConfigured()) {
-      const { supabaseAdmin } = createSupabaseClient();
+    const clients = getServerSupabaseClients();
+    if (clients.configured && clients.supabaseAdmin) {
+      const supabaseAdmin = clients.supabaseAdmin;
       
       let { data, error } = await supabaseAdmin
         .from('products')
@@ -263,8 +248,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Ürün ID gerekli' }, { status: 400 });
     }
 
-    if (isSupabaseConfigured()) {
-      const { supabaseAdmin } = createSupabaseClient();
+    const clients = getServerSupabaseClients();
+    if (clients.configured && clients.supabaseAdmin) {
+      const supabaseAdmin = clients.supabaseAdmin;
       
       if (bulk === 'true') {
         // Simple header-based token check to protect bulk delete

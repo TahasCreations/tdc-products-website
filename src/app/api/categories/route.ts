@@ -1,27 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import fs from 'fs/promises';
 import path from 'path';
+import { getServerSupabaseClients } from '../../../../lib/supabase';
 
 const categoriesFilePath = path.join(process.cwd(), 'src/data/categories.json');
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-key';
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 const isSupabaseConfigured = () => {
-  return process.env.NEXT_PUBLIC_SUPABASE_URL &&
-         process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co';
+  const clients = getServerSupabaseClients();
+  return clients.configured;
 };
 
 // Kategorileri getir
 export async function GET() {
   try {
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabase
+      const clients = getServerSupabaseClients();
+      if (!clients.configured || !clients.supabase) {
+        throw new Error('Supabase not configured');
+      }
+      const { data, error } = await clients.supabase
         .from('categories')
         .select('*')
         .order('name');
@@ -66,7 +63,11 @@ export async function POST(request: NextRequest) {
 
     if (isSupabaseConfigured()) {
       // Kategori adının benzersiz olduğunu kontrol et
-      const { data: existingCategory } = await supabase
+      const clients = getServerSupabaseClients();
+      if (!clients.configured || !clients.supabase) {
+        throw new Error('Supabase not configured');
+      }
+      const { data: existingCategory } = await clients.supabase
         .from('categories')
         .select('id')
         .eq('name', name)
@@ -76,7 +77,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Bu kategori adı zaten mevcut' }, { status: 400 });
       }
 
-      const { data, error } = await supabaseAdmin
+      const { supabaseAdmin } = getServerSupabaseClients();
+      const { data, error } = await (supabaseAdmin as any)
         .from('categories')
         .insert([{
           name,
@@ -136,7 +138,8 @@ export async function PUT(request: NextRequest) {
     }
 
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabaseAdmin
+      const { supabaseAdmin } = getServerSupabaseClients();
+      const { data, error } = await (supabaseAdmin as any)
         .from('categories')
         .update({
           name,
@@ -203,7 +206,8 @@ export async function DELETE(request: NextRequest) {
         if (!expected || token !== expected) {
           return NextResponse.json({ error: 'Yetkisiz istek' }, { status: 401 });
         }
-        const { error } = await supabaseAdmin
+        const { supabaseAdmin } = getServerSupabaseClients();
+        const { error } = await (supabaseAdmin as any)
           .from('categories')
           .delete()
           .neq('id', '');
@@ -214,7 +218,8 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
-      const { error } = await supabaseAdmin
+      const { supabaseAdmin } = getServerSupabaseClients();
+      const { error } = await (supabaseAdmin as any)
         .from('categories')
         .delete()
         .eq('id', id);
