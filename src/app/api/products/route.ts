@@ -54,7 +54,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
     
-    if (isConfigured) {
+    // Eğer Supabase yapılandırılmış ama service role (admin) anahtarı yoksa,
+    // yazma JSON'a gideceği için okuma tarafını da JSON'dan yapalım (tutarlılık)
+    if (isConfigured && clients.supabaseAdmin) {
       console.log('Using Supabase for data retrieval');
       if (!clients.supabase) {
         throw new Error('Supabase client not available');
