@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+export const runtime = 'nodejs'
+
 // Bu endpoint yalnızca yapılandırma durumunu bildirir, anahtarları asla döndürmez
 export async function GET() {
   try {

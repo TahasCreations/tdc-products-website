@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { testSupabaseConnection, isSupabaseConfigured } from '../../../../lib/supabase';
 
+export const runtime = 'nodejs';
+
 export async function GET() {
   try {
     const configStatus = isSupabaseConfigured();

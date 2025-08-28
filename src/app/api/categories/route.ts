@@ -3,6 +3,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { getServerSupabaseClients } from '../../../../lib/supabase';
 
+export const runtime = 'nodejs';
+
 const categoriesFilePath = path.join(process.cwd(), 'src/data/categories.json');
 
 const isSupabaseConfigured = () => {

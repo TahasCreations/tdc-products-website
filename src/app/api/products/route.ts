@@ -3,6 +3,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { getServerSupabaseClients } from '../../../../lib/supabase';
 
+export const runtime = 'nodejs';
+
 const productsFilePath = path.join(process.cwd(), 'src/data/products.json');
 
 // Supabase bağlantısını kontrol yardımcıları lib üzerinden yönetiliyor
