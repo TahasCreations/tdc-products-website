@@ -2,6 +2,7 @@
   "name": "tdc-products-website",
   "version": "1.0.0",
   "private": true,
+  "description": "TDC Products - 3D Baskı Figürler ve Koleksiyon Ürünleri",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
