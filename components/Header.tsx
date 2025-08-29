@@ -2,9 +2,19 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useCart } from '../src/contexts/CartContext';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { state, removeItem, updateQuantity } = useCart();
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY'
+    }).format(price);
+  };
 
   return (
     <header className="bg-white border-b border-orange-100 sticky top-0 z-50 shadow-sm">
@@ -46,9 +56,99 @@ export default function Header() {
             <button className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300">
               <i className="ri-heart-line text-xl text-gray-700 hover:text-orange-600 transition-colors cursor-pointer"></i>
             </button>
-            <button className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300">
-              <i className="ri-shopping-cart-line text-xl text-gray-700 hover:text-orange-600 transition-colors cursor-pointer"></i>
-            </button>
+            
+            {/* Sepet Butonu */}
+            <div className="relative">
+              <button 
+                className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300 relative"
+                onClick={() => setIsCartOpen(!isCartOpen)}
+              >
+                <i className="ri-shopping-cart-line text-xl text-gray-700 hover:text-orange-600 transition-colors cursor-pointer"></i>
+                {state.itemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold animate-pulse">
+                    {state.itemCount > 99 ? '99+' : state.itemCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Sepet Dropdown */}
+              {isCartOpen && (
+                <div className="absolute right-0 top-12 w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
+                  <div className="p-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold text-gray-800">Sepetim</h3>
+                      <button 
+                        onClick={() => setIsCartOpen(false)}
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <i className="ri-close-line text-xl"></i>
+                      </button>
+                    </div>
+
+                    {state.items.length === 0 ? (
+                      <div className="text-center py-8">
+                        <i className="ri-shopping-cart-line text-4xl text-gray-300 mb-2"></i>
+                        <p className="text-gray-500">Sepetiniz boş</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="space-y-3 mb-4">
+                          {state.items.map((item) => (
+                            <div key={item.id} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
+                              <img 
+                                src={item.image} 
+                                alt={item.title}
+                                className="w-12 h-12 object-cover rounded-md"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-medium text-gray-800 truncate">{item.title}</h4>
+                                <p className="text-sm text-gray-600">{formatPrice(item.price)}</p>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300"
+                                >
+                                  <i className="ri-subtract-line text-xs"></i>
+                                </button>
+                                <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
+                                <button
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300"
+                                >
+                                  <i className="ri-add-line text-xs"></i>
+                                </button>
+                                <button
+                                  onClick={() => removeItem(item.id)}
+                                  className="text-red-500 hover:text-red-700 ml-2"
+                                >
+                                  <i className="ri-delete-bin-line text-sm"></i>
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="border-t pt-4">
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="font-semibold text-gray-800">Toplam:</span>
+                            <span className="font-bold text-lg text-orange-600">{formatPrice(state.total)}</span>
+                          </div>
+                          <Link 
+                            href="/cart"
+                            onClick={() => setIsCartOpen(false)}
+                            className="w-full bg-orange-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-orange-600 transition-colors text-center block"
+                          >
+                            Sepete Git
+                          </Link>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300">
               <i className="ri-user-line text-xl text-gray-700 hover:text-orange-600 transition-colors cursor-pointer"></i>
             </button>
