@@ -69,9 +69,11 @@ export default function CartPage() {
                   {state.items.map((item) => (
                     <div key={item.id} className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                       <div className="flex-shrink-0">
-                        <img
+                        <Image
                           src={item.image}
                           alt={item.title}
+                          width={80}
+                          height={80}
                           className="w-20 h-20 object-cover rounded-md"
                         />
                       </div>

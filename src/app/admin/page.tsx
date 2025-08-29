@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { supabase } from '../../../lib/supabase';
 
 interface Category {
@@ -879,9 +880,11 @@ export default function AdminPage() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         {newProduct.images.map((image, index) => (
                           <div key={index} className="relative group">
-                            <img
+                            <Image
                               src={image}
                               alt={`Görsel ${index + 1}`}
+                              width={80}
+                              height={80}
                               className="w-full h-20 object-cover rounded-md"
                             />
                             {index === 0 && (
@@ -950,7 +953,7 @@ export default function AdminPage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="h-10 w-10 flex-shrink-0">
-                              <img className="h-10 w-10 rounded-full object-cover" src={product.image} alt={product.title} />
+                              <Image className="h-10 w-10 rounded-full object-cover" src={product.image} alt={product.title} width={40} height={40} />
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900">{product.title}</div>

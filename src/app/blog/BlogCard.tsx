@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface BlogPost {
   id: string;
@@ -49,9 +50,11 @@ export default function BlogCard({ blog }: BlogCardProps) {
       {/* Image */}
       <div className="relative h-48 overflow-hidden">
         {!imageError ? (
-          <img
-            src={blog.image}
+          <Image
+            src={blog.image || '/vercel.svg'}
             alt={blog.title}
+            width={400}
+            height={192}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={() => setImageError(true)}
           />

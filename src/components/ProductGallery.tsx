@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface ProductGalleryProps {
   images: string[];
@@ -32,10 +33,12 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
         <div className="relative h-80 md:h-96">
           {/* Outgoing image */}
           {animating && prevIndex !== null && (
-            <img
+            <Image
               key={`prev-${prevIndex}`}
               src={normalized[prevIndex]}
               alt={alt}
+              width={800}
+              height={400}
               className={`absolute inset-0 w-full h-full object-cover transition-all duration-200 ease-out ${
                 direction === 1 ? 'opacity-0 scale-95 -translate-x-3' : 'opacity-0 scale-95 translate-x-3'
               }`}
@@ -43,10 +46,12 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
           )}
 
           {/* Active image */}
-          <img
+          <Image
             key={`active-${activeIndex}`}
             src={normalized[activeIndex]}
             alt={alt}
+            width={800}
+            height={400}
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-200 ease-out ${
               animating
                 ? direction === 1
@@ -88,7 +93,7 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
                 activeIndex === idx ? 'border-blue-600 ring-2 ring-blue-200' : 'border-gray-200 hover:border-gray-300'
               }`}
             >
-              <img src={src} alt={`${alt} ${idx + 1}`} className="w-16 h-16 object-cover" />
+              <Image src={src} alt={`${alt} ${idx + 1}`} width={64} height={64} className="w-16 h-16 object-cover" />
             </button>
           ))}
         </div>

@@ -142,7 +142,7 @@ async function SimilarProducts({ currentSlug, baseUrl }: { currentSlug: string; 
     <div className="grid grid-cols-2 gap-4">
       {list.map((p: any) => (
         <Link key={p.id} href={`/products/${p.slug}`} className="group flex items-center gap-3 p-3 rounded-lg border hover:shadow-sm transition">
-          <img src={p.image} alt={p.title} className="w-16 h-16 rounded object-cover" />
+          <Image src={p.image} alt={p.title} width={64} height={64} className="w-16 h-16 rounded object-cover" />
           <div>
             <div className="text-sm font-semibold text-gray-900 group-hover:text-blue-600">{p.title}</div>
             <div className="text-xs text-gray-500">₺{p.price}</div>

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../src/contexts/CartContext';
@@ -148,9 +149,11 @@ export default function Header() {
                         <div className="space-y-3 mb-4">
                           {state.items.map((item) => (
                             <div key={item.id} className="flex items-center space-x-3 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                              <img 
+                              <Image 
                                 src={item.image} 
                                 alt={item.title}
+                                width={48}
+                                height={48}
                                 className="w-12 h-12 object-cover rounded-md"
                               />
                               <div className="flex-1 min-w-0">

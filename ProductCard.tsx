@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import AddToCartButton from './AddToCartButton';
 import { useState } from 'react';
 import { useCart } from './src/contexts/CartContext';
@@ -36,9 +37,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         
         {/* Product Image */}
         <div className="relative overflow-hidden">
-          <img
+          <Image
             src={product.image}
             alt={product.title}
+            width={400}
+            height={256}
             className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
           />
           {/* Gradient Overlay */}
@@ -124,9 +127,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                {/* Product Images Section */}
                <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
                  <div className="relative h-96 lg:h-full">
-                   <img 
+                   <Image 
                      src={product.image} 
                      alt={product.title} 
+                     width={800}
+                     height={600}
                      className="absolute inset-0 w-full h-full object-cover"
                    />
                    {/* Gradient Overlay */}
