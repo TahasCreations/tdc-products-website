@@ -41,11 +41,13 @@ export default function AdminPage() {
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Form states
   const [newCategory, setNewCategory] = useState({ name: '', color: '#6b7280', icon: 'ri-more-line' });
   const [newProduct, setNewProduct] = useState({
-    title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: ''
+    title: '', price: '', category: '', stock: '', image: '', images: [] as string[], description: '', slug: ''
   });
 
   // Default kategoriler
@@ -380,6 +382,109 @@ export default function AdminPage() {
     }
   };
 
+  // Görsel yükleme fonksiyonları
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    
+    if (imageFiles.length === 0) {
+      setMessage('Sadece görsel dosyaları yükleyebilirsiniz');
+      setMessageType('error');
+      return;
+    }
+
+    await uploadImages(imageFiles);
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      await uploadImages(files);
+    }
+  };
+
+  const uploadImages = async (files: File[]) => {
+    try {
+      setApiLoading(true);
+      setUploadProgress(0);
+      setMessage('Görseller yükleniyor...');
+
+      const uploadedUrls: string[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Dosya boyutu kontrolü (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          setMessage(`${file.name} dosyası çok büyük (max 5MB)`);
+          setMessageType('error');
+          continue;
+        }
+
+        // Dosya adını benzersiz yap
+        const timestamp = Date.now();
+        const fileName = `${timestamp}-${file.name}`;
+        const filePath = `products/${fileName}`;
+
+        // Supabase Storage'a yükle
+        const { data, error } = await supabase.storage
+          .from('images')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (error) {
+          console.error('Upload error:', error);
+          setMessage(`Görsel yüklenemedi: ${error.message}`);
+          setMessageType('error');
+          continue;
+        }
+
+        // Public URL al
+        const { data: urlData } = supabase.storage
+          .from('images')
+          .getPublicUrl(filePath);
+
+        uploadedUrls.push(urlData.publicUrl);
+        setUploadProgress(((i + 1) / files.length) * 100);
+      }
+
+      if (uploadedUrls.length > 0) {
+        // İlk görseli ana görsel olarak ayarla
+        setNewProduct(prev => ({
+          ...prev,
+          image: uploadedUrls[0],
+          images: [...prev.images, ...uploadedUrls]
+        }));
+
+        setMessage(`${uploadedUrls.length} görsel başarıyla yüklendi!`);
+        setMessageType('success');
+      }
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      setMessage('Görsel yükleme hatası');
+      setMessageType('error');
+    } finally {
+      setApiLoading(false);
+      setUploadProgress(0);
+    }
+  };
+
   // Ürün sil
   const handleDeleteProduct = async (id: string) => {
     try {
@@ -683,14 +788,98 @@ export default function AdminPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Görsel URL</label>
-                  <input
-                    type="text"
-                    value={newProduct.image}
-                    onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ürün Görselleri</label>
+                  
+                  {/* Drag & Drop Alanı */}
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                      isDragOver 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    <div className="space-y-4">
+                      <i className="ri-image-add-line text-4xl text-gray-400"></i>
+                      <div>
+                        <p className="text-lg font-medium text-gray-700">
+                          Görselleri buraya sürükleyin veya seçin
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          PNG, JPG, JPEG dosyaları (max 5MB)
+                        </p>
+                      </div>
+                      
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        id="image-upload"
+                      />
+                      <label
+                        htmlFor="image-upload"
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer transition-colors"
+                      >
+                        <i className="ri-folder-open-line mr-2"></i>
+                        Görsel Seç
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Upload Progress */}
+                  {uploadProgress > 0 && uploadProgress < 100 && (
+                    <div className="mt-4">
+                      <div className="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Yükleniyor...</span>
+                        <span>{Math.round(uploadProgress)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Yüklenen Görseller */}
+                  {newProduct.images.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Yüklenen Görseller:</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {newProduct.images.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={image}
+                              alt={`Görsel ${index + 1}`}
+                              className="w-full h-20 object-cover rounded-md"
+                            />
+                            {index === 0 && (
+                              <div className="absolute top-1 left-1 bg-blue-600 text-white text-xs px-1 py-0.5 rounded">
+                                Ana
+                              </div>
+                            )}
+                            <button
+                              onClick={() => {
+                                setNewProduct(prev => ({
+                                  ...prev,
+                                  images: prev.images.filter((_, i) => i !== index),
+                                  image: index === 0 ? (prev.images[1] || '') : prev.image
+                                }));
+                              }}
+                              className="absolute top-1 right-1 bg-red-600 text-white text-xs w-5 h-5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>

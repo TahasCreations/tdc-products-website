@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
+import { supabase } from '../../../../lib/supabase';
 
 export const runtime = 'nodejs';
 
@@ -8,51 +7,93 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    
+
     if (!file) {
-      return NextResponse.json({ error: 'Dosya bulunamadı' }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Dosya bulunamadı' 
+      }, { status: 400 });
     }
 
     // Dosya tipi kontrolü
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Sadece JPEG, PNG ve WebP dosyaları kabul edilir' }, { status: 400 });
+    if (!file.type.startsWith('image/')) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Sadece görsel dosyaları yüklenebilir' 
+      }, { status: 400 });
     }
 
-    // Dosya boyutu kontrolü (5MB - Vercel için optimize)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      return NextResponse.json({ error: 'Dosya boyutu 5MB\'dan küçük olmalıdır' }, { status: 400 });
+    // Dosya boyutu kontrolü (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Dosya boyutu 5MB\'dan büyük olamaz' 
+      }, { status: 400 });
     }
 
-    // Local storage (Vercel'de geçici)
-    try {
-      const timestamp = Date.now();
-      const fileName = `${timestamp}-${file.name}`;
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      
-      // Upload dizinini oluştur
-      await fs.mkdir(uploadDir, { recursive: true });
-      
-      const filePath = path.join(uploadDir, fileName);
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      
-      await fs.writeFile(filePath, buffer);
-      
-      const publicUrl = `/uploads/${fileName}`;
-      
-      return NextResponse.json({
-        url: publicUrl,
-        success: true
+    // Benzersiz dosya adı oluştur
+    const timestamp = Date.now();
+    const fileName = `${timestamp}-${file.name}`;
+    const filePath = `products/${fileName}`;
+
+    // Supabase Storage'a yükle
+    const { data, error } = await supabase.storage
+      .from('images')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
       });
-    } catch (error) {
+
+    if (error) {
       console.error('Upload error:', error);
-      return NextResponse.json({ error: 'Dosya yüklenemedi' }, { status: 500 });
+      return NextResponse.json({ 
+        success: false, 
+        error: error.message 
+      }, { status: 500 });
     }
+
+    // Public URL al
+    const { data: urlData } = supabase.storage
+      .from('images')
+      .getPublicUrl(filePath);
+
+    return NextResponse.json({ 
+      success: true, 
+      url: urlData.publicUrl,
+      path: filePath
+    });
 
   } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Dosya yüklenemedi' }, { status: 500 });
+    console.error('Upload API error:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Sunucu hatası' 
+    }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  try {
+    // Storage bucket listesi
+    const { data, error } = await supabase.storage.listBuckets();
+
+    if (error) {
+      return NextResponse.json({ 
+        success: false, 
+        error: error.message 
+      }, { status: 400 });
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      buckets: data 
+    });
+
+  } catch (error) {
+    console.error('Storage API error:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Sunucu hatası' 
+    }, { status: 500 });
   }
 }
