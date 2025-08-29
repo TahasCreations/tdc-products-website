@@ -75,6 +75,29 @@ export default async function HomePage() {
             </div>
           </div>
           
+          {/* Search Bar */}
+          <div className="max-w-2xl mx-auto mb-8 animate-text-slide-up delay-600">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Ürün ara..."
+                className="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-full focus:border-blue-500 focus:outline-none shadow-lg"
+                id="searchInput"
+              />
+              <button
+                onClick={() => {
+                  const searchTerm = (document.getElementById('searchInput') as HTMLInputElement)?.value;
+                  if (searchTerm) {
+                    window.location.href = `/products?search=${encodeURIComponent(searchTerm)}`;
+                  }
+                }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
+              >
+                <i className="ri-search-line text-xl"></i>
+              </button>
+            </div>
+          </div>
+
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-text-slide-up delay-700">
             <Link
