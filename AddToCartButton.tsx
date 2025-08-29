@@ -78,50 +78,51 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
   return (
     <div className="w-full">
       {showQuantity && !isInCart && !isAdded ? (
-        <div className="space-y-2">
-          <div className="flex items-center justify-center space-x-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-2">
+        <div className="space-y-3">
+          {/* Quantity Selector */}
+          <div className="flex items-center justify-center space-x-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl p-3 border border-gray-200 dark:border-gray-600">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="w-10 h-10 rounded-lg bg-white dark:bg-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
             >
-              <i className="ri-subtract-line text-gray-600 dark:text-gray-300"></i>
+              <i className="ri-subtract-line text-gray-600 dark:text-gray-300 text-lg"></i>
             </button>
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100 min-w-[2rem] text-center">
+            <span className="text-lg font-bold text-gray-900 dark:text-white min-w-[3rem] text-center">
               {quantity}
             </span>
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+              className="w-10 h-10 rounded-lg bg-white dark:bg-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
             >
-              <i className="ri-add-line text-gray-600 dark:text-gray-300"></i>
+              <i className="ri-add-line text-gray-600 dark:text-gray-300 text-lg"></i>
             </button>
           </div>
+          
+          {/* Action Buttons */}
           <div className="flex space-x-2">
             <button
               onClick={handleAddToCart}
               disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-orange-500 dark:bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-600 dark:hover:bg-orange-700 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-semibold rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isLoading ? (
-                <div className="flex items-center justify-center">
+                <>
                   <i className="ri-loader-4-line animate-spin mr-2"></i>
                   Ekleniyor...
-                </div>
+                </>
               ) : (
-                <div className="flex items-center justify-center">
+                <>
                   <i className="ri-shopping-cart-line mr-2"></i>
-                  Ekle ({quantity})
-                </div>
+                  Sepete Ekle ({quantity})
+                </>
               )}
             </button>
+            
             <button
-              onClick={() => {
-                setShowQuantity(false);
-                setQuantity(1);
-              }}
-              className="px-4 py-2 bg-gray-500 dark:bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-600 dark:hover:bg-gray-700 transition-all duration-300"
+              onClick={() => { setShowQuantity(false); setQuantity(1); }}
+              className="px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-300 shadow-sm hover:shadow-md transform hover:scale-105"
             >
-              <i className="ri-close-line"></i>
+              <i className="ri-close-line text-lg"></i>
             </button>
           </div>
         </div>
@@ -129,36 +130,34 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
         <button
           onClick={handleAddToCart}
           disabled={isLoading || isAdded || isInCart}
-          className={`w-full px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+          className={`w-full inline-flex items-center justify-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
             isInCart
-              ? 'bg-green-500 dark:bg-green-600 text-white cursor-not-allowed'
+              ? 'bg-green-500 text-white cursor-not-allowed opacity-75'
               : isAdded
-              ? 'bg-green-500 dark:bg-green-600 text-white cursor-not-allowed'
-              : isLoading
-              ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed'
-              : 'bg-orange-500 dark:bg-orange-600 text-white hover:bg-orange-600 dark:hover:bg-orange-700 hover:scale-105'
-          }`}
+              ? 'bg-green-500 text-white cursor-not-allowed'
+              : 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600'
+          } disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
         >
           {isLoading ? (
-            <div className="flex items-center justify-center">
+            <>
               <i className="ri-loader-4-line animate-spin mr-2"></i>
               Ekleniyor...
-            </div>
+            </>
           ) : isInCart ? (
-            <div className="flex items-center justify-center">
+            <>
               <i className="ri-check-line mr-2"></i>
-              Sepette ({cartItem?.quantity})
-            </div>
+              Sepette
+            </>
           ) : isAdded ? (
-            <div className="flex items-center justify-center">
+            <>
               <i className="ri-check-line mr-2"></i>
-              Sepete Eklendi!
-            </div>
+              Eklendi!
+            </>
           ) : (
-            <div className="flex items-center justify-center">
+            <>
               <i className="ri-shopping-cart-line mr-2"></i>
               Sepete Ekle
-            </div>
+            </>
           )}
         </button>
       )}
