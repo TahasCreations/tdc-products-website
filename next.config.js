@@ -10,30 +10,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
     domains: ['readdy.ai', 'blob.vercel-storage.com'],
-    formats: ['image/webp', 'image/avif'],
-  },
-  
-  // Experimental features
-  experimental: {
-    // optimizeCss: true, // Vercel'de sorun çıkarıyor
-  },
-  
-  // Bundle analyzer (optional)
-  webpack: (config, { dev, isServer }) => {
-    // Optimize bundle size
-    if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-        },
-      };
-    }
-    return config;
   },
   
   // Headers for better security and performance
@@ -54,31 +30,7 @@ const nextConfig = {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin',
           },
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
-          },
         ],
-      },
-      {
-        source: '/api/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store, max-age=0',
-          },
-        ],
-      },
-    ]
-  },
-  
-  // Redirects for better SEO
-  async redirects() {
-    return [
-      {
-        source: '/home',
-        destination: '/',
-        permanent: true,
       },
     ]
   },
