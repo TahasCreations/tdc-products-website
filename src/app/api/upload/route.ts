@@ -31,37 +31,57 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Benzersiz dosya adı oluştur
-    const timestamp = Date.now();
-    const fileName = `${timestamp}-${file.name}`;
-    const filePath = `products/${fileName}`;
+            // Benzersiz dosya adı oluştur
+        const timestamp = Date.now();
+        const fileName = `${timestamp}-${file.name}`;
+        const filePath = `products/${fileName}`;
 
-    // Supabase Storage'a yükle
-    const { data, error } = await supabase.storage
-      .from('images')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
+        // Önce bucket'ın var olup olmadığını kontrol et
+        const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+        
+        if (bucketError) {
+          console.error('Bucket list error:', bucketError);
+          return NextResponse.json({ 
+            success: false, 
+            error: 'Storage bucket hatası: ' + bucketError.message 
+          }, { status: 500 });
+        }
 
-    if (error) {
-      console.error('Upload error:', error);
-      return NextResponse.json({ 
-        success: false, 
-        error: error.message 
-      }, { status: 500 });
-    }
+        // 'images' bucket'ının var olup olmadığını kontrol et
+        const imagesBucket = buckets?.find(bucket => bucket.name === 'images');
+        if (!imagesBucket) {
+          return NextResponse.json({ 
+            success: false, 
+            error: 'Storage bucket bulunamadı. Lütfen Supabase Dashboard\'da "images" bucket\'ını oluşturun.' 
+          }, { status: 500 });
+        }
 
-    // Public URL al
-    const { data: urlData } = supabase.storage
-      .from('images')
-      .getPublicUrl(filePath);
+        // Supabase Storage'a yükle
+        const { data, error } = await supabase.storage
+          .from('images')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
-    return NextResponse.json({ 
-      success: true, 
-      url: urlData.publicUrl,
-      path: filePath
-    });
+        if (error) {
+          console.error('Upload error:', error);
+          return NextResponse.json({ 
+            success: false, 
+            error: error.message 
+          }, { status: 500 });
+        }
+
+        // Public URL al
+        const { data: urlData } = supabase.storage
+          .from('images')
+          .getPublicUrl(filePath);
+
+        return NextResponse.json({ 
+          success: true, 
+          url: urlData.publicUrl,
+          path: filePath
+        });
 
   } catch (error) {
     console.error('Upload API error:', error);
