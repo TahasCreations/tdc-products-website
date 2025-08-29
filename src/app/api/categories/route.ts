@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 
-// Vercel'de dosya sistemi read-only olduğu için environment variables kullanıyoruz
+// Vercel'de dosya sistemi read-only olduğu için client-side storage kullanıyoruz
 const getDefaultCategories = () => [
   { 
     id: '1', 
@@ -62,14 +62,52 @@ export async function GET() {
   }
 }
 
-// Yeni kategori ekle (Vercel'de environment variable olarak sakla)
+// Yeni kategori ekle (Client-side storage için özel endpoint)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, color, icon } = body;
+    const { name, color, icon, action } = body;
 
-    console.log('Category POST request:', { name, color, icon });
+    console.log('Category POST request:', { name, color, icon, action });
 
+    // Client-side storage işlemleri için özel action
+    if (action === 'get') {
+      // Mevcut kategorileri döndür (client-side'dan alınacak)
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Client-side storage kullanılıyor',
+        categories: getDefaultCategories()
+      });
+    }
+
+    if (action === 'add') {
+      if (!name || !name.trim()) {
+        return NextResponse.json({ error: 'Kategori adı gerekli' }, { status: 400 });
+      }
+
+      const categoryName = name.trim();
+
+      const newCategory = {
+        id: Date.now().toString(),
+        name: categoryName,
+        color: color || '#6b7280',
+        icon: icon || 'ri-more-line',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('Adding new category:', newCategory);
+
+      // Client-side storage için başarı mesajı
+      return NextResponse.json({
+        success: true,
+        message: 'Kategori client-side storage\'a eklendi',
+        category: newCategory,
+        storageType: 'localStorage'
+      });
+    }
+
+    // Eski yöntem (environment variable)
     if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Kategori adı gerekli' }, { status: 400 });
     }

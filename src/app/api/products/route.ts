@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 
-// Vercel'de dosya sistemi read-only olduğu için environment variables kullanıyoruz
+// Vercel'de dosya sistemi read-only olduğu için client-side storage kullanıyoruz
 const getDefaultProducts = () => [
   {
     id: "1",
@@ -12,10 +12,7 @@ const getDefaultProducts = () => [
     category: "Anime",
     stock: 15,
     image: "/uploads/naruto-figur.jpg",
-    images: [
-      "/uploads/naruto-figur.jpg",
-      "/uploads/naruto-figur-2.jpg"
-    ],
+    images: ["/uploads/naruto-figur.jpg", "/uploads/naruto-figur-2.jpg"],
     description: "Naruto anime serisinin baş karakteri olan Naruto Uzumaki'nin detaylı 3D baskı figürü. Yüksek kaliteli malzemelerle üretilmiştir.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -29,10 +26,7 @@ const getDefaultProducts = () => [
     category: "Anime",
     stock: 8,
     image: "/uploads/goku-figur.jpg",
-    images: [
-      "/uploads/goku-figur.jpg",
-      "/uploads/goku-figur-2.jpg"
-    ],
+    images: ["/uploads/goku-figur.jpg", "/uploads/goku-figur-2.jpg"],
     description: "Dragon Ball serisinin efsanevi karakteri Goku'nun Super Saiyan formundaki detaylı figürü. Koleksiyoncular için özel üretim.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -46,9 +40,7 @@ const getDefaultProducts = () => [
     category: "Gaming",
     stock: 25,
     image: "/uploads/mario-figur.jpg",
-    images: [
-      "/uploads/mario-figur.jpg"
-    ],
+    images: ["/uploads/mario-figur.jpg"],
     description: "Nintendo'nun efsanevi karakteri Mario'nun 3D baskı figürü. Oyun dünyasının en sevilen karakterlerinden biri.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -62,11 +54,7 @@ const getDefaultProducts = () => [
     category: "Film",
     stock: 5,
     image: "/uploads/ironman-figur.jpg",
-    images: [
-      "/uploads/ironman-figur.jpg",
-      "/uploads/ironman-figur-2.jpg",
-      "/uploads/ironman-figur-3.jpg"
-    ],
+    images: ["/uploads/ironman-figur.jpg", "/uploads/ironman-figur-2.jpg", "/uploads/ironman-figur-3.jpg"],
     description: "Marvel Cinematic Universe'den Iron Man'in Mark 85 zırhının detaylı figürü. LED aydınlatmalı özel versiyon.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -98,14 +86,70 @@ export async function GET() {
   }
 }
 
-// Yeni ürün ekle
+// Yeni ürün ekle (Client-side storage için özel endpoint)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, price, category, stock, image, images, description, slug } = body;
+    const { title, price, category, stock, image, images, description, slug, action } = body;
 
-    console.log('Product POST request:', { title, price, category, stock });
+    console.log('Product POST request:', { title, price, category, stock, action });
 
+    // Client-side storage işlemleri için özel action
+    if (action === 'get') {
+      // Mevcut ürünleri döndür (client-side'dan alınacak)
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Client-side storage kullanılıyor',
+        products: getDefaultProducts()
+      });
+    }
+
+    if (action === 'add') {
+      if (!title || !title.trim()) {
+        return NextResponse.json({ error: 'Ürün adı gerekli' }, { status: 400 });
+      }
+
+      if (!price || isNaN(parseFloat(price))) {
+        return NextResponse.json({ error: 'Geçerli fiyat gerekli' }, { status: 400 });
+      }
+
+      if (!category || !category.trim()) {
+        return NextResponse.json({ error: 'Kategori gerekli' }, { status: 400 });
+      }
+
+      if (!stock || isNaN(parseInt(stock))) {
+        return NextResponse.json({ error: 'Geçerli stok miktarı gerekli' }, { status: 400 });
+      }
+
+      const productSlug = slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+      const newProduct = {
+        id: Date.now().toString(),
+        slug: productSlug,
+        title: title.trim(),
+        price: parseFloat(price),
+        category: category.trim(),
+        stock: parseInt(stock),
+        image: image || (images && images.length > 0 ? images[0] : ''),
+        images: images || [],
+        description: description ? description.trim() : '',
+        status: 'active',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('Adding new product:', newProduct);
+
+      // Client-side storage için başarı mesajı
+      return NextResponse.json({
+        success: true,
+        message: 'Ürün client-side storage\'a eklendi',
+        product: newProduct,
+        storageType: 'localStorage'
+      });
+    }
+
+    // Eski yöntem (environment variable)
     if (!title || !title.trim()) {
       return NextResponse.json({ error: 'Ürün adı gerekli' }, { status: 400 });
     }
