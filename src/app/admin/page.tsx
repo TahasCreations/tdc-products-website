@@ -440,23 +440,8 @@ export default function AdminPage() {
         const filePath = `products/${fileName}`;
 
         try {
-          // Bucket kontrolü - eğer yoksa hata ver
-          const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
-          
-          if (bucketError) {
-            console.error('Bucket list error:', bucketError);
-            setMessage('Storage bucket hatası: ' + bucketError.message);
-            setMessageType('error');
-            continue;
-          }
-
-          // 'images' bucket'ının var olup olmadığını kontrol et
-          const imagesBucket = buckets?.find(bucket => bucket.name === 'images');
-          if (!imagesBucket) {
-            setMessage('Storage bucket bulunamadı. Lütfen Supabase Dashboard\'da "images" bucket\'ını oluşturun veya SQL Editor\'da RLS politikalarını çalıştırın.');
-            setMessageType('error');
-            continue;
-          }
+          // Bucket kontrolünü atla, doğrudan yükleme yap
+          console.log('Bucket kontrolü atlandı, doğrudan yükleme yapılıyor...');
 
           // Supabase Storage'a yükle
           const { data, error } = await supabase.storage

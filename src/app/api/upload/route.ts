@@ -36,25 +36,8 @@ export async function POST(request: NextRequest) {
         const fileName = `${timestamp}-${file.name}`;
         const filePath = `products/${fileName}`;
 
-        // Önce bucket'ın var olup olmadığını kontrol et
-        const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
-        
-        if (bucketError) {
-          console.error('Bucket list error:', bucketError);
-          return NextResponse.json({ 
-            success: false, 
-            error: 'Storage bucket hatası: ' + bucketError.message 
-          }, { status: 500 });
-        }
-
-        // 'images' bucket'ının var olup olmadığını kontrol et
-        const imagesBucket = buckets?.find(bucket => bucket.name === 'images');
-        if (!imagesBucket) {
-          return NextResponse.json({ 
-            success: false, 
-            error: 'Storage bucket bulunamadı. Lütfen Supabase Dashboard\'da "images" bucket\'ını oluşturun.' 
-          }, { status: 500 });
-        }
+        // Bucket kontrolünü atla, doğrudan yükleme yap
+        console.log('Bucket kontrolü atlandı, doğrudan yükleme yapılıyor...');
 
         // Supabase Storage'a yükle
         const { data, error } = await supabase.storage
