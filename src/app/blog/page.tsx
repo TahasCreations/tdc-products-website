@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import BlogCard from './BlogCard';
-import { supabase } from '../../../lib/supabase';
 
 interface BlogPost {
   id: string;
@@ -69,26 +68,10 @@ export default function BlogPage() {
 
   const categories = ['all', 'Anime', 'Gaming', 'Film', 'Diğer'];
 
-  // Admin kontrolü
+  // Basit admin kontrolü
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-      } catch (error) {
-        console.error('Kullanıcı kontrolü hatası:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
+    setLoading(false);
+    // JSON dosya sistemi kullanıyoruz, auth gerekmez
   }, []);
 
   const filteredBlogs = blogs.filter(blog => {

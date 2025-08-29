@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase, isSupabaseConfigured } from '../../../lib/supabase';
-import Auth from './auth';
 import { useRouter } from 'next/navigation';
 
 // Dynamic export - admin sayfası static generation yapılmasın
@@ -83,52 +81,12 @@ export default function AdminPage() {
   });
   const [editingCategory, setEditingCategory] = useState<any>(null);
 
-  // Supabase bağlantısını kontrol et
-  const checkSupabaseConfig = () => {
-    return isSupabaseConfigured();
-  };
-
-  // Auth state kontrolü
+  // Auth state kontrolü - Basit admin paneli
   useEffect(() => {
-    const getUser = async () => {
-      try {
-        const res = await fetch('/api/test-supabase', { cache: 'no-store' });
-        if (res.ok) {
-          const json = await res.json();
-          setSupabaseReady(!!json.configured);
-        } else {
-          setSupabaseReady(false);
-        }
-      } catch (error) {
-        setSupabaseReady(false);
-      }
-
-      if (isSupabaseConfigured()) {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-        setLoading(false);
-        
-        if (user) {
-          await loadCategories();
-          await loadProducts();
-        }
-      } else {
-        setLoading(false);
-      }
-    };
-
-    getUser();
-
-    if (isSupabaseConfigured()) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          loadCategories().then(() => loadProducts());
-        }
-      });
-
-      return () => subscription.unsubscribe();
-    }
+    setLoading(false);
+    setSupabaseReady(true); // JSON dosya sistemi kullanıyoruz
+    loadCategories();
+    loadProducts();
   }, []);
 
   // Ürünleri yükle
@@ -442,9 +400,6 @@ export default function AdminPage() {
 
   // Çıkış yap
   const handleSignOut = async () => {
-    if (isSupabaseConfigured()) {
-      await supabase.auth.signOut();
-    }
     setUser(null);
   };
 
@@ -594,48 +549,16 @@ export default function AdminPage() {
     );
   }
 
-  // Supabase yapılandırılmamışsa hata göster
-  if (supabaseReady === false || (!isSupabaseConfigured() && supabaseReady !== null)) {
+  // Basit admin paneli - JSON dosya sistemi
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full mx-4">
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-red-100">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="ri-error-warning-line text-2xl text-red-600"></i>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Yapılandırma Hatası</h1>
-              <p className="text-gray-600">Supabase bağlantısı yapılandırılmamış</p>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-800">
-                  <strong>Hata:</strong> Supabase environment variables ayarlanmamış.
-                </p>
-              </div>
-              
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800 font-semibold mb-2">Çözüm:</p>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• Vercel Dashboard&apos;da Environment Variables ayarla</li>
-                  <li>• Supabase projesini yapılandır</li>
-                  <li>• Admin kullanıcısı oluştur</li>
-                </ul>
-                <div className="mt-3 text-xs text-blue-700">
-                  <a href="/api/public-supabase" className="underline">/api/public-supabase</a> ile prod ortamda URL/ANON key var mı kontrol edin.
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Yükleniyor...</p>
         </div>
       </div>
     );
-  }
-
-  // Kullanıcı yoksa login göster
-  if (!user) {
-    return <Auth onLogin={() => {}} />;
   }
 
   return (
@@ -645,7 +568,7 @@ export default function AdminPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Yönetim Paneli</h1>
             <p className="text-gray-600">TDC Products yönetim sistemi</p>
-            <p className="text-sm text-gray-500 mt-1">Hoş geldin, {user.email}</p>
+            <p className="text-sm text-gray-500 mt-1">JSON dosya sistemi ile çalışıyor</p>
           </div>
           <button
             onClick={handleSignOut}
