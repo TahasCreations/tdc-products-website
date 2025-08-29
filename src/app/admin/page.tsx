@@ -453,9 +453,29 @@ export default function AdminPage() {
           // 'images' bucket'ının var olup olmadığını kontrol et
           const imagesBucket = buckets?.find(bucket => bucket.name === 'images');
           if (!imagesBucket) {
-            setMessage('Storage bucket bulunamadı. Lütfen Supabase Dashboard\'da "images" bucket\'ını oluşturun.');
-            setMessageType('error');
-            continue;
+            try {
+              // Bucket yoksa oluştur
+              const { error: createError } = await supabase.storage.createBucket('images', {
+                public: true,
+                fileSizeLimit: 5242880, // 5MB
+                allowedMimeTypes: ['image/*']
+              });
+
+              if (createError) {
+                console.error('Create bucket error:', createError);
+                setMessage('Storage bucket oluşturulamadı: ' + createError.message);
+                setMessageType('error');
+                continue;
+              } else {
+                setMessage('Storage bucket başarıyla oluşturuldu!');
+                setMessageType('success');
+              }
+            } catch (createError) {
+              console.error('Create bucket error:', createError);
+              setMessage('Storage bucket oluşturulamadı. Lütfen Supabase Dashboard\'da manuel olarak oluşturun.');
+              setMessageType('error');
+              continue;
+            }
           }
 
           // Supabase Storage'a yükle
