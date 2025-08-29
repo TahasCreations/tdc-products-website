@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import ProductCard from '../blog/BlogCard';
+import ProductCard from '../../../ProductCard';
 import SearchAndFilter from '../../components/SearchAndFilter';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import { headers } from 'next/headers';
@@ -225,59 +225,7 @@ export default async function ProductsPage({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                   {filteredProducts.map((product: any) => (
-                    <div key={product.id} className="group">
-                      <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden glow-effect border border-gray-200 dark:border-gray-700">
-                        {/* Shimmer Effect */}
-                        <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        
-                        {/* Product Image */}
-                        <div className="relative overflow-hidden">
-                          <img
-                            src={product.image}
-                            alt={product.title}
-                            className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                          {/* Gradient Overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
-
-                        {/* Product Info */}
-                        <div className="p-6">
-                          <div className="flex items-center justify-between mb-3">
-                            <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                              {product.category}
-                            </span>
-                            <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                              ₺{product.price}
-                            </span>
-                          </div>
-
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
-                            {product.title}
-                          </h3>
-
-                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
-                            {product.description}
-                          </p>
-
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                              Stok: {product.stock}
-                            </span>
-                            <Link
-                              href={`/products/${product.slug}`}
-                              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-medium rounded-full hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-                            >
-                              Detaylar
-                              <i className="ri-arrow-right-line ml-1"></i>
-                            </Link>
-                          </div>
-                        </div>
-
-                        {/* Glow Border */}
-                        <div className="absolute inset-0 rounded-2xl border-2 border-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
-                      </div>
-                    </div>
+                    <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
               </>
