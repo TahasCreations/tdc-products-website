@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '../../../lib/supabase';
 
 interface Category {
   id: string;
@@ -45,38 +46,6 @@ export default function AdminPage() {
   const [newProduct, setNewProduct] = useState({
     title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: ''
   });
-
-  // LocalStorage key'leri
-  const CATEGORIES_STORAGE_KEY = 'tdc_categories';
-  const PRODUCTS_STORAGE_KEY = 'tdc_products';
-
-  // LocalStorage'dan veri yükle
-  const loadFromLocalStorage = (key: string, defaultValue: any[]) => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : defaultValue;
-      } catch (error) {
-        console.error(`Error loading from localStorage (${key}):`, error);
-        return defaultValue;
-      }
-    }
-    return defaultValue;
-  };
-
-  // LocalStorage'a veri kaydet
-  const saveToLocalStorage = (key: string, data: any[]) => {
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(key, JSON.stringify(data));
-        return true;
-      } catch (error) {
-        console.error(`Error saving to localStorage (${key}):`, error);
-        return false;
-      }
-    }
-    return false;
-  };
 
   // Default kategoriler
   const getDefaultCategories = (): Category[] => [
@@ -148,15 +117,33 @@ export default function AdminPage() {
 
   // Verileri yükle
   useEffect(() => {
-    const loadData = () => {
+    const loadData = async () => {
       try {
-        // LocalStorage'dan kategorileri yükle
-        const storedCategories = loadFromLocalStorage(CATEGORIES_STORAGE_KEY, getDefaultCategories());
-        setCategories(storedCategories);
+        // Supabase'den kategorileri yükle
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('categories')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-        // LocalStorage'dan ürünleri yükle
-        const storedProducts = loadFromLocalStorage(PRODUCTS_STORAGE_KEY, getDefaultProducts());
-        setProducts(storedProducts);
+        if (categoriesError) {
+          console.error('Categories loading error:', categoriesError);
+          setCategories(getDefaultCategories());
+        } else {
+          setCategories(categoriesData || getDefaultCategories());
+        }
+
+        // Supabase'den ürünleri yükle
+        const { data: productsData, error: productsError } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (productsError) {
+          console.error('Products loading error:', productsError);
+          setProducts(getDefaultProducts());
+        } else {
+          setProducts(productsData || getDefaultProducts());
+        }
 
         setLoading(false);
       } catch (error) {
@@ -212,39 +199,22 @@ export default function AdminPage() {
         icon: newCategory.icon
       };
 
-      const response = await fetch('/api/categories', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...categoryData, action: 'add' }),
-      });
+      const { data, error } = await supabase
+        .from('categories')
+        .insert([categoryData])
+        .select();
 
-      if (response.ok) {
-        const result = await response.json();
-        
-        if (result.success) {
-          const newCategoryItem = result.category;
-          
-          // LocalStorage'a kaydet
-          const updatedCategories = [...categories, newCategoryItem];
-          saveToLocalStorage(CATEGORIES_STORAGE_KEY, updatedCategories);
-          
-          // State'i güncelle
-          setCategories(updatedCategories);
-          setNewCategory({ name: '', color: '#6b7280', icon: 'ri-more-line' });
-          
-          setMessage('Kategori başarıyla eklendi!');
-          setMessageType('success');
-          setTimeout(() => setMessage(''), 3000);
-        } else {
-          setMessage(result.error || 'Kategori eklenemedi');
-          setMessageType('error');
-        }
-      } else {
-        const error = await response.json();
-        setMessage(error.error || 'Kategori eklenemedi');
+      if (error) {
+        console.error('Supabase error:', error);
+        setMessage('Kategori eklenemedi: ' + error.message);
         setMessageType('error');
+      } else {
+        const newCategoryItem = data[0];
+        setCategories([newCategoryItem, ...categories]);
+        setNewCategory({ name: '', color: '#6b7280', icon: 'ri-more-line' });
+        setMessage('Kategori başarıyla eklendi!');
+        setMessageType('success');
+        setTimeout(() => setMessage(''), 3000);
       }
     } catch (error) {
       setMessage('Bağlantı hatası');
@@ -292,42 +262,25 @@ export default function AdminPage() {
         image: newProduct.image,
         images: newProduct.images,
         description: newProduct.description.trim(),
-        slug: newProduct.slug.trim()
+        slug: newProduct.slug.trim() || newProduct.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
       };
 
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...productData, action: 'add' }),
-      });
+      const { data, error } = await supabase
+        .from('products')
+        .insert([productData])
+        .select();
 
-      if (response.ok) {
-        const result = await response.json();
-        
-        if (result.success) {
-          const newProductItem = result.product;
-          
-          // LocalStorage'a kaydet
-          const updatedProducts = [newProductItem, ...products];
-          saveToLocalStorage(PRODUCTS_STORAGE_KEY, updatedProducts);
-          
-          // State'i güncelle
-          setProducts(updatedProducts);
-          setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '' });
-          
-          setMessage('Ürün başarıyla eklendi!');
-          setMessageType('success');
-          setTimeout(() => setMessage(''), 3000);
-        } else {
-          setMessage(result.error || 'Ürün eklenemedi');
-          setMessageType('error');
-        }
-      } else {
-        const error = await response.json();
-        setMessage(error.error || 'Ürün eklenemedi');
+      if (error) {
+        console.error('Supabase error:', error);
+        setMessage('Ürün eklenemedi: ' + error.message);
         setMessageType('error');
+      } else {
+        const newProductItem = data[0];
+        setProducts([newProductItem, ...products]);
+        setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '' });
+        setMessage('Ürün başarıyla eklendi!');
+        setMessageType('success');
+        setTimeout(() => setMessage(''), 3000);
       }
     } catch (error) {
       setMessage('Bağlantı hatası');
@@ -338,23 +291,53 @@ export default function AdminPage() {
   };
 
   // Kategori sil
-  const handleDeleteCategory = (id: string) => {
-    const updatedCategories = categories.filter(cat => cat.id !== id);
-    saveToLocalStorage(CATEGORIES_STORAGE_KEY, updatedCategories);
-    setCategories(updatedCategories);
-    setMessage('Kategori silindi');
-    setMessageType('success');
-    setTimeout(() => setMessage(''), 3000);
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Supabase error:', error);
+        setMessage('Kategori silinemedi: ' + error.message);
+        setMessageType('error');
+      } else {
+        const updatedCategories = categories.filter(cat => cat.id !== id);
+        setCategories(updatedCategories);
+        setMessage('Kategori silindi');
+        setMessageType('success');
+        setTimeout(() => setMessage(''), 3000);
+      }
+    } catch (error) {
+      setMessage('Silme hatası');
+      setMessageType('error');
+    }
   };
 
   // Ürün sil
-  const handleDeleteProduct = (id: string) => {
-    const updatedProducts = products.filter(prod => prod.id !== id);
-    saveToLocalStorage(PRODUCTS_STORAGE_KEY, updatedProducts);
-    setProducts(updatedProducts);
-    setMessage('Ürün silindi');
-    setMessageType('success');
-    setTimeout(() => setMessage(''), 3000);
+  const handleDeleteProduct = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Supabase error:', error);
+        setMessage('Ürün silinemedi: ' + error.message);
+        setMessageType('error');
+      } else {
+        const updatedProducts = products.filter(prod => prod.id !== id);
+        setProducts(updatedProducts);
+        setMessage('Ürün silindi');
+        setMessageType('success');
+        setTimeout(() => setMessage(''), 3000);
+      }
+    } catch (error) {
+      setMessage('Silme hatası');
+      setMessageType('error');
+    }
   };
 
   // Giriş ekranı

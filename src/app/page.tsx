@@ -5,6 +5,7 @@ import AddToCartButton from '../../AddToCartButton';
 import AnimatedText from '../../animated-text';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
 
 interface Product {
   id: string;
@@ -21,7 +22,6 @@ interface Product {
   updated_at: string;
 }
 
-// Default ürünler
 const getDefaultProducts = (): Product[] => [
   {
     id: "1",
@@ -85,37 +85,20 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // LocalStorage'dan veri yükle
-  const loadFromLocalStorage = (key: string, defaultValue: any[]) => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem(key);
-        return stored ? JSON.parse(stored) : defaultValue;
-      } catch (error) {
-        console.error(`Error loading from localStorage (${key}):`, error);
-        return defaultValue;
-      }
-    }
-    return defaultValue;
-  };
-
   useEffect(() => {
     async function fetchProducts() {
       try {
-        // Önce localStorage'dan kontrol et
-        const storedProducts = loadFromLocalStorage('tdc_products', getDefaultProducts());
-        
-        if (storedProducts.length > 0) {
-          setProducts(storedProducts);
+        // Supabase'den ürünleri al
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Supabase error:', error);
+          setProducts(getDefaultProducts());
         } else {
-          // LocalStorage boşsa API'den al
-          const response = await fetch('/api/products');
-          if (response.ok) {
-            const data = await response.json();
-            setProducts(Array.isArray(data) ? data : getDefaultProducts());
-          } else {
-            setProducts(getDefaultProducts());
-          }
+          setProducts(data && data.length > 0 ? data : getDefaultProducts());
         }
       } catch (error) {
         console.error('Ürünler yüklenirken hata:', error);
@@ -124,7 +107,6 @@ export default function HomePage() {
         setLoading(false);
       }
     }
-
     fetchProducts();
   }, []);
 
@@ -145,25 +127,21 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      {/* Animated Background Shapes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-400/10 to-orange-400/10 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
-      {/* Hero Section */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-12">
-            {/* TDC Products Logo */}
             <div className="mb-8">
               <h1 className="text-6xl md:text-8xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 animate-logo-appear">
                 TDC Products
               </h1>
             </div>
 
-            {/* Tagline */}
             <div className="space-y-4">
               <p className="text-2xl md:text-3xl font-fredoka text-gray-700 animate-text-slide-up delay-300">
                 Premium Figürler & Koleksiyon Ürünleri
@@ -175,7 +153,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Search Bar */}
           <div className="max-w-2xl mx-auto mb-8 animate-text-slide-up delay-600">
             <div className="relative">
               <input
@@ -194,7 +171,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-text-slide-up delay-700">
             <Link
               href="/products"
@@ -214,7 +190,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why TDC Products? */}
       <section className="relative py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -260,7 +235,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Products */}
       <section className="relative py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
@@ -298,7 +272,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="relative py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
