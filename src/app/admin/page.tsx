@@ -29,6 +29,10 @@ interface Product {
 
 export default function AdminPage() {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -166,6 +170,30 @@ export default function AdminPage() {
     loadData();
   }, []);
 
+  // Giriş yap
+  const handleLogin = () => {
+    if (username === 'admin' && password === 'admin123') {
+      setIsAuthenticated(true);
+      setMessage('Başarıyla giriş yapıldı!');
+      setMessageType('success');
+      setTimeout(() => setMessage(''), 3000);
+    } else {
+      setMessage('Kullanıcı adı veya şifre hatalı!');
+      setMessageType('error');
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
+
+  // Çıkış yap
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUsername('');
+    setPassword('');
+    setMessage('Çıkış yapıldı!');
+    setMessageType('success');
+    setTimeout(() => setMessage(''), 3000);
+  };
+
   // Kategori ekle
   const handleAddCategory = async () => {
     if (!newCategory.name.trim()) {
@@ -206,7 +234,7 @@ export default function AdminPage() {
           setCategories(updatedCategories);
           setNewCategory({ name: '', color: '#6b7280', icon: 'ri-more-line' });
           
-          setMessage('Kategori başarıyla eklendi! (localStorage\'da saklanıyor)');
+          setMessage('Kategori başarıyla eklendi!');
           setMessageType('success');
           setTimeout(() => setMessage(''), 3000);
         } else {
@@ -289,7 +317,7 @@ export default function AdminPage() {
           setProducts(updatedProducts);
           setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '' });
           
-          setMessage('Ürün başarıyla eklendi! (localStorage\'da saklanıyor)');
+          setMessage('Ürün başarıyla eklendi!');
           setMessageType('success');
           setTimeout(() => setMessage(''), 3000);
         } else {
@@ -329,34 +357,91 @@ export default function AdminPage() {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  // Verileri sıfırla
-  const handleResetData = () => {
-    if (confirm('Tüm verileri sıfırlamak istediğinizden emin misiniz?')) {
-      // LocalStorage'ı temizle
-      localStorage.removeItem(CATEGORIES_STORAGE_KEY);
-      localStorage.removeItem(PRODUCTS_STORAGE_KEY);
-      
-      // Default verileri yükle
-      setCategories(getDefaultCategories());
-      setProducts(getDefaultProducts());
-      
-      setMessage('Veriler sıfırlandı');
-      setMessageType('success');
-      setTimeout(() => setMessage(''), 3000);
-    }
-  };
-
-  if (loading) {
+  // Giriş ekranı
+  if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Yükleniyor...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i className="ri-admin-line text-2xl text-white"></i>
+              </div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Girişi</h1>
+              <p className="text-gray-600">TDC Products yönetim paneline hoş geldiniz</p>
+            </div>
+
+            {message && (
+              <div className={`p-4 rounded-lg mb-6 ${
+                messageType === 'success' 
+                  ? 'bg-green-100 text-green-800 border border-green-200' 
+                  : 'bg-red-100 text-red-800 border border-red-200'
+              }`}>
+                {message}
+              </div>
+            )}
+
+            <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kullanıcı Adı
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Kullanıcı adınızı girin"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Şifre
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Şifrenizi girin"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1"
+              >
+                Giriş Yap
+              </button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => router.push('/')}
+                className="text-gray-500 hover:text-gray-700 text-sm transition-colors"
+              >
+                <i className="ri-arrow-left-line mr-1"></i>
+                Ana Sayfaya Dön
+              </button>
+            </div>
+
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Demo Giriş Bilgileri:</strong><br />
+                Kullanıcı Adı: <code>admin</code><br />
+                Şifre: <code>admin123</code>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
+  // Ana admin paneli
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -364,16 +449,24 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Yönetim Paneli</h1>
-              <p className="text-gray-600">TDC Products yönetim sistemi</p>
-              <p className="text-sm text-gray-500 mt-1">LocalStorage ile veri saklama sistemi</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">TDC Admin Panel</h1>
+              <p className="text-gray-600">Yönetim ve kontrol merkezi</p>
             </div>
-            <button
-              onClick={() => router.push('/')}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Ana Sayfaya Dön
-            </button>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-500">Hoş geldin, Admin</span>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Çıkış Yap
+              </button>
+              <button
+                onClick={() => router.push('/')}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Siteyi Görüntüle
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -391,83 +484,107 @@ export default function AdminPage() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Kategori Ekleme */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Kategori Ekle</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Kategori Adı
-                </label>
-                <input
-                  type="text"
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Kategori adını girin"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Renk
-                </label>
-                <input
-                  type="color"
-                  value={newCategory.color}
-                  onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })}
-                  className="w-full h-10 border border-gray-300 rounded-md"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  İkon
-                </label>
-                <select
-                  value={newCategory.icon}
-                  onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="ri-more-line">Genel</option>
-                  <option value="ri-gamepad-line">Oyun</option>
-                  <option value="ri-movie-line">Film</option>
-                  <option value="ri-controller-line">Kontrol</option>
-                  <option value="ri-heart-line">Favori</option>
-                  <option value="ri-star-line">Yıldız</option>
-                </select>
-              </div>
+      {/* Navigation Tabs */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex space-x-8">
+            {[
+              { id: 'dashboard', name: 'Dashboard', icon: 'ri-dashboard-line' },
+              { id: 'products', name: 'Ürünler', icon: 'ri-shopping-bag-line' },
+              { id: 'categories', name: 'Kategoriler', icon: 'ri-folder-line' },
+              { id: 'coupons', name: 'Kuponlar', icon: 'ri-coupon-line' },
+              { id: 'orders', name: 'Siparişler', icon: 'ri-shopping-cart-line' },
+              { id: 'bist', name: 'BİST Kontrol', icon: 'ri-line-chart-line' },
+              { id: 'finance', name: 'Finans', icon: 'ri-money-dollar-circle-line' }
+            ].map((tab) => (
               <button
-                onClick={handleAddCategory}
-                disabled={apiLoading}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
               >
-                {apiLoading ? 'Ekleniyor...' : 'Kategori Ekle'}
+                <i className={tab.icon}></i>
+                <span>{tab.name}</span>
               </button>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeTab === 'dashboard' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                  <i className="ri-shopping-bag-line text-2xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Toplam Ürün</p>
+                  <p className="text-2xl font-semibold text-gray-900">{products.length}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-green-100 text-green-600">
+                  <i className="ri-folder-line text-2xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Kategoriler</p>
+                  <p className="text-2xl font-semibold text-gray-900">{categories.length}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                  <i className="ri-shopping-cart-line text-2xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Toplam Sipariş</p>
+                  <p className="text-2xl font-semibold text-gray-900">0</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center">
+                <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+                  <i className="ri-money-dollar-circle-line text-2xl"></i>
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Toplam Gelir</p>
+                  <p className="text-2xl font-semibold text-gray-900">₺0</p>
+                </div>
+              </div>
             </div>
           </div>
+        )}
 
-          {/* Ürün Ekleme */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Ürün Ekle</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ürün Adı
-                </label>
-                <input
-                  type="text"
-                  value={newProduct.title}
-                  onChange={(e) => setNewProduct({ ...newProduct, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Ürün adını girin"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+        {activeTab === 'products' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Ürün Ekle</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fiyat
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ürün Adı</label>
+                  <input
+                    type="text"
+                    value={newProduct.title}
+                    onChange={(e) => setNewProduct({ ...newProduct, title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ürün adını girin"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Fiyat</label>
                   <input
                     type="number"
                     step="0.01"
@@ -478,9 +595,22 @@ export default function AdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stok
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                  <select
+                    value={newProduct.category}
+                    onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Kategori seçin</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Stok</label>
                   <input
                     type="number"
                     value={newProduct.stock}
@@ -489,123 +619,211 @@ export default function AdminPage() {
                     placeholder="0"
                   />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Kategori
-                </label>
-                <select
-                  value={newProduct.category}
-                  onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Kategori seçin</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.name}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Görsel URL
-                </label>
-                <input
-                  type="text"
-                  value={newProduct.image}
-                  onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Açıklama
-                </label>
-                <textarea
-                  value={newProduct.description}
-                  onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Ürün açıklaması"
-                />
-              </div>
-              <button
-                onClick={handleAddProduct}
-                disabled={apiLoading}
-                className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {apiLoading ? 'Ekleniyor...' : 'Ürün Ekle'}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Veri Yönetimi */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm border p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Veri Yönetimi</h2>
-            <button
-              onClick={handleResetData}
-              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-            >
-              Verileri Sıfırla
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Kategoriler */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Kategoriler ({categories.length})</h3>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {categories.map((category) => (
-                  <div key={category.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                    <div className="flex items-center space-x-3">
-                      <div 
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: category.color }}
-                      ></div>
-                      <span className="text-sm font-medium">{category.name}</span>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteCategory(category.id)}
-                      className="text-red-600 hover:text-red-800 text-sm"
-                    >
-                      Sil
-                    </button>
-                  </div>
-                ))}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Görsel URL</label>
+                  <input
+                    type="text"
+                    value={newProduct.image}
+                    onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
+                  <textarea
+                    value={newProduct.description}
+                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Ürün açıklaması"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <button
+                    onClick={handleAddProduct}
+                    disabled={apiLoading}
+                    className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {apiLoading ? 'Ekleniyor...' : 'Ürün Ekle'}
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Ürünler */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Ürünler ({products.length})</h3>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {products.map((product) => (
-                  <div key={product.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-200 rounded-md flex items-center justify-center">
-                        <i className="ri-image-line text-gray-500"></i>
-                      </div>
-                      <div>
-                        <span className="text-sm font-medium">{product.title}</span>
-                        <p className="text-xs text-gray-500">{product.category} • ₺{product.price}</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteProduct(product.id)}
-                      className="text-red-600 hover:text-red-800 text-sm"
-                    >
-                      Sil
-                    </button>
-                  </div>
-                ))}
+            <div className="bg-white rounded-lg shadow">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">Mevcut Ürünler ({products.length})</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ürün</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fiyat</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {products.map((product) => (
+                      <tr key={product.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 flex-shrink-0">
+                              <img className="h-10 w-10 rounded-full object-cover" src={product.image} alt={product.title} />
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">{product.title}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.category}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₺{product.price}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.stock}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Sil
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {activeTab === 'categories' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Kategori Ekle</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Kategori Adı</label>
+                  <input
+                    type="text"
+                    value={newCategory.name}
+                    onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Kategori adını girin"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Renk</label>
+                  <input
+                    type="color"
+                    value={newCategory.color}
+                    onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })}
+                    className="w-full h-10 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">İkon</label>
+                  <select
+                    value={newCategory.icon}
+                    onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="ri-more-line">Genel</option>
+                    <option value="ri-gamepad-line">Oyun</option>
+                    <option value="ri-movie-line">Film</option>
+                    <option value="ri-controller-line">Kontrol</option>
+                    <option value="ri-heart-line">Favori</option>
+                    <option value="ri-star-line">Yıldız</option>
+                  </select>
+                </div>
+                <div className="md:col-span-3">
+                  <button
+                    onClick={handleAddCategory}
+                    disabled={apiLoading}
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {apiLoading ? 'Ekleniyor...' : 'Kategori Ekle'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">Mevcut Kategoriler ({categories.length})</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Renk</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İkon</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {categories.map((category) => (
+                      <tr key={category.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{category.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div 
+                              className="w-4 h-4 rounded-full mr-2"
+                              style={{ backgroundColor: category.color }}
+                            ></div>
+                            <span className="text-sm text-gray-900">{category.color}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <i className={category.icon}></i>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleDeleteCategory(category.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Sil
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'coupons' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Kupon Yönetimi</h2>
+            <p className="text-gray-600">Bu özellik yakında eklenecek...</p>
+          </div>
+        )}
+
+        {activeTab === 'orders' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Sipariş Yönetimi</h2>
+            <p className="text-gray-600">Bu özellik yakında eklenecek...</p>
+          </div>
+        )}
+
+        {activeTab === 'bist' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">BİST Kontrol</h2>
+            <p className="text-gray-600">Bu özellik yakında eklenecek...</p>
+          </div>
+        )}
+
+        {activeTab === 'finance' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Finans Yönetimi</h2>
+            <p className="text-gray-600">Bu özellik yakında eklenecek...</p>
+          </div>
+        )}
       </div>
     </div>
   );
