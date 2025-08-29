@@ -25,6 +25,7 @@ interface Product {
   images: string[];
   description: string;
   status: string;
+  variations?: string[]; // Varyasyonlar (S, M, L, XL, vb.)
   created_at: string;
   updated_at: string;
 }
@@ -48,7 +49,7 @@ export default function AdminPage() {
   // Form states
   const [newCategory, setNewCategory] = useState({ name: '', color: '#6b7280', icon: 'ri-more-line' });
   const [newProduct, setNewProduct] = useState({
-    title: '', price: '', category: '', stock: '', image: '', images: [] as string[], description: '', slug: ''
+    title: '', price: '', category: '', stock: '', image: '', images: [] as string[], description: '', slug: '', variations: [] as string[]
   });
 
   // Default kategoriler
@@ -345,7 +346,7 @@ export default function AdminPage() {
       } else {
         const newProductItem = data[0];
         setProducts([newProductItem, ...products]);
-        setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '' });
+        setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '', variations: [] });
         setMessage('Ürün başarıyla eklendi!');
         setMessageType('success');
         setTimeout(() => setMessage(''), 3000);
@@ -909,6 +910,72 @@ export default function AdminPage() {
                       </div>
                     </div>
                   )}
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Varyasyonlar (Opsiyonel)</label>
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap gap-2">
+                      {['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'].map((size) => (
+                        <button
+                          key={size}
+                          type="button"
+                          onClick={() => {
+                            const currentVariations = newProduct.variations || [];
+                            if (currentVariations.includes(size)) {
+                              setNewProduct({
+                                ...newProduct,
+                                variations: currentVariations.filter(v => v !== size)
+                              });
+                            } else {
+                              setNewProduct({
+                                ...newProduct,
+                                variations: [...currentVariations, size]
+                              });
+                            }
+                          }}
+                          className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+                            (newProduct.variations || []).includes(size)
+                              ? 'bg-blue-500 text-white shadow-md'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {['Kırmızı', 'Mavi', 'Yeşil', 'Sarı', 'Siyah', 'Beyaz', 'Gri', 'Pembe'].map((color) => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => {
+                            const currentVariations = newProduct.variations || [];
+                            if (currentVariations.includes(color)) {
+                              setNewProduct({
+                                ...newProduct,
+                                variations: currentVariations.filter(v => v !== color)
+                              });
+                            } else {
+                              setNewProduct({
+                                ...newProduct,
+                                variations: [...currentVariations, color]
+                              });
+                            }
+                          }}
+                          className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+                            (newProduct.variations || []).includes(color)
+                              ? 'bg-blue-500 text-white shadow-md'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {color}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Seçilen varyasyonlar: {newProduct.variations?.join(', ') || 'Yok'}
+                    </div>
+                  </div>
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>

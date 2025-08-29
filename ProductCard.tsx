@@ -16,6 +16,7 @@ interface Product {
   image: string;
   description: string;
   stock: number;
+  variations?: string[];
 }
 
 interface ProductCardProps {
@@ -24,10 +25,13 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [open, setOpen] = useState(false);
-  const [selectedSize, setSelectedSize] = useState<string>('M');
+  const [selectedVariation, setSelectedVariation] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const { addItem } = useCart();
   const { addToast } = useToast();
+
+  // Varyasyon yoksa varsayılan olarak boş string
+  const hasVariations = product.variations && product.variations.length > 0;
 
   return (
     <div className="group relative">
@@ -227,52 +231,52 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </div>
 
                 {/* Size and Quantity Selection */}
-                <div className="mb-8">
-                  <div className="grid grid-cols-2 gap-6">
-                    {/* Size Selection */}
+                <div className="mb-8 space-y-6">
+                  {/* Variation Selection */}
+                  {hasVariations && (
                     <div>
                       <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                        Beden Seçimi
+                        Varyasyon Seçimi
                       </label>
-                      <div className="flex gap-2">
-                        {['S','M','L','XL'].map(size => (
+                      <div className="flex flex-wrap gap-2">
+                        {product.variations!.map(variation => (
                           <button
-                            key={size}
-                            onClick={() => setSelectedSize(size)}
+                            key={variation}
+                            onClick={() => setSelectedVariation(variation)}
                             className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all duration-300 ${
-                              selectedSize === size 
+                              selectedVariation === variation 
                                 ? 'border-emerald-500 bg-emerald-500 text-white shadow-lg' 
                                 : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-emerald-300 dark:hover:border-emerald-600'
                             }`}
                           >
-                            {size}
+                            {variation}
                           </button>
                         ))}
                       </div>
                     </div>
+                  )}
 
-                    {/* Quantity Selection */}
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">
-                        Adet
-                      </label>
-                      <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-                        <button 
-                          onClick={() => setQuantity(Math.max(1, quantity - 1))} 
-                          className="w-10 h-10 rounded-md bg-white dark:bg-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                        >
-                          <i className="ri-subtract-line text-gray-600 dark:text-gray-300"></i>
-                        </button>
-                        <span className="flex-1 text-center text-lg font-semibold text-gray-900 dark:text-white px-4">
-                          {quantity}
-                        </span>
-                        <button 
-                          onClick={() => setQuantity(quantity + 1)} 
-                          className="w-10 h-10 rounded-md bg-white dark:bg-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-                        >
-                          <i className="ri-add-line text-gray-600 dark:text-gray-300"></i>
-                        </button>
-                      </div>
+                  {/* Quantity Selection */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                      Adet
+                    </label>
+                    <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 max-w-xs">
+                      <button 
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))} 
+                        className="w-10 h-10 rounded-md bg-white dark:bg-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                      >
+                        <i className="ri-subtract-line text-gray-600 dark:text-gray-300"></i>
+                      </button>
+                      <span className="flex-1 text-center text-lg font-semibold text-gray-900 dark:text-white px-4">
+                        {quantity}
+                      </span>
+                      <button 
+                        onClick={() => setQuantity(quantity + 1)} 
+                        className="w-10 h-10 rounded-md bg-white dark:bg-gray-700 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                      >
+                        <i className="ri-add-line text-gray-600 dark:text-gray-300"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -293,7 +297,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                       addToast({
                         type: 'success',
                         title: 'Ürün sepete eklendi!',
-                        message: `${product.title} (${quantity} adet, ${selectedSize} beden) başarıyla sepete eklendi.`,
+                        message: `${product.title} (${quantity} adet${selectedVariation ? `, ${selectedVariation}` : ''}) başarıyla sepete eklendi.`,
                         duration: 3000
                       });
                       

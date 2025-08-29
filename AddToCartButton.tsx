@@ -10,6 +10,8 @@ interface Product {
   price: number;
   image: string;
   slug?: string;
+  category?: string;
+  stock?: number;
 }
 
 interface AddToCartButtonProps {
