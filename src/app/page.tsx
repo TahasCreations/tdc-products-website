@@ -2,6 +2,7 @@ import ProductCard from '../../ProductCard';
 import AddToCartButton from '../../AddToCartButton';
 import AnimatedText from '../../animated-text';
 import { headers } from 'next/headers';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,19 +77,19 @@ export default async function HomePage() {
           
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-text-slide-up delay-700">
-            <a
+            <Link
               href="/products"
               className="group relative px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-fredoka font-semibold text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
             >
               <span className="relative z-10">Ürünleri Keşfet</span>
               <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </a>
-            <a
+            </Link>
+            <Link
               href="/blog"
               className="px-10 py-5 border-3 border-gray-400 text-gray-700 font-fredoka font-semibold text-lg rounded-full hover:border-gray-500 hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
             >
               Blog
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -154,13 +155,13 @@ export default async function HomePage() {
           </div>
           
           <div className="text-center mt-16 animate-text-slide-up delay-1000">
-            <a
+            <Link
               href="/products"
               className="inline-flex items-center px-12 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-fredoka font-semibold text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
             >
               Tüm Ürünleri Gör
               <i className="ri-arrow-right-line ml-3 text-xl"></i>
-            </a>
+            </Link>
           </div>
         </div>
       </section>

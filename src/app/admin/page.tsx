@@ -607,7 +607,7 @@ export default function AdminPage() {
               <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-800 font-semibold mb-2">Çözüm:</p>
                 <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• Vercel Dashboard'da Environment Variables ayarla</li>
+                  <li>• Vercel Dashboard&apos;da Environment Variables ayarla</li>
                   <li>• Supabase projesini yapılandır</li>
                   <li>• Admin kullanıcısı oluştur</li>
                 </ul>

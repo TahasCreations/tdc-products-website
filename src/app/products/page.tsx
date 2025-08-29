@@ -3,6 +3,7 @@ import ProductCard from '../blog/BlogCard';
 import SearchAndFilter from '../../components/SearchAndFilter';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import { headers } from 'next/headers';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -263,13 +264,13 @@ export default async function ProductsPage({
                             <span className="text-sm text-gray-500 dark:text-gray-400">
                               Stok: {product.stock}
                             </span>
-                            <a
+                            <Link
                               href={`/products/${product.slug}`}
                               className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-medium rounded-full hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
                             >
                               Detaylar
                               <i className="ri-arrow-right-line ml-1"></i>
-                            </a>
+                            </Link>
                           </div>
                         </div>
 
@@ -291,13 +292,13 @@ export default async function ProductsPage({
                 <p className="text-gray-600 dark:text-gray-400 mb-8">
                   Aradığınız kriterlere uygun ürün bulunamadı. Farklı bir arama yapmayı deneyin.
                 </p>
-                <a
+                <Link
                   href="/products"
                   className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-full hover:scale-105 transition-all duration-300"
                 >
                   Tüm Ürünleri Gör
                   <i className="ri-arrow-right-line ml-2"></i>
-                </a>
+                </Link>
               </div>
             )}
           </div>

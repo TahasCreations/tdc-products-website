@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 interface Category {
@@ -50,9 +50,9 @@ export default function SearchAndFilter({ categories, totalProducts, currentFilt
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchTerm, selectedCategory, priceRange, sortBy]);
+  }, [searchTerm, selectedCategory, priceRange, sortBy, updateFilters]);
 
-  const updateFilters = () => {
+  const updateFilters = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     
     if (searchTerm) {
@@ -86,7 +86,7 @@ export default function SearchAndFilter({ categories, totalProducts, currentFilt
     }
 
     router.push(`/products?${params.toString()}`);
-  };
+  }, [searchTerm, selectedCategory, priceRange, sortBy, searchParams, router]);
 
   const clearAllFilters = () => {
     setSearchTerm('');
