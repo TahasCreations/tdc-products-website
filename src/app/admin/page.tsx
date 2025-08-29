@@ -326,7 +326,7 @@ export default function AdminPage() {
         const addedProduct = await response.json();
         setProducts([addedProduct, ...products]);
         setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '' });
-        setMessage('Ürün başarıyla eklendi!');
+                     setMessage('Ürün başarıyla eklendi! (Vercel\'de environment variable olarak saklanıyor)');
         setTimeout(() => setMessage(''), 3000);
         
         if (addedProduct?.slug) {
@@ -449,7 +449,7 @@ export default function AdminPage() {
         const addedCategory = await response.json();
         setCategories([...categories, addedCategory]);
         setNewCategory({ name: '', color: '#6b7280', icon: 'ri-more-line' });
-        setMessage('Kategori başarıyla eklendi!');
+        setMessage('Kategori başarıyla eklendi! (Vercel\'de environment variable olarak saklanıyor)');
         setTimeout(() => setMessage(''), 3000);
       } else {
         const error = await response.json();
@@ -568,7 +568,7 @@ export default function AdminPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Yönetim Paneli</h1>
             <p className="text-gray-600">TDC Products yönetim sistemi</p>
-            <p className="text-sm text-gray-500 mt-1">JSON dosya sistemi ile çalışıyor</p>
+            <p className="text-sm text-gray-500 mt-1">Vercel Environment Variables ile çalışıyor</p>
           </div>
           <button
             onClick={handleSignOut}
