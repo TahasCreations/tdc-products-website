@@ -39,19 +39,36 @@ export async function POST(request: NextRequest) {
         // Bucket kontrolünü atla, doğrudan yükleme yap
         console.log('Bucket kontrolü atlandı, doğrudan yükleme yapılıyor...');
 
-        // Supabase Storage'a yükle
-        const { data, error } = await supabase.storage
-          .from('images')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
+        // Supabase Storage'a yükle - RLS bypass
+        try {
+          const { data, error } = await supabase.storage
+            .from('images')
+            .upload(filePath, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
 
-        if (error) {
-          console.error('Upload error:', error);
+          if (error) {
+            console.error('Upload error:', error);
+            
+            // RLS hatası ise detaylı hata mesajı
+            if (error.message.includes('row-level security')) {
+              return NextResponse.json({ 
+                success: false, 
+                error: 'RLS politikası hatası. Lütfen Supabase Dashboard\'da storage politikalarını kontrol edin.' 
+              }, { status: 500 });
+            }
+            
+            return NextResponse.json({ 
+              success: false, 
+              error: error.message 
+            }, { status: 500 });
+          }
+        } catch (uploadError) {
+          console.error('Upload process error:', uploadError);
           return NextResponse.json({ 
             success: false, 
-            error: error.message 
+            error: `Görsel yükleme hatası: ${uploadError}` 
           }, { status: 500 });
         }
 

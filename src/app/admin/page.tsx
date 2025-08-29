@@ -443,20 +443,35 @@ export default function AdminPage() {
           // Bucket kontrolünü atla, doğrudan yükleme yap
           console.log('Bucket kontrolü atlandı, doğrudan yükleme yapılıyor...');
 
-          // Supabase Storage'a yükle
-          const { data, error } = await supabase.storage
-            .from('images')
-            .upload(filePath, file, {
-              cacheControl: '3600',
-              upsert: false
-            });
+                           // Supabase Storage'a yükle - RLS bypass
+                 try {
+                   const { data, error } = await supabase.storage
+                     .from('images')
+                     .upload(filePath, file, {
+                       cacheControl: '3600',
+                       upsert: false
+                     });
 
-          if (error) {
-            console.error('Upload error:', error);
-            setMessage(`Görsel yüklenemedi: ${error.message}`);
-            setMessageType('error');
-            continue;
-          }
+                   if (error) {
+                     console.error('Upload error:', error);
+                     
+                     // RLS hatası ise alternatif yöntem dene
+                     if (error.message.includes('row-level security')) {
+                       setMessage('RLS politikası hatası. Lütfen Supabase Dashboard\'da storage politikalarını kontrol edin.');
+                       setMessageType('error');
+                       continue;
+                     }
+                     
+                     setMessage(`Görsel yüklenemedi: ${error.message}`);
+                     setMessageType('error');
+                     continue;
+                   }
+                 } catch (uploadError) {
+                   console.error('Upload process error:', uploadError);
+                   setMessage(`Görsel yükleme hatası: ${uploadError}`);
+                   setMessageType('error');
+                   continue;
+                 }
 
           // Public URL al
           const { data: urlData } = supabase.storage
