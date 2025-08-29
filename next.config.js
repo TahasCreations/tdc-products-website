@@ -7,20 +7,10 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@supabase/supabase-js'],
   },
-  typescript: {
-    ignoreBuildErrors: true, // Temporarily ignore TypeScript errors for deployment
-  },
-  eslint: {
-    ignoreDuringBuilds: true, // Temporarily ignore ESLint errors for deployment
-  },
   // Vercel optimization
   swcMinify: true,
   compress: true,
   poweredByHeader: false,
-  // Runtime configuration
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
   // Headers for better security
   async headers() {
     return [

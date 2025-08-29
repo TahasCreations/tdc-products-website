@@ -35,23 +35,6 @@ export default function SearchAndFilter({ categories, totalProducts, currentFilt
   const [sortBy, setSortBy] = useState(currentFilters.sortBy || 'newest');
   const searchTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Debounced search
-  useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      updateFilters();
-    }, 500);
-
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, [searchTerm, selectedCategory, priceRange, sortBy, updateFilters]);
-
   const updateFilters = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     
@@ -87,6 +70,23 @@ export default function SearchAndFilter({ categories, totalProducts, currentFilt
 
     router.push(`/products?${params.toString()}`);
   }, [searchTerm, selectedCategory, priceRange, sortBy, searchParams, router]);
+
+  // Debounced search
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      updateFilters();
+    }, 500);
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [searchTerm, selectedCategory, priceRange, sortBy, updateFilters]);
 
   const clearAllFilters = () => {
     setSearchTerm('');
