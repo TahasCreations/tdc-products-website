@@ -7,8 +7,6 @@ export const runtime = 'nodejs';
 
 const productsFilePath = path.join(process.cwd(), 'src/data/products.json');
 
-// Supabase bağlantısını kontrol yardımcıları lib üzerinden yönetiliyor
-
 // JSON fallback fonksiyonu
 const handleJSONFallback = async (newProduct: any) => {
   try {
@@ -31,6 +29,7 @@ const handleJSONFallback = async (newProduct: any) => {
       category: newProduct.category || 'Diğer',
       stock: parseInt(newProduct.stock) || 0,
       image: newProduct.image || '',
+      images: newProduct.images || [], // Ensure images array is included
       description: newProduct.description || '',
       status: 'active',
       created_at: new Date().toISOString(),
@@ -128,6 +127,20 @@ export async function POST(request: NextRequest) {
     console.log('Adding new product:', newProduct.title);
     console.log('Product data:', JSON.stringify(newProduct, null, 2));
     
+    // Validasyon
+    if (!newProduct.title || !newProduct.title.trim()) {
+      return NextResponse.json({ error: 'Ürün adı gerekli' }, { status: 400 });
+    }
+    if (!newProduct.price || parseFloat(newProduct.price) <= 0) {
+      return NextResponse.json({ error: 'Geçerli bir fiyat girin' }, { status: 400 });
+    }
+    if (!newProduct.category || !newProduct.category.trim()) {
+      return NextResponse.json({ error: 'Kategori gerekli' }, { status: 400 });
+    }
+    if (!newProduct.stock || parseInt(newProduct.stock) < 0) {
+      return NextResponse.json({ error: 'Geçerli bir stok miktarı girin' }, { status: 400 });
+    }
+    
     const clients = getServerSupabaseClients();
     if (clients.configured && clients.supabaseAdmin) {
       console.log('Using Supabase for product creation');
@@ -137,11 +150,11 @@ export async function POST(request: NextRequest) {
       let { data, error } = await supabaseAdmin
         .from('products')
         .insert([{
-          title: newProduct.title || '',
+          title: newProduct.title.trim(),
           slug: newProduct.slug || `urun-${Date.now()}`,
-          price: parseFloat(newProduct.price) || 0,
-          category: newProduct.category || 'Diğer',
-          stock: parseInt(newProduct.stock) || 0,
+          price: parseFloat(newProduct.price),
+          category: newProduct.category.trim(),
+          stock: parseInt(newProduct.stock),
           image: newProduct.image || '',
           images: newProduct.images || null,
           description: newProduct.description || '',
@@ -159,11 +172,11 @@ export async function POST(request: NextRequest) {
           const retry = await supabaseAdmin
             .from('products')
             .insert([{
-              title: newProduct.title || '',
+              title: newProduct.title.trim(),
               slug: newProduct.slug || `urun-${Date.now()}`,
-              price: parseFloat(newProduct.price) || 0,
-              category: newProduct.category || 'Diğer',
-              stock: parseInt(newProduct.stock) || 0,
+              price: parseFloat(newProduct.price),
+              category: newProduct.category.trim(),
+              stock: parseInt(newProduct.stock),
               image: newProduct.image || '',
               description: newProduct.description || '',
               status: 'active'
@@ -198,58 +211,63 @@ export async function POST(request: NextRequest) {
 // PUT: Ürün güncelle
 export async function PUT(request: NextRequest) {
   try {
-    const { id, ...updateData } = await request.json();
+    const updatedProduct = await request.json();
+    
+    if (!updatedProduct.id) {
+      return NextResponse.json({ error: 'Ürün ID gerekli' }, { status: 400 });
+    }
     
     const clients = getServerSupabaseClients();
     if (clients.configured && clients.supabaseAdmin) {
       const supabaseAdmin = clients.supabaseAdmin;
       
-      let { data, error } = await supabaseAdmin
+      const { data, error } = await supabaseAdmin
         .from('products')
-        .update(updateData)
-        .eq('id', id)
+        .update({
+          title: updatedProduct.title,
+          price: parseFloat(updatedProduct.price),
+          category: updatedProduct.category,
+          stock: parseInt(updatedProduct.stock),
+          image: updatedProduct.image,
+          images: updatedProduct.images || null,
+          description: updatedProduct.description,
+          slug: updatedProduct.slug,
+          status: updatedProduct.status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', updatedProduct.id)
         .select()
         .single();
 
       if (error) {
-        const msg = (error as any)?.message || '';
-        if ((updateData as any)?.images && (msg.toLowerCase().includes('images') || msg.toLowerCase().includes('column'))) {
-          const { images, ...rest } = (updateData as any);
-          const retry = await supabaseAdmin
-            .from('products')
-            .update(rest)
-            .eq('id', id)
-            .select()
-            .single();
-          if (retry.error) {
-            console.error('Supabase retry update error:', retry.error);
-            return NextResponse.json({ error: 'Ürün güncellenemedi' }, { status: 500 });
-          }
-          data = retry.data as any;
-        } else {
-          console.error('Supabase error:', error);
-          return NextResponse.json({ error: 'Ürün güncellenemedi' }, { status: 500 });
-        }
-      }
-
-      if (!data) {
-        return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
+        console.error('Supabase update error:', error);
+        return NextResponse.json({ error: 'Ürün güncellenemedi' }, { status: 500 });
       }
 
       return NextResponse.json(data);
     } else {
-      const data = await fs.readFile(productsFilePath, 'utf-8');
-      const products = JSON.parse(data);
-      
-      const productIndex = products.findIndex((p: any) => p.id === id);
-      if (productIndex === -1) {
-        return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
+      // JSON fallback
+      try {
+        const data = await fs.readFile(productsFilePath, 'utf-8');
+        const products = JSON.parse(data);
+        
+        const productIndex = products.findIndex((p: any) => p.id === updatedProduct.id);
+        if (productIndex === -1) {
+          return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
+        }
+
+        products[productIndex] = {
+          ...products[productIndex],
+          ...updatedProduct,
+          updated_at: new Date().toISOString()
+        };
+
+        await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2));
+        return NextResponse.json(products[productIndex]);
+      } catch (error) {
+        console.error('JSON update error:', error);
+        return NextResponse.json({ error: 'Ürün güncellenemedi' }, { status: 500 });
       }
-      
-      products[productIndex] = { ...products[productIndex], ...updateData };
-      await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2));
-      
-      return NextResponse.json(products[productIndex]);
     }
   } catch (error) {
     console.error('API error:', error);
@@ -262,53 +280,44 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    const bulk = searchParams.get('bulk');
-    const token = request.headers.get('x-admin-token') || '';
     
-    if (!id && !bulk) {
+    if (!id) {
       return NextResponse.json({ error: 'Ürün ID gerekli' }, { status: 400 });
     }
-
+    
     const clients = getServerSupabaseClients();
     if (clients.configured && clients.supabaseAdmin) {
       const supabaseAdmin = clients.supabaseAdmin;
       
-      if (bulk === 'true') {
-        // Simple header-based token check to protect bulk delete
-        const expected = process.env.ADMIN_CLEANUP_TOKEN || '';
-        if (!expected || token !== expected) {
-          return NextResponse.json({ error: 'Yetkisiz istek' }, { status: 401 });
-        }
-        const { error } = await supabaseAdmin
-          .from('products')
-          .delete()
-          .neq('id', '');
-        if (error) {
-          console.error('Supabase error:', error);
-          return NextResponse.json({ error: 'Toplu silme başarısız' }, { status: 500 });
-        }
-        return NextResponse.json({ message: 'Tüm ürünler silindi' });
-      }
-
       const { error } = await supabaseAdmin
         .from('products')
         .delete()
         .eq('id', id);
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase delete error:', error);
         return NextResponse.json({ error: 'Ürün silinemedi' }, { status: 500 });
       }
 
-      return NextResponse.json({ message: 'Ürün silindi' });
+      return NextResponse.json({ success: true });
     } else {
-      const data = await fs.readFile(productsFilePath, 'utf-8');
-      const products = JSON.parse(data);
-      
-      const filteredProducts = products.filter((p: any) => p.id !== id);
-      await fs.writeFile(productsFilePath, JSON.stringify(filteredProducts, null, 2));
-      
-      return NextResponse.json({ message: 'Ürün silindi' });
+      // JSON fallback
+      try {
+        const data = await fs.readFile(productsFilePath, 'utf-8');
+        const products = JSON.parse(data);
+        
+        const filteredProducts = products.filter((p: any) => p.id !== id);
+        
+        if (filteredProducts.length === products.length) {
+          return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
+        }
+
+        await fs.writeFile(productsFilePath, JSON.stringify(filteredProducts, null, 2));
+        return NextResponse.json({ success: true });
+      } catch (error) {
+        console.error('JSON delete error:', error);
+        return NextResponse.json({ error: 'Ürün silinemedi' }, { status: 500 });
+      }
     }
   } catch (error) {
     console.error('API error:', error);

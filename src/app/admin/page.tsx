@@ -83,7 +83,7 @@ export default function AdminPage() {
   });
   const [editingCategory, setEditingCategory] = useState<any>(null);
 
-      // Supabase bağlantısını kontrol et
+  // Supabase bağlantısını kontrol et
   const checkSupabaseConfig = () => {
     return isSupabaseConfigured();
   };
@@ -91,8 +91,8 @@ export default function AdminPage() {
   // Auth state kontrolü
   useEffect(() => {
     const getUser = async () => {
-      // Runtime kontrol: backend test endpointi ile doğrula
       try {
+        // Runtime kontrol: backend test endpointi ile doğrula
         const res = await fetch('/api/test-supabase', { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
@@ -100,7 +100,8 @@ export default function AdminPage() {
         } else {
           setSupabaseReady(false);
         }
-      } catch {
+      } catch (error) {
+        console.error('Supabase test error:', error);
         setSupabaseReady(false);
       }
 
@@ -110,8 +111,9 @@ export default function AdminPage() {
         setLoading(false);
         
         if (user) {
-          loadProducts();
-          loadCategories();
+          // Kategorileri önce yükle, sonra ürünleri yükle
+          await loadCategories();
+          await loadProducts();
         }
       } else {
         // Supabase yapılandırılmamışsa hata göster
@@ -125,7 +127,7 @@ export default function AdminPage() {
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         setUser(session?.user ?? null);
         if (session?.user) {
-          loadProducts();
+          loadCategories().then(() => loadProducts());
         }
       });
 
@@ -164,15 +166,28 @@ export default function AdminPage() {
   // Kategorileri yükle
   const loadCategories = async () => {
     try {
+      setApiLoading(true);
       const response = await fetch('/api/categories');
       if (response.ok) {
         const data = await response.json();
-        setCategories(data);
+        if (Array.isArray(data)) {
+          setCategories(data);
+        } else {
+          console.error('Invalid categories data:', data);
+          setCategories([]);
+          setMessage('Kategori verisi geçersiz');
+        }
       } else {
+        console.error('Categories API error:', response.status);
+        setCategories([]);
         setMessage('Kategoriler yüklenemedi');
       }
     } catch (error) {
+      console.error('Load categories error:', error);
+      setCategories([]);
       setMessage('Kategoriler yüklenemedi');
+    } finally {
+      setApiLoading(false);
     }
   };
 
@@ -308,23 +323,47 @@ export default function AdminPage() {
 
   // Ürün ekle
   const handleAddProduct = async () => {
+    // Validasyon
+    if (!newProduct.title.trim()) {
+      setMessage('Ürün adı gerekli');
+      return;
+    }
+    if (!newProduct.price || parseFloat(newProduct.price) <= 0) {
+      setMessage('Geçerli bir fiyat girin');
+      return;
+    }
+    if (!newProduct.category.trim()) {
+      setMessage('Kategori seçin');
+      return;
+    }
+    if (!newProduct.stock || parseInt(newProduct.stock) < 0) {
+      setMessage('Geçerli bir stok miktarı girin');
+      return;
+    }
+
     try {
       setApiLoading(true);
+      setMessage('Ürün ekleniyor...');
+
+      const productData = {
+        title: newProduct.title.trim(),
+        price: parseFloat(newProduct.price),
+        category: newProduct.category.trim(),
+        stock: parseInt(newProduct.stock),
+        image: newProduct.image || (newProduct.images && newProduct.images.length > 0 ? newProduct.images[0] : ''),
+        images: newProduct.images || [],
+        description: newProduct.description.trim(),
+        slug: newProduct.slug.trim() || newProduct.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+      };
+
+      console.log('Sending product data:', productData);
+
       const response = await fetch('/api/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          title: newProduct.title,
-          price: parseFloat(newProduct.price),
-          category: newProduct.category,
-          stock: parseInt(newProduct.stock),
-          image: newProduct.image || (newProduct.images && newProduct.images.length > 0 ? newProduct.images[0] : ''),
-          images: newProduct.images || [],
-          description: newProduct.description,
-          slug: newProduct.slug || newProduct.title.toLowerCase().replace(/\s+/g, '-')
-        }),
+        body: JSON.stringify(productData),
       });
 
       if (response.ok) {
@@ -332,12 +371,15 @@ export default function AdminPage() {
         setProducts([addedProduct, ...products]);
         setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '' });
         setMessage('Ürün başarıyla eklendi!');
+        setTimeout(() => setMessage(''), 3000);
+        
         // Aynı sekmede ürün detay sayfasına yönlendir
         if (addedProduct?.slug) {
           router.push(`/products/${addedProduct.slug}`);
         }
       } else {
         const error = await response.json();
+        console.error('Product creation error:', error);
         setMessage(error.error || 'Ürün eklenemedi');
       }
     } catch (error) {
@@ -430,19 +472,27 @@ export default function AdminPage() {
 
   // Kategori ekle
   const handleAddCategory = async () => {
-    if (!newCategory.name) {
+    if (!newCategory.name.trim()) {
       setMessage('Kategori adı gerekli');
       return;
     }
 
     try {
       setApiLoading(true);
+      setMessage('Kategori ekleniyor...');
+
+      const categoryData = {
+        name: newCategory.name.trim(),
+        color: newCategory.color,
+        icon: newCategory.icon
+      };
+
       const response = await fetch('/api/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newCategory),
+        body: JSON.stringify(categoryData),
       });
 
       if (response.ok) {
@@ -453,9 +503,11 @@ export default function AdminPage() {
         setTimeout(() => setMessage(''), 3000);
       } else {
         const error = await response.json();
+        console.error('Category creation error:', error);
         setMessage(error.error || 'Kategori eklenemedi');
       }
     } catch (error) {
+      console.error('Category creation error:', error);
       setMessage('Bağlantı hatası');
     } finally {
       setApiLoading(false);
@@ -464,7 +516,7 @@ export default function AdminPage() {
 
   // Kategori güncelle
   const handleUpdateCategory = async () => {
-    if (!editingCategory || !editingCategory.name) {
+    if (!editingCategory || !editingCategory.name.trim()) {
       setMessage('Kategori adı gerekli');
       return;
     }

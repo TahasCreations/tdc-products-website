@@ -29,36 +29,58 @@ export async function GET() {
 
       if (error) {
         console.error('Supabase error:', error);
-        return NextResponse.json({ error: 'Kategoriler yüklenemedi' }, { status: 500 });
+        // Supabase hatası durumunda JSON fallback kullan
+        console.log('Falling back to JSON due to Supabase error');
+        return await getJSONCategories();
       }
 
       return NextResponse.json(data || []);
     } else {
       // JSON fallback
-      try {
-        // Dosya yoksa oluştur
-        try {
-          await fs.access(categoriesFilePath);
-        } catch {
-          await fs.mkdir(path.dirname(categoriesFilePath), { recursive: true });
-          await fs.writeFile(categoriesFilePath, JSON.stringify([], null, 2));
-        }
-        const data = await fs.readFile(categoriesFilePath, 'utf-8');
-        return NextResponse.json(JSON.parse(data));
-      } catch (error) {
-        // Varsayılan kategoriler
-        const defaultCategories = [
-          { id: '1', name: 'Anime', color: '#ec4899', icon: 'ri-gamepad-line' },
-          { id: '2', name: 'Gaming', color: '#3b82f6', icon: 'ri-controller-line' },
-          { id: '3', name: 'Film', color: '#8b5cf6', icon: 'ri-movie-line' },
-          { id: '4', name: 'Diğer', color: '#6b7280', icon: 'ri-more-line' }
-        ];
-        return NextResponse.json(defaultCategories);
-      }
+      return await getJSONCategories();
     }
   } catch (error) {
     console.error('Error:', error);
-    return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+    return await getJSONCategories();
+  }
+}
+
+// JSON kategorileri getir
+async function getJSONCategories() {
+  try {
+    // Dosya yoksa oluştur
+    try {
+      await fs.access(categoriesFilePath);
+    } catch {
+      await fs.mkdir(path.dirname(categoriesFilePath), { recursive: true });
+      await fs.writeFile(categoriesFilePath, JSON.stringify([], null, 2));
+    }
+    const data = await fs.readFile(categoriesFilePath, 'utf-8');
+    const categories = JSON.parse(data);
+    
+    // Eğer hiç kategori yoksa varsayılan kategorileri ekle
+    if (categories.length === 0) {
+      const defaultCategories = [
+        { id: '1', name: 'Anime', color: '#ec4899', icon: 'ri-gamepad-line' },
+        { id: '2', name: 'Gaming', color: '#3b82f6', icon: 'ri-controller-line' },
+        { id: '3', name: 'Film', color: '#8b5cf6', icon: 'ri-movie-line' },
+        { id: '4', name: 'Diğer', color: '#6b7280', icon: 'ri-more-line' }
+      ];
+      await fs.writeFile(categoriesFilePath, JSON.stringify(defaultCategories, null, 2));
+      return NextResponse.json(defaultCategories);
+    }
+    
+    return NextResponse.json(categories);
+  } catch (error) {
+    console.error('JSON categories error:', error);
+    // Varsayılan kategoriler
+    const defaultCategories = [
+      { id: '1', name: 'Anime', color: '#ec4899', icon: 'ri-gamepad-line' },
+      { id: '2', name: 'Gaming', color: '#3b82f6', icon: 'ri-controller-line' },
+      { id: '3', name: 'Film', color: '#8b5cf6', icon: 'ri-movie-line' },
+      { id: '4', name: 'Diğer', color: '#6b7280', icon: 'ri-more-line' }
+    ];
+    return NextResponse.json(defaultCategories);
   }
 }
 
@@ -69,9 +91,12 @@ export async function POST(request: NextRequest) {
     const { name, color, icon } = body;
     console.log('Adding new category:', name);
 
-    if (!name) {
+    // Validasyon
+    if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Kategori adı gerekli' }, { status: 400 });
     }
+
+    const categoryName = name.trim();
 
     if (isSupabaseConfigured()) {
       // Kategori adının benzersiz olduğunu kontrol et
@@ -82,7 +107,7 @@ export async function POST(request: NextRequest) {
       const { data: existingCategory } = await clients.supabase
         .from('categories')
         .select('id')
-        .eq('name', name)
+        .eq('name', categoryName)
         .single();
 
       if (existingCategory) {
@@ -93,7 +118,7 @@ export async function POST(request: NextRequest) {
       const { data, error } = await (supabaseAdmin as any)
         .from('categories')
         .insert([{
-          name,
+          name: categoryName,
           color: color || '#6b7280',
           icon: icon || 'ri-more-line'
         }])
@@ -120,13 +145,13 @@ export async function POST(request: NextRequest) {
         const categories = JSON.parse(data);
         
         // Kategori adının benzersiz olduğunu kontrol et
-        if (categories.find((cat: any) => cat.name === name)) {
+        if (categories.find((cat: any) => cat.name.toLowerCase() === categoryName.toLowerCase())) {
           return NextResponse.json({ error: 'Bu kategori adı zaten mevcut' }, { status: 400 });
         }
 
         const newCategory = {
           id: Date.now().toString(),
-          name,
+          name: categoryName,
           color: color || '#6b7280',
           icon: icon || 'ri-more-line'
         };
@@ -152,16 +177,22 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { id, name, color, icon } = body;
 
-    if (!id || !name) {
-      return NextResponse.json({ error: 'Kategori ID ve adı gerekli' }, { status: 400 });
+    // Validasyon
+    if (!id) {
+      return NextResponse.json({ error: 'Kategori ID gerekli' }, { status: 400 });
     }
+    if (!name || !name.trim()) {
+      return NextResponse.json({ error: 'Kategori adı gerekli' }, { status: 400 });
+    }
+
+    const categoryName = name.trim();
 
     if (isSupabaseConfigured()) {
       const { supabaseAdmin } = getServerSupabaseClients();
       const { data, error } = await (supabaseAdmin as any)
         .from('categories')
         .update({
-          name,
+          name: categoryName,
           color: color || '#6b7280',
           icon: icon || 'ri-more-line'
         })
@@ -186,9 +217,17 @@ export async function PUT(request: NextRequest) {
           return NextResponse.json({ error: 'Kategori bulunamadı' }, { status: 404 });
         }
 
+        // Aynı isimde başka kategori var mı kontrol et
+        const existingCategory = categories.find((cat: any) => 
+          cat.id !== id && cat.name.toLowerCase() === categoryName.toLowerCase()
+        );
+        if (existingCategory) {
+          return NextResponse.json({ error: 'Bu kategori adı zaten mevcut' }, { status: 400 });
+        }
+
         categories[categoryIndex] = {
           ...categories[categoryIndex],
-          name,
+          name: categoryName,
           color: color || '#6b7280',
           icon: icon || 'ri-more-line'
         };
@@ -202,7 +241,7 @@ export async function PUT(request: NextRequest) {
       }
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Category update error:', error);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
   }
 }
@@ -212,31 +251,12 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    const bulk = searchParams.get('bulk');
-    const token = request.headers.get('x-admin-token') || '';
 
-    if (!id && !bulk) {
+    if (!id) {
       return NextResponse.json({ error: 'Kategori ID gerekli' }, { status: 400 });
     }
 
     if (isSupabaseConfigured()) {
-      if (bulk === 'true') {
-        const expected = process.env.ADMIN_CLEANUP_TOKEN || '';
-        if (!expected || token !== expected) {
-          return NextResponse.json({ error: 'Yetkisiz istek' }, { status: 401 });
-        }
-        const { supabaseAdmin } = getServerSupabaseClients();
-        const { error } = await (supabaseAdmin as any)
-          .from('categories')
-          .delete()
-          .neq('id', '');
-        if (error) {
-          console.error('Supabase error:', error);
-          return NextResponse.json({ error: 'Toplu silme başarısız' }, { status: 500 });
-        }
-        return NextResponse.json({ success: true });
-      }
-
       const { supabaseAdmin } = getServerSupabaseClients();
       const { error } = await (supabaseAdmin as any)
         .from('categories')
@@ -262,7 +282,6 @@ export async function DELETE(request: NextRequest) {
         }
 
         await fs.writeFile(categoriesFilePath, JSON.stringify(filteredCategories, null, 2));
-
         return NextResponse.json({ success: true });
       } catch (error) {
         console.error('JSON error:', error);
@@ -270,7 +289,7 @@ export async function DELETE(request: NextRequest) {
       }
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Category delete error:', error);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
   }
 }
