@@ -1,23 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    domains: ['readdy.ai', 'blob.vercel-storage.com'],
-    unoptimized: true,
-  },
-  experimental: {
-    serverComponentsExternalPackages: ['@supabase/supabase-js'],
-  },
   // Vercel optimization
+  output: 'standalone',
   swcMinify: true,
   compress: true,
   poweredByHeader: false,
-  // Vercel specific settings
-  output: 'standalone',
-  // Disable image optimization for Vercel
+  
+  // Image optimization
   images: {
     unoptimized: true,
     domains: ['readdy.ai', 'blob.vercel-storage.com'],
   },
+  
+  // Experimental features
+  experimental: {
+    serverComponentsExternalPackages: ['@supabase/supabase-js'],
+  },
+  
   // Headers for better security
   async headers() {
     return [
