@@ -11,7 +11,7 @@ export async function GET() {
   try {
     return await getJSONCategories();
   } catch (error) {
-    console.error('Error:', error);
+    console.error('GET Error:', error);
     return await getJSONCategories();
   }
 }
@@ -19,21 +19,58 @@ export async function GET() {
 // JSON kategorileri getir
 async function getJSONCategories() {
   try {
+    // Dizin var mı kontrol et
+    const dirPath = path.dirname(categoriesFilePath);
+    try {
+      await fs.access(dirPath);
+    } catch {
+      await fs.mkdir(dirPath, { recursive: true });
+    }
+
+    // Dosya var mı kontrol et
     try {
       await fs.access(categoriesFilePath);
     } catch {
-      await fs.mkdir(path.dirname(categoriesFilePath), { recursive: true });
       await fs.writeFile(categoriesFilePath, JSON.stringify([], null, 2));
     }
+
     const data = await fs.readFile(categoriesFilePath, 'utf-8');
     const categories = JSON.parse(data);
     
     if (categories.length === 0) {
       const defaultCategories = [
-        { id: '1', name: 'Anime', color: '#ec4899', icon: 'ri-gamepad-line' },
-        { id: '2', name: 'Gaming', color: '#3b82f6', icon: 'ri-controller-line' },
-        { id: '3', name: 'Film', color: '#8b5cf6', icon: 'ri-movie-line' },
-        { id: '4', name: 'Diğer', color: '#6b7280', icon: 'ri-more-line' }
+        { 
+          id: '1', 
+          name: 'Anime', 
+          color: '#ec4899', 
+          icon: 'ri-gamepad-line',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        { 
+          id: '2', 
+          name: 'Gaming', 
+          color: '#3b82f6', 
+          icon: 'ri-controller-line',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        { 
+          id: '3', 
+          name: 'Film', 
+          color: '#8b5cf6', 
+          icon: 'ri-movie-line',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        { 
+          id: '4', 
+          name: 'Diğer', 
+          color: '#6b7280', 
+          icon: 'ri-more-line',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
       ];
       await fs.writeFile(categoriesFilePath, JSON.stringify(defaultCategories, null, 2));
       return NextResponse.json(defaultCategories);
@@ -43,10 +80,38 @@ async function getJSONCategories() {
   } catch (error) {
     console.error('JSON categories error:', error);
     const defaultCategories = [
-      { id: '1', name: 'Anime', color: '#ec4899', icon: 'ri-gamepad-line' },
-      { id: '2', name: 'Gaming', color: '#3b82f6', icon: 'ri-controller-line' },
-      { id: '3', name: 'Film', color: '#8b5cf6', icon: 'ri-movie-line' },
-      { id: '4', name: 'Diğer', color: '#6b7280', icon: 'ri-more-line' }
+      { 
+        id: '1', 
+        name: 'Anime', 
+        color: '#ec4899', 
+        icon: 'ri-gamepad-line',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      { 
+        id: '2', 
+        name: 'Gaming', 
+        color: '#3b82f6', 
+        icon: 'ri-controller-line',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      { 
+        id: '3', 
+        name: 'Film', 
+        color: '#8b5cf6', 
+        icon: 'ri-movie-line',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      { 
+        id: '4', 
+        name: 'Diğer', 
+        color: '#6b7280', 
+        icon: 'ri-more-line',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
     ];
     return NextResponse.json(defaultCategories);
   }
@@ -58,6 +123,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, color, icon } = body;
 
+    console.log('Category POST request:', { name, color, icon });
+
     if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Kategori adı gerekli' }, { status: 400 });
     }
@@ -65,12 +132,21 @@ export async function POST(request: NextRequest) {
     const categoryName = name.trim();
 
     try {
+      // Dizin var mı kontrol et
+      const dirPath = path.dirname(categoriesFilePath);
+      try {
+        await fs.access(dirPath);
+      } catch {
+        await fs.mkdir(dirPath, { recursive: true });
+      }
+
+      // Dosya var mı kontrol et
       try {
         await fs.access(categoriesFilePath);
       } catch {
-        await fs.mkdir(path.dirname(categoriesFilePath), { recursive: true });
         await fs.writeFile(categoriesFilePath, JSON.stringify([], null, 2));
       }
+
       const data = await fs.readFile(categoriesFilePath, 'utf-8');
       const categories = JSON.parse(data);
       
@@ -87,17 +163,21 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString()
       };
 
+      console.log('Adding new category:', newCategory);
+
       categories.push(newCategory);
       await fs.writeFile(categoriesFilePath, JSON.stringify(categories, null, 2));
+
+      console.log('Category saved successfully');
 
       return NextResponse.json(newCategory);
     } catch (error) {
       console.error('JSON category error:', error);
-      return NextResponse.json({ error: 'Kategori eklenemedi' }, { status: 500 });
+      return NextResponse.json({ error: 'Kategori eklenemedi: ' + error }, { status: 500 });
     }
   } catch (error) {
     console.error('Category creation error:', error);
-    return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
+    return NextResponse.json({ error: 'Sunucu hatası: ' + error }, { status: 500 });
   }
 }
 

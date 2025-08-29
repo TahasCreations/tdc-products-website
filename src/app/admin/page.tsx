@@ -437,7 +437,7 @@ export default function AdminPage() {
         icon: newCategory.icon
       };
 
-      const response = await fetch('/api/test-category', {
+      const response = await fetch('/api/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

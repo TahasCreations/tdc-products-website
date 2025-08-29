@@ -1,36 +1,46 @@
+'use client';
+
 import ProductCard from '../../ProductCard';
 import AddToCartButton from '../../AddToCartButton';
 import AnimatedText from '../../animated-text';
-import { headers } from 'next/headers';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 
-export const dynamic = 'force-dynamic';
+export default function HomePage() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-// Ürünleri API'den çek
-async function getProducts() {
-  try {
-    const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
-    
-    const response = await fetch(`${baseUrl}/api/products`, {
-      next: { revalidate: 60 } // 60 saniye cache
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      return Array.isArray(data) ? data : [];
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const response = await fetch('/api/products');
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error('Ürünler yüklenirken hata:', error);
+      } finally {
+        setLoading(false);
+      }
     }
-    return [];
-  } catch (error) {
-    console.error('Ürünler yüklenirken hata:', error);
-    return [];
-  }
-}
 
-export default async function HomePage() {
-  const products = await getProducts();
+    fetchProducts();
+  }, []);
+
+  const handleSearch = () => {
+    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+    if (searchInput && searchInput.value.trim()) {
+      window.location.href = `/products?search=${encodeURIComponent(searchInput.value.trim())}`;
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   const featuredProducts = products.slice(0, 4);
 
   return (
@@ -83,14 +93,10 @@ export default async function HomePage() {
                 placeholder="Ürün ara..."
                 className="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-full focus:border-blue-500 focus:outline-none shadow-lg"
                 id="searchInput"
+                onKeyPress={handleKeyPress}
               />
               <button
-                onClick={() => {
-                  const searchTerm = (document.getElementById('searchInput') as HTMLInputElement)?.value;
-                  if (searchTerm) {
-                    window.location.href = `/products?search=${encodeURIComponent(searchTerm)}`;
-                  }
-                }}
+                onClick={handleSearch}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-300"
               >
                 <i className="ri-search-line text-xl"></i>
@@ -121,93 +127,115 @@ export default async function HomePage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bubblegum text-gray-800 mb-6 animate-text-slide-down delay-200">
+            <h2 className="text-4xl md:text-5xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
               Neden TDC Products?
             </h2>
-            <p className="text-xl font-fredoka text-gray-600 max-w-3xl mx-auto animate-text-slide-up delay-400">
-              Kalite ve güvenilirlik odaklı hizmet anlayışımızla sizlere en iyi deneyimi sunuyoruz
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Kaliteli figürler, hızlı teslimat ve müşteri memnuniyeti odaklı hizmet anlayışımızla sizlere en iyi deneyimi sunuyoruz.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div className="group bg-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 animate-text-slide-left delay-500">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 mx-auto">
-                <i className="ri-award-line text-3xl text-white"></i>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="text-center p-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i className="ri-medal-line text-3xl text-white"></i>
               </div>
-              <h3 className="text-2xl font-bubblegum text-gray-800 mb-6 text-center">Premium Kalite</h3>
-              <p className="text-gray-600 text-center font-fredoka">En yüksek kalitede malzemelerle üretilen figürler, detaylı işçilik ve dayanıklı yapı.</p>
+              <h3 className="text-2xl font-fredoka font-semibold text-gray-800 mb-4">Premium Kalite</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Her figür özenle seçilmiş malzemelerle üretilmiş, detaylı işçilik ve yüksek kalite standartlarına sahiptir.
+              </p>
             </div>
-            
-            <div className="group bg-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 animate-text-slide-up delay-600">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 mx-auto">
+
+            {/* Feature 2 */}
+            <div className="text-center p-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i className="ri-truck-line text-3xl text-white"></i>
               </div>
-              <h3 className="text-2xl font-bubblegum text-gray-800 mb-6 text-center">Hızlı Teslimat</h3>
-              <p className="text-gray-600 text-center font-fredoka">Türkiye geneli hızlı ve güvenli teslimat, özenli paketleme ile kapınıza kadar.</p>
+              <h3 className="text-2xl font-fredoka font-semibold text-gray-800 mb-4">Hızlı Teslimat</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Siparişleriniz güvenli paketleme ile hızlıca hazırlanır ve en kısa sürede kapınıza teslim edilir.
+              </p>
             </div>
-            
-            <div className="group bg-white rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all duration-500 border border-gray-100 animate-text-slide-right delay-700">
-              <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300 mx-auto">
+
+            {/* Feature 3 */}
+            <div className="text-center p-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-20 h-20 bg-gradient-to-br from-pink-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i className="ri-customer-service-line text-3xl text-white"></i>
               </div>
-              <h3 className="text-2xl font-bubblegum text-gray-800 mb-6 text-center">7/24 Destek</h3>
-              <p className="text-gray-600 text-center font-fredoka">Müşteri memnuniyeti odaklı hizmet, her zaman yanınızda olan destek ekibi.</p>
+              <h3 className="text-2xl font-fredoka font-semibold text-gray-800 mb-4">7/24 Destek</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Müşteri hizmetlerimiz her zaman yanınızda. Sorularınız için bize ulaşabilirsiniz.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* Featured Products Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bubblegum text-gray-800 mb-6 animate-text-slide-down delay-300">
+            <h2 className="text-4xl md:text-5xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
               Öne Çıkan Ürünler
             </h2>
-            <p className="text-xl font-fredoka text-gray-600 max-w-3xl mx-auto animate-text-slide-up delay-500">
-              En popüler ve yeni eklenen figürlerimizi keşfedin
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              En popüler ve çok satan figürlerimizi keşfedin. Her biri koleksiyonunuz için mükemmel bir seçim.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProducts.map((product: any, index: number) => (
-              <div key={product.id} className={`animate-text-slide-up delay-${(index + 1) * 200}`}>
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
-          
-          <div className="text-center mt-16 animate-text-slide-up delay-1000">
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white rounded-2xl shadow-lg p-6 animate-pulse">
+                  <div className="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {featuredProducts.map((product: any) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+
+          <div className="text-center mt-12">
             <Link
               href="/products"
-              className="inline-flex items-center px-12 py-5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-fredoka font-semibold text-lg rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-fredoka font-semibold text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             >
-              Tüm Ürünleri Gör
-              <i className="ri-arrow-right-line ml-3 text-xl"></i>
+              <span>Tüm Ürünleri Gör</span>
+              <i className="ri-arrow-right-line ml-2 text-xl"></i>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-100 to-purple-100">
+      {/* CTA Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bubblegum text-gray-800 mb-6 animate-text-slide-down delay-200">
-            Güncel Kalın
+          <h2 className="text-4xl md:text-5xl font-bubblegum text-white mb-6">
+            Koleksiyonunuza Başlayın
           </h2>
-          <p className="text-xl font-fredoka text-gray-600 mb-10 animate-text-slide-up delay-400">
-            Yeni ürünler ve özel fırsatlardan haberdar olun
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            En sevdiğiniz karakterlerin figürlerini koleksiyonunuza ekleyin ve özel anlarınızı ölümsüzleştirin.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto animate-text-slide-up delay-600">
-            <input
-              type="email"
-              placeholder="E-posta adresiniz"
-              className="flex-1 px-6 py-4 border-2 border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 font-fredoka text-lg"
-            />
-            <button className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-fredoka font-semibold text-lg rounded-full hover:shadow-lg transition-all duration-300 transform hover:scale-105">
-              Abone Ol
-            </button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/products"
+              className="px-8 py-4 bg-white text-blue-600 font-fredoka font-semibold text-lg rounded-full hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+            >
+              Ürünleri Keşfet
+            </Link>
+            <Link
+              href="/contact"
+              className="px-8 py-4 border-2 border-white text-white font-fredoka font-semibold text-lg rounded-full hover:bg-white hover:text-blue-600 transition-all duration-300 transform hover:scale-105"
+            >
+              İletişime Geç
+            </Link>
           </div>
         </div>
       </section>
