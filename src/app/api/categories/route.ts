@@ -9,8 +9,6 @@ const categoriesFilePath = path.join(process.cwd(), 'src/data/categories.json');
 
 const isSupabaseConfigured = () => {
   const clients = getServerSupabaseClients();
-  // Service key yoksa yazma işlemleri zaten JSON'a düşüyor. Tutarlılık için
-  // okuma dahil tüm işlemleri JSON'a yönlendirelim.
   return clients.configured && Boolean((clients as any).supabaseAdmin);
 };
 
@@ -29,14 +27,11 @@ export async function GET() {
 
       if (error) {
         console.error('Supabase error:', error);
-        // Supabase hatası durumunda JSON fallback kullan
-        console.log('Falling back to JSON due to Supabase error');
         return await getJSONCategories();
       }
 
       return NextResponse.json(data || []);
     } else {
-      // JSON fallback
       return await getJSONCategories();
     }
   } catch (error) {
@@ -48,7 +43,6 @@ export async function GET() {
 // JSON kategorileri getir
 async function getJSONCategories() {
   try {
-    // Dosya yoksa oluştur
     try {
       await fs.access(categoriesFilePath);
     } catch {
@@ -58,7 +52,6 @@ async function getJSONCategories() {
     const data = await fs.readFile(categoriesFilePath, 'utf-8');
     const categories = JSON.parse(data);
     
-    // Eğer hiç kategori yoksa varsayılan kategorileri ekle
     if (categories.length === 0) {
       const defaultCategories = [
         { id: '1', name: 'Anime', color: '#ec4899', icon: 'ri-gamepad-line' },
@@ -73,7 +66,6 @@ async function getJSONCategories() {
     return NextResponse.json(categories);
   } catch (error) {
     console.error('JSON categories error:', error);
-    // Varsayılan kategoriler
     const defaultCategories = [
       { id: '1', name: 'Anime', color: '#ec4899', icon: 'ri-gamepad-line' },
       { id: '2', name: 'Gaming', color: '#3b82f6', icon: 'ri-controller-line' },
@@ -89,9 +81,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, color, icon } = body;
-    console.log('Adding new category:', name);
 
-    // Validasyon
     if (!name || !name.trim()) {
       return NextResponse.json({ error: 'Kategori adı gerekli' }, { status: 400 });
     }
@@ -99,7 +89,6 @@ export async function POST(request: NextRequest) {
     const categoryName = name.trim();
 
     if (isSupabaseConfigured()) {
-      // Kategori adının benzersiz olduğunu kontrol et
       const clients = getServerSupabaseClients();
       if (!clients.configured || !clients.supabase || !(clients as any).supabaseAdmin) {
         throw new Error('Supabase not configured');
@@ -132,9 +121,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(data);
     } else {
-      // JSON fallback
       try {
-        // Dosya yoksa oluştur
         try {
           await fs.access(categoriesFilePath);
         } catch {
@@ -144,7 +131,6 @@ export async function POST(request: NextRequest) {
         const data = await fs.readFile(categoriesFilePath, 'utf-8');
         const categories = JSON.parse(data);
         
-        // Kategori adının benzersiz olduğunu kontrol et
         if (categories.find((cat: any) => cat.name.toLowerCase() === categoryName.toLowerCase())) {
           return NextResponse.json({ error: 'Bu kategori adı zaten mevcut' }, { status: 400 });
         }
@@ -177,7 +163,6 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { id, name, color, icon } = body;
 
-    // Validasyon
     if (!id) {
       return NextResponse.json({ error: 'Kategori ID gerekli' }, { status: 400 });
     }
@@ -207,7 +192,6 @@ export async function PUT(request: NextRequest) {
 
       return NextResponse.json(data);
     } else {
-      // JSON fallback
       try {
         const data = await fs.readFile(categoriesFilePath, 'utf-8');
         const categories = JSON.parse(data);
@@ -217,7 +201,6 @@ export async function PUT(request: NextRequest) {
           return NextResponse.json({ error: 'Kategori bulunamadı' }, { status: 404 });
         }
 
-        // Aynı isimde başka kategori var mı kontrol et
         const existingCategory = categories.find((cat: any) => 
           cat.id !== id && cat.name.toLowerCase() === categoryName.toLowerCase()
         );
@@ -270,7 +253,6 @@ export async function DELETE(request: NextRequest) {
 
       return NextResponse.json({ success: true });
     } else {
-      // JSON fallback
       try {
         const data = await fs.readFile(categoriesFilePath, 'utf-8');
         const categories = JSON.parse(data);

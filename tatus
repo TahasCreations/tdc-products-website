@@ -1,0 +1,5 @@
+[33ma30abcb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: dark mode desteği tüm komponentlere eklendi - CSS animasyonları, toast, skeleton, footer
+[33mb3edc81[m feat: modern UI bileşenleri eklendi - Skeleton loading, Toast notifications, Dark mode, Theme toggle
+[33m4205ff2[m feat: gelişmiş arama ve filtreleme sistemi eklendi - SearchAndFilter komponenti, Header arama, fiyat aralığı, sıralama
+[33mb2790bf[m feat: sepet sistemi eklendi - CartContext, Header dropdown, AddToCartButton, Cart sayfası
+[33m3d584db[m fix(admin): ürün ekleme sorunu çözüldü - images array eklendi, hata logları geliştirildi

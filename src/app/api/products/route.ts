@@ -51,14 +51,10 @@ export async function GET(request: NextRequest) {
   try {
     const clients = getServerSupabaseClients();
     const isConfigured = clients.configured;
-    console.log('Supabase configured:', isConfigured);
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
     
-    // Eğer Supabase yapılandırılmış ama service role (admin) anahtarı yoksa,
-    // yazma JSON'a gideceği için okuma tarafını da JSON'dan yapalım (tutarlılık)
     if (isConfigured && clients.supabaseAdmin) {
-      console.log('Using Supabase for data retrieval');
       if (!clients.supabase) {
         throw new Error('Supabase client not available');
       }
@@ -85,34 +81,12 @@ export async function GET(request: NextRequest) {
 
       if (error) {
         console.error('Supabase error:', error);
-        // Supabase hatası durumunda JSON fallback kullan
-        console.log('Falling back to JSON due to Supabase error');
-        const jsonData = await fs.readFile(productsFilePath, 'utf-8');
-        const products = JSON.parse(jsonData);
-        return NextResponse.json(products);
+        return await getJSONProducts(slug);
       }
 
-      console.log('Supabase data retrieved successfully:', data?.length || 0, 'products');
       return NextResponse.json(data || []);
     } else {
-      console.log('Using JSON fallback - Supabase not configured');
-      // Dosya yoksa oluştur
-      try {
-        await fs.access(productsFilePath);
-      } catch {
-        await fs.mkdir(path.dirname(productsFilePath), { recursive: true });
-        await fs.writeFile(productsFilePath, JSON.stringify([], null, 2));
-      }
-      const data = await fs.readFile(productsFilePath, 'utf-8');
-      const products = JSON.parse(data);
-      if (slug) {
-        const product = products.find((p: any) => p.slug === slug);
-        if (!product) {
-          return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
-        }
-        return NextResponse.json(product);
-      }
-      return NextResponse.json(products);
+      return await getJSONProducts(slug);
     }
   } catch (error) {
     console.error('API error:', error);
@@ -120,12 +94,30 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// JSON ürünleri getir
+async function getJSONProducts(slug: string | null) {
+  try {
+    await fs.access(productsFilePath);
+  } catch {
+    await fs.mkdir(path.dirname(productsFilePath), { recursive: true });
+    await fs.writeFile(productsFilePath, JSON.stringify([], null, 2));
+  }
+  const data = await fs.readFile(productsFilePath, 'utf-8');
+  const products = JSON.parse(data);
+  if (slug) {
+    const product = products.find((p: any) => p.slug === slug);
+    if (!product) {
+      return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
+    }
+    return NextResponse.json(product);
+  }
+  return NextResponse.json(products);
+}
+
 // POST: Yeni ürün ekle
 export async function POST(request: NextRequest) {
   try {
     const newProduct = await request.json();
-    console.log('Adding new product:', newProduct.title);
-    console.log('Product data:', JSON.stringify(newProduct, null, 2));
     
     // Validasyon
     if (!newProduct.title || !newProduct.title.trim()) {
@@ -143,10 +135,8 @@ export async function POST(request: NextRequest) {
     
     const clients = getServerSupabaseClients();
     if (clients.configured && clients.supabaseAdmin) {
-      console.log('Using Supabase for product creation');
       const supabaseAdmin = clients.supabaseAdmin;
       
-      // Service role ile insert
       let { data, error } = await supabaseAdmin
         .from('products')
         .insert([{
@@ -165,10 +155,8 @@ export async function POST(request: NextRequest) {
 
       if (error) {
         console.error('Supabase insert error:', error);
-        // Eğer products tablosunda images kolonu yoksa, images olmadan tekrar dene
         const msg = (error as any)?.message || '';
         if (msg.toLowerCase().includes('images') || msg.toLowerCase().includes('column')) {
-          console.log('Retrying without images field...');
           const retry = await supabaseAdmin
             .from('products')
             .insert([{
@@ -185,21 +173,16 @@ export async function POST(request: NextRequest) {
             .single();
           if (retry.error) {
             console.error('Supabase retry error:', retry.error);
-            console.log('Falling back to JSON storage due to Supabase error:', retry.error.message);
             return await handleJSONFallback(newProduct);
           }
           data = retry.data as any;
         } else {
-          console.error('Supabase error:', error);
-          console.log('Falling back to JSON storage due to Supabase error:', msg);
           return await handleJSONFallback(newProduct);
         }
       }
 
-      console.log('Product created successfully in Supabase:', data.id);
       return NextResponse.json(data, { status: 201 });
     } else {
-      console.log('Using JSON fallback for product creation');
       return await handleJSONFallback(newProduct);
     }
   } catch (error) {
@@ -246,7 +229,6 @@ export async function PUT(request: NextRequest) {
 
       return NextResponse.json(data);
     } else {
-      // JSON fallback
       try {
         const data = await fs.readFile(productsFilePath, 'utf-8');
         const products = JSON.parse(data);
@@ -301,7 +283,6 @@ export async function DELETE(request: NextRequest) {
 
       return NextResponse.json({ success: true });
     } else {
-      // JSON fallback
       try {
         const data = await fs.readFile(productsFilePath, 'utf-8');
         const products = JSON.parse(data);
