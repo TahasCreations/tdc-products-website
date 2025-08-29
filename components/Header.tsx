@@ -189,14 +189,17 @@ export default function Header() {
                                 </button>
                                 <button
                                   onClick={() => {
-                                    removeItem(item.id);
-                                    addToast({
-                                      type: 'success',
-                                      title: 'Ürün kaldırıldı',
-                                      message: `${item.title} sepetten kaldırıldı`
-                                    });
+                                    if (confirm(`${item.title} ürününü sepetten kaldırmak istediğinize emin misiniz?`)) {
+                                      removeItem(item.id);
+                                      addToast({
+                                        type: 'success',
+                                        title: 'Ürün kaldırıldı',
+                                        message: `${item.title} sepetten kaldırıldı`
+                                      });
+                                    }
                                   }}
-                                  className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 ml-2"
+                                  className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 ml-2 transition-colors duration-300 hover:scale-110"
+                                  title="Ürünü sepetten kaldır"
                                 >
                                   <i className="ri-delete-bin-line text-sm"></i>
                                 </button>

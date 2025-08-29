@@ -206,26 +206,28 @@ export default async function ProductDetailPage({ params }: Props) {
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <AddToCartButton 
-                    product={{
-                      id: product.id,
-                      title: product.title,
-                      price: product.price,
-                      image: product.image,
-                      slug: product.slug,
-                      category: product.category,
-                      stock: product.stock
-                    }}
-                  />
-                  
-                  <button className="w-full h-14 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
-                    <i className="ri-flashlight-line text-xl"></i>
-                    Hızlı Al
-                  </button>
-                </div>
+                             {/* Action Buttons */}
+               <div className="space-y-4">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   <div className="h-14">
+                     <AddToCartButton 
+                       product={{
+                         id: product.id,
+                         title: product.title,
+                         price: product.price,
+                         image: product.image,
+                         slug: product.slug,
+                         category: product.category,
+                         stock: product.stock
+                       }}
+                     />
+                   </div>
+                   
+                   <button className="w-full h-14 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                     <i className="ri-flashlight-line text-xl"></i>
+                     Hızlı Al
+                   </button>
+                 </div>
                 
                 <Link 
                   href="/products"

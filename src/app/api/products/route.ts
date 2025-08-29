@@ -11,8 +11,11 @@ const getDefaultProducts = () => [
     price: 299.99,
     category: "Anime",
     stock: 15,
-    image: "/uploads/naruto-figur.jpg",
-    images: ["/uploads/naruto-figur.jpg", "/uploads/naruto-figur-2.jpg"],
+    image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center",
+    images: [
+      "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center"
+    ],
     description: "Naruto anime serisinin baş karakteri olan Naruto Uzumaki'nin detaylı 3D baskı figürü. Yüksek kaliteli malzemelerle üretilmiştir.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -25,8 +28,11 @@ const getDefaultProducts = () => [
     price: 349.99,
     category: "Anime",
     stock: 8,
-    image: "/uploads/goku-figur.jpg",
-    images: ["/uploads/goku-figur.jpg", "/uploads/goku-figur-2.jpg"],
+    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center",
+    images: [
+      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center"
+    ],
     description: "Dragon Ball serisinin efsanevi karakteri Goku'nun Super Saiyan formundaki detaylı figürü. Koleksiyon değeri yüksek.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -39,8 +45,10 @@ const getDefaultProducts = () => [
     price: 199.99,
     category: "Gaming",
     stock: 25,
-    image: "/uploads/mario-figur.jpg",
-    images: ["/uploads/mario-figur.jpg"],
+    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center",
+    images: [
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center"
+    ],
     description: "Nintendo'nun efsanevi karakteri Mario'nun 3D baskı figürü. Oyun dünyasının en sevilen karakteri.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -53,8 +61,12 @@ const getDefaultProducts = () => [
     price: 449.99,
     category: "Film",
     stock: 5,
-    image: "/uploads/ironman-figur.jpg",
-    images: ["/uploads/ironman-figur.jpg", "/uploads/ironman-figur-2.jpg", "/uploads/ironman-figur-3.jpg"],
+    image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center",
+    images: [
+      "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center"
+    ],
     description: "Marvel Cinematic Universe'den Iron Man'in Mark 85 zırhının detaylı figürü. LED aydınlatmalı.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
