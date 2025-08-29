@@ -5,14 +5,14 @@ const nextConfig = {
   swcMinify: true,
   compress: true,
   poweredByHeader: false,
-  
-  // Image optimization for Vercel
+
+  // Image optimization
   images: {
     unoptimized: true,
     domains: ['readdy.ai', 'blob.vercel-storage.com'],
   },
-  
-  // Headers for better security and performance
+
+  // Headers for better security
   async headers() {
     return [
       {
