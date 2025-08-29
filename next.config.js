@@ -11,6 +11,13 @@ const nextConfig = {
   swcMinify: true,
   compress: true,
   poweredByHeader: false,
+  // Vercel specific settings
+  output: 'standalone',
+  // Disable image optimization for Vercel
+  images: {
+    unoptimized: true,
+    domains: ['readdy.ai', 'blob.vercel-storage.com'],
+  },
   // Headers for better security
   async headers() {
     return [
