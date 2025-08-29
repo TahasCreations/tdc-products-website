@@ -40,6 +40,7 @@ export default function AdminPage() {
   const [apiLoading, setApiLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   // Form states
   const [newCategory, setNewCategory] = useState({ name: '', color: '#6b7280', icon: 'ri-more-line' });
@@ -115,10 +116,19 @@ export default function AdminPage() {
     }
   ];
 
-  // Verileri yükle
+  // Session kontrolü ve verileri yükle
   useEffect(() => {
-    const loadData = async () => {
+    const checkSessionAndLoadData = async () => {
       try {
+        // Mevcut session'ı kontrol et
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (session && !sessionError) {
+          console.log('Mevcut session bulundu:', session.user.email);
+          setIsAuthenticated(true);
+          setCurrentUser(session.user);
+        }
+
         // Supabase'den kategorileri yükle
         const { data: categoriesData, error: categoriesError } = await supabase
           .from('categories')
@@ -154,31 +164,86 @@ export default function AdminPage() {
       }
     };
 
-    loadData();
+    checkSessionAndLoadData();
   }, []);
 
   // Giriş yap
-  const handleLogin = () => {
-    if (username === 'admin' && password === 'admin123') {
-      setIsAuthenticated(true);
-      setMessage('Başarıyla giriş yapıldı!');
-      setMessageType('success');
-      setTimeout(() => setMessage(''), 3000);
-    } else {
-      setMessage('Kullanıcı adı veya şifre hatalı!');
+  const handleLogin = async () => {
+    try {
+      setApiLoading(true);
+      setMessage('Giriş yapılıyor...');
+
+      // Önce demo giriş kontrolü
+      if (username === 'admin' && password === 'admin123') {
+        setIsAuthenticated(true);
+        setCurrentUser({ email: 'admin@demo.com', user_metadata: { name: 'Demo Admin' } });
+        setMessage('Demo hesabı ile giriş yapıldı!');
+        setMessageType('success');
+        setTimeout(() => setMessage(''), 3000);
+        return;
+      }
+
+      // Supabase authentication ile giriş
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: username,
+        password: password
+      });
+
+      if (error) {
+        console.error('Supabase auth error:', error);
+        setMessage('Giriş hatası: ' + error.message);
+        setMessageType('error');
+        setTimeout(() => setMessage(''), 5000);
+      } else {
+        setIsAuthenticated(true);
+        setCurrentUser(data.user);
+        setMessage('Supabase hesabı ile giriş yapıldı!');
+        setMessageType('success');
+        setTimeout(() => setMessage(''), 3000);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setMessage('Bağlantı hatası');
       setMessageType('error');
-      setTimeout(() => setMessage(''), 3000);
+      setTimeout(() => setMessage(''), 5000);
+    } finally {
+      setApiLoading(false);
     }
   };
 
   // Çıkış yap
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setUsername('');
-    setPassword('');
-    setMessage('Çıkış yapıldı!');
-    setMessageType('success');
-    setTimeout(() => setMessage(''), 3000);
+  const handleLogout = async () => {
+    try {
+      setApiLoading(true);
+      setMessage('Çıkış yapılıyor...');
+
+      // Supabase'den çıkış yap
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error('Logout error:', error);
+        setMessage('Çıkış hatası: ' + error.message);
+        setMessageType('error');
+      } else {
+        setMessage('Başarıyla çıkış yapıldı!');
+        setMessageType('success');
+      }
+
+      // State'i temizle
+      setIsAuthenticated(false);
+      setCurrentUser(null);
+      setUsername('');
+      setPassword('');
+      
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      console.error('Logout error:', error);
+      setMessage('Çıkış hatası');
+      setMessageType('error');
+      setTimeout(() => setMessage(''), 5000);
+    } finally {
+      setApiLoading(false);
+    }
   };
 
   // Kategori ekle
@@ -367,14 +432,14 @@ export default function AdminPage() {
             <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Kullanıcı Adı
+                  Email veya Kullanıcı Adı
                 </label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Kullanıcı adınızı girin"
+                  placeholder="Email adresinizi veya kullanıcı adınızı girin"
                   required
                 />
               </div>
@@ -395,9 +460,10 @@ export default function AdminPage() {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1"
+                disabled={apiLoading}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Giriş Yap
+                {apiLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
               </button>
             </form>
 
@@ -413,9 +479,13 @@ export default function AdminPage() {
 
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Demo Giriş Bilgileri:</strong><br />
+                <strong>Giriş Seçenekleri:</strong><br />
+                <strong>Demo Hesabı:</strong><br />
                 Kullanıcı Adı: <code>admin</code><br />
-                Şifre: <code>admin123</code>
+                Şifre: <code>admin123</code><br /><br />
+                <strong>Supabase Hesabı:</strong><br />
+                Email: <code>your-email@example.com</code><br />
+                Şifre: <code>your-password</code>
               </p>
             </div>
           </div>
@@ -436,12 +506,22 @@ export default function AdminPage() {
               <p className="text-gray-600">Yönetim ve kontrol merkezi</p>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">Hoş geldin, Admin</span>
+              <div className="text-right">
+                <span className="text-sm text-gray-500">
+                  Hoş geldin, {currentUser?.user_metadata?.name || currentUser?.email || 'Admin'}
+                </span>
+                {currentUser?.email && currentUser.email !== 'admin@demo.com' && (
+                  <div className="text-xs text-gray-400">
+                    {currentUser.email}
+                  </div>
+                )}
+              </div>
               <button
                 onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                disabled={apiLoading}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Çıkış Yap
+                {apiLoading ? 'Çıkış Yapılıyor...' : 'Çıkış Yap'}
               </button>
               <button
                 onClick={() => router.push('/')}
