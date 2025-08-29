@@ -126,6 +126,7 @@ export async function POST(request: NextRequest) {
   try {
     const newProduct = await request.json();
     console.log('Adding new product:', newProduct.title);
+    console.log('Product data:', JSON.stringify(newProduct, null, 2));
     
     const clients = getServerSupabaseClients();
     if (clients.configured && clients.supabaseAdmin) {
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
           category: newProduct.category || 'Diğer',
           stock: parseInt(newProduct.stock) || 0,
           image: newProduct.image || '',
-          images: (newProduct as any).images || null,
+          images: newProduct.images || null,
           description: newProduct.description || '',
           status: 'active'
         }])
@@ -150,9 +151,11 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error) {
+        console.error('Supabase insert error:', error);
         // Eğer products tablosunda images kolonu yoksa, images olmadan tekrar dene
         const msg = (error as any)?.message || '';
         if (msg.toLowerCase().includes('images') || msg.toLowerCase().includes('column')) {
+          console.log('Retrying without images field...');
           const retry = await supabaseAdmin
             .from('products')
             .insert([{

@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, color, icon } = body;
+    console.log('Adding new category:', name);
 
     if (!name) {
       return NextResponse.json({ error: 'Kategori adı gerekli' }, { status: 400 });
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error) {
-        console.error('Supabase error:', error);
+        console.error('Supabase category insert error:', error);
         return NextResponse.json({ error: 'Kategori eklenemedi' }, { status: 500 });
       }
 
@@ -135,12 +136,12 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(newCategory);
       } catch (error) {
-        console.error('JSON error:', error);
+        console.error('JSON category error:', error);
         return NextResponse.json({ error: 'Kategori eklenemedi' }, { status: 500 });
       }
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Category creation error:', error);
     return NextResponse.json({ error: 'Sunucu hatası' }, { status: 500 });
   }
 }

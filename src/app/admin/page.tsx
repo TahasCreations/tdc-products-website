@@ -320,7 +320,8 @@ export default function AdminPage() {
           price: parseFloat(newProduct.price),
           category: newProduct.category,
           stock: parseInt(newProduct.stock),
-          image: newProduct.image,
+          image: newProduct.image || (newProduct.images && newProduct.images.length > 0 ? newProduct.images[0] : ''),
+          images: newProduct.images || [],
           description: newProduct.description,
           slug: newProduct.slug || newProduct.title.toLowerCase().replace(/\s+/g, '-')
         }),
@@ -340,6 +341,7 @@ export default function AdminPage() {
         setMessage(error.error || 'Ürün eklenemedi');
       }
     } catch (error) {
+      console.error('Product creation error:', error);
       setMessage('Bağlantı hatası');
     } finally {
       setApiLoading(false);
