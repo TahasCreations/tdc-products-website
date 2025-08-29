@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import ProductCard from '../../../ProductCard';
 import SearchAndFilter from '../../components/SearchAndFilter';
 import SkeletonLoader from '../../components/SkeletonLoader';
+import CategorySidebar from '../../components/CategorySidebar';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 
@@ -209,46 +210,59 @@ export default async function ProductsPage({
           }}
         />
 
-        {/* Products Grid */}
+        {/* Products Grid with Sidebar */}
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {filteredProducts.length > 0 ? (
-              <>
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                    {params.category ? `${params.category} Kategorisi` : 'Tüm Ürünler'}
-                  </h2>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    {filteredProducts.length} ürün bulundu
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                  {filteredProducts.map((product: any) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-20">
-                <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <i className="ri-shopping-bag-line text-3xl text-white"></i>
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                  Ürün Bulunamadı
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-8">
-                  Aradığınız kriterlere uygun ürün bulunamadı. Farklı bir arama yapmayı deneyin.
-                </p>
-                <Link
-                  href="/products"
-                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-full hover:scale-105 transition-all duration-300"
-                >
-                  Tüm Ürünleri Gör
-                  <i className="ri-arrow-right-line ml-2"></i>
-                </Link>
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Category Sidebar */}
+              <div className="lg:w-64 flex-shrink-0">
+                <CategorySidebar 
+                  categories={categories} 
+                  selectedCategory={params.category}
+                />
               </div>
-            )}
+
+              {/* Products Content */}
+              <div className="flex-1">
+                {filteredProducts.length > 0 ? (
+                  <>
+                    <div className="mb-8">
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                        {params.category ? `${params.category} Kategorisi` : 'Tüm Ürünler'}
+                      </h2>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        {filteredProducts.length} ürün bulundu
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                      {filteredProducts.map((product: any) => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-20">
+                    <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <i className="ri-shopping-bag-line text-3xl text-white"></i>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                      Ürün Bulunamadı
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-8">
+                      Aradığınız kriterlere uygun ürün bulunamadı. Farklı bir arama yapmayı deneyin.
+                    </p>
+                    <Link
+                      href="/products"
+                      className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-full hover:scale-105 transition-all duration-300"
+                    >
+                      Tüm Ürünleri Gör
+                      <i className="ri-arrow-right-line ml-2"></i>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </section>
       </div>

@@ -439,28 +439,63 @@ export default function AdminPage() {
         const fileName = `${timestamp}-${file.name}`;
         const filePath = `products/${fileName}`;
 
-        // Supabase Storage'a yükle
-        const { data, error } = await supabase.storage
-          .from('images')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
+        try {
+          // Önce bucket'ın var olup olmadığını kontrol et
+          const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+          
+          if (bucketError) {
+            console.error('Bucket list error:', bucketError);
+            setMessage('Storage bucket hatası: ' + bucketError.message);
+            setMessageType('error');
+            continue;
+          }
 
-        if (error) {
-          console.error('Upload error:', error);
-          setMessage(`Görsel yüklenemedi: ${error.message}`);
+          // 'images' bucket'ı yoksa oluştur
+          const imagesBucket = buckets?.find(bucket => bucket.name === 'images');
+          if (!imagesBucket) {
+            const { error: createError } = await supabase.storage.createBucket('images', {
+              public: true,
+              fileSizeLimit: 5242880, // 5MB
+              allowedMimeTypes: ['image/*']
+            });
+
+            if (createError) {
+              console.error('Create bucket error:', createError);
+              setMessage('Storage bucket oluşturulamadı: ' + createError.message);
+              setMessageType('error');
+              continue;
+            }
+          }
+
+          // Supabase Storage'a yükle
+          const { data, error } = await supabase.storage
+            .from('images')
+            .upload(filePath, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
+
+          if (error) {
+            console.error('Upload error:', error);
+            setMessage(`Görsel yüklenemedi: ${error.message}`);
+            setMessageType('error');
+            continue;
+          }
+
+          // Public URL al
+          const { data: urlData } = supabase.storage
+            .from('images')
+            .getPublicUrl(filePath);
+
+          uploadedUrls.push(urlData.publicUrl);
+          setUploadProgress(((i + 1) / files.length) * 100);
+
+        } catch (uploadError) {
+          console.error('Upload process error:', uploadError);
+          setMessage(`Görsel yükleme hatası: ${uploadError}`);
           setMessageType('error');
           continue;
         }
-
-        // Public URL al
-        const { data: urlData } = supabase.storage
-          .from('images')
-          .getPublicUrl(filePath);
-
-        uploadedUrls.push(urlData.publicUrl);
-        setUploadProgress(((i + 1) / files.length) * 100);
       }
 
       if (uploadedUrls.length > 0) {
