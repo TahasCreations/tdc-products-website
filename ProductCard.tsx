@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import AddToCartButton from './AddToCartButton';
 import { useState } from 'react';
+import { useCart } from './src/contexts/CartContext';
+import { useToast } from './src/components/Toast';
 
 interface Product {
   id: string;
@@ -23,6 +25,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [open, setOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('M');
   const [quantity, setQuantity] = useState<number>(1);
+  const { addItem } = useCart();
+  const { addToast } = useToast();
 
   return (
     <div className="group relative">
@@ -151,10 +155,29 @@ export default function ProductCard({ product }: ProductCardProps) {
                     Ürün Sayfasına Git
                   </Link>
                   <button
-                    onClick={() => { /* burada hızlı satın alma akışı entegre edilebilir */ setOpen(false); }}
-                    className="flex-1 inline-flex items-center justify-center px-4 py-3 rounded-full bg-emerald-600 text-white font-semibold hover:bg-emerald-700"
+                    onClick={() => {
+                      // Sepete ekle ve modal'ı kapat
+                      addItem({
+                        id: product.id,
+                        title: product.title,
+                        price: product.price,
+                        image: product.image,
+                        slug: product.slug
+                      }, quantity);
+                      
+                      addToast({
+                        type: 'success',
+                        title: 'Ürün sepete eklendi!',
+                        message: `${product.title} (${quantity} adet) başarıyla sepete eklendi.`,
+                        duration: 3000
+                      });
+                      
+                      setOpen(false);
+                    }}
+                    className="flex-1 inline-flex items-center justify-center px-4 py-3 rounded-full bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition-all duration-300 hover:scale-105"
                   >
-                    Hızlı Satın Al
+                    <i className="ri-shopping-cart-line mr-2"></i>
+                    Sepete Ekle ({quantity})
                   </button>
                 </div>
               </div>
