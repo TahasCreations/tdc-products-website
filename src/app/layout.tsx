@@ -4,6 +4,8 @@ import "./globals.css";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { CartProvider } from "../contexts/CartContext";
+import { ThemeProvider } from "../contexts/ThemeContext";
+import { ToastProvider } from "../components/Toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,15 +20,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr">
-      <body className={inter.className}>
-        <CartProvider>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-grow">{children}</main>
-            <Footer />
-          </div>
-        </CartProvider>
+    <html lang="tr" suppressHydrationWarning>
+      <body className={`${inter.className} transition-colors duration-300`}>
+        <ThemeProvider>
+          <ToastProvider>
+            <CartProvider>
+              <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+                <Header />
+                <main className="flex-grow">{children}</main>
+                <Footer />
+              </div>
+            </CartProvider>
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

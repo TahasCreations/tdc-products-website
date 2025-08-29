@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import ProductCard from '../blog/BlogCard';
 import SearchAndFilter from '../../components/SearchAndFilter';
+import SkeletonLoader from '../../components/SkeletonLoader';
 import { headers } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
@@ -106,6 +107,44 @@ function filterAndSortProducts(products: any[], filters: any) {
   return filteredProducts;
 }
 
+// Loading component
+function ProductsLoading() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Hero Section Skeleton */}
+      <section className="relative py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 overflow-hidden">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="animate-pulse">
+            <div className="h-16 bg-white/20 rounded-lg mb-6 w-3/4 mx-auto"></div>
+            <div className="h-6 bg-white/20 rounded w-1/2 mx-auto"></div>
+          </div>
+        </div>
+      </section>
+
+      {/* Search and Filter Skeleton */}
+      <section className="py-12 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="animate-pulse">
+            <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-full mb-6"></div>
+            <div className="flex gap-2">
+              {Array.from({ length: 5 }, (_, i) => (
+                <div key={i} className="h-8 bg-gray-200 dark:bg-gray-700 rounded-full w-20"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Products Grid Skeleton */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SkeletonLoader count={8} type="product" />
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export default async function ProductsPage({
   searchParams,
 }: {
@@ -131,137 +170,139 @@ export default async function ProductsPage({
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-full h-full">
-            <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
-            <div className="absolute top-40 right-20 w-72 h-72 bg-white/10 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
-            <div className="absolute -bottom-8 left-40 w-72 h-72 bg-white/10 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
-          </div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
-              Ürünlerimiz
-            </span>
-          </h1>
-          <p className="text-xl text-white/90 max-w-3xl mx-auto">
-            Premium kalitede figürler ve koleksiyon ürünleri. En sevdiğiniz karakterlerin detaylı figürlerini keşfedin.
-          </p>
-        </div>
-      </section>
-
-      {/* Search and Filter Section */}
-      <SearchAndFilter
-        categories={categories}
-        totalProducts={filteredProducts.length}
-        currentFilters={{
-          search: params.search,
-          category: params.category,
-          minPrice: params.minPrice ? parseFloat(params.minPrice) : undefined,
-          maxPrice: params.maxPrice ? parseFloat(params.maxPrice) : undefined,
-          sortBy: params.sortBy
-        }}
-      />
-
-      {/* Products Grid */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {filteredProducts.length > 0 ? (
-            <>
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {params.category ? `${params.category} Kategorisi` : 'Tüm Ürünler'}
-                </h2>
-                <p className="text-gray-600">
-                  {filteredProducts.length} ürün bulundu
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {filteredProducts.map((product: any) => (
-                  <div key={product.id} className="group">
-                    <div className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden glow-effect">
-                      {/* Shimmer Effect */}
-                      <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      
-                      {/* Product Image */}
-                      <div className="relative overflow-hidden">
-                        <img
-                          src={product.image}
-                          alt={product.title}
-                          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      </div>
-
-                      {/* Product Info */}
-                      <div className="p-6">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                            {product.category}
-                          </span>
-                          <span className="text-2xl font-bold text-gray-900">
-                            ₺{product.price}
-                          </span>
-                        </div>
-
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                          {product.title}
-                        </h3>
-
-                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                          {product.description}
-                        </p>
-
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-500">
-                            Stok: {product.stock}
-                          </span>
-                          <a
-                            href={`/products/${product.slug}`}
-                            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-medium rounded-full hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-                          >
-                            Detaylar
-                            <i className="ri-arrow-right-line ml-1"></i>
-                          </a>
-                        </div>
-                      </div>
-
-                      {/* Glow Border */}
-                      <div className="absolute inset-0 rounded-2xl border-2 border-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-20">
-              <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i className="ri-shopping-bag-line text-3xl text-white"></i>
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Ürün Bulunamadı
-              </h3>
-              <p className="text-gray-600 mb-8">
-                Aradığınız kriterlere uygun ürün bulunamadı. Farklı bir arama yapmayı deneyin.
-              </p>
-              <a
-                href="/products"
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-full hover:scale-105 transition-all duration-300"
-              >
-                Tüm Ürünleri Gör
-                <i className="ri-arrow-right-line ml-2"></i>
-              </a>
+    <Suspense fallback={<ProductsLoading />}>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+        {/* Hero Section */}
+        <section className="relative py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 overflow-hidden">
+          {/* Animated Background */}
+          <div className="absolute inset-0">
+            <div className="absolute top-0 left-0 w-full h-full">
+              <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
+              <div className="absolute top-40 right-20 w-72 h-72 bg-white/10 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
+              <div className="absolute -bottom-8 left-40 w-72 h-72 bg-white/10 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>
             </div>
-          )}
-        </div>
-      </section>
-    </div>
+          </div>
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+              <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
+                Ürünlerimiz
+              </span>
+            </h1>
+            <p className="text-xl text-white/90 max-w-3xl mx-auto">
+              Premium kalitede figürler ve koleksiyon ürünleri. En sevdiğiniz karakterlerin detaylı figürlerini keşfedin.
+            </p>
+          </div>
+        </section>
+
+        {/* Search and Filter Section */}
+        <SearchAndFilter
+          categories={categories}
+          totalProducts={filteredProducts.length}
+          currentFilters={{
+            search: params.search,
+            category: params.category,
+            minPrice: params.minPrice ? parseFloat(params.minPrice) : undefined,
+            maxPrice: params.maxPrice ? parseFloat(params.maxPrice) : undefined,
+            sortBy: params.sortBy
+          }}
+        />
+
+        {/* Products Grid */}
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {filteredProducts.length > 0 ? (
+              <>
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    {params.category ? `${params.category} Kategorisi` : 'Tüm Ürünler'}
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    {filteredProducts.length} ürün bulundu
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  {filteredProducts.map((product: any) => (
+                    <div key={product.id} className="group">
+                      <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden glow-effect border border-gray-200 dark:border-gray-700">
+                        {/* Shimmer Effect */}
+                        <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        {/* Product Image */}
+                        <div className="relative overflow-hidden">
+                          <img
+                            src={product.image}
+                            alt={product.title}
+                            className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                          {/* Gradient Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="p-6">
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                              {product.category}
+                            </span>
+                            <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                              ₺{product.price}
+                            </span>
+                          </div>
+
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
+                            {product.title}
+                          </h3>
+
+                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                            {product.description}
+                          </p>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              Stok: {product.stock}
+                            </span>
+                            <a
+                              href={`/products/${product.slug}`}
+                              className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-medium rounded-full hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                            >
+                              Detaylar
+                              <i className="ri-arrow-right-line ml-1"></i>
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* Glow Border */}
+                        <div className="absolute inset-0 rounded-2xl border-2 border-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-20">
+                <div className="w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <i className="ri-shopping-bag-line text-3xl text-white"></i>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                  Ürün Bulunamadı
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-8">
+                  Aradığınız kriterlere uygun ürün bulunamadı. Farklı bir arama yapmayı deneyin.
+                </p>
+                <a
+                  href="/products"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-full hover:scale-105 transition-all duration-300"
+                >
+                  Tüm Ürünleri Gör
+                  <i className="ri-arrow-right-line ml-2"></i>
+                </a>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </Suspense>
   );
 }
