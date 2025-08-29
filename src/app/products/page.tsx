@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import ProductCard from '../blog/BlogCard';
+import SearchAndFilter from '../../components/SearchAndFilter';
 import { headers } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
@@ -48,30 +49,86 @@ async function getCategories() {
   }
 }
 
+// Filtreleme ve sıralama fonksiyonu
+function filterAndSortProducts(products: any[], filters: any) {
+  let filteredProducts = [...products];
+
+  // Arama filtresi
+  if (filters.search) {
+    const searchTerm = filters.search.toLowerCase();
+    filteredProducts = filteredProducts.filter((product) =>
+      product.title.toLowerCase().includes(searchTerm) ||
+      product.description.toLowerCase().includes(searchTerm) ||
+      product.category.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  // Kategori filtresi
+  if (filters.category) {
+    filteredProducts = filteredProducts.filter((product) =>
+      product.category.toLowerCase() === filters.category.toLowerCase()
+    );
+  }
+
+  // Fiyat aralığı filtresi
+  if (filters.minPrice || filters.maxPrice) {
+    filteredProducts = filteredProducts.filter((product) => {
+      const price = parseFloat(product.price);
+      const minPrice = filters.minPrice ? parseFloat(filters.minPrice) : 0;
+      const maxPrice = filters.maxPrice ? parseFloat(filters.maxPrice) : Infinity;
+      return price >= minPrice && price <= maxPrice;
+    });
+  }
+
+  // Sıralama
+  switch (filters.sortBy) {
+    case 'price-low':
+      filteredProducts.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+      break;
+    case 'price-high':
+      filteredProducts.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+      break;
+    case 'name-asc':
+      filteredProducts.sort((a, b) => a.title.localeCompare(b.title, 'tr'));
+      break;
+    case 'name-desc':
+      filteredProducts.sort((a, b) => b.title.localeCompare(a.title, 'tr'));
+      break;
+    case 'oldest':
+      filteredProducts.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      break;
+    case 'newest':
+    default:
+      filteredProducts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      break;
+  }
+
+  return filteredProducts;
+}
+
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; search?: string }>;
+  searchParams: Promise<{ 
+    category?: string; 
+    search?: string; 
+    minPrice?: string; 
+    maxPrice?: string; 
+    sortBy?: string; 
+  }>;
 }) {
   const params = await searchParams;
   const products = await getProducts();
   const categories = await getCategories();
 
-  // Filtreleme
-  let filteredProducts = products;
-  
-  if (params.category) {
-    filteredProducts = products.filter((product: any) => 
-      product.category.toLowerCase() === params.category?.toLowerCase()
-    );
-  }
-  
-  if (params.search) {
-    filteredProducts = filteredProducts.filter((product: any) =>
-      product.title.toLowerCase().includes(params.search?.toLowerCase() || '') ||
-      product.description.toLowerCase().includes(params.search?.toLowerCase() || '')
-    );
-  }
+  // Filtreleme ve sıralama
+  const filteredProducts = filterAndSortProducts(products, {
+    search: params.search,
+    category: params.category,
+    minPrice: params.minPrice ? parseFloat(params.minPrice) : undefined,
+    maxPrice: params.maxPrice ? parseFloat(params.maxPrice) : undefined,
+    sortBy: params.sortBy
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
@@ -98,67 +155,32 @@ export default async function ProductsPage({
         </div>
       </section>
 
-      {/* Filters Section */}
-      <section className="py-12 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <form method="GET" className="relative">
-                                 <input
-                   type="text"
-                   name="search"
-                   placeholder="Ürün ara..."
-                   defaultValue={params.search}
-                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                 />
-                <i className="ri-search-line absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
-              </form>
-            </div>
-
-            {/* Categories */}
-            <div className="flex flex-wrap gap-3">
-                             <a
-                 href="/products"
-                 className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                   !params.category
-                     ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
-                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                 }`}
-               >
-                 Tümü
-               </a>
-               {categories.map((category: any) => (
-                 <a
-                   key={category.id}
-                   href={`/products?category=${category.name}`}
-                   className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                     params.category === category.name
-                       ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
-                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                   }`}
-                 >
-                   {category.name}
-                 </a>
-               ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Search and Filter Section */}
+      <SearchAndFilter
+        categories={categories}
+        totalProducts={filteredProducts.length}
+        currentFilters={{
+          search: params.search,
+          category: params.category,
+          minPrice: params.minPrice ? parseFloat(params.minPrice) : undefined,
+          maxPrice: params.maxPrice ? parseFloat(params.maxPrice) : undefined,
+          sortBy: params.sortBy
+        }}
+      />
 
       {/* Products Grid */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {filteredProducts.length > 0 ? (
             <>
-                             <div className="mb-8">
-                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                   {params.category ? `${params.category} Kategorisi` : 'Tüm Ürünler'}
-                 </h2>
-                 <p className="text-gray-600">
-                   {filteredProducts.length} ürün bulundu
-                 </p>
-               </div>
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {params.category ? `${params.category} Kategorisi` : 'Tüm Ürünler'}
+                </h2>
+                <p className="text-gray-600">
+                  {filteredProducts.length} ürün bulundu
+                </p>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 {filteredProducts.map((product: any) => (

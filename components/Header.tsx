@@ -2,18 +2,31 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useCart } from '../src/contexts/CartContext';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { state, removeItem, updateQuantity } = useCart();
+  const router = useRouter();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
       currency: 'TRY'
     }).format(price);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      router.push(`/products?search=${encodeURIComponent(searchTerm.trim())}`);
+      setIsSearchOpen(false);
+      setSearchTerm('');
+    }
   };
 
   return (
@@ -50,9 +63,39 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <button className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300">
+            {/* Search Button */}
+            <button 
+              className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300"
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+            >
               <i className="ri-search-line text-xl text-gray-700 hover:text-orange-600 transition-colors cursor-pointer"></i>
             </button>
+
+            {/* Search Dropdown */}
+            {isSearchOpen && (
+              <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                  <form onSubmit={handleSearch} className="relative">
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Ürün ara..."
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                      autoFocus
+                    />
+                    <i className="ri-search-line absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
+                    <button
+                      type="submit"
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-orange-500 text-white p-2 rounded-full hover:bg-orange-600 transition-colors"
+                    >
+                      <i className="ri-arrow-right-line text-sm"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
+
             <button className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300">
               <i className="ri-heart-line text-xl text-gray-700 hover:text-orange-600 transition-colors cursor-pointer"></i>
             </button>
