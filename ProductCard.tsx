@@ -46,6 +46,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             width={400}
             height={256}
             className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+            quality={85}
+            priority={false}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           
           {/* Elegant Gradient Overlay */}
@@ -98,22 +101,22 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Link
               href={`/products/${product.slug}`}
-              className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-medium rounded-xl hover:from-blue-600 hover:to-purple-600 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl transform"
+              className="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-medium rounded-xl hover:from-blue-600 hover:to-purple-600 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl transform h-12"
             >
               <i className="ri-eye-line mr-2"></i>
               Detaylar
             </Link>
             
-            <div className="flex-1">
+            <div className="h-12">
               <AddToCartButton product={product} />
             </div>
             
             <button
               onClick={() => setOpen(true)}
-              className="flex-1 inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-medium rounded-xl hover:from-emerald-600 hover:to-teal-600 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl transform"
+              className="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-medium rounded-xl hover:from-emerald-600 hover:to-teal-600 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl transform h-12"
             >
               <i className="ri-flashlight-line mr-2"></i>
               Hızlı Al
@@ -148,6 +151,9 @@ export default function ProductCard({ product }: ProductCardProps) {
                     width={800}
                     height={600}
                     className="absolute inset-0 w-full h-full object-cover"
+                    quality={90}
+                    priority={true}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>

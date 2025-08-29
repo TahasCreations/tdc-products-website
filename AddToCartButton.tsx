@@ -76,7 +76,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       {showQuantity && !isInCart && !isAdded ? (
         <div className="space-y-3">
           {/* Quantity Selector */}
@@ -130,7 +130,7 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
         <button
           onClick={handleAddToCart}
           disabled={isLoading || isAdded || isInCart}
-          className={`w-full inline-flex items-center justify-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
+          className={`w-full h-full inline-flex items-center justify-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 ${
             isInCart
               ? 'bg-green-500 text-white cursor-not-allowed opacity-75'
               : isAdded

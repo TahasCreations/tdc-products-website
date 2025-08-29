@@ -114,14 +114,24 @@ export default function Header() {
             {/* Sepet Butonu */}
             <div className="relative">
               <button 
-                className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300 relative"
+                className="w-8 h-8 flex items-center justify-center hover:scale-110 transition-all duration-300 relative group"
                 onClick={() => setIsCartOpen(!isCartOpen)}
               >
-                <i className="ri-shopping-cart-line text-xl text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"></i>
+                {/* Premium Cart Icon */}
+                <div className="relative">
+                  <i className="ri-shopping-bag-3-line text-2xl text-gray-700 dark:text-gray-300 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-all duration-300"></i>
+                  
+                  {/* Cart Glow Effect */}
+                  <div className="absolute inset-0 bg-orange-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 scale-150"></div>
+                </div>
+                
+                {/* Cart Badge */}
                 {state.itemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold animate-pulse">
-                    {state.itemCount > 99 ? '99+' : state.itemCount}
-                  </span>
+                  <div className="absolute -top-1 -right-1">
+                    <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-full min-w-[20px] h-5 shadow-lg animate-pulse">
+                      {state.itemCount > 99 ? '99+' : state.itemCount}
+                    </span>
+                  </div>
                 )}
               </button>
 
@@ -141,8 +151,11 @@ export default function Header() {
 
                     {state.items.length === 0 ? (
                       <div className="text-center py-8">
-                        <i className="ri-shopping-cart-line text-4xl text-gray-300 dark:text-gray-600 mb-2"></i>
-                        <p className="text-gray-500 dark:text-gray-400">Sepetiniz boş</p>
+                        <div className="w-16 h-16 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <i className="ri-shopping-bag-3-line text-2xl text-gray-400 dark:text-gray-500"></i>
+                        </div>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium">Sepetiniz boş</p>
+                        <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Ürün ekleyerek alışverişe başlayın</p>
                       </div>
                     ) : (
                       <>
