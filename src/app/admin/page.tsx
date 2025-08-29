@@ -185,6 +185,8 @@ export default function AdminPage() {
   const handleImageUpload = async (file: File) => {
     try {
       setUploading(true);
+      console.log('Görsel yükleme başladı:', file.name, file.size, file.type);
+      
       const formData = new FormData();
       formData.append('file', file);
 
@@ -193,16 +195,25 @@ export default function AdminPage() {
         body: formData,
       });
 
+      console.log('Upload response status:', response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('Upload başarılı:', data);
+        setMessage('Görsel başarıyla yüklendi!');
+        setTimeout(() => setMessage(''), 3000);
         return data.url;
       } else {
         const error = await response.json();
+        console.error('Upload error:', error);
         setMessage(error.error || 'Resim yüklenemedi');
+        setTimeout(() => setMessage(''), 5000);
         return null;
       }
     } catch (error) {
-      setMessage('Resim yükleme hatası');
+      console.error('Upload catch error:', error);
+      setMessage('Resim yükleme hatası: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'));
+      setTimeout(() => setMessage(''), 5000);
       return null;
     } finally {
       setUploading(false);

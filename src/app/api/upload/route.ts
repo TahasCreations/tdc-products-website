@@ -20,17 +20,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Sadece JPEG, PNG ve WebP dosyaları kabul edilir' }, { status: 400 });
     }
 
-    // Dosya boyutu kontrolü (5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Dosya boyutu kontrolü (10MB - daha büyük limit)
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
-      return NextResponse.json({ error: 'Dosya boyutu 5MB\'dan küçük olmalıdır' }, { status: 400 });
+      return NextResponse.json({ error: 'Dosya boyutu 10MB\'dan küçük olmalıdır' }, { status: 400 });
     }
+
+    console.log('Upload başladı:', file.name, file.size, file.type);
 
     const clients = getServerSupabaseClients();
     
     if (clients.configured && clients.supabaseAdmin) {
       // Supabase Storage kullan
       try {
+        console.log('Supabase Storage kullanılıyor...');
+        
         // Dosya adını oluştur
         const timestamp = Date.now();
         const fileName = `${timestamp}-${file.name}`;
@@ -46,13 +50,17 @@ export async function POST(request: NextRequest) {
 
         if (error) {
           console.error('Supabase upload error:', error);
-          throw new Error('Supabase upload failed');
+          throw new Error(`Supabase upload failed: ${error.message}`);
         }
+
+        console.log('Supabase upload başarılı:', data);
 
         // Public URL al
         const { data: { publicUrl } } = clients.supabaseAdmin.storage
           .from('product-images')
           .getPublicUrl(filePath);
+
+        console.log('Public URL:', publicUrl);
 
         return NextResponse.json({
           url: publicUrl,
@@ -65,6 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fallback: Local storage (development için)
+    console.log('Local storage kullanılıyor...');
     try {
       const timestamp = Date.now();
       const fileName = `${timestamp}-${file.name}`;
@@ -80,6 +89,8 @@ export async function POST(request: NextRequest) {
       await fs.writeFile(filePath, buffer);
       
       const publicUrl = `/uploads/${fileName}`;
+      
+      console.log('Local upload başarılı:', publicUrl);
       
       return NextResponse.json({
         url: publicUrl,
