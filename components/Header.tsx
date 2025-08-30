@@ -117,10 +117,10 @@ export default function Header() {
                 className="w-10 h-10 flex items-center justify-center hover:scale-110 transition-all duration-300 relative group"
                 onClick={() => setIsCartOpen(!isCartOpen)}
               >
-                {/* Premium Cart Icon */}
+                {/* Cart Emoji */}
                 <div className="relative">
                   <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-                    <i className="ri-shopping-cart-2-line text-lg text-white group-hover:scale-110 transition-transform duration-300"></i>
+                    <span className="text-lg group-hover:scale-110 transition-transform duration-300">🛒</span>
                   </div>
                   
                   {/* Cart Glow Effect */}
