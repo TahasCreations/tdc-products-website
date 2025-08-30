@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProducts, addProduct, updateProduct, deleteProduct } from '../../../../lib/supabase';
+import { supabase } from '../../../../lib/supabase';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,11 +14,8 @@ const getDefaultProducts = () => [
     price: 299.99,
     category: "Anime",
     stock: 15,
-    image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center",
-    images: [
-      "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center"
-    ],
+    image: "",
+    images: [],
     description: "Naruto anime serisinin baş karakteri olan Naruto Uzumaki'nin detaylı 3D baskı figürü. Yüksek kaliteli malzemelerle üretilmiştir.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -30,11 +28,8 @@ const getDefaultProducts = () => [
     price: 349.99,
     category: "Anime",
     stock: 8,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center",
-    images: [
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center"
-    ],
+    image: "",
+    images: [],
     description: "Dragon Ball serisinin efsanevi karakteri Goku'nun Super Saiyan formundaki detaylı figürü. Koleksiyon değeri yüksek.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -47,10 +42,8 @@ const getDefaultProducts = () => [
     price: 199.99,
     category: "Gaming",
     stock: 25,
-    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center",
-    images: [
-      "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center"
-    ],
+    image: "",
+    images: [],
     description: "Nintendo'nun efsanevi karakteri Mario'nun 3D baskı figürü. Oyun dünyasının en sevilen karakteri.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -63,12 +56,8 @@ const getDefaultProducts = () => [
     price: 449.99,
     category: "Film",
     stock: 5,
-    image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center",
-    images: [
-      "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center"
-    ],
+    image: "",
+    images: [],
     description: "Marvel Cinematic Universe'den Iron Man'in Mark 85 zırhının detaylı figürü. LED aydınlatmalı.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -76,11 +65,53 @@ const getDefaultProducts = () => [
   }
 ];
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    console.log('API: Ürünler isteniyor...');
+    const { searchParams } = new URL(request.url);
+    const slug = searchParams.get('slug');
     
-    // Supabase'den ürünleri al
+    console.log('API: Ürünler isteniyor...', slug ? `(slug: ${slug})` : '');
+    
+    // Eğer slug parametresi varsa, tek ürün getir
+    if (slug) {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+
+        if (error) {
+          console.error('Single product fetch error:', error);
+          // Default ürünlerden slug'a uygun olanı bul
+          const defaultProduct = getDefaultProducts().find(p => p.slug === slug);
+          if (defaultProduct) {
+            return NextResponse.json(defaultProduct, {
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+              }
+            });
+          }
+          return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
+        }
+
+        console.log('API: Tek ürün bulundu:', data.title);
+        return NextResponse.json(data, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+      } catch (error) {
+        console.error('Single product error:', error);
+        return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
+      }
+    }
+    
+    // Supabase'den tüm ürünleri al
     const products = await getProducts();
     
     console.log('API: Supabase\'den', products.length, 'ürün alındı');

@@ -33,11 +33,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   // Varyasyon yoksa varsayılan olarak boş string
   const hasVariations = product.variations && product.variations.length > 0;
 
-  // Fallback görsel URL'i
-  const fallbackImage = "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center";
-  
-  // Görsel URL'ini kontrol et
-  const imageUrl = imageError || !product.image ? fallbackImage : product.image;
+  // Görsel URL'ini kontrol et - gerçek görsel varsa onu kullan
+  const imageUrl = product.image && product.image.trim() !== '' ? product.image : null;
 
   return (
     <div className="group relative">
@@ -50,20 +47,29 @@ export default function ProductCard({ product }: ProductCardProps) {
         
         {/* Product Image */}
         <div className="relative overflow-hidden">
-          <Image
-            src={imageUrl}
-            alt={product.title}
-            width={400}
-            height={256}
-            className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-            quality={85}
-            priority={false}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            onError={() => {
-              console.log('Görsel yüklenemedi:', product.image);
-              setImageError(true);
-            }}
-          />
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={product.title}
+              width={400}
+              height={256}
+              className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+              quality={85}
+              priority={false}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              onError={() => {
+                console.log('Görsel yüklenemedi:', product.image);
+                setImageError(true);
+              }}
+            />
+          ) : (
+            <div className="w-full h-64 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+              <div className="text-center">
+                <i className="ri-image-line text-4xl text-gray-400 mb-2"></i>
+                <p className="text-gray-500 text-sm">Görsel yok</p>
+              </div>
+            </div>
+          )}
           
           {/* Elegant Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
@@ -155,20 +161,29 @@ export default function ProductCard({ product }: ProductCardProps) {
               {/* Product Images Section */}
               <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
                 <div className="relative h-96 lg:h-full">
-                  <Image 
-                    src={imageUrl} 
-                    alt={product.title} 
-                    width={800}
-                    height={600}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    quality={90}
-                    priority={true}
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    onError={() => {
-                      console.log('Modal görsel yüklenemedi:', product.image);
-                      setImageError(true);
-                    }}
-                  />
+                  {imageUrl ? (
+                    <Image 
+                      src={imageUrl} 
+                      alt={product.title} 
+                      width={800}
+                      height={600}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      quality={90}
+                      priority={true}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      onError={() => {
+                        console.log('Modal görsel yüklenemedi:', product.image);
+                        setImageError(true);
+                      }}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                      <div className="text-center">
+                        <i className="ri-image-line text-4xl text-gray-400 mb-2"></i>
+                        <p className="text-gray-500 text-sm">Görsel yok</p>
+                      </div>
+                    </div>
+                  )}
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
                   

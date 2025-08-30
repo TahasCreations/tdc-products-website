@@ -9,7 +9,11 @@ interface ProductGalleryProps {
 }
 
 export default function ProductGallery({ images, alt }: ProductGalleryProps) {
-  const normalized = images && images.length > 0 ? images : ['/vercel.svg'];
+  // Görsel yoksa placeholder göster
+  const validImages = images && images.length > 0 && images.some(img => img && img.trim() !== '') 
+    ? images.filter(img => img && img.trim() !== '') 
+    : [];
+  
   const [activeIndex, setActiveIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -24,8 +28,23 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
     setTimeout(() => setAnimating(false), 250);
   };
 
-  const goPrev = () => goTo((activeIndex - 1 + normalized.length) % normalized.length);
-  const goNext = () => goTo((activeIndex + 1) % normalized.length);
+  const goPrev = () => goTo((activeIndex - 1 + validImages.length) % validImages.length);
+  const goNext = () => goTo((activeIndex + 1) % validImages.length);
+
+  // Görsel yoksa placeholder göster
+  if (validImages.length === 0) {
+    return (
+      <div className="relative w-full overflow-hidden rounded-xl border border-gray-200">
+        <div className="relative h-80 md:h-96 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+          <div className="text-center">
+            <i className="ri-image-line text-6xl text-gray-400 mb-4"></i>
+            <p className="text-gray-500 text-lg">Görsel yok</p>
+            <p className="text-gray-400 text-sm">Bu ürün için henüz görsel yüklenmemiş</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -35,7 +54,7 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
           {animating && prevIndex !== null && (
             <Image
               key={`prev-${prevIndex}`}
-              src={normalized[prevIndex]}
+              src={validImages[prevIndex]}
               alt={alt}
               width={800}
               height={400}
@@ -48,7 +67,7 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
           {/* Active image */}
           <Image
             key={`active-${activeIndex}`}
-            src={normalized[activeIndex]}
+            src={validImages[activeIndex]}
             alt={alt}
             width={800}
             height={400}
@@ -62,7 +81,7 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
           />
 
           {/* Controls */}
-          {normalized.length > 1 && (
+          {validImages.length > 1 && (
             <>
               <button
                 aria-label="Önceki görsel"
@@ -83,9 +102,9 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
         </div>
       </div>
 
-      {normalized.length > 1 && (
+      {validImages.length > 1 && (
         <div className="mt-4 flex gap-3 overflow-x-auto">
-          {normalized.map((src, idx) => (
+          {validImages.map((src, idx) => (
             <button
               key={idx}
               onClick={() => goTo(idx)}
