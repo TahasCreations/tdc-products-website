@@ -120,6 +120,41 @@ export default function AdminPage() {
     }
   ];
 
+  // Verileri yükleme fonksiyonu
+  const fetchData = async () => {
+    try {
+      // Supabase'den kategorileri yükle
+      const { data: categoriesData, error: categoriesError } = await supabase
+        .from('categories')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (categoriesError) {
+        console.error('Categories loading error:', categoriesError);
+        setCategories(getDefaultCategories());
+      } else {
+        setCategories(categoriesData || getDefaultCategories());
+      }
+
+      // Supabase'den ürünleri yükle
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (productsError) {
+        console.error('Products loading error:', productsError);
+        setProducts(getDefaultProducts());
+      } else {
+        setProducts(productsData || getDefaultProducts());
+      }
+    } catch (error) {
+      console.error('Data loading error:', error);
+      setCategories(getDefaultCategories());
+      setProducts(getDefaultProducts());
+    }
+  };
+
   // Session kontrolü ve verileri yükle
   useEffect(() => {
     const checkSessionAndLoadData = async () => {
@@ -133,32 +168,7 @@ export default function AdminPage() {
           setCurrentUser(session.user);
         }
 
-        // Supabase'den kategorileri yükle
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from('categories')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (categoriesError) {
-          console.error('Categories loading error:', categoriesError);
-          setCategories(getDefaultCategories());
-        } else {
-          setCategories(categoriesData || getDefaultCategories());
-        }
-
-        // Supabase'den ürünleri yükle
-        const { data: productsData, error: productsError } = await supabase
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (productsError) {
-          console.error('Products loading error:', productsError);
-          setProducts(getDefaultProducts());
-        } else {
-          setProducts(productsData || getDefaultProducts());
-        }
-
+        await fetchData();
         setLoading(false);
       } catch (error) {
         console.error('Data loading error:', error);
@@ -349,7 +359,12 @@ export default function AdminPage() {
         setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '', variations: [] });
         setMessage('Ürün başarıyla eklendi!');
         setMessageType('success');
-        setTimeout(() => setMessage(''), 3000);
+        
+        // Verileri yenile
+        setTimeout(() => {
+          fetchData();
+          setMessage('');
+        }, 1000);
       }
     } catch (error) {
       setMessage('Bağlantı hatası');
@@ -442,44 +457,60 @@ export default function AdminPage() {
         const filePath = `products/${fileName}`;
 
         try {
-          // Bucket kontrolünü atla, doğrudan yükleme yap
-          console.log('Bucket kontrolü atlandı, doğrudan yükleme yapılıyor...');
+          console.log('Görsel yükleniyor:', fileName);
 
-                           // Supabase Storage'a yükle - RLS bypass
-                 try {
-                   const { data, error } = await supabase.storage
-                     .from('images')
-                     .upload(filePath, file, {
-                       cacheControl: '3600',
-                       upsert: false
-                     });
+          // Supabase Storage'a yükle
+          const { data, error } = await supabase.storage
+            .from('images')
+            .upload(filePath, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
 
-                   if (error) {
-                     console.error('Upload error:', error);
-                     
-                     // RLS hatası ise alternatif yöntem dene
-                     if (error.message.includes('row-level security')) {
-                       setMessage('RLS politikası hatası. Lütfen Supabase Dashboard\'da storage politikalarını kontrol edin.');
-                       setMessageType('error');
-                       continue;
-                     }
-                     
-                     setMessage(`Görsel yüklenemedi: ${error.message}`);
-                     setMessageType('error');
-                     continue;
-                   }
-                 } catch (uploadError) {
-                   console.error('Upload process error:', uploadError);
-                   setMessage(`Görsel yükleme hatası: ${uploadError}`);
-                   setMessageType('error');
-                   continue;
-                 }
+          if (error) {
+            console.error('Upload error:', error);
+            
+            // RLS hatası ise alternatif yöntem dene
+            if (error.message.includes('row-level security') || error.message.includes('policy')) {
+              console.log('RLS politikası hatası, alternatif yöntem deneniyor...');
+              
+              // API route üzerinden yükleme dene
+              try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('path', filePath);
+                
+                const response = await fetch('/api/upload', {
+                  method: 'POST',
+                  body: formData
+                });
+                
+                if (response.ok) {
+                  const result = await response.json();
+                  uploadedUrls.push(result.url);
+                  setUploadProgress(((i + 1) / files.length) * 100);
+                  continue;
+                }
+              } catch (apiError) {
+                console.error('API upload error:', apiError);
+              }
+              
+              setMessage('Storage politikası hatası. Lütfen Supabase Dashboard\'da storage politikalarını kontrol edin.');
+              setMessageType('error');
+              continue;
+            }
+            
+            setMessage(`Görsel yüklenemedi: ${error.message}`);
+            setMessageType('error');
+            continue;
+          }
 
           // Public URL al
           const { data: urlData } = supabase.storage
             .from('images')
             .getPublicUrl(filePath);
 
+          console.log('Görsel başarıyla yüklendi:', urlData.publicUrl);
           uploadedUrls.push(urlData.publicUrl);
           setUploadProgress(((i + 1) / files.length) * 100);
 
@@ -501,6 +532,11 @@ export default function AdminPage() {
 
         setMessage(`${uploadedUrls.length} görsel başarıyla yüklendi!`);
         setMessageType('success');
+        
+        // Ürünler listesini yenile
+        setTimeout(() => {
+          fetchData();
+        }, 1000);
       }
 
     } catch (error) {

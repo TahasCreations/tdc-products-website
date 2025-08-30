@@ -30,8 +30,8 @@ const getDefaultProducts = (): Product[] => [
     price: 299.99,
     category: "Anime",
     stock: 15,
-    image: "/uploads/naruto-figur.jpg",
-    images: ["/uploads/naruto-figur.jpg", "/uploads/naruto-figur-2.jpg"],
+    image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center",
+    images: ["https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center", "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center"],
     description: "Naruto anime serisinin baş karakteri olan Naruto Uzumaki'nin detaylı 3D baskı figürü.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -44,8 +44,8 @@ const getDefaultProducts = (): Product[] => [
     price: 349.99,
     category: "Anime",
     stock: 8,
-    image: "/uploads/goku-figur.jpg",
-    images: ["/uploads/goku-figur.jpg", "/uploads/goku-figur-2.jpg"],
+    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center",
+    images: ["https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center", "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center"],
     description: "Dragon Ball serisinin efsanevi karakteri Goku'nun Super Saiyan formundaki detaylı figürü.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -58,8 +58,8 @@ const getDefaultProducts = (): Product[] => [
     price: 199.99,
     category: "Gaming",
     stock: 25,
-    image: "/uploads/mario-figur.jpg",
-    images: ["/uploads/mario-figur.jpg"],
+    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center",
+    images: ["https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center"],
     description: "Nintendo'nun efsanevi karakteri Mario'nun 3D baskı figürü.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -72,8 +72,8 @@ const getDefaultProducts = (): Product[] => [
     price: 449.99,
     category: "Film",
     stock: 5,
-    image: "/uploads/ironman-figur.jpg",
-    images: ["/uploads/ironman-figur.jpg", "/uploads/ironman-figur-2.jpg", "/uploads/ironman-figur-3.jpg"],
+    image: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center",
+    images: ["https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center", "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop&crop=center", "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop&crop=center"],
     description: "Marvel Cinematic Universe'den Iron Man'in Mark 85 zırhının detaylı figürü.",
     status: "active",
     created_at: "2024-01-01T00:00:00.000Z",
@@ -84,30 +84,88 @@ const getDefaultProducts = (): Product[] => [
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [lastFetch, setLastFetch] = useState<number>(0);
+
+  // Ürünleri yükle - cache ile
+  const fetchProducts = async (forceRefresh = false) => {
+    try {
+      const now = Date.now();
+      const cacheTime = 30 * 1000; // 30 saniye cache
+      
+      // Cache kontrolü
+      if (!forceRefresh && now - lastFetch < cacheTime && products.length > 0) {
+        return;
+      }
+
+      console.log('Ürünler yükleniyor...', forceRefresh ? '(zorla yenileme)' : '(cache kontrolü)');
+      
+      // Önce API'den dene
+      try {
+        const response = await fetch('/api/products', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            console.log('API\'den ürünler yüklendi:', data.length);
+            setProducts(data);
+            setLastFetch(now);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (apiError) {
+        console.log('API hatası, Supabase\'den yükleniyor...', apiError);
+      }
+
+      // API başarısız olursa doğrudan Supabase'den yükle
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        setProducts(getDefaultProducts());
+      } else {
+        console.log('Supabase\'den ürünler yüklendi:', data?.length || 0);
+        setProducts(data && data.length > 0 ? data : getDefaultProducts());
+      }
+      
+      setLastFetch(now);
+    } catch (error) {
+      console.error('Ürünler yüklenirken hata:', error);
+      setProducts(getDefaultProducts());
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchProducts() {
-      try {
-        // Supabase'den ürünleri al
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.error('Supabase error:', error);
-          setProducts(getDefaultProducts());
-        } else {
-          setProducts(data && data.length > 0 ? data : getDefaultProducts());
-        }
-      } catch (error) {
-        console.error('Ürünler yüklenirken hata:', error);
-        setProducts(getDefaultProducts());
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchProducts();
+    
+    // Her 30 saniyede bir otomatik yenileme
+    const interval = setInterval(() => {
+      fetchProducts();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Sayfa görünür olduğunda yenileme
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchProducts(true);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   const handleSearch = () => {

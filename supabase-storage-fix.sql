@@ -1,77 +1,66 @@
--- Supabase Storage RLS Politikası Düzeltmesi
--- Bu dosyayı Supabase SQL Editor'da çalıştırın
+-- Supabase Storage Politikalarını Düzeltme
+-- Bu dosyayı Supabase Dashboard'da SQL Editor'da çalıştırın
 
--- 1. Önce mevcut politikaları temizle
-DROP POLICY IF EXISTS "Allow bucket creation" ON storage.buckets;
-DROP POLICY IF EXISTS "Allow bucket reading" ON storage.buckets;
-DROP POLICY IF EXISTS "Allow bucket updating" ON storage.buckets;
-DROP POLICY IF EXISTS "Allow bucket deletion" ON storage.buckets;
+-- 1. Mevcut storage politikalarını temizle
 DROP POLICY IF EXISTS "Public Access" ON storage.objects;
-DROP POLICY IF EXISTS "Authenticated users can upload" ON storage.objects;
-DROP POLICY IF EXISTS "Users can update own files" ON storage.objects;
-DROP POLICY IF EXISTS "Users can delete own files" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated users can upload images" ON storage.objects;
+DROP POLICY IF EXISTS "Public read access" ON storage.objects;
 
--- 2. Storage bucket'ları için RLS'yi etkinleştir
-ALTER TABLE storage.buckets ENABLE ROW LEVEL SECURITY;
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
--- 3. Bucket oluşturma politikası (anon ve authenticated kullanıcılar için)
-CREATE POLICY "Allow bucket creation" ON storage.buckets
-FOR INSERT WITH CHECK (
-  auth.role() = 'authenticated' OR auth.role() = 'anon'
-);
-
--- 4. Bucket okuma politikası (herkes okuyabilir)
-CREATE POLICY "Allow bucket reading" ON storage.buckets
-FOR SELECT USING (true);
-
--- 5. Bucket güncelleme politikası (sadece bucket sahibi)
-CREATE POLICY "Allow bucket updating" ON storage.buckets
-FOR UPDATE USING (auth.uid() = owner);
-
--- 6. Bucket silme politikası (sadece bucket sahibi)
-CREATE POLICY "Allow bucket deletion" ON storage.buckets
-FOR DELETE USING (auth.uid() = owner);
-
--- 7. Object okuma politikası (herkes okuyabilir)
-CREATE POLICY "Public Access" ON storage.objects
+-- 2. Yeni storage politikaları oluştur
+-- Herkesin okuma yapabilmesi için
+CREATE POLICY "Public read access" ON storage.objects
 FOR SELECT USING (bucket_id = 'images');
 
--- 8. Object yükleme politikası (authenticated kullanıcılar için)
-CREATE POLICY "Authenticated users can upload" ON storage.objects
+-- Authenticated kullanıcıların yükleme yapabilmesi için
+CREATE POLICY "Authenticated users can upload images" ON storage.objects
 FOR INSERT WITH CHECK (
-  bucket_id = 'images' AND 
-  auth.role() = 'authenticated'
+  bucket_id = 'images' 
+  AND auth.role() = 'authenticated'
 );
 
--- 9. Object güncelleme politikası (sadece yükleyen kullanıcı)
-CREATE POLICY "Users can update own files" ON storage.objects
+-- Authenticated kullanıcıların güncelleme yapabilmesi için
+CREATE POLICY "Authenticated users can update images" ON storage.objects
 FOR UPDATE USING (
-  bucket_id = 'images' AND 
-  auth.uid() = owner
+  bucket_id = 'images' 
+  AND auth.role() = 'authenticated'
 );
 
--- 10. Object silme politikası (sadece yükleyen kullanıcı)
-CREATE POLICY "Users can delete own files" ON storage.objects
+-- Authenticated kullanıcıların silme yapabilmesi için
+CREATE POLICY "Authenticated users can delete images" ON storage.objects
 FOR DELETE USING (
-  bucket_id = 'images' AND 
-  auth.uid() = owner
+  bucket_id = 'images' 
+  AND auth.role() = 'authenticated'
 );
 
--- 11. 'images' bucket'ını oluştur (eğer yoksa)
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-  'images',
-  'images',
-  true,
-  5242880, -- 5MB
-  ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']
-) ON CONFLICT (id) DO NOTHING;
-
--- 12. Bucket ayarlarını güncelle
+-- 3. Bucket'ın public olduğundan emin ol
 UPDATE storage.buckets 
-SET 
-  public = true,
-  file_size_limit = 5242880,
-  allowed_mime_types = ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']
+SET public = true 
 WHERE id = 'images';
+
+-- 4. RLS'yi storage.objects için etkinleştir
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+-- 5. Test için basit bir policy (geliştirme ortamı için)
+-- DİKKAT: Bu sadece geliştirme ortamı için kullanın!
+CREATE POLICY "Allow all operations for development" ON storage.objects
+FOR ALL USING (bucket_id = 'images')
+WITH CHECK (bucket_id = 'images');
+
+-- 6. Bucket'ı yeniden oluştur (eğer yoksa)
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('images', 'images', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+ON CONFLICT (id) DO UPDATE SET
+  public = EXCLUDED.public,
+  file_size_limit = EXCLUDED.file_size_limit,
+  allowed_mime_types = EXCLUDED.allowed_mime_types;
+
+-- 7. Mevcut dosyaları kontrol et
+SELECT 
+  name,
+  bucket_id,
+  created_at,
+  updated_at
+FROM storage.objects 
+WHERE bucket_id = 'images'
+ORDER BY created_at DESC
+LIMIT 10;

@@ -7,6 +7,7 @@ import { headers } from 'next/headers';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Ürünleri API'den çek
 async function getProducts() {
@@ -16,13 +17,22 @@ async function getProducts() {
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
     
+    console.log('Ürünler sayfası: API\'den ürünler isteniyor...');
+    
     const response = await fetch(`${baseUrl}/api/products`, {
-      next: { revalidate: 60 } // 60 saniye cache
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
     });
     
     if (response.ok) {
-      return await response.json();
+      const data = await response.json();
+      console.log('Ürünler sayfası:', data.length, 'ürün alındı');
+      return data;
     }
+    console.log('Ürünler sayfası: API yanıt vermedi, boş array döndürülüyor');
     return [];
   } catch (error) {
     console.error('Ürünler yüklenirken hata:', error);
@@ -39,7 +49,11 @@ async function getCategories() {
     const baseUrl = `${protocol}://${host}`;
     
     const response = await fetch(`${baseUrl}/api/categories`, {
-      next: { revalidate: 60 } // 60 saniye cache
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
     });
     
     if (response.ok) {

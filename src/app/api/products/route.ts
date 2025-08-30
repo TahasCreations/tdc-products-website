@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getProducts, addProduct, updateProduct, deleteProduct } from '../../../../lib/supabase';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const getDefaultProducts = () => [
   {
@@ -76,18 +78,41 @@ const getDefaultProducts = () => [
 
 export async function GET() {
   try {
+    console.log('API: Ürünler isteniyor...');
+    
     // Supabase'den ürünleri al
     const products = await getProducts();
     
+    console.log('API: Supabase\'den', products.length, 'ürün alındı');
+    
     if (products.length > 0) {
-      return NextResponse.json(products);
+      return NextResponse.json(products, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
     }
     
     // Eğer Supabase'de ürün yoksa default ürünleri döndür
-    return NextResponse.json(getDefaultProducts());
+    console.log('API: Default ürünler döndürülüyor');
+    return NextResponse.json(getDefaultProducts(), {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (error) {
     console.error('GET Error:', error);
-    return NextResponse.json(getDefaultProducts());
+    return NextResponse.json(getDefaultProducts(), {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   }
 }
 

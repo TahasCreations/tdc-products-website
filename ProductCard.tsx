@@ -26,11 +26,18 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [open, setOpen] = useState(false);
   const [selectedVariation, setSelectedVariation] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
+  const [imageError, setImageError] = useState(false);
   const { addItem } = useCart();
   const { addToast } = useToast();
 
   // Varyasyon yoksa varsayılan olarak boş string
   const hasVariations = product.variations && product.variations.length > 0;
+
+  // Fallback görsel URL'i
+  const fallbackImage = "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=300&fit=crop&crop=center";
+  
+  // Görsel URL'ini kontrol et
+  const imageUrl = imageError || !product.image ? fallbackImage : product.image;
 
   return (
     <div className="group relative">
@@ -44,7 +51,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Product Image */}
         <div className="relative overflow-hidden">
           <Image
-            src={product.image}
+            src={imageUrl}
             alt={product.title}
             width={400}
             height={256}
@@ -52,6 +59,10 @@ export default function ProductCard({ product }: ProductCardProps) {
             quality={85}
             priority={false}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            onError={() => {
+              console.log('Görsel yüklenemedi:', product.image);
+              setImageError(true);
+            }}
           />
           
           {/* Elegant Gradient Overlay */}
@@ -145,7 +156,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
                 <div className="relative h-96 lg:h-full">
                   <Image 
-                    src={product.image} 
+                    src={imageUrl} 
                     alt={product.title} 
                     width={800}
                     height={600}
@@ -153,6 +164,10 @@ export default function ProductCard({ product }: ProductCardProps) {
                     quality={90}
                     priority={true}
                     sizes="(max-width: 768px) 100vw, 50vw"
+                    onError={() => {
+                      console.log('Modal görsel yüklenemedi:', product.image);
+                      setImageError(true);
+                    }}
                   />
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
