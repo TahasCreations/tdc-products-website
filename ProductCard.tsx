@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import AddToCartButton from './AddToCartButton';
 import { useState } from 'react';
 import { useCart } from './src/contexts/CartContext';
 import { useToast } from './src/components/Toast';
@@ -105,7 +104,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <Link
               href={`/products/${product.slug}`}
               className="inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm font-medium rounded-xl hover:from-blue-600 hover:to-purple-600 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl transform h-12"
@@ -113,10 +112,6 @@ export default function ProductCard({ product }: ProductCardProps) {
               <i className="ri-eye-line mr-2"></i>
               Detaylar
             </Link>
-            
-            <div className="h-12">
-              <AddToCartButton product={product} />
-            </div>
             
             <button
               onClick={() => setOpen(true)}

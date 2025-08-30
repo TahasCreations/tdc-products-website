@@ -114,21 +114,23 @@ export default function Header() {
             {/* Sepet Butonu */}
             <div className="relative">
               <button 
-                className="w-8 h-8 flex items-center justify-center hover:scale-110 transition-all duration-300 relative group"
+                className="w-10 h-10 flex items-center justify-center hover:scale-110 transition-all duration-300 relative group"
                 onClick={() => setIsCartOpen(!isCartOpen)}
               >
                 {/* Premium Cart Icon */}
                 <div className="relative">
-                  <i className="ri-shopping-bag-3-line text-2xl text-gray-700 dark:text-gray-300 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-all duration-300"></i>
+                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                    <i className="ri-shopping-cart-2-line text-lg text-white group-hover:scale-110 transition-transform duration-300"></i>
+                  </div>
                   
                   {/* Cart Glow Effect */}
-                  <div className="absolute inset-0 bg-orange-500/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 scale-150"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/30 to-red-500/30 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 scale-150"></div>
                 </div>
                 
                 {/* Cart Badge */}
                 {state.itemCount > 0 && (
-                  <div className="absolute -top-1 -right-1">
-                    <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-red-500 rounded-full min-w-[20px] h-5 shadow-lg animate-pulse">
+                  <div className="absolute -top-2 -right-2">
+                    <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-full min-w-[22px] h-6 shadow-lg animate-pulse border-2 border-white dark:border-gray-800">
                       {state.itemCount > 99 ? '99+' : state.itemCount}
                     </span>
                   </div>

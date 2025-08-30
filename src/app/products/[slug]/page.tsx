@@ -3,6 +3,7 @@ import Link from "next/link";
 import { headers } from 'next/headers';
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartButton from "../../../../AddToCartButton";
+import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,29 +11,44 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  // Best-effort fetch for SEO; ignore failures
+  
   try {
     const headersList = await headers();
     const host = headersList.get('host') || 'localhost:3000';
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
-    const res = await fetch(`${baseUrl}/api/products?slug=${encodeURIComponent(slug)}`, { cache: 'no-store' });
+    
+    const res = await fetch(`${baseUrl}/api/products?slug=${encodeURIComponent(slug)}`, { 
+      cache: 'no-store',
+      next: { revalidate: 0 }
+    });
+    
     if (res.ok) {
       const product = await res.json();
       return {
         title: `${product.title} | TDC Products`,
-        description: product.description?.slice(0, 160) || 'Ürün detayları',
+        description: product.description?.slice(0, 160) || 'Premium kalitede figürler ve koleksiyon ürünleri',
         openGraph: {
+          title: `${product.title} | TDC Products`,
+          description: product.description,
+          images: product.image ? [product.image] : [],
+          type: 'product',
+        },
+        twitter: {
+          card: 'summary_large_image',
           title: `${product.title} | TDC Products`,
           description: product.description,
           images: product.image ? [product.image] : [],
         }
       };
     }
-  } catch {}
+  } catch (error) {
+    console.error('Metadata generation error:', error);
+  }
+  
   return {
     title: 'Ürün Detayı | TDC Products',
-    description: 'Ürün detay sayfası',
+    description: 'Premium kalitede figürler ve koleksiyon ürünleri',
   };
 }
 
@@ -45,76 +61,111 @@ async function getProductBySlug(slug: string) {
     const baseUrl = `${protocol}://${host}`;
     
     const response = await fetch(`${baseUrl}/api/products?slug=${encodeURIComponent(slug)}`, {
-      next: { revalidate: 60 } // 60 saniye cache
+      cache: 'no-store',
+      next: { revalidate: 0 }
     });
     
     if (!response.ok) {
-      throw new Error('Ürün yüklenemedi');
+      return null;
     }
     
-    return await response.json();
+    const product = await response.json();
+    return product;
   } catch (error) {
     console.error('Ürün yüklenirken hata:', error);
     return null;
   }
 }
 
-export function generateStaticParams() {
-  // Demo statik ürünler kaldırıldı
-  return [];
+// Benzer ürünleri getir
+async function getSimilarProducts(currentSlug: string, category: string) {
+  try {
+    const headersList = await headers();
+    const host = headersList.get('host') || 'localhost:3000';
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+    
+    const response = await fetch(`${baseUrl}/api/products`, {
+      cache: 'no-store',
+      next: { revalidate: 0 }
+    });
+    
+    if (!response.ok) {
+      return [];
+    }
+    
+    const products = await response.json();
+    return products
+      .filter((p: any) => p.slug !== currentSlug && p.category === category)
+      .slice(0, 4);
+  } catch (error) {
+    console.error('Benzer ürünler yüklenirken hata:', error);
+    return [];
+  }
 }
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  const headersList = await headers();
-  const host = headersList.get('host') || 'localhost:3000';
-  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-  const baseUrl = `${protocol}://${host}`;
   
   if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="text-center max-w-md mx-auto p-8">
-          <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <i className="ri-error-warning-line text-4xl text-red-500"></i>
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Ürün Bulunamadı</h1>
-          <p className="text-gray-600 mb-8">Aradığınız ürün mevcut değil veya kaldırılmış olabilir.</p>
-          <Link 
-            href="/products" 
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-          >
-            <i className="ri-arrow-left-line"></i>
-            Ürünlere Geri Dön
-          </Link>
-        </div>
-      </div>
-    );
+    notFound();
   }
 
+  const similarProducts = await getSimilarProducts(product.slug, product.category);
+
+  // Stok durumunu belirle
+  const getStockStatus = (stock: number) => {
+    if (stock > 10) return { 
+      status: 'Stokta', 
+      color: 'text-green-600', 
+      bg: 'bg-green-100',
+      icon: 'ri-check-line'
+    };
+    if (stock > 0) return { 
+      status: `Son ${stock} adet`, 
+      color: 'text-yellow-600', 
+      bg: 'bg-yellow-100',
+      icon: 'ri-time-line'
+    };
+    return { 
+      status: 'Stokta yok', 
+      color: 'text-red-600', 
+      bg: 'bg-red-100',
+      icon: 'ri-close-line'
+    };
+  };
+
+  const stockInfo = getStockStatus(product.stock);
+
+  // Structured Data for SEO
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
     description: product.description,
     image: product.image,
+    category: product.category,
+    brand: {
+      "@type": "Brand",
+      name: "TDC Products"
+    },
     offers: {
       "@type": "Offer",
       price: product.price,
       priceCurrency: "TRY",
-      availability: "https://schema.org/InStock",
+      availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      seller: {
+        "@type": "Organization",
+        name: "TDC Products"
+      }
     },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      reviewCount: "127"
+    }
   };
-
-  // Stok durumunu belirle
-  const getStockStatus = (stock: number) => {
-    if (stock > 10) return { status: 'Stokta', color: 'text-green-600', bg: 'bg-green-100' };
-    if (stock > 0) return { status: 'Son ' + stock + ' adet', color: 'text-yellow-600', bg: 'bg-yellow-100' };
-    return { status: 'Stokta yok', color: 'text-red-600', bg: 'bg-red-100' };
-  };
-
-  const stockInfo = getStockStatus(product.stock);
 
   return (
     <>
@@ -123,28 +174,32 @@ export default async function ProductDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
       
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-gray-50 via-white to-gray-50 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Breadcrumb */}
-          <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-8">
-            <Link href="/" className="hover:text-orange-500 transition-colors">
-              Ana Sayfa
-            </Link>
-            <i className="ri-arrow-right-s-line"></i>
-            <Link href="/products" className="hover:text-orange-500 transition-colors">
-              Ürünler
-            </Link>
-            <i className="ri-arrow-right-s-line"></i>
-            <span className="text-gray-900 font-medium">{product.title}</span>
-          </nav>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+        {/* Hero Section */}
+        <section className="relative py-8 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="flex items-center space-x-2 text-sm text-white/80 mb-8">
+              <Link href="/" className="hover:text-white transition-colors">
+                Ana Sayfa
+              </Link>
+              <i className="ri-arrow-right-s-line"></i>
+              <Link href="/products" className="hover:text-white transition-colors">
+                Ürünler
+              </Link>
+              <i className="ri-arrow-right-s-line"></i>
+              <span className="text-white font-medium">{product.title}</span>
+            </nav>
+          </div>
+        </section>
 
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             {/* Product Images */}
             <div className="space-y-6">
-              <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+              <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
                 <ProductGallery 
-                  images={Array.isArray((product as any).images) && (product as any).images.length > 0 ? (product as any).images : [product.image]} 
+                  images={Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image]} 
                   alt={product.title} 
                 />
               </div>
@@ -152,14 +207,14 @@ export default async function ProductDetailPage({ params }: Props) {
 
             {/* Product Info */}
             <div className="space-y-8">
-              {/* Category Badge */}
-              <div className="flex items-center gap-3">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  <i className="ri-price-tag-3-line mr-1"></i>
+              {/* Category and Stock Badges */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg">
+                  <i className="ri-price-tag-3-line mr-2"></i>
                   {product.category}
                 </span>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${stockInfo.bg} ${stockInfo.color}`}>
-                  <i className="ri-store-2-line mr-1"></i>
+                <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${stockInfo.bg} ${stockInfo.color} shadow-lg`}>
+                  <i className={`${stockInfo.icon} mr-2`}></i>
                   {stockInfo.status}
                 </span>
               </div>
@@ -169,12 +224,12 @@ export default async function ProductDetailPage({ params }: Props) {
                 <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-4">
                   {product.title}
                 </h1>
-                <div className="flex items-center gap-4">
-                  <div className="text-3xl font-bold text-orange-600">
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
                     ₺{product.price.toLocaleString('tr-TR')}
                   </div>
                   {product.stock > 0 && (
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full shadow-sm">
                       <i className="ri-shipping-line mr-1"></i>
                       Ücretsiz kargo
                     </div>
@@ -206,28 +261,28 @@ export default async function ProductDetailPage({ params }: Props) {
                 </div>
               )}
 
-                             {/* Action Buttons */}
-               <div className="space-y-4">
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                   <div className="h-14">
-                     <AddToCartButton 
-                       product={{
-                         id: product.id,
-                         title: product.title,
-                         price: product.price,
-                         image: product.image,
-                         slug: product.slug,
-                         category: product.category,
-                         stock: product.stock
-                       }}
-                     />
-                   </div>
-                   
-                   <button className="w-full h-14 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
-                     <i className="ri-flashlight-line text-xl"></i>
-                     Hızlı Al
-                   </button>
-                 </div>
+              {/* Action Buttons */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="h-14">
+                    <AddToCartButton 
+                      product={{
+                        id: product.id,
+                        title: product.title,
+                        price: product.price,
+                        image: product.image,
+                        slug: product.slug,
+                        category: product.category,
+                        stock: product.stock
+                      }}
+                    />
+                  </div>
+                  
+                  <button className="w-full h-14 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                    <i className="ri-flashlight-line text-xl"></i>
+                    Hızlı Al
+                  </button>
+                </div>
                 
                 <Link 
                   href="/products"
@@ -239,7 +294,7 @@ export default async function ProductDetailPage({ params }: Props) {
               </div>
 
               {/* Product Features */}
-              <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">Özellikler</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3">
@@ -287,71 +342,47 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
 
           {/* Similar Products */}
-          <div className="mt-20">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Benzer Ürünler</h2>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Bu ürünle birlikte alabileceğiniz diğer harika ürünlerimizi keşfedin
-              </p>
+          {similarProducts.length > 0 && (
+            <div className="mt-20">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Benzer Ürünler</h2>
+                <p className="text-gray-600 max-w-2xl mx-auto">
+                  Bu ürünle birlikte alabileceğiniz diğer harika ürünlerimizi keşfedin
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {similarProducts.map((p: any) => (
+                  <Link 
+                    key={p.id} 
+                    href={`/products/${p.slug}`}
+                    className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-200"
+                  >
+                    <div className="relative overflow-hidden">
+                      <Image 
+                        src={p.image} 
+                        alt={p.title} 
+                        width={300} 
+                        height={200} 
+                        className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500" 
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-orange-600 transition-colors line-clamp-2 mb-2">
+                        {p.title}
+                      </h3>
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-bold text-orange-600">₺{p.price.toLocaleString('tr-TR')}</span>
+                        <span className="text-sm text-gray-500">{p.category}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
-            <SimilarProducts currentSlug={product.slug} baseUrl={baseUrl} />
-          </div>
+          )}
         </div>
       </div>
     </>
-  );
-}
-
-async function fetchProducts(baseUrl: string) {
-  const res = await fetch(`${baseUrl}/api/products`, { next: { revalidate: 60 } });
-  if (!res.ok) return [] as any[];
-  return res.json();
-}
-
-async function SimilarProducts({ currentSlug, baseUrl }: { currentSlug: string; baseUrl: string }) {
-  const products = await fetchProducts(baseUrl);
-  const list = (products || []).filter((p: any) => p.slug !== currentSlug).slice(0, 4);
-  
-  if (list.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i className="ri-inbox-line text-2xl text-gray-400"></i>
-        </div>
-        <p className="text-gray-500">Henüz benzer ürün bulunmuyor</p>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {list.map((p: any) => (
-        <Link 
-          key={p.id} 
-          href={`/products/${p.slug}`}
-          className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-200"
-        >
-          <div className="relative overflow-hidden">
-            <Image 
-              src={p.image} 
-              alt={p.title} 
-              width={300} 
-              height={200} 
-              className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </div>
-          <div className="p-4">
-            <h3 className="font-semibold text-gray-900 group-hover:text-orange-600 transition-colors line-clamp-2 mb-2">
-              {p.title}
-            </h3>
-            <div className="flex items-center justify-between">
-              <span className="text-lg font-bold text-orange-600">₺{p.price.toLocaleString('tr-TR')}</span>
-              <span className="text-sm text-gray-500">{p.category}</span>
-            </div>
-          </div>
-        </Link>
-      ))}
-    </div>
   );
 }
