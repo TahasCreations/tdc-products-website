@@ -4,6 +4,7 @@ import ProductGallery from "@/components/ProductGallery";
 import AddToCartButton from "../../../../AddToCartButton";
 import { notFound } from 'next/navigation';
 import { supabase } from '../../../../lib/supabase';
+import { PageLoader } from '../../../components/LoadingSpinner';
 
 export const dynamic = 'force-dynamic';
 
@@ -116,6 +117,11 @@ export default async function ProductDetailPage({ params }: Props) {
     if (!product) {
       console.error('Product not found for slug:', slug);
       notFound();
+    }
+
+    // Loading durumu kontrolü
+    if (!product) {
+      return <PageLoader text="Ürün detayları yükleniyor..." />;
     }
 
     const similarProducts = await getSimilarProducts(product.slug, product.category);

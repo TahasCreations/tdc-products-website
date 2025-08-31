@@ -3,6 +3,7 @@ import ProductCard from '../../../ProductCard';
 import SearchAndFilter from '../../components/SearchAndFilter';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import CategorySidebar from '../../components/CategorySidebar';
+import { ProductCardSkeleton, PageLoader } from '../../components/LoadingSpinner';
 import Link from 'next/link';
 import { supabase } from '../../../lib/supabase';
 
@@ -163,6 +164,11 @@ export default async function ProductsPage({
   const params = await searchParams;
   const products = await getProducts();
   const categories = await getCategories();
+
+  // Loading durumu kontrolü
+  if (!products || products.length === 0) {
+    return <PageLoader text="Ürünler yükleniyor..." />;
+  }
 
   // Filtreleme ve sıralama
   const filteredProducts = filterAndSortProducts(products, {

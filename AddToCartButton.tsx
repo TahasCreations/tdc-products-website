@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useCart } from './src/contexts/CartContext';
 import { useToast } from './src/components/Toast';
+import { ButtonLoader } from './src/components/LoadingSpinner';
 
 interface Product {
   id: string;
@@ -109,8 +110,8 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
             >
               {isLoading ? (
                 <>
-                  <i className="ri-loader-4-line animate-spin mr-2"></i>
-                  Ekleniyor...
+                  <ButtonLoader size="sm" />
+                  <span className="ml-2">Ekleniyor...</span>
                 </>
               ) : (
                 <>
@@ -142,8 +143,8 @@ export default function AddToCartButton({ product }: AddToCartButtonProps) {
         >
           {isLoading ? (
             <>
-              <i className="ri-loader-4-line animate-spin mr-2"></i>
-              Ekleniyor...
+              <ButtonLoader size="sm" />
+              <span className="ml-2">Ekleniyor...</span>
             </>
           ) : isInCart ? (
             <>

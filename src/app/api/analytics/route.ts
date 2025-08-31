@@ -7,6 +7,24 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
+    // Supabase URL kontrolü
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return NextResponse.json({
+        success: false,
+        error: 'Supabase konfigürasyonu eksik',
+        data: {
+          overview: {
+            totalOrders: 0,
+            totalRevenue: 0,
+            totalCustomers: 0,
+            averageOrderValue: 0
+          },
+          dailyOrders: [],
+          topProducts: []
+        }
+      });
+    }
+
     const { searchParams } = new URL(request.url);
     const period = searchParams.get('period') || '7d'; // 7d, 30d, 90d, 1y
     const type = searchParams.get('type') || 'overview'; // overview, sales, products, customers
