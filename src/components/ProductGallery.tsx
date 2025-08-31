@@ -78,6 +78,14 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
                   : 'opacity-100 scale-100 translate-x-0'
                 : 'opacity-100 scale-100'
             }`}
+            onError={(e) => {
+              console.error('Image load error:', validImages[activeIndex]);
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
+            onLoad={() => {
+              console.log('Image loaded successfully:', validImages[activeIndex]);
+            }}
           />
 
           {/* Controls */}

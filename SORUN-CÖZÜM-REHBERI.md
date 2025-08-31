@@ -23,16 +23,19 @@
 **Sorun:** Admin panelinde görseller yükleniyor ama anasayfada görünmüyordu.
 
 **Çözüm:**
+- Next.js config dosyasında Supabase storage domain'i eklendi
 - Supabase Storage politikaları düzeltildi
 - Görsel yükleme fonksiyonu iyileştirildi
-- Fallback görsel sistemi kaldırıldı
-- Gerçek görsellerin görünmesi sağlandı
 - Error handling geliştirildi
+- Görsel URL doğrulama sistemi eklendi
+- Test sayfası oluşturuldu
 
 **Değişiklikler:**
-- `src/app/admin/page.tsx`: Görsel yükleme iyileştirildi
-- `ProductCard.tsx`: Gerçek görsellerin görünmesi sağlandı
-- `src/components/ProductGallery.tsx`: Placeholder sistemi eklendi
+- `next.config.js`: Supabase storage remotePatterns eklendi
+- `src/app/admin/page.tsx`: Görsel yükleme ve URL doğrulama iyileştirildi
+- `ProductCard.tsx`: Görsel hata yönetimi geliştirildi
+- `src/components/ProductGallery.tsx`: Görsel hata yönetimi eklendi
+- `src/app/test-images/page.tsx`: Test sayfası oluşturuldu
 - `supabase-storage-fix.sql`: Storage politikaları
 
 ### 3. Ürün Detaylar Sayfası Hatası ✅ ÇÖZÜLDİ
@@ -85,6 +88,8 @@ npm run dev
 1. Admin panelinde ürün eklerken görsel yükleyin
 2. Yüklenen görselin anasayfada görünüp görünmediğini kontrol edin
 3. Görsel yüklenemezse placeholder'ın gösterilip gösterilmediğini kontrol edin
+4. `/test-images` sayfasını ziyaret ederek görsel yükleme testini yapın
+5. Browser console'da görsel yükleme hatalarını kontrol edin
 
 ### 3. Ürün Detayları Testi
 1. Herhangi bir ürünün detay sayfasına gidin
@@ -105,14 +110,26 @@ npm run dev
    - Console sekmesine gidin
    - Hata mesajlarını kontrol edin
 
-2. **Supabase Storage Kontrolü:**
+2. **Next.js Config Kontrolü:**
+   - `next.config.js` dosyasında Supabase domain'inin eklendiğini kontrol edin
+   - `remotePatterns` ayarlarının doğru olduğunu kontrol edin
+
+3. **Supabase Storage Kontrolü:**
    - Supabase Dashboard > Storage
    - `images` bucket'ının var olduğunu kontrol edin
    - Dosyaların yüklenip yüklenmediğini kontrol edin
 
-3. **Storage Politikalarını Kontrol Edin:**
+4. **Storage Politikalarını Kontrol Edin:**
    - Supabase Dashboard > Authentication > Policies
    - Storage policies'lerin doğru ayarlandığını kontrol edin
+
+5. **Test Sayfasını Kullanın:**
+   - `/test-images` sayfasını ziyaret edin
+   - Görsel yükleme testini yapın
+   - Debug bilgilerini kontrol edin
+
+6. **Environment Variables Kontrolü:**
+   - `.env.local` dosyasında Supabase URL ve key'in doğru olduğunu kontrol edin
 
 ### Ürünler Hala Geç Görünüyorsa
 
@@ -154,6 +171,79 @@ Bu düzeltmelerden sonra:
 - ✅ Placeholder sistemi çalışacak
 
 ## 🔄 Son Değişiklikler
+
+### v2.9 - Gelişmiş Analitik Sistemi
+- Kapsamlı analitik dashboard oluşturuldu
+- Gerçek zamanlı satış ve sipariş analitikleri
+- Günlük, haftalık, aylık trend grafikleri
+- En çok satan ürünler analizi
+- Müşteri davranış analizi
+- Stok durumu ve kategori bazlı satışlar
+- İnteraktif grafikler (Recharts kütüphanesi)
+- Periyot bazlı filtreleme (7g, 30g, 90g, 1yıl)
+- İstatistik kartları ve tablolar
+- Admin panelinde analitik sekmesi
+
+### v2.8 - E-posta Bildirimleri Sistemi
+- E-posta gönderme servisi oluşturuldu (nodemailer)
+- 6 farklı e-posta şablonu eklendi (hoş geldin, sipariş durumları, stok uyarıları)
+- Hoş geldin e-postası (yeni kayıt olan müşterilere)
+- Sipariş durumu bildirimleri (onaylandı, kargoda, teslim edildi)
+- Düşük stok uyarıları (admin'e otomatik bildirim)
+- Yeni kupon bildirimleri
+- Admin panelinde e-posta test özelliği
+- E-posta şablonları yönetimi
+- Toplu e-posta gönderme desteği
+- Gmail SMTP entegrasyonu
+
+### v2.7 - Stok Takibi Sistemi
+- Stok yönetimi eklendi (giriş, çıkış, düzeltme işlemleri)
+- Stok hareketleri takibi ve geçmiş kayıtları
+- Stok uyarıları sistemi (düşük stok, tükenmiş stok, aşırı stok)
+- Dashboard'a stok istatistikleri eklendi
+- Stok işlemleri için detaylı form ve tablo görünümü
+- Otomatik stok güncelleme ve hareket kayıtları
+- Stok uyarıları için eşik değeri ayarlama
+- Products tablosuna stock sütunu eklendi
+
+### v2.6 - Kupon Sistemi
+- Kupon yönetimi eklendi (ekleme, silme, durum güncelleme)
+- Kupon doğrulama API'si oluşturuldu
+- Checkout sayfasına kupon uygulama sistemi eklendi
+- Yüzde ve sabit tutar indirim desteği
+- Minimum tutar, maksimum kullanım, son kullanım tarihi kontrolleri
+- Kupon kullanım sayısı takibi
+- Örnek kuponlar veritabanına eklendi
+
+### v2.5 - Admin Panel Geliştirmeleri
+- Sipariş yönetimi eklendi (durum güncelleme, detay görüntüleme)
+- Müşteri yönetimi eklendi (müşteri listesi, detay görüntüleme)
+- Dashboard istatistikleri geliştirildi (sipariş durumları, gelir analizi)
+- Son siparişler tablosu eklendi
+- Admin panel navigation'ı yeniden düzenlendi
+- Gerçek zamanlı veri güncelleme sistemi
+
+### v2.4 - Gelişmiş E-Ticaret Sistemi
+- Kullanıcı yönetimi (Supabase Auth) eklendi
+- Sipariş sistemi tamamen oluşturuldu
+- Ödeme sayfası geliştirildi
+- Sipariş takip sistemi eklendi
+- Kullanıcı profil yönetimi eklendi
+- Header'a kullanıcı menüsü eklendi
+
+### v2.3 - Production Build ve Server Components Düzeltmesi
+- Server Components'te headers() kullanımı düzeltildi
+- Relative URL'ler kullanılarak fetch sorunları çözüldü
+- Production deployment scriptleri eklendi
+- Vercel konfigürasyonu oluşturuldu
+- Build optimizasyonları yapıldı
+
+### v2.2 - Görsel Sistemi Tam Düzeltme
+- Next.js config dosyasında Supabase storage domain'i eklendi
+- Görsel URL doğrulama sistemi eklendi
+- Görsel hata yönetimi geliştirildi
+- Test sayfası oluşturuldu (`/test-images`)
+- Browser console'da detaylı hata mesajları eklendi
 
 ### v2.1 - Görsel Sistemi Düzeltmesi
 - Fallback görsel sistemi kaldırıldı

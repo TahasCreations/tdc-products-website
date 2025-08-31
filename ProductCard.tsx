@@ -57,9 +57,14 @@ export default function ProductCard({ product }: ProductCardProps) {
               quality={85}
               priority={false}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              onError={() => {
-                console.log('Görsel yüklenemedi:', product.image);
+              onError={(e) => {
+                console.error('Görsel yüklenemedi:', product.image);
                 setImageError(true);
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
+              onLoad={() => {
+                console.log('Görsel başarıyla yüklendi:', product.image);
               }}
             />
           ) : (

@@ -6,6 +6,8 @@ import Footer from "../../components/Footer";
 import { CartProvider } from "../contexts/CartContext";
 import { ThemeProvider } from "../contexts/ThemeContext";
 import { ToastProvider } from "../components/Toast";
+import { AuthProvider } from "../contexts/AuthContext";
+import { OrderProvider } from "../contexts/OrderContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,13 +26,17 @@ export default function RootLayout({
       <body className={`${inter.className} transition-colors duration-300`}>
         <ThemeProvider>
           <ToastProvider>
-            <CartProvider>
-              <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-                <Header />
-                <main className="flex-grow">{children}</main>
-                <Footer />
-              </div>
-            </CartProvider>
+            <AuthProvider>
+              <CartProvider>
+                <OrderProvider>
+                  <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+                    <Header />
+                    <main className="flex-grow">{children}</main>
+                    <Footer />
+                  </div>
+                </OrderProvider>
+              </CartProvider>
+            </AuthProvider>
           </ToastProvider>
         </ThemeProvider>
       </body>

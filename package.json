@@ -12,13 +12,20 @@
     "lint:fix": "next lint --fix",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf .next out",
-    "optimize": "npm run clean && npm run build"
+    "optimize": "npm run clean && npm run build",
+    "deploy": "npm run type-check && npm run lint && npm run build",
+    "deploy:prod": "npm run deploy && npm start",
+    "test:build": "npm run type-check && npm run build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.56.0",
+    "@types/nodemailer": "^7.0.1",
+    "date-fns": "^4.1.0",
     "next": "14.2.5",
+    "nodemailer": "^7.0.6",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "recharts": "^3.1.2"
   },
   "devDependencies": {
     "@types/node": "^20",

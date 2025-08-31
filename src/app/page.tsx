@@ -154,7 +154,7 @@ export default function HomePage() {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sayfa görünür olduğunda yenileme
   useEffect(() => {
@@ -166,7 +166,7 @@ export default function HomePage() {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = () => {
     const searchInput = document.getElementById('searchInput') as HTMLInputElement;

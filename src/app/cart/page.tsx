@@ -2,12 +2,13 @@
 
 import { useCart } from '../../contexts/CartContext';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function CartPage() {
   const { state, removeItem, updateQuantity, clearCart } = useCart();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const router = useRouter();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('tr-TR', {
@@ -17,12 +18,7 @@ export default function CartPage() {
   };
 
   const handleCheckout = () => {
-    setIsCheckingOut(true);
-    // Burada ödeme sayfasına yönlendirme yapılacak
-    setTimeout(() => {
-      setIsCheckingOut(false);
-      alert('Ödeme sistemi yakında eklenecek!');
-    }, 1000);
+    router.push('/checkout');
   };
 
   if (state.items.length === 0) {
@@ -162,20 +158,12 @@ export default function CartPage() {
 
               <button
                 onClick={handleCheckout}
-                disabled={isCheckingOut}
-                className="w-full bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="w-full bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
               >
-                {isCheckingOut ? (
-                  <div className="flex items-center justify-center">
-                    <i className="ri-loader-4-line animate-spin mr-2"></i>
-                    İşleniyor...
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center">
-                    <i className="ri-shopping-bag-line mr-2"></i>
-                    Ödemeye Geç
-                  </div>
-                )}
+                <div className="flex items-center justify-center">
+                  <i className="ri-shopping-bag-line mr-2"></i>
+                  Ödemeye Geç
+                </div>
               </button>
 
               <div className="mt-4 text-center">

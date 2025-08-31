@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getProducts, addProduct, updateProduct, deleteProduct } from '../../../../lib/supabase';
 import { supabase } from '../../../../lib/supabase';
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 export const revalidate = 0;
 
 const getDefaultProducts = () => [

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCategories, addCategory, updateCategory, deleteCategory } from '../../../../lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 export const runtime = 'nodejs';
 
 const getDefaultCategories = () => [

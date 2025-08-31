@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from 'next/headers';
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartButton from "../../../../AddToCartButton";
 import { notFound } from 'next/navigation';
@@ -13,12 +12,8 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   
   try {
-    const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
-    
-    const res = await fetch(`${baseUrl}/api/products?slug=${encodeURIComponent(slug)}`, { 
+    // Relative URL kullanarak sorunu çöz
+    const res = await fetch(`/api/products?slug=${encodeURIComponent(slug)}`, { 
       cache: 'no-store',
       next: { revalidate: 0 }
     });
@@ -55,12 +50,8 @@ export async function generateMetadata({ params }: Props) {
 // API'den tek ürünü getir
 async function getProductBySlug(slug: string) {
   try {
-    const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
-    
-    const response = await fetch(`${baseUrl}/api/products?slug=${encodeURIComponent(slug)}`, {
+    // Relative URL kullanarak sorunu çöz
+    const response = await fetch(`/api/products?slug=${encodeURIComponent(slug)}`, {
       cache: 'no-store',
       next: { revalidate: 0 }
     });
@@ -88,12 +79,8 @@ async function getProductBySlug(slug: string) {
 // Benzer ürünleri getir
 async function getSimilarProducts(currentSlug: string, category: string) {
   try {
-    const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
-    
-    const response = await fetch(`${baseUrl}/api/products`, {
+    // Relative URL kullanarak sorunu çöz
+    const response = await fetch(`/api/products`, {
       cache: 'no-store',
       next: { revalidate: 0 }
     });

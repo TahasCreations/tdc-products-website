@@ -3,7 +3,6 @@ import ProductCard from '../../../ProductCard';
 import SearchAndFilter from '../../components/SearchAndFilter';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import CategorySidebar from '../../components/CategorySidebar';
-import { headers } from 'next/headers';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -12,14 +11,9 @@ export const revalidate = 0;
 // Ürünleri API'den çek
 async function getProducts() {
   try {
-    const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
-    
     console.log('Ürünler sayfası: API\'den ürünler isteniyor...');
     
-    const response = await fetch(`${baseUrl}/api/products`, {
+    const response = await fetch(`/api/products`, {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -43,12 +37,7 @@ async function getProducts() {
 // Kategorileri API'den çek
 async function getCategories() {
   try {
-    const headersList = await headers();
-    const host = headersList.get('host') || 'localhost:3000';
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
-    
-    const response = await fetch(`${baseUrl}/api/categories`, {
+    const response = await fetch(`/api/categories`, {
       cache: 'no-store',
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',

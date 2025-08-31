@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../src/contexts/CartContext';
 import { useTheme } from '../src/contexts/ThemeContext';
+import { useAuth } from '../src/contexts/AuthContext';
 import { useToast } from '../src/components/Toast';
 import ThemeToggle from '../src/components/ThemeToggle';
 
@@ -13,9 +14,11 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { state, removeItem, updateQuantity } = useCart();
   const { isDark } = useTheme();
+  const { user, signOut } = useAuth();
   const { addToast } = useToast();
   const router = useRouter();
 
@@ -233,9 +236,91 @@ export default function Header() {
             {/* Theme Toggle */}
             <ThemeToggle />
 
-            <button className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300">
-              <i className="ri-user-line text-xl text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"></i>
-            </button>
+            {/* Kullanıcı Menüsü */}
+            <div className="relative">
+              <button 
+                className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300"
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              >
+                <i className="ri-user-line text-xl text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"></i>
+              </button>
+
+              {/* Kullanıcı Dropdown */}
+              {isUserMenuOpen && (
+                <div className="absolute right-0 top-12 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 transition-colors duration-300">
+                  <div className="p-4">
+                    {user ? (
+                      <>
+                        <div className="mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+                          <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                            {user.user_metadata?.first_name || user.email}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {user.email}
+                          </p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Link
+                            href="/profile"
+                            className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <i className="ri-user-settings-line"></i>
+                            <span>Profilim</span>
+                          </Link>
+                          
+                          <Link
+                            href="/orders"
+                            className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <i className="ri-shopping-bag-line"></i>
+                            <span>Siparişlerim</span>
+                          </Link>
+                          
+                          <button
+                            onClick={async () => {
+                              await signOut();
+                              setIsUserMenuOpen(false);
+                              addToast({
+                                type: 'success',
+                                title: 'Çıkış yapıldı',
+                                message: 'Başarıyla çıkış yaptınız'
+                              });
+                            }}
+                            className="flex items-center space-x-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors py-2 w-full text-left"
+                          >
+                            <i className="ri-logout-box-line"></i>
+                            <span>Çıkış Yap</span>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="space-y-2">
+                        <Link
+                          href="/auth"
+                          className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <i className="ri-login-box-line"></i>
+                          <span>Giriş Yap</span>
+                        </Link>
+                        
+                        <Link
+                          href="/auth"
+                          className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          <i className="ri-user-add-line"></i>
+                          <span>Kayıt Ol</span>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
 
             <button 
               className="md:hidden w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300"
