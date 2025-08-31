@@ -172,6 +172,15 @@ Bu düzeltmelerden sonra:
 
 ## 🔄 Son Değişiklikler
 
+### v2.10 - Server Components Hataları Düzeltildi
+- Ürün detay sayfasında Server Components render hatası çözüldü
+- API route'larda relative URL sorunları düzeltildi
+- Supabase'den direkt veri çekme yöntemi uygulandı
+- Ürünler sayfası ve ürün detay sayfası optimize edildi
+- Tüm API route'lara `dynamic = 'force-dynamic'` eklendi
+- ESLint uyarıları düzeltildi
+- Build hataları çözüldü
+
 ### v2.9 - Gelişmiş Analitik Sistemi
 - Kapsamlı analitik dashboard oluşturuldu
 - Gerçek zamanlı satış ve sipariş analitikleri

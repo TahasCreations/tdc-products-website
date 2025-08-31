@@ -3,6 +3,7 @@ import Link from "next/link";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartButton from "../../../../AddToCartButton";
 import { notFound } from 'next/navigation';
+import { supabase } from '../../../../lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,60 +13,62 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   
   try {
-    // Relative URL kullanarak sorunu çöz
-    const res = await fetch(`/api/products?slug=${encodeURIComponent(slug)}`, { 
-      cache: 'no-store',
-      next: { revalidate: 0 }
-    });
+    // Supabase'den direkt veri çek
+    const { data: product, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('slug', slug)
+      .single();
     
-    if (res.ok) {
-      const product = await res.json();
+    if (error || !product) {
+      console.error('Product not found for metadata:', slug);
       return {
-        title: `${product.title} | TDC Products`,
-        description: product.description?.slice(0, 160) || 'Premium kalitede figürler ve koleksiyon ürünleri',
-        openGraph: {
-          title: `${product.title} | TDC Products`,
-          description: product.description,
-          images: product.image ? [product.image] : [],
-          type: 'product',
-        },
-        twitter: {
-          card: 'summary_large_image',
-          title: `${product.title} | TDC Products`,
-          description: product.description,
-          images: product.image ? [product.image] : [],
-        }
+        title: 'Ürün Detayı | TDC Products',
+        description: 'Premium kalitede figürler ve koleksiyon ürünleri',
       };
     }
+    
+    return {
+      title: `${product.title} | TDC Products`,
+      description: product.description?.slice(0, 160) || 'Premium kalitede figürler ve koleksiyon ürünleri',
+      openGraph: {
+        title: `${product.title} | TDC Products`,
+        description: product.description,
+        images: product.image ? [product.image] : [],
+        type: 'product',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${product.title} | TDC Products`,
+        description: product.description,
+        images: product.image ? [product.image] : [],
+      }
+    };
   } catch (error) {
     console.error('Metadata generation error:', error);
+    return {
+      title: 'Ürün Detayı | TDC Products',
+      description: 'Premium kalitede figürler ve koleksiyon ürünleri',
+    };
   }
-  
-  return {
-    title: 'Ürün Detayı | TDC Products',
-    description: 'Premium kalitede figürler ve koleksiyon ürünleri',
-  };
 }
 
-// API'den tek ürünü getir
+// Supabase'den tek ürünü getir
 async function getProductBySlug(slug: string) {
   try {
-    // Relative URL kullanarak sorunu çöz
-    const response = await fetch(`/api/products?slug=${encodeURIComponent(slug)}`, {
-      cache: 'no-store',
-      next: { revalidate: 0 }
-    });
+    const { data: product, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('slug', slug)
+      .single();
     
-    if (!response.ok) {
-      console.error('API response not ok:', response.status);
+    if (error) {
+      console.error('Supabase error:', error);
       return null;
     }
     
-    const product = await response.json();
-    
-    // Ürün verilerini doğrula
-    if (!product || !product.id || !product.title) {
-      console.error('Invalid product data:', product);
+    if (!product) {
+      console.error('Product not found:', slug);
       return null;
     }
     
@@ -79,27 +82,20 @@ async function getProductBySlug(slug: string) {
 // Benzer ürünleri getir
 async function getSimilarProducts(currentSlug: string, category: string) {
   try {
-    // Relative URL kullanarak sorunu çöz
-    const response = await fetch(`/api/products`, {
-      cache: 'no-store',
-      next: { revalidate: 0 }
-    });
+    const { data: products, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('category', category)
+      .neq('slug', currentSlug)
+      .eq('status', 'active')
+      .limit(4);
     
-    if (!response.ok) {
-      console.error('Similar products API response not ok:', response.status);
+    if (error) {
+      console.error('Similar products error:', error);
       return [];
     }
     
-    const products = await response.json();
-    
-    if (!Array.isArray(products)) {
-      console.error('Invalid products data:', products);
-      return [];
-    }
-    
-    return products
-      .filter((p: any) => p && p.slug && p.slug !== currentSlug && p.category === category)
-      .slice(0, 4);
+    return products || [];
   } catch (error) {
     console.error('Benzer ürünler yüklenirken hata:', error);
     return [];

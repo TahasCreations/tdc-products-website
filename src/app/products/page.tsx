@@ -4,51 +4,50 @@ import SearchAndFilter from '../../components/SearchAndFilter';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import CategorySidebar from '../../components/CategorySidebar';
 import Link from 'next/link';
+import { supabase } from '../../../lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Ürünleri API'den çek
+// Ürünleri Supabase'den çek
 async function getProducts() {
   try {
-    console.log('Ürünler sayfası: API\'den ürünler isteniyor...');
+    console.log('Ürünler sayfası: Supabase\'den ürünler isteniyor...');
     
-    const response = await fetch(`/api/products`, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
-    });
+    const { data: products, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
     
-    if (response.ok) {
-      const data = await response.json();
-      console.log('Ürünler sayfası:', data.length, 'ürün alındı');
-      return data;
+    if (error) {
+      console.error('Supabase ürünler hatası:', error);
+      return [];
     }
-    console.log('Ürünler sayfası: API yanıt vermedi, boş array döndürülüyor');
-    return [];
+    
+    console.log('Ürünler sayfası:', products?.length || 0, 'ürün alındı');
+    return products || [];
   } catch (error) {
     console.error('Ürünler yüklenirken hata:', error);
     return [];
   }
 }
 
-// Kategorileri API'den çek
+// Kategorileri Supabase'den çek
 async function getCategories() {
   try {
-    const response = await fetch(`/api/categories`, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache'
-      }
-    });
+    const { data: categories, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('status', 'active')
+      .order('name', { ascending: true });
     
-    if (response.ok) {
-      return await response.json();
+    if (error) {
+      console.error('Supabase kategoriler hatası:', error);
+      return [];
     }
-    return [];
+    
+    return categories || [];
   } catch (error) {
     console.error('Kategoriler yüklenirken hata:', error);
     return [];
