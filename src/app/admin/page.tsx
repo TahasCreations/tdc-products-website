@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { supabase } from '../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { 
   StatCard, 
   DailyOrdersChart, 
@@ -74,6 +74,19 @@ interface StockAlert {
   is_active: boolean;
   created_at: string;
 }
+
+// Client-side Supabase client
+const createClientSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 export default function AdminPage() {
   const router = useRouter();
@@ -194,6 +207,14 @@ export default function AdminPage() {
   // Verileri yükleme fonksiyonu
   const fetchData = async () => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        setCategories(getDefaultCategories());
+        setProducts(getDefaultProducts());
+        return;
+      }
+
       // Supabase'den kategorileri yükle
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('categories')
@@ -243,6 +264,12 @@ export default function AdminPage() {
 
   const fetchOrders = async () => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('orders')
         .select('*')
@@ -261,6 +288,12 @@ export default function AdminPage() {
 
   const fetchCustomers = async () => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        return;
+      }
+
       const { data, error } = await supabase.auth.admin.listUsers();
 
       if (error) {
@@ -276,6 +309,12 @@ export default function AdminPage() {
 
   const fetchCoupons = async () => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('coupons')
         .select('*')
@@ -294,6 +333,12 @@ export default function AdminPage() {
 
   const fetchStockMovements = async () => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('stock_movements')
         .select('*')
@@ -313,6 +358,12 @@ export default function AdminPage() {
 
   const fetchStockAlerts = async () => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('stock_alerts')
         .select('*')
@@ -358,6 +409,13 @@ export default function AdminPage() {
         used_count: 0
       };
 
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('coupons')
         .insert([couponData])
@@ -402,6 +460,13 @@ export default function AdminPage() {
       setApiLoading(true);
       setMessage('Kupon siliniyor...');
 
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
       const { error } = await supabase
         .from('coupons')
         .delete()
@@ -437,6 +502,13 @@ export default function AdminPage() {
     try {
       setApiLoading(true);
       setMessage('Stok işlemi yapılıyor...');
+
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
 
       // Önce mevcut stok miktarını al
       const { data: product, error: productError } = await supabase
@@ -551,6 +623,13 @@ export default function AdminPage() {
     try {
       setApiLoading(true);
       setMessage('Stok uyarısı ekleniyor...');
+
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
 
       const { data: product, error: productError } = await supabase
         .from('products')
@@ -728,6 +807,13 @@ export default function AdminPage() {
       setApiLoading(true);
       setMessage('Stok uyarısı siliniyor...');
 
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
       const { error } = await supabase
         .from('stock_alerts')
         .delete()
@@ -758,6 +844,13 @@ export default function AdminPage() {
     try {
       setApiLoading(true);
       setMessage('Kupon durumu güncelleniyor...');
+
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
 
       const { error } = await supabase
         .from('coupons')
@@ -799,6 +892,13 @@ export default function AdminPage() {
       setApiLoading(true);
       setMessage('Sipariş durumu güncelleniyor...');
 
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
       const { error } = await supabase
         .from('orders')
         .update({ 
@@ -838,6 +938,15 @@ export default function AdminPage() {
     const checkSessionAndLoadData = async () => {
       try {
         // Mevcut session'ı kontrol et
+        const supabase = createClientSupabaseClient();
+        if (!supabase) {
+          console.error('Supabase client could not be created');
+          setCategories(getDefaultCategories());
+          setProducts(getDefaultProducts());
+          setLoading(false);
+          return;
+        }
+
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (session && !sessionError) {
@@ -883,6 +992,13 @@ export default function AdminPage() {
       }
 
       // Supabase authentication ile giriş
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: username,
         password: password
@@ -917,6 +1033,13 @@ export default function AdminPage() {
       setMessage('Çıkış yapılıyor...');
 
       // Supabase'den çıkış yap
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
       const { error } = await supabase.auth.signOut();
 
       if (error) {
@@ -962,6 +1085,13 @@ export default function AdminPage() {
         color: newCategory.color,
         icon: newCategory.icon
       };
+
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
 
       const { data, error } = await supabase
         .from('categories')
@@ -1030,6 +1160,13 @@ export default function AdminPage() {
         variations: newProduct.variations || []
       };
 
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('products')
         .insert([productData])
@@ -1079,6 +1216,13 @@ export default function AdminPage() {
         variations: product.variations || []
       };
 
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('products')
         .insert([copiedProductData])
@@ -1111,6 +1255,13 @@ export default function AdminPage() {
   // Kategori sil
   const handleDeleteCategory = async (id: string) => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
       const { error } = await supabase
         .from('categories')
         .delete()
@@ -1194,6 +1345,13 @@ export default function AdminPage() {
           console.log('Görsel yükleniyor:', fileName);
 
           // Supabase Storage'a yükle
+          const supabase = createClientSupabaseClient();
+          if (!supabase) {
+            setMessage('Supabase client oluşturulamadı');
+            setMessageType('error');
+            continue;
+          }
+
           const { data, error } = await supabase.storage
             .from('images')
             .upload(filePath, file, {
@@ -1301,6 +1459,13 @@ export default function AdminPage() {
   // Ürün sil
   const handleDeleteProduct = async (id: string) => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
       const { error } = await supabase
         .from('products')
         .delete()
@@ -1473,12 +1638,13 @@ export default function AdminPage() {
               { id: 'dashboard', name: 'Dashboard', icon: 'ri-dashboard-line' },
               { id: 'products', name: 'Ürünler', icon: 'ri-shopping-bag-line' },
               { id: 'categories', name: 'Kategoriler', icon: 'ri-folder-line' },
-                      { id: 'orders', name: 'Siparişler', icon: 'ri-shopping-cart-line' },
-        { id: 'customers', name: 'Müşteriler', icon: 'ri-user-line' },
-        { id: 'coupons', name: 'Kuponlar', icon: 'ri-coupon-line' },
-        { id: 'stock', name: 'Stok Takibi', icon: 'ri-store-line' },
-        { id: 'email', name: 'E-posta Yönetimi', icon: 'ri-mail-line' },
-        { id: 'analytics', name: 'Analitik', icon: 'ri-bar-chart-line' },
+              { id: 'blogs', name: 'Blog Yönetimi', icon: 'ri-article-line' },
+              { id: 'orders', name: 'Siparişler', icon: 'ri-shopping-cart-line' },
+              { id: 'customers', name: 'Müşteriler', icon: 'ri-user-line' },
+              { id: 'coupons', name: 'Kuponlar', icon: 'ri-coupon-line' },
+              { id: 'stock', name: 'Stok Takibi', icon: 'ri-store-line' },
+              { id: 'email', name: 'E-posta Yönetimi', icon: 'ri-mail-line' },
+              { id: 'analytics', name: 'Analitik', icon: 'ri-bar-chart-line' },
               { id: 'bist', name: 'BİST Kontrol', icon: 'ri-line-chart-line' },
               { id: 'finance', name: 'Finans', icon: 'ri-money-dollar-circle-line' }
             ].map((tab) => (
@@ -2193,6 +2359,26 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'blogs' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Blog Yönetimi</h2>
+                <a
+                  href="/admin/blogs"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Blog Yönetimi Sayfasına Git
+                </a>
+              </div>
+              <p className="text-gray-600">
+                Blog yazılarını yönetmek, kullanıcı blog&apos;larını onaylamak ve yeni blog oluşturmak için 
+                blog yönetimi sayfasını kullanın.
+              </p>
             </div>
           </div>
         )}

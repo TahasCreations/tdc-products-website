@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { useOrder } from '../../contexts/OrderContext';
-import { supabase } from '../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { PageLoader } from '../../components/LoadingSpinner';
 
 interface UserProfile {
@@ -28,6 +28,19 @@ interface Order {
   items: any[];
 }
 
+// Client-side Supabase client
+const createClientSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
+
 export default function ProfilePage() {
   const { user, signOut } = useAuth();
   const { orders, getOrders } = useOrder();
@@ -45,6 +58,13 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -74,6 +94,12 @@ export default function ProfilePage() {
 
   const createProfile = async () => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .insert([
@@ -106,6 +132,13 @@ export default function ProfilePage() {
 
   const updateProfile = async () => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        alert('Profil güncellenirken hata oluştu!');
+        return;
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update(formData)

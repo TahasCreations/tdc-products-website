@@ -1,4 +1,55 @@
-# TDC Products - Sorun Çözüm Rehberi
+# TDC Products Website - Sorun Çözüm Rehberi
+
+## 📅 Güncelleme Geçmişi
+
+### ✅ **v2.12 - Supabase Client Hataları Düzeltildi** (31 Aralık 2024, 21:30)
+
+**Sorun:** Ürün detay kısmına tıkladığımda "Cannot read properties of null (reading 'get')" hatası
+**Çözüm:**
+- Tüm API route'larında Supabase client'ı güvenli hale getirildi
+- Environment variables kontrolü eklendi
+- Client-side ve server-side Supabase client'ları ayrıştırıldı
+- Context'lerde de aynı güvenlik önlemleri uygulandı
+
+**Düzeltilen Dosyalar:**
+- `src/app/api/auth/route.ts`
+- `src/app/api/categories/route.ts`
+- `src/app/api/products/route.ts`
+- `src/app/api/upload/route.ts`
+- `src/app/api/analytics/route.ts`
+- `src/app/api/coupons/route.ts`
+- `src/app/products/[slug]/page.tsx`
+- `src/app/products/page.tsx`
+- `src/app/page.tsx`
+- `src/contexts/AuthContext.tsx`
+- `src/contexts/OrderContext.tsx`
+- `src/contexts/WishlistContext.tsx`
+
+**Test Sonucu:** ✅ Ürün detay sayfaları artık çalışıyor
+
+### ✅ **v2.11 - Build Hataları Düzeltildi** (31 Aralık 2024, 21:00)
+
+**Sorun:** npm run build sırasında çeşitli TypeScript ve import hataları  
+**Çözüm:**
+- `@supabase/auth-helpers-nextjs` deprecated paketi kaldırıldı
+- Modern `@supabase/ssr` paketi eklendi
+- Type safety geliştirmelerle ESLint uyarıları azaltıldı
+- Interface uyumsuzlukları giderildi
+
+**Düzeltilen Hatalar:**
+- Missing dependencies in package.json
+- Type mismatches in Blog and Profile pages
+- Apostrophe escape issues in JSX
+- useEffect dependency array warnings
+
+### ✅ **v2.10 - Wishlist Özelliği Eklendi** (31 Aralık 2024, 20:30)
+
+**Eklenen Özellikler:**
+- Wishlist/Favori ürünler sistemi
+- `WishlistContext` oluşturuldu
+- `WishlistButton` component'i
+- Wishlist sayfası (`/wishlist`)
+- Supabase'de `wishlists` tablosu kurulumu
 
 ## 🔧 Yapılan İyileştirmeler
 

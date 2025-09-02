@@ -1,7 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import BlogCard from './BlogCard';
+import { useAuth } from '../../contexts/AuthContext';
+import { createClient } from '@supabase/supabase-js';
+import { PageLoader } from '../../components/LoadingSpinner';
+import Link from 'next/link';
+
+// Client-side Supabase client
+const createClientSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 interface BlogPost {
   id: string;
@@ -15,289 +31,112 @@ interface BlogPost {
   published_at: string;
   read_time: number;
   tags: string[];
+  status: 'published' | 'pending' | 'rejected';
 }
 
 export default function BlogPage() {
-  const [user, setUser] = useState<any>(null);
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [blogs, setBlogs] = useState<BlogPost[]>([
-    {
-      id: '1',
-      title: 'Anime Figürleri: Koleksiyonculuğun Sanatı',
-      slug: 'anime-figurleri-koleksiyonculugun-sanati',
-      excerpt: 'Anime figürleri sadece oyuncak değil, gerçek sanat eserleridir...',
-      content: 'Anime figürleri sadece oyuncak değil, gerçek sanat eserleridir. Bu yazıda anime figür koleksiyonculuğunun inceliklerini keşfedelim.',
-      image: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=400&fit=crop',
-      category: 'Anime',
-      author: 'TDC Team',
-      published_at: '2024-01-15',
-      read_time: 5,
-      tags: ['anime', 'figür', 'koleksiyon']
-    },
-    {
-      id: '2',
-      title: 'Gaming Figürleri: Nostalji ve Modernite',
-      slug: 'gaming-figurleri-nostalji-ve-modernite',
-      excerpt: 'Gaming figürleri hem nostalji hem de modern oyun kültürünü...',
-      content: 'Gaming figürleri hem nostalji hem de modern oyun kültürünü bir araya getiriyor. En popüler gaming figürlerini inceleyelim.',
-      image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=400&fit=crop',
-      category: 'Gaming',
-      author: 'TDC Team',
-      published_at: '2024-01-10',
-      read_time: 7,
-      tags: ['gaming', 'figür', 'nostalji']
-    },
-    {
-      id: '3',
-      title: 'Film Karakter Figürleri: Sinemanın Küçük Kahramanları',
-      slug: 'film-karakter-figurleri-sinemanin-kucuk-kahramanlari',
-      excerpt: 'Film karakterlerinin figürleri, sinema tutkunları için...',
-      content: 'Film karakterlerinin figürleri, sinema tutkunları için vazgeçilmez koleksiyon parçalarıdır. En ikonik film figürlerini keşfedelim.',
-      image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&h=400&fit=crop',
-      category: 'Film',
-      author: 'TDC Team',
-      published_at: '2024-01-05',
-      read_time: 6,
-      tags: ['film', 'figür', 'sinema']
-    }
-  ]);
-
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [newBlog, setNewBlog] = useState({
-    title: '',
-    content: '',
-    author: '',
-    image: '',
-    category: 'Anime',
-    excerpt: ''
-  });
 
-  const categories = ['all', 'Anime', 'Gaming', 'Film', 'Diğer'];
+  const categories = ['all', 'Genel', 'Anime', 'Gaming', 'Film', 'Teknoloji', 'Lifestyle'];
 
-  // Basit admin kontrolü
   useEffect(() => {
-    setLoading(false);
-    // JSON dosya sistemi kullanıyoruz, auth gerekmez
+    fetchBlogs();
   }, []);
+
+  const fetchBlogs = async () => {
+    const supabase = createClientSupabaseClient();
+    if (!supabase) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('blogs')
+        .select('*')
+        .eq('status', 'published')
+        .order('published_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching blogs:', error);
+        return;
+      }
+
+      setBlogs(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredBlogs = blogs.filter(blog => {
     const matchesCategory = selectedCategory === 'all' || blog.category === selectedCategory;
     const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         blog.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          blog.author.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const handleCreateBlog = () => {
-    if (!user) {
-      alert('Blog yazmak için giriş yapmanız gerekiyor!');
-      return;
-    }
-
-    if (newBlog.title && newBlog.content && newBlog.author) {
-      const blog: BlogPost = {
-        id: Date.now().toString(),
-        title: newBlog.title,
-        slug: newBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-        excerpt: newBlog.excerpt || newBlog.content.substring(0, 100) + '...',
-        content: newBlog.content,
-        image: newBlog.image || 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop',
-        category: newBlog.category,
-        author: newBlog.author,
-        published_at: new Date().toISOString().split('T')[0],
-        read_time: Math.ceil(newBlog.content.split(' ').length / 200),
-        tags: [newBlog.category.toLowerCase()]
-      };
-
-      setBlogs([blog, ...blogs]);
-      setNewBlog({
-        title: '',
-        content: '',
-        author: '',
-        image: '',
-        category: 'Anime',
-        excerpt: ''
-      });
-      setShowCreateForm(false);
-    }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('tr-TR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
-  const handleLinkPaste = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const pastedText = e.target.value;
-    if (pastedText.includes('http') || pastedText.includes('www')) {
-      // Eğer link yapıştırıldıysa, yeni sekmede aç
-      window.open(pastedText, '_blank');
-    }
-  };
+  if (loading) {
+    return <PageLoader text="Blog'lar yükleniyor..." />;
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-4">TDC Blog</h1>
             <p className="text-xl md:text-2xl opacity-90 mb-8">
               Figür dünyasından en güncel haberler ve makaleler
             </p>
-            {user && (
-              <button
-                onClick={() => setShowCreateForm(true)}
-                className="bg-white text-orange-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300 flex items-center mx-auto space-x-2"
-              >
-                <i className="ri-add-line text-xl"></i>
-                <span>Yeni Blog Yazısı</span>
-              </button>
-            )}
-            {!user && (
+            {user ? (
+              <div className="flex gap-4 justify-center">
+                <Link
+                  href="/blog/write"
+                  className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300 flex items-center space-x-2"
+                >
+                  <i className="ri-add-line text-xl"></i>
+                  <span>Blog Yaz</span>
+                </Link>
+                {user.user_metadata?.role === 'admin' && (
+                  <Link
+                    href="/admin/blogs"
+                    className="bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-colors duration-300"
+                  >
+                    Admin Panel
+                  </Link>
+                )}
+              </div>
+            ) : (
               <div className="text-center">
                 <p className="text-white/80 mb-4">Blog yazmak için giriş yapmanız gerekiyor</p>
-                <a
-                  href="/admin"
+                <Link
+                  href="/auth"
                   className="bg-white/20 text-white px-6 py-2 rounded-lg font-medium hover:bg-white/30 transition-colors duration-300"
                 >
-                  Admin Paneli
-                </a>
+                  Giriş Yap
+                </Link>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Create Blog Form Modal */}
-      {showCreateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">Yeni Blog Yazısı</h2>
-                <button
-                  onClick={() => setShowCreateForm(false)}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
-                >
-                  <i className="ri-close-line"></i>
-                </button>
-              </div>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Başlık
-                </label>
-                <input
-                  type="text"
-                  value={newBlog.title}
-                  onChange={(e) => setNewBlog({...newBlog, title: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Blog yazısının başlığı..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Yazar
-                </label>
-                <input
-                  type="text"
-                  value={newBlog.author}
-                  onChange={(e) => setNewBlog({...newBlog, author: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Yazar adı..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Kategori
-                </label>
-                <select
-                  value={newBlog.category}
-                  onChange={(e) => setNewBlog({...newBlog, category: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                >
-                  <option value="Anime">Anime</option>
-                  <option value="Gaming">Gaming</option>
-                  <option value="Film">Film</option>
-                  <option value="Diğer">Diğer</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Resim URL (Opsiyonel)
-                </label>
-                <input
-                  type="text"
-                  value={newBlog.image}
-                  onChange={(e) => setNewBlog({...newBlog, image: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Özet
-                </label>
-                <textarea
-                  value={newBlog.excerpt}
-                  onChange={(e) => setNewBlog({...newBlog, excerpt: e.target.value})}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
-                  placeholder="Blog yazısının kısa özeti..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  İçerik
-                </label>
-                <textarea
-                  value={newBlog.content}
-                  onChange={(e) => setNewBlog({...newBlog, content: e.target.value})}
-                  rows={8}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none"
-                  placeholder="Blog yazısının içeriği..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Link Yapıştır (Otomatik Açılır)
-                </label>
-                <input
-                  type="text"
-                  onChange={handleLinkPaste}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                  placeholder="Link yapıştırın, otomatik olarak yeni sekmede açılacak..."
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={handleCreateBlog}
-                  className="flex-1 bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors duration-300"
-                >
-                  Blog Oluştur
-                </button>
-                <button
-                  onClick={() => setShowCreateForm(false)}
-                  className="flex-1 bg-gray-500 text-white py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-300"
-                >
-                  İptal
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Filters and Search */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -309,7 +148,7 @@ export default function BlogPage() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Blog yazılarında ara..."
                 />
               </div>
@@ -322,7 +161,7 @@ export default function BlogPage() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 {categories.map(category => (
                   <option key={category} value={category}>
@@ -335,14 +174,77 @@ export default function BlogPage() {
         </div>
 
         {/* Blog Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredBlogs.map((blog) => (
-            <BlogCard key={blog.id} post={blog} />
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {filteredBlogs.length === 0 && (
+        {filteredBlogs.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredBlogs.map((blog) => (
+              <div key={blog.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                {blog.image && (
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={blog.image}
+                      alt={blog.title}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-600 text-white">
+                        {blog.category}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="p-6">
+                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+                    <span className="flex items-center gap-1">
+                      <i className="ri-user-line"></i>
+                      {blog.author}
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <i className="ri-time-line"></i>
+                      {blog.read_time} dk
+                    </span>
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                    {blog.title}
+                  </h3>
+                  
+                  <p className="text-gray-600 mb-4 line-clamp-3">
+                    {blog.excerpt}
+                  </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">
+                      {formatDate(blog.published_at)}
+                    </span>
+                    
+                    <Link
+                      href={`/blog/${blog.slug}`}
+                      className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    >
+                      Devamını Oku
+                      <i className="ri-arrow-right-line"></i>
+                    </Link>
+                  </div>
+                  
+                  {blog.tags && blog.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
+                      {blog.tags.slice(0, 3).map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
           <div className="text-center py-12">
             <i className="ri-file-text-line text-6xl text-gray-400 mb-4"></i>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Blog yazısı bulunamadı</h3>
@@ -354,7 +256,7 @@ export default function BlogPage() {
                 setSearchTerm('');
                 setSelectedCategory('all');
               }}
-              className="bg-orange-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-orange-600 transition-colors duration-300"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-300"
             >
               Filtreleri Temizle
             </button>
@@ -362,14 +264,15 @@ export default function BlogPage() {
         )}
 
         {/* Stats */}
-        <div className="mt-12 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="mt-12 bg-white rounded-2xl shadow-lg p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Blog İstatistikleri</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
             <div>
-              <div className="text-3xl font-bold text-orange-600 mb-2">{blogs.length}</div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">{blogs.length}</div>
               <div className="text-gray-600">Toplam Blog</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-blue-600 mb-2">
+              <div className="text-3xl font-bold text-purple-600 mb-2">
                 {blogs.filter(b => b.category === 'Anime').length}
               </div>
               <div className="text-gray-600">Anime</div>
@@ -381,7 +284,7 @@ export default function BlogPage() {
               <div className="text-gray-600">Gaming</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-purple-600 mb-2">
+              <div className="text-3xl font-bold text-pink-600 mb-2">
                 {blogs.filter(b => b.category === 'Film').length}
               </div>
               <div className="text-gray-600">Film</div>
