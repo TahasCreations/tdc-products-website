@@ -3,8 +3,6 @@ import { supabase } from '../../../../lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
-export const runtime = 'nodejs';
-
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();

@@ -4,7 +4,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useCart } from './src/contexts/CartContext';
+import { useWishlist } from './src/contexts/WishlistContext';
 import { useToast } from './src/components/Toast';
+import WishlistButton from './src/components/WishlistButton';
 
 interface Product {
   id: string;
@@ -85,9 +87,19 @@ export default function ProductCard({ product }: ProductCardProps) {
               {product.category}
             </span>
           </div>
+
+          {/* Wishlist Button */}
+          <div className="absolute top-4 right-4 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
+            <WishlistButton
+              productId={product.id}
+              productTitle={product.title}
+              size="sm"
+              variant="icon"
+            />
+          </div>
           
           {/* Price Badge */}
-          <div className="absolute top-4 right-4 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
+          <div className="absolute bottom-4 right-4 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
             <span className="inline-flex px-3 py-1 text-sm font-bold rounded-full bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm text-gray-900 dark:text-white shadow-lg">
               ₺{product.price}
             </span>

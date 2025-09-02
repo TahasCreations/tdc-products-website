@@ -27,6 +27,7 @@ export interface ShippingAddress {
 
 export interface Order {
   id: string;
+  order_number: string;
   user_id: string;
   items: OrderItem[];
   total_amount: number;
@@ -75,6 +76,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       }));
 
       const newOrder = {
+        order_number: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
         user_id: user.id,
         items: orderItems,
         total_amount: cartState.total,

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '../src/contexts/CartContext';
 import { useTheme } from '../src/contexts/ThemeContext';
 import { useAuth } from '../src/contexts/AuthContext';
+import { useWishlist } from '../src/contexts/WishlistContext';
 import { useToast } from '../src/components/Toast';
 import ThemeToggle from '../src/components/ThemeToggle';
 
@@ -19,6 +20,7 @@ export default function Header() {
   const { state, removeItem, updateQuantity } = useCart();
   const { isDark } = useTheme();
   const { user, signOut } = useAuth();
+  const { wishlistCount } = useWishlist();
   const { addToast } = useToast();
   const router = useRouter();
 
@@ -110,9 +112,16 @@ export default function Header() {
               </div>
             )}
 
-            <button className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300">
+            <Link href="/wishlist" className="relative w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300">
               <i className="ri-heart-line text-xl text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"></i>
-            </button>
+              {wishlistCount > 0 && (
+                <div className="absolute -top-2 -right-2">
+                  <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-bold text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-full min-w-[18px] h-5 shadow-lg animate-pulse border-2 border-white dark:border-gray-800">
+                    {wishlistCount > 99 ? '99+' : wishlistCount}
+                  </span>
+                </div>
+              )}
+            </Link>
             
             {/* Sepet Butonu */}
             <div className="relative">

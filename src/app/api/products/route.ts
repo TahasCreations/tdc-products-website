@@ -3,8 +3,6 @@ import { getProducts, addProduct, updateProduct, deleteProduct } from '../../../
 import { supabase } from '../../../../lib/supabase';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
-export const revalidate = 0;
 
 const getDefaultProducts = () => [
   {

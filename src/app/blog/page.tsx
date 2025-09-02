@@ -6,13 +6,15 @@ import BlogCard from './BlogCard';
 interface BlogPost {
   id: string;
   title: string;
-  content: string;
-  author: string;
-  date: string;
-  image?: string;
-  category: string;
-  readTime: number;
+  slug: string;
   excerpt: string;
+  content: string;
+  image: string;
+  category: string;
+  author: string;
+  published_at: string;
+  read_time: number;
+  tags: string[];
 }
 
 export default function BlogPage() {
@@ -22,35 +24,41 @@ export default function BlogPage() {
     {
       id: '1',
       title: 'Anime Figürleri: Koleksiyonculuğun Sanatı',
+      slug: 'anime-figurleri-koleksiyonculugun-sanati',
+      excerpt: 'Anime figürleri sadece oyuncak değil, gerçek sanat eserleridir...',
       content: 'Anime figürleri sadece oyuncak değil, gerçek sanat eserleridir. Bu yazıda anime figür koleksiyonculuğunun inceliklerini keşfedelim.',
-      author: 'TDC Team',
-      date: '2024-01-15',
       image: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=400&fit=crop',
       category: 'Anime',
-      readTime: 5,
-      excerpt: 'Anime figürleri sadece oyuncak değil, gerçek sanat eserleridir...'
+      author: 'TDC Team',
+      published_at: '2024-01-15',
+      read_time: 5,
+      tags: ['anime', 'figür', 'koleksiyon']
     },
     {
       id: '2',
       title: 'Gaming Figürleri: Nostalji ve Modernite',
+      slug: 'gaming-figurleri-nostalji-ve-modernite',
+      excerpt: 'Gaming figürleri hem nostalji hem de modern oyun kültürünü...',
       content: 'Gaming figürleri hem nostalji hem de modern oyun kültürünü bir araya getiriyor. En popüler gaming figürlerini inceleyelim.',
-      author: 'TDC Team',
-      date: '2024-01-10',
       image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=400&fit=crop',
       category: 'Gaming',
-      readTime: 7,
-      excerpt: 'Gaming figürleri hem nostalji hem de modern oyun kültürünü...'
+      author: 'TDC Team',
+      published_at: '2024-01-10',
+      read_time: 7,
+      tags: ['gaming', 'figür', 'nostalji']
     },
     {
       id: '3',
       title: 'Film Karakter Figürleri: Sinemanın Küçük Kahramanları',
+      slug: 'film-karakter-figurleri-sinemanin-kucuk-kahramanlari',
+      excerpt: 'Film karakterlerinin figürleri, sinema tutkunları için...',
       content: 'Film karakterlerinin figürleri, sinema tutkunları için vazgeçilmez koleksiyon parçalarıdır. En ikonik film figürlerini keşfedelim.',
-      author: 'TDC Team',
-      date: '2024-01-05',
       image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&h=400&fit=crop',
       category: 'Film',
-      readTime: 6,
-      excerpt: 'Film karakterlerinin figürleri, sinema tutkunları için...'
+      author: 'TDC Team',
+      published_at: '2024-01-05',
+      read_time: 6,
+      tags: ['film', 'figür', 'sinema']
     }
   ]);
 
@@ -92,13 +100,15 @@ export default function BlogPage() {
       const blog: BlogPost = {
         id: Date.now().toString(),
         title: newBlog.title,
+        slug: newBlog.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        excerpt: newBlog.excerpt || newBlog.content.substring(0, 100) + '...',
         content: newBlog.content,
-        author: newBlog.author,
-        date: new Date().toISOString().split('T')[0],
         image: newBlog.image || 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=400&fit=crop',
         category: newBlog.category,
-        readTime: Math.ceil(newBlog.content.split(' ').length / 200),
-        excerpt: newBlog.excerpt || newBlog.content.substring(0, 100) + '...'
+        author: newBlog.author,
+        published_at: new Date().toISOString().split('T')[0],
+        read_time: Math.ceil(newBlog.content.split(' ').length / 200),
+        tags: [newBlog.category.toLowerCase()]
       };
 
       setBlogs([blog, ...blogs]);
@@ -327,7 +337,7 @@ export default function BlogPage() {
         {/* Blog Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredBlogs.map((blog) => (
-            <BlogCard key={blog.id} blog={blog} />
+            <BlogCard key={blog.id} post={blog} />
           ))}
         </div>
 

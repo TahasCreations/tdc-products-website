@@ -3,11 +3,13 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { CartProvider } from "../contexts/CartContext";
-import { ThemeProvider } from "../contexts/ThemeContext";
-import { ToastProvider } from "../components/Toast";
 import { AuthProvider } from "../contexts/AuthContext";
+import { CartProvider } from "../contexts/CartContext";
 import { OrderProvider } from "../contexts/OrderContext";
+import { ThemeProvider } from "../contexts/ThemeContext";
+import { WishlistProvider } from "../contexts/WishlistContext";
+import WhatsAppButton from "../../components/WhatsAppButton";
+import { ToastProvider } from "../components/Toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,15 +29,18 @@ export default function RootLayout({
         <ThemeProvider>
           <ToastProvider>
             <AuthProvider>
-              <CartProvider>
-                <OrderProvider>
-                  <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-                    <Header />
-                    <main className="flex-grow">{children}</main>
-                    <Footer />
-                  </div>
-                </OrderProvider>
-              </CartProvider>
+              <WishlistProvider>
+                <CartProvider>
+                  <OrderProvider>
+                    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+                      <Header />
+                      <main className="flex-grow">{children}</main>
+                      <Footer />
+                      <WhatsAppButton />
+                    </div>
+                  </OrderProvider>
+                </CartProvider>
+              </WishlistProvider>
             </AuthProvider>
           </ToastProvider>
         </ThemeProvider>

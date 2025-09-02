@@ -3,8 +3,6 @@ import { getCategories, addCategory, updateCategory, deleteCategory } from '../.
 
 export const dynamic = 'force-dynamic';
 
-export const runtime = 'nodejs';
-
 const getDefaultCategories = () => [
   {
     id: '1',
