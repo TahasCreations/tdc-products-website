@@ -1,9 +1,22 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { supabase } from '../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { useAuth } from './AuthContext';
 import { useCart } from './CartContext';
+
+// Client-side Supabase client
+const createClientSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 export interface OrderItem {
   product_id: string;
@@ -65,6 +78,11 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 
     try {
       setLoading(true);
+
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        return { order: null, error: { message: 'Supabase client not initialized' } };
+      }
 
       const orderItems = cartState.items.map(item => ({
         product_id: item.id,
@@ -143,6 +161,10 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 
     try {
       setLoading(true);
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        return;
+      }
       const { data, error } = await supabase
         .from('orders')
         .select('*')
@@ -164,6 +186,10 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        return { error: { message: 'Supabase client not initialized' } };
+      }
       const { error } = await supabase
         .from('orders')
         .update({ 
@@ -193,6 +219,10 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 
   const getOrderById = async (orderId: string) => {
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        return { order: null, error: { message: 'Supabase client not initialized' } };
+      }
       const { data, error } = await supabase
         .from('orders')
         .select('*')

@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+
+// Server-side Supabase client
+const createServerSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 // Kupon doğrulama
 export async function POST(request: NextRequest) {
@@ -13,6 +26,14 @@ export async function POST(request: NextRequest) {
         success: false, 
         error: 'Kupon kodu gerekli' 
       }, { status: 400 });
+    }
+
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
     }
 
     // Kuponu veritabanından getir
@@ -98,6 +119,14 @@ export async function PUT(request: NextRequest) {
         success: false, 
         error: 'Kupon ID gerekli' 
       }, { status: 400 });
+    }
+
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
     }
 
     // Kupon kullanım sayısını artır

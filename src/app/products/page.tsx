@@ -5,14 +5,33 @@ import SkeletonLoader from '../../components/SkeletonLoader';
 import CategorySidebar from '../../components/CategorySidebar';
 import { ProductCardSkeleton, PageLoader } from '../../components/LoadingSpinner';
 import Link from 'next/link';
-import { supabase } from '../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+
+// Server-side Supabase client
+const createServerSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 // Ürünleri Supabase'den çek
 async function getProducts() {
   try {
     console.log('Ürünler sayfası: Supabase\'den ürünler isteniyor...');
+    
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      console.error('Supabase client could not be created');
+      return [];
+    }
     
     const { data: products, error } = await supabase
       .from('products')
@@ -36,6 +55,12 @@ async function getProducts() {
 // Kategorileri Supabase'den çek
 async function getCategories() {
   try {
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      console.error('Supabase client could not be created');
+      return [];
+    }
+    
     const { data: categories, error } = await supabase
       .from('categories')
       .select('*')

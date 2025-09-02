@@ -5,7 +5,20 @@ import AddToCartButton from '../../AddToCartButton';
 import AnimatedText from '../../animated-text';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Client-side Supabase client
+const createClientSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 interface Product {
   id: string;
@@ -99,6 +112,14 @@ export default function HomePage() {
 
       console.log('Ürünler yükleniyor...', forceRefresh ? '(zorla yenileme)' : '(cache kontrolü)');
       
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        setProducts(getDefaultProducts());
+        setLoading(false);
+        return;
+      }
+
       // Önce API'den dene
       try {
         const response = await fetch('/api/products', {

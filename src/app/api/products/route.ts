@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProducts, addProduct, updateProduct, deleteProduct } from '../../../../lib/supabase';
-import { supabase } from '../../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+
+// Server-side Supabase client
+const createServerSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 const getDefaultProducts = () => [
   {
@@ -73,6 +85,11 @@ export async function GET(request: NextRequest) {
     // Eğer slug parametresi varsa, tek ürün getir
     if (slug) {
       try {
+        const supabase = createServerSupabaseClient();
+        if (!supabase) {
+          return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
+        }
+
         const { data, error } = await supabase
           .from('products')
           .select('*')
@@ -110,12 +127,24 @@ export async function GET(request: NextRequest) {
     }
     
     // Supabase'den tüm ürünleri al
-    const products = await getProducts();
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
+    }
+
+    const { data, error } = await supabase
+      .from('products')
+      .select('*');
+
+    if (error) {
+      console.error('All products fetch error:', error);
+      return NextResponse.json({ error: 'Ürünler alınamadı' }, { status: 500 });
+    }
     
-    console.log('API: Supabase\'den', products.length, 'ürün alındı');
+    console.log('API: Supabase\'den', data.length, 'ürün alındı');
     
-    if (products.length > 0) {
-      return NextResponse.json(products, {
+    if (data.length > 0) {
+      return NextResponse.json(data, {
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
@@ -153,11 +182,21 @@ export async function POST(request: NextRequest) {
     console.log('Product POST request:', { title, price, category, stock, action });
 
     if (action === 'get') {
-      const products = await getProducts();
+      const supabase = createServerSupabaseClient();
+      if (!supabase) {
+        return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
+      }
+      const { data, error } = await supabase
+        .from('products')
+        .select('*');
+      if (error) {
+        console.error('Supabase get all error:', error);
+        return NextResponse.json({ error: 'Ürünler alınamadı' }, { status: 500 });
+      }
       return NextResponse.json({
         success: true,
         message: 'Supabase\'den ürünler alındı',
-        products: products.length > 0 ? products : getDefaultProducts()
+        products: data.length > 0 ? data : getDefaultProducts()
       });
     }
 
@@ -173,6 +212,11 @@ export async function POST(request: NextRequest) {
       }
       if (!stock || isNaN(parseInt(stock))) {
         return NextResponse.json({ error: 'Geçerli stok miktarı gerekli' }, { status: 400 });
+      }
+
+      const supabase = createServerSupabaseClient();
+      if (!supabase) {
+        return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
       }
 
       const productSlug = slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -192,11 +236,20 @@ export async function POST(request: NextRequest) {
       console.log('Adding new product to Supabase:', newProduct);
 
       try {
-        const addedProduct = await addProduct(newProduct);
+        const { data, error } = await supabase
+          .from('products')
+          .insert([newProduct])
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Supabase add product error:', error);
+          return NextResponse.json({ error: 'Ürün Supabase\'e eklenemedi' }, { status: 500 });
+        }
         return NextResponse.json({
           success: true,
           message: 'Ürün Supabase\'e eklendi',
-          product: addedProduct,
+          product: data,
           storageType: 'supabase'
         });
       } catch (supabaseError) {
@@ -211,12 +264,27 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Ürün ID gerekli' }, { status: 400 });
       }
 
+      const supabase = createServerSupabaseClient();
+      if (!supabase) {
+        return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
+      }
+
       try {
-        const updatedProduct = await updateProduct(id, updates);
+        const { data, error } = await supabase
+          .from('products')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Supabase update product error:', error);
+          return NextResponse.json({ error: 'Ürün güncellenemedi' }, { status: 500 });
+        }
         return NextResponse.json({
           success: true,
           message: 'Ürün güncellendi',
-          product: updatedProduct
+          product: data
         });
       } catch (supabaseError) {
         console.error('Supabase update error:', supabaseError);
@@ -230,8 +298,21 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Ürün ID gerekli' }, { status: 400 });
       }
 
+      const supabase = createServerSupabaseClient();
+      if (!supabase) {
+        return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
+      }
+
       try {
-        await deleteProduct(id);
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          console.error('Supabase delete product error:', error);
+          return NextResponse.json({ error: 'Ürün silinemedi' }, { status: 500 });
+        }
         return NextResponse.json({
           success: true,
           message: 'Ürün silindi'

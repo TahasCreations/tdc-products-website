@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+
+// Server-side Supabase client
+const createServerSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,57 +44,65 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-            // Benzersiz dosya adı oluştur
-        const timestamp = Date.now();
-        const fileName = `${timestamp}-${file.name}`;
-        const filePath = `products/${fileName}`;
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
+    }
 
-        // Bucket kontrolünü atla, doğrudan yükleme yap
-        console.log('Bucket kontrolü atlandı, doğrudan yükleme yapılıyor...');
+    // Benzersiz dosya adı oluştur
+    const timestamp = Date.now();
+    const fileName = `${timestamp}-${file.name}`;
+    const filePath = `products/${fileName}`;
 
-        // Supabase Storage'a yükle - RLS bypass
-        try {
-          const { data, error } = await supabase.storage
-            .from('images')
-            .upload(filePath, file, {
-              cacheControl: '3600',
-              upsert: false
-            });
+    // Bucket kontrolünü atla, doğrudan yükleme yap
+    console.log('Bucket kontrolü atlandı, doğrudan yükleme yapılıyor...');
 
-          if (error) {
-            console.error('Upload error:', error);
-            
-            // RLS hatası ise detaylı hata mesajı
-            if (error.message.includes('row-level security')) {
-              return NextResponse.json({ 
-                success: false, 
-                error: 'RLS politikası hatası. Lütfen Supabase Dashboard\'da storage politikalarını kontrol edin.' 
-              }, { status: 500 });
-            }
-            
-            return NextResponse.json({ 
-              success: false, 
-              error: error.message 
-            }, { status: 500 });
-          }
-        } catch (uploadError) {
-          console.error('Upload process error:', uploadError);
+    // Supabase Storage'a yükle - RLS bypass
+    try {
+      const { data, error } = await supabase.storage
+        .from('images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        console.error('Upload error:', error);
+        
+        // RLS hatası ise detaylı hata mesajı
+        if (error.message.includes('row-level security')) {
           return NextResponse.json({ 
             success: false, 
-            error: `Görsel yükleme hatası: ${uploadError}` 
+            error: 'RLS politikası hatası. Lütfen Supabase Dashboard\'da storage politikalarını kontrol edin.' 
           }, { status: 500 });
         }
-
-        // Public URL al
-        const { data: urlData } = supabase.storage
-          .from('images')
-          .getPublicUrl(filePath);
-
+        
         return NextResponse.json({ 
-          success: true, 
-          url: urlData.publicUrl,
-          path: filePath
-        });
+          success: false, 
+          error: error.message 
+        }, { status: 500 });
+      }
+    } catch (uploadError) {
+      console.error('Upload process error:', uploadError);
+      return NextResponse.json({ 
+        success: false, 
+        error: `Görsel yükleme hatası: ${uploadError}` 
+      }, { status: 500 });
+    }
+
+    // Public URL al
+    const { data: urlData } = supabase.storage
+      .from('images')
+      .getPublicUrl(filePath);
+
+    return NextResponse.json({ 
+      success: true, 
+      url: urlData.publicUrl,
+      path: filePath
+    });
 
   } catch (error) {
     console.error('Upload API error:', error);
@@ -94,6 +115,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
+    }
+    
     // Storage bucket listesi
     const { data, error } = await supabase.storage.listBuckets();
 

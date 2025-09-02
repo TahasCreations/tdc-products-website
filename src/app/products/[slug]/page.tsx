@@ -3,10 +3,23 @@ import Link from "next/link";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartButton from "../../../../AddToCartButton";
 import { notFound } from 'next/navigation';
-import { supabase } from '../../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { PageLoader } from '../../../components/LoadingSpinner';
 
 export const dynamic = 'force-dynamic';
+
+// Server-side Supabase client
+const createServerSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -14,6 +27,14 @@ export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   
   try {
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return {
+        title: 'Ürün Detayı | TDC Products',
+        description: 'Premium kalitede figürler ve koleksiyon ürünleri',
+      };
+    }
+    
     // Supabase'den direkt veri çek
     const { data: product, error } = await supabase
       .from('products')
@@ -57,6 +78,12 @@ export async function generateMetadata({ params }: Props) {
 // Supabase'den tek ürünü getir
 async function getProductBySlug(slug: string) {
   try {
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      console.error('Supabase client could not be created');
+      return null;
+    }
+    
     const { data: product, error } = await supabase
       .from('products')
       .select('*')
@@ -83,6 +110,12 @@ async function getProductBySlug(slug: string) {
 // Benzer ürünleri getir
 async function getSimilarProducts(currentSlug: string, category: string) {
   try {
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      console.error('Supabase client could not be created');
+      return [];
+    }
+    
     const { data: products, error } = await supabase
       .from('products')
       .select('*')

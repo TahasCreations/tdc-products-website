@@ -1,8 +1,21 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import { useAuth } from './AuthContext';
-import { supabase } from '../../lib/supabase';
+
+// Client-side Supabase client
+const createClientSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 interface WishlistItem {
   id: string;
@@ -60,6 +73,12 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
 
     setIsLoading(true);
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('wishlists')
         .select(`
@@ -110,6 +129,12 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        alert('Veritabanı bağlantısı kurulamadı');
+        return;
+      }
+      
       // Önce ürünün zaten wishlist'te olup olmadığını kontrol et
       const isAlreadyInWishlist = wishlistItems.some(item => item.product_id === productId);
       if (isAlreadyInWishlist) {
@@ -146,6 +171,12 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     if (!user) return;
 
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        alert('Veritabanı bağlantısı kurulamadı');
+        return;
+      }
+      
       const { error } = await supabase
         .from('wishlists')
         .delete()
@@ -177,6 +208,12 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     if (!user) return;
 
     try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        alert('Veritabanı bağlantısı kurulamadı');
+        return;
+      }
+      
       const { error } = await supabase
         .from('wishlists')
         .delete()

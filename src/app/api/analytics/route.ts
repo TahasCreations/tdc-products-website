@@ -1,9 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { format, subDays, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 
 // Analitik verileri getir
 export const dynamic = 'force-dynamic';
+
+// Server-side Supabase client
+const createServerSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -76,6 +89,14 @@ export async function GET(request: NextRequest) {
 // Genel bakış analitikleri
 async function getOverviewAnalytics(startDate: Date, endDate: Date) {
   try {
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({
+        success: false,
+        error: 'Veritabanı bağlantısı kurulamadı'
+      }, { status: 500 });
+    }
+    
     // Toplam sipariş sayısı
     const { count: totalOrders } = await supabase
       .from('orders')
@@ -217,6 +238,14 @@ async function getCustomerAnalytics(startDate: Date, endDate: Date) {
 
 // Yardımcı fonksiyonlar
 async function getDailyOrders(startDate: Date, endDate: Date) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('orders')
     .select('created_at')
@@ -237,6 +266,14 @@ async function getDailyOrders(startDate: Date, endDate: Date) {
 }
 
 async function getDailySales(startDate: Date, endDate: Date) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('orders')
     .select('created_at, total_amount')
@@ -258,6 +295,14 @@ async function getDailySales(startDate: Date, endDate: Date) {
 }
 
 async function getWeeklySales(startDate: Date, endDate: Date) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('orders')
     .select('created_at, total_amount')
@@ -280,6 +325,14 @@ async function getWeeklySales(startDate: Date, endDate: Date) {
 }
 
 async function getMonthlySales(startDate: Date, endDate: Date) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('orders')
     .select('created_at, total_amount')
@@ -302,6 +355,14 @@ async function getMonthlySales(startDate: Date, endDate: Date) {
 }
 
 async function getOrderStatusDistribution(startDate: Date, endDate: Date) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('orders')
     .select('status')
@@ -321,6 +382,14 @@ async function getOrderStatusDistribution(startDate: Date, endDate: Date) {
 }
 
 async function getTopProducts(startDate: Date, endDate: Date) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('orders')
     .select('items')
@@ -356,6 +425,14 @@ async function getTopProducts(startDate: Date, endDate: Date) {
 }
 
 async function getCategorySales(startDate: Date, endDate: Date) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('orders')
     .select('items')
@@ -380,6 +457,14 @@ async function getCategorySales(startDate: Date, endDate: Date) {
 }
 
 async function getStockStatus() {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('products')
     .select('stock');
@@ -402,6 +487,14 @@ async function getStockStatus() {
 }
 
 async function getLowStockProducts() {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('products')
     .select('id, title, stock, price')
@@ -413,6 +506,14 @@ async function getLowStockProducts() {
 }
 
 async function getNewCustomers(startDate: Date, endDate: Date) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+  
   const { data } = await supabase.auth.admin.listUsers();
   
   const newCustomers = data.users.filter(user => {
@@ -424,6 +525,14 @@ async function getNewCustomers(startDate: Date, endDate: Date) {
 }
 
 async function getCustomerActivity(startDate: Date, endDate: Date) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('orders')
     .select('user_id, created_at')
@@ -454,6 +563,14 @@ async function getCustomerActivity(startDate: Date, endDate: Date) {
 }
 
 async function getTopCustomers(startDate: Date, endDate: Date) {
+  const supabase = createServerSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Veritabanı bağlantısı kurulamadı'
+    }, { status: 500 });
+  }
+
   const { data } = await supabase
     .from('orders')
     .select('user_id, total_amount')

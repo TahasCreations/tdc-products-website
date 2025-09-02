@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCategories, addCategory, updateCategory, deleteCategory } from '../../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+
+// Server-side Supabase client
+const createServerSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 const getDefaultCategories = () => [
   {
@@ -40,10 +53,23 @@ const getDefaultCategories = () => [
 
 export async function GET() {
   try {
-    // Supabase'den kategorileri al
-    const categories = await getCategories();
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json(getDefaultCategories());
+    }
     
-    if (categories.length > 0) {
+    // Supabase'den kategorileri al
+    const { data: categories, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('Supabase categories error:', error);
+      return NextResponse.json(getDefaultCategories());
+    }
+    
+    if (categories && categories.length > 0) {
       return NextResponse.json(categories);
     }
     
@@ -63,11 +89,33 @@ export async function POST(request: NextRequest) {
     console.log('Category POST request:', { name, color, icon, action });
 
     if (action === 'get') {
-      const categories = await getCategories();
+      const supabase = createServerSupabaseClient();
+      if (!supabase) {
+        return NextResponse.json({
+          success: true,
+          message: 'Default kategoriler kullanılıyor',
+          categories: getDefaultCategories()
+        });
+      }
+      
+      const { data: categories, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (error) {
+        console.error('Supabase get categories error:', error);
+        return NextResponse.json({
+          success: true,
+          message: 'Default kategoriler kullanılıyor',
+          categories: getDefaultCategories()
+        });
+      }
+      
       return NextResponse.json({
         success: true,
         message: 'Supabase\'den kategoriler alındı',
-        categories: categories.length > 0 ? categories : getDefaultCategories()
+        categories: categories && categories.length > 0 ? categories : getDefaultCategories()
       });
     }
 
@@ -87,11 +135,26 @@ export async function POST(request: NextRequest) {
       console.log('Adding new category to Supabase:', newCategory);
 
       try {
-        const addedCategory = await addCategory(newCategory);
+        const supabase = createServerSupabaseClient();
+        if (!supabase) {
+          return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
+        }
+        
+        const { data, error } = await supabase
+          .from('categories')
+          .insert([newCategory])
+          .select()
+          .single();
+          
+        if (error) {
+          console.error('Supabase add category error:', error);
+          return NextResponse.json({ error: 'Kategori eklenemedi' }, { status: 500 });
+        }
+        
         return NextResponse.json({
           success: true,
           message: 'Kategori Supabase\'e eklendi',
-          category: addedCategory,
+          category: data,
           storageType: 'supabase'
         });
       } catch (supabaseError) {
@@ -107,11 +170,27 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        const updatedCategory = await updateCategory(id, updates);
+        const supabase = createServerSupabaseClient();
+        if (!supabase) {
+          return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
+        }
+        
+        const { data, error } = await supabase
+          .from('categories')
+          .update(updates)
+          .eq('id', id)
+          .select()
+          .single();
+          
+        if (error) {
+          console.error('Supabase update category error:', error);
+          return NextResponse.json({ error: 'Kategori güncellenemedi' }, { status: 500 });
+        }
+        
         return NextResponse.json({
           success: true,
           message: 'Kategori güncellendi',
-          category: updatedCategory
+          category: data
         });
       } catch (supabaseError) {
         console.error('Supabase update error:', supabaseError);
@@ -126,7 +205,21 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        await deleteCategory(id);
+        const supabase = createServerSupabaseClient();
+        if (!supabase) {
+          return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
+        }
+        
+        const { error } = await supabase
+          .from('categories')
+          .delete()
+          .eq('id', id);
+          
+        if (error) {
+          console.error('Supabase delete category error:', error);
+          return NextResponse.json({ error: 'Kategori silinemedi' }, { status: 500 });
+        }
+        
         return NextResponse.json({
           success: true,
           message: 'Kategori silindi'

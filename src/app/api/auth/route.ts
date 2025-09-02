@@ -1,12 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+
+// Server-side Supabase client
+const createServerSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing');
+    return null;
+  }
+  
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { action, email, password } = body;
+
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
+    }
 
     if (action === 'login') {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -80,6 +101,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
+    }
+
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (error) {
