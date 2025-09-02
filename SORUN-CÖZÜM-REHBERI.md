@@ -2,6 +2,34 @@
 
 ## 📅 Güncelleme Geçmişi
 
+### ✅ **v2.13 - Blog Sistemi ve Kullanıcı Yönetimi Eklendi** (31 Aralık 2024, 22:00)
+
+**Eklenen Özellikler:**
+- Blog yazma ve yönetim sistemi
+- Kullanıcı blog yazma sayfası (`/blog/write`)
+- Admin panelinde blog yönetimi (`/admin/blogs`)
+- Blog detay sayfaları (`/blog/[slug]`)
+- Blog API route'ları (`/api/blogs`)
+- Kullanıcı blog onay sistemi (pending, published, rejected)
+
+**Teknik Detaylar:**
+- Blog CRUD işlemleri (Create, Read, Update, Delete)
+- Otomatik slug oluşturma
+- Okuma süresi hesaplama
+- Kategori ve etiket sistemi
+- HTML içerik desteği
+- Admin onay sistemi
+
+**Dosyalar:**
+- `src/app/blog/[slug]/page.tsx` - Blog detay sayfası
+- `src/app/blog/write/page.tsx` - Blog yazma sayfası
+- `src/app/admin/blogs/page.tsx` - Admin blog yönetimi
+- `src/app/api/blogs/route.ts` - Blog API
+- `src/app/blog/page.tsx` - Blog ana sayfası güncellendi
+- `src/app/admin/page.tsx` - Admin paneli blog tab'ı eklendi
+
+**Test Sonucu:** ✅ Blog sistemi başarıyla çalışıyor
+
 ### ✅ **v2.12 - Supabase Client Hataları Düzeltildi** (31 Aralık 2024, 21:30)
 
 **Sorun:** Ürün detay kısmına tıkladığımda "Cannot read properties of null (reading 'get')" hatası
