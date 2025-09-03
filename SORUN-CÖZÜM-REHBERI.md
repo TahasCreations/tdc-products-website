@@ -54,6 +54,35 @@
 
 **Test Sonucu:** ✅ Tüm ESLint uyarıları düzeltildi, build başarılı
 
+---
+
+### ✅ **v2.15 - Blog Sistemi Geliştirildi** (31 Aralık 2024, 23:00)
+
+**Eklenen Özellikler:**
+- Gelişmiş blog arama ve filtreleme sistemi
+- Blog etiketleri ve kategori filtreleme
+- Blog sıralama seçenekleri (En Yeni, En Eski, En Popüler)
+- Grid/List görünüm seçenekleri
+- Aktif filtreler gösterimi ve temizleme
+- Blog yazma sayfasında etiket önerileri
+- Karakter sayacı ve okuma süresi hesaplama
+- Otomatik draft kaydetme ve yükleme
+- Draft temizleme özelliği
+
+**Teknik Detaylar:**
+- Gelişmiş state management (useState, useEffect, useCallback)
+- LocalStorage ile draft yönetimi
+- Responsive tasarım ve modern UI/UX
+- Performans optimizasyonları
+- ESLint uyumlu kod yapısı
+
+**Dosyalar:**
+- `src/app/blog/page.tsx` - Ana blog sayfası geliştirildi
+- `src/app/blog/write/page.tsx` - Blog yazma sayfası geliştirildi
+- `src/app/api/blogs/route.ts` - Blog API güncellendi
+
+**Test Sonucu:** ✅ Blog sistemi başarıyla geliştirildi, build başarılı
+
 ### ✅ **v2.12 - Supabase Client Hataları Düzeltildi** (31 Aralık 2024, 21:30)
 
 **Sorun:** Ürün detay kısmına tıkladığımda "Cannot read properties of null (reading 'get')" hatası
