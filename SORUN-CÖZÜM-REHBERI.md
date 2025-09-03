@@ -30,6 +30,30 @@
 
 **Test Sonucu:** ✅ Blog sistemi başarıyla çalışıyor
 
+---
+
+### ✅ **v2.14 - ESLint Uyarıları Düzeltildi** (31 Aralık 2024, 22:30)
+
+**Düzeltilen Uyarılar:**
+- `useEffect` dependency uyarıları (3 adet)
+- `useCallback` dependency uyarıları (2 adet)
+- `<img>` tag yerine `next/image` kullanımı (3 adet)
+
+**Teknik Detaylar:**
+- `useCallback` hook'ları ile fonksiyon dependency'leri optimize edildi
+- `next/image` component'i ile image optimization sağlandı
+- Circular dependency'ler çözüldü
+- Kod kalitesi ve performans iyileştirildi
+
+**Dosyalar:**
+- `src/app/admin/blogs/page.tsx` - `fetchBlogs` useCallback ile sarıldı
+- `src/app/profile/page.tsx` - `fetchProfile` ve `createProfile` useCallback ile sarıldı
+- `src/contexts/WishlistContext.tsx` - `fetchWishlist` useCallback ile sarıldı
+- `src/app/blog/page.tsx` - `<img>` tag'leri `next/image` ile değiştirildi
+- `src/app/blog/[slug]/page.tsx` - `<img>` tag'leri `next/image` ile değiştirildi
+
+**Test Sonucu:** ✅ Tüm ESLint uyarıları düzeltildi, build başarılı
+
 ### ✅ **v2.12 - Supabase Client Hataları Düzeltildi** (31 Aralık 2024, 21:30)
 
 **Sorun:** Ürün detay kısmına tıkladığımda "Cannot read properties of null (reading 'get')" hatası
