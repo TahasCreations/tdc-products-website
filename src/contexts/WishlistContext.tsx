@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useAuth } from './AuthContext';
 
@@ -65,7 +65,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
   const wishlistCount = wishlistItems.length;
 
   // Wishlist'i getir
-  const fetchWishlist = async () => {
+  const fetchWishlist = useCallback(async () => {
     if (!user) {
       setWishlistItems([]);
       return;
@@ -119,7 +119,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
   // Wishlist'e ürün ekle
   const addToWishlist = async (productId: string) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
@@ -168,11 +169,12 @@ export default function BlogDetailPage() {
           </div>
 
           {blog.image && (
-            <div className="mb-6">
-              <img
+            <div className="mb-6 relative h-64 lg:h-96">
+              <Image
                 src={blog.image}
                 alt={blog.title}
-                className="w-full h-64 lg:h-96 object-cover rounded-xl"
+                fill
+                className="object-cover rounded-xl"
               />
             </div>
           )}
@@ -214,11 +216,14 @@ export default function BlogDetailPage() {
                   className="group block bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors"
                 >
                   {relatedBlog.image && (
-                    <img
-                      src={relatedBlog.image}
-                      alt={relatedBlog.title}
-                      className="w-full h-32 object-cover rounded-lg mb-3 group-hover:scale-105 transition-transform"
-                    />
+                    <div className="relative h-32 mb-3">
+                      <Image
+                        src={relatedBlog.image}
+                        alt={relatedBlog.title}
+                        fill
+                        className="object-cover rounded-lg group-hover:scale-105 transition-transform"
+                      />
+                    </div>
                   )}
                   <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
                     {relatedBlog.title}

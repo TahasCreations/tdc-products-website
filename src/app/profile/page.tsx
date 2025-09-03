@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
@@ -56,7 +56,7 @@ export default function ProfilePage() {
     postal_code: ''
   });
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const supabase = createClientSupabaseClient();
       if (!supabase) {
@@ -74,7 +74,32 @@ export default function ProfilePage() {
       if (error) {
         console.error('Profile fetch error:', error);
         // Yeni profil oluştur
-        await createProfile();
+        const supabaseClient = createClientSupabaseClient();
+        if (supabaseClient) {
+          const { data: newData, error: createError } = await supabaseClient
+            .from('profiles')
+            .insert([
+              {
+                id: user?.id,
+                email: user?.email,
+                full_name: user?.user_metadata?.full_name || '',
+                created_at: new Date().toISOString()
+              }
+            ])
+            .select()
+            .single();
+
+          if (!createError && newData) {
+            setProfile(newData);
+            setFormData({
+              full_name: newData.full_name || '',
+              phone: newData.phone || '',
+              address: newData.address || '',
+              city: newData.city || '',
+              postal_code: newData.postal_code || ''
+            });
+          }
+        }
       } else {
         setProfile(data);
         setFormData({
@@ -90,45 +115,9 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, user?.email, user?.user_metadata?.full_name]);
 
-  const createProfile = async () => {
-    try {
-      const supabase = createClientSupabaseClient();
-      if (!supabase) {
-        console.error('Supabase client could not be created');
-        return;
-      }
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            id: user?.id,
-            email: user?.email,
-            full_name: user?.user_metadata?.full_name || '',
-            created_at: new Date().toISOString()
-          }
-        ])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Profile creation error:', error);
-      } else {
-        setProfile(data);
-        setFormData({
-          full_name: data.full_name || '',
-          phone: data.phone || '',
-          address: data.address || '',
-          city: data.city || '',
-          postal_code: data.postal_code || ''
-        });
-      }
-    } catch (error) {
-      console.error('Profile creation error:', error);
-    }
-  };
 
   const updateProfile = async () => {
     try {

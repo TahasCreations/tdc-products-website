@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { createClient } from '@supabase/supabase-js';
 import { PageLoader } from '../../../components/LoadingSpinner';
@@ -54,13 +54,7 @@ export default function AdminBlogsPage() {
 
   const categories = ['Genel', 'Anime', 'Gaming', 'Film', 'Teknoloji', 'Lifestyle'];
 
-  useEffect(() => {
-    if (user) {
-      fetchBlogs();
-    }
-  }, [user, activeTab]);
-
-  const fetchBlogs = async () => {
+  const fetchBlogs = useCallback(async () => {
     const supabase = createClientSupabaseClient();
     if (!supabase) return;
 
@@ -82,7 +76,13 @@ export default function AdminBlogsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (user) {
+      fetchBlogs();
+    }
+  }, [user, activeTab, fetchBlogs]);
 
   const handleCreateBlog = async () => {
     if (!newBlog.title || !newBlog.content || !newBlog.author) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
 import { createClient } from '@supabase/supabase-js';
 import { PageLoader } from '../../components/LoadingSpinner';
@@ -180,10 +181,11 @@ export default function BlogPage() {
               <div key={blog.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                 {blog.image && (
                   <div className="relative h-48 overflow-hidden">
-                    <img
+                    <Image
                       src={blog.image}
                       alt={blog.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      fill
+                      className="object-cover hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute top-4 left-4">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-600 text-white">
