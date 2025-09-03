@@ -5,8 +5,9 @@ export const dynamic = 'force-dynamic';
 
 // Server-side Supabase client
 const createServerSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Geçici olarak hardcoded değerler kullanıyoruz
+  const supabaseUrl = 'https://your-project.supabase.co';
+  const supabaseAnonKey = 'your_anon_key_here';
   
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('Supabase environment variables are missing');

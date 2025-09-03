@@ -41,8 +41,14 @@ export default function BlogPage() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'popular'>('newest');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const categories = ['all', 'Genel', 'Anime', 'Gaming', 'Film', 'Teknoloji', 'Lifestyle'];
+  
+  // Tüm etiketleri topla
+  const allTags = Array.from(new Set(blogs.flatMap(blog => blog.tags || []))).sort();
 
   useEffect(() => {
     fetchBlogs();
@@ -76,8 +82,25 @@ export default function BlogPage() {
     const matchesCategory = selectedCategory === 'all' || blog.category === selectedCategory;
     const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          blog.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         blog.author.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+                         blog.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (blog.tags && blog.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
+    const matchesTags = selectedTags.length === 0 || 
+                       (blog.tags && selectedTags.some(tag => blog.tags.includes(tag)));
+    return matchesCategory && matchesSearch && matchesTags;
+  });
+
+  // Sıralama
+  const sortedBlogs = [...filteredBlogs].sort((a, b) => {
+    switch (sortBy) {
+      case 'newest':
+        return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
+      case 'oldest':
+        return new Date(a.published_at).getTime() - new Date(b.published_at).getTime();
+      case 'popular':
+        return (b.read_time || 0) - (a.read_time || 0);
+      default:
+        return 0;
+    }
   });
 
   const formatDate = (dateString: string) => {
@@ -86,6 +109,21 @@ export default function BlogPage() {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedCategory('all');
+    setSearchTerm('');
+    setSelectedTags([]);
+    setSortBy('newest');
   };
 
   if (loading) {
@@ -138,7 +176,8 @@ export default function BlogPage() {
       {/* Filters and Search */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
+          {/* Search and Basic Filters */}
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Arama
@@ -171,16 +210,121 @@ export default function BlogPage() {
                 ))}
               </select>
             </div>
+
+            <div className="md:w-48">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Sıralama
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'popular')}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="newest">En Yeni</option>
+                <option value="oldest">En Eski</option>
+                <option value="popular">En Popüler</option>
+              </select>
+            </div>
+
+            <div className="md:w-48">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Görünüm
+              </label>
+              <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                    viewMode === 'grid' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <i className="ri-grid-line"></i>
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+                    viewMode === 'list' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <i className="ri-list-check"></i>
+                </button>
+              </div>
+            </div>
           </div>
+
+          {/* Tags Filter */}
+          {allTags.length > 0 && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Etiketler
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {allTags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition-colors ${
+                      selectedTags.includes(tag)
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    #{tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Active Filters and Clear Button */}
+          {(selectedCategory !== 'all' || searchTerm || selectedTags.length > 0) && (
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <span>Aktif filtreler:</span>
+                {selectedCategory !== 'all' && (
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                    {selectedCategory}
+                  </span>
+                )}
+                {searchTerm && (
+                  <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                    &quot;{searchTerm}&quot;
+                  </span>
+                )}
+                {selectedTags.map(tag => (
+                  <span key={tag} className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+              <button
+                onClick={clearAllFilters}
+                className="text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-1"
+              >
+                <i className="ri-close-line"></i>
+                Filtreleri Temizle
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Blog Grid */}
-        {filteredBlogs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredBlogs.map((blog) => (
-              <div key={blog.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+        {/* Blog Grid/List */}
+        {sortedBlogs.length > 0 ? (
+          <div className={viewMode === 'grid' 
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            : "space-y-6"
+          }>
+            {sortedBlogs.map((blog) => (
+              <div key={blog.id} className={`bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 ${
+                viewMode === 'list' ? 'flex flex-col md:flex-row' : ''
+              }`}>
                 {blog.image && (
-                  <div className="relative h-48 overflow-hidden">
+                  <div className={`relative overflow-hidden ${
+                    viewMode === 'list' ? 'md:w-64 md:h-48' : 'h-48'
+                  }`}>
                     <Image
                       src={blog.image}
                       alt={blog.title}
@@ -195,7 +339,7 @@ export default function BlogPage() {
                   </div>
                 )}
                 
-                <div className="p-6">
+                <div className={`p-6 ${viewMode === 'list' ? 'flex-1' : ''}`}>
                   <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                     <span className="flex items-center gap-1">
                       <i className="ri-user-line"></i>

@@ -22,6 +22,9 @@ const createClientSupabaseClient = () => {
 
 const categories = ['Genel', 'Anime', 'Gaming', 'Film', 'Teknoloji', 'Lifestyle'];
 
+// Popüler etiket önerileri
+const popularTags = ['figür', 'anime', 'gaming', 'koleksiyon', 'nostalji', 'popüler kültür', 'oyun', 'film', 'manga', 'cosplay'];
+
 export default function WriteBlogPage() {
   const { user } = useAuth();
   const router = useRouter();
@@ -35,12 +38,38 @@ export default function WriteBlogPage() {
     tags: [] as string[],
     tagInput: ''
   });
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   useEffect(() => {
     if (!user) {
       router.push('/auth');
     }
   }, [user, router]);
+
+  // Otomatik kaydetme
+  useEffect(() => {
+    if (blog.title || blog.content) {
+      const timer = setTimeout(() => {
+        localStorage.setItem('blog-draft', JSON.stringify(blog));
+        setLastSaved(new Date());
+      }, 3000); // 3 saniye sonra kaydet
+
+      return () => clearTimeout(timer);
+    }
+  }, [blog]);
+
+  // Sayfa yüklendiğinde draft'ı yükle
+  useEffect(() => {
+    const savedDraft = localStorage.getItem('blog-draft');
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        setBlog(draft);
+      } catch (error) {
+        console.error('Draft yüklenirken hata:', error);
+      }
+    }
+  }, []);
 
   const handleTagAdd = () => {
     if (blog.tagInput.trim() && !blog.tags.includes(blog.tagInput.trim())) {
@@ -57,6 +86,20 @@ export default function WriteBlogPage() {
       ...blog,
       tags: blog.tags.filter(tag => tag !== tagToRemove)
     });
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem('blog-draft');
+    setBlog({
+      title: '',
+      content: '',
+      excerpt: '',
+      image: '',
+      category: 'Genel',
+      tags: [],
+      tagInput: ''
+    });
+    setLastSaved(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,6 +127,7 @@ export default function WriteBlogPage() {
 
       if (response.ok) {
         alert('Blog yazınız başarıyla gönderildi! Admin onayından sonra yayınlanacak.');
+        clearDraft(); // Draft&apos;ı temizle
         router.push('/blog');
       } else {
         const error = await response.json();
@@ -226,6 +270,28 @@ export default function WriteBlogPage() {
                   ))}
                 </div>
               )}
+              
+              {/* Popüler Etiket Önerileri */}
+              <div className="mt-3">
+                <p className="text-sm text-gray-600 mb-2">Popüler etiketler:</p>
+                <div className="flex flex-wrap gap-2">
+                  {popularTags
+                    .filter(tag => !blog.tags.includes(tag))
+                    .map((tag, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => setBlog({
+                          ...blog,
+                          tags: [...blog.tags, tag]
+                        })}
+                        className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-sm transition-colors"
+                      >
+                        + #{tag}
+                      </button>
+                    ))}
+                </div>
+              </div>
             </div>
 
             {/* Content */}
@@ -242,30 +308,62 @@ export default function WriteBlogPage() {
                 required
               />
               <div className="mt-2 text-sm text-gray-500">
-                <p>HTML etiketleri desteklenir. Örnek:</p>
-                <code className="block mt-1 p-2 bg-gray-100 rounded text-xs">
-                  &lt;h2&gt;Alt Başlık&lt;/h2&gt;<br/>
-                  &lt;p&gt;Paragraf metni&lt;/p&gt;<br/>
-                  &lt;strong&gt;Kalın metin&lt;/strong&gt;
-                </code>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p>HTML etiketleri desteklenir. Örnek:</p>
+                    <code className="block mt-1 p-2 bg-gray-100 rounded text-xs">
+                      &lt;h2&gt;Alt Başlık&lt;/h2&gt;<br/>
+                      &lt;p&gt;Paragraf metni&lt;/p&gt;<br/>
+                      &lt;strong&gt;Kalın metin&lt;/strong&gt;
+                    </code>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold text-blue-600">
+                      {blog.content.length} karakter
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      ~{Math.ceil(blog.content.length / 200)} dakika okuma
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex gap-4 pt-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
-              >
-                {loading ? 'Gönderiliyor...' : 'Blog Yazısını Gönder'}
-              </button>
-              <Link
-                href="/blog"
-                className="bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors text-center"
-              >
-                İptal
-              </Link>
+            {/* Draft Info and Submit Button */}
+            <div className="pt-4">
+              {lastSaved && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-green-700">
+                      <i className="ri-check-line"></i>
+                      <span className="text-sm">Son kaydedilen: {lastSaved.toLocaleTimeString('tr-TR')}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={clearDraft}
+                      className="text-red-600 hover:text-red-700 text-sm font-medium"
+                    >
+                      Draft&apos;ı Temizle
+                    </button>
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex gap-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
+                >
+                  {loading ? 'Gönderiliyor...' : 'Blog Yazısını Gönder'}
+                </button>
+                <Link
+                  href="/blog"
+                  className="bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors text-center"
+                >
+                  İptal
+                </Link>
+              </div>
             </div>
           </form>
         </div>
