@@ -17,7 +17,21 @@ const createClientSupabaseClient = () => {
     return null;
   }
   
-  return createClient(supabaseUrl, supabaseAnonKey);
+  // URL formatını kontrol et
+  if (supabaseUrl.includes('your_supabase_project_url') || 
+      supabaseUrl === 'your_supabase_project_url/' ||
+      supabaseUrl === 'your_supabase_project_url' ||
+      !supabaseUrl.startsWith('https://')) {
+    console.error('Supabase URL is not configured properly:', supabaseUrl);
+    return null;
+  }
+  
+  try {
+    return createClient(supabaseUrl, supabaseAnonKey);
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    return null;
+  }
 };
 
 interface Product {

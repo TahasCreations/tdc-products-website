@@ -18,6 +18,15 @@ const createServerSupabaseClient = () => {
     return null;
   }
   
+  // URL formatını kontrol et
+  if (supabaseUrl.includes('your_supabase_project_url') || 
+      supabaseUrl === 'your_supabase_project_url/' ||
+      supabaseUrl === 'your_supabase_project_url' ||
+      !supabaseUrl.startsWith('https://')) {
+    console.error('Supabase URL is not configured properly:', supabaseUrl);
+    return null;
+  }
+  
   try {
     return createClient(supabaseUrl, supabaseAnonKey);
   } catch (error) {
