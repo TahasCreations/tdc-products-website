@@ -39,7 +39,7 @@ export default function WriteBlogPage() {
 
       return () => clearTimeout(timer);
     }
-  }, [blog.title, blog.content]);
+  }, [blog]);
 
   // Sayfa yüklendiğinde draft'ı yükle
   useEffect(() => {
