@@ -44,11 +44,11 @@ export default function AboutPage() {
       </section>
 
       {/* Story */}
-      <section className="py-16">
+      <section className="py-16 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900 mb-6">Hikayemiz</h2>
-            <div className="space-y-4 text-slate-700 leading-relaxed">
+            <h2 className="text-3xl font-bold text-white mb-6">Hikayemiz</h2>
+            <div className="space-y-4 text-white leading-relaxed">
               <p>
                 2020 yılında İzmir&apos;de kurulan TDC Products, anime, oyun ve film tutkunlarının koleksiyonlarına değer katan özgün ürünler üretme hedefiyle yola çıktı.
               </p>
@@ -67,22 +67,22 @@ export default function AboutPage() {
                 { label: 'Memnuniyet', value: '%98' },
                 { label: 'Ortalama Kargo', value: '24-48s' },
               ].map((s) => (
-                <div key={s.label} className="rounded-xl border border-slate-200 bg-white p-4 text-center">
-                  <div className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+                <div key={s.label} className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm p-4 text-center">
+                  <div className="text-2xl font-extrabold text-white">
                     {s.value}
                   </div>
-                  <div className="text-xs text-slate-500 mt-1">{s.label}</div>
+                  <div className="text-xs text-white/80 mt-1">{s.label}</div>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute -inset-2 rounded-2xl bg-gradient-to-tr from-blue-200/30 via-purple-200/30 to-pink-200/30 blur-2xl"></div>
-            <div className="relative rounded-2xl overflow-hidden border border-slate-200">
+            <div className="absolute -inset-2 rounded-2xl bg-gradient-to-tr from-white/20 via-white/10 to-white/20 blur-2xl"></div>
+            <div className="relative rounded-2xl overflow-hidden border border-white/20 bg-white/10 backdrop-blur-sm">
               <Image
-                src="https://images.unsplash.com/photo-1601582585289-250ed79444c4?q=80&w=1200&auto=format&fit=crop"
-                alt="TDC Products üretim atölyesi"
+                src="https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?q=80&w=1200&auto=format&fit=crop"
+                alt="TDC Products figür üretim atölyesi - Anime ve oyun karakterleri"
                 width={800}
                 height={550}
                 className="w-full h-auto object-cover"
