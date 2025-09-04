@@ -191,7 +191,7 @@ export default function AuthPage() {
                 Hesabınız yok mu?{' '}
                 <button
                   onClick={() => setIsLogin(false)}
-                  className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                  className="font-medium text-orange-600 hover:text-orange-500 transition-colors"
                 >
                   Kayıt olun
                 </button>
@@ -201,7 +201,7 @@ export default function AuthPage() {
                 Zaten hesabınız var mı?{' '}
                 <button
                   onClick={() => setIsLogin(true)}
-                  className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                  className="font-medium text-orange-600 hover:text-orange-500 transition-colors"
                 >
                   Giriş yapın
                 </button>
@@ -381,7 +381,7 @@ export default function AuthPage() {
                 <button
                   type="button"
                   onClick={handleResetPassword}
-                  className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                  className="font-medium text-orange-600 hover:text-orange-500 transition-colors"
                 >
                   Şifrenizi mi unuttunuz?
                 </button>
@@ -393,7 +393,7 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
             >
               {loading ? (
                 <div className="flex items-center">

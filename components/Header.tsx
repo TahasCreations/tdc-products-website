@@ -402,7 +402,7 @@ export default function Header() {
                         
                         <Link
                           href="/auth"
-                          className="flex items-center justify-center space-x-2 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+                          className="flex items-center justify-center space-x-2 w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 px-4 rounded-lg font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <i className="ri-login-box-line"></i>
@@ -413,7 +413,7 @@ export default function Header() {
                           <span className="text-sm text-gray-500 dark:text-gray-400">Hesabınız yok mu?</span>
                           <Link
                             href="/auth"
-                            className="block mt-1 text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                            className="block mt-1 text-sm font-medium text-orange-600 hover:text-orange-500 transition-colors"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
                             Hemen kayıt olun
