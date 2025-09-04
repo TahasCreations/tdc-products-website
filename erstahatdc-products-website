@@ -1,0 +1,5 @@
+[33m16e3dca[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: Google OAuth ile giriş/kayıt özelliği eklendi
+[33m20d862b[m feat: Header'a turuncu Giriş Yap butonu eklendi
+[33mbe355bd[m fix: Vercel build sorunları çözüldü
+[33med8d344[m fix: Build warning'i tamamen çözüldü
+[33m45674a2[m feat: Giriş yap ve kayıt ol butonları turuncu renkli yapıldı

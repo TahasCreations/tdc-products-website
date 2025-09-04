@@ -125,10 +125,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: { message: 'Supabase client not initialized' } };
     }
     
+    // Production URL'ini kullan
+    const redirectUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://tdc-products-website-6fjm.vercel.app/auth/callback'
+      : `${window.location.origin}/auth/callback`;
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: redirectUrl
       }
     });
     return { error };
