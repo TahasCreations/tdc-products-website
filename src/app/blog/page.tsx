@@ -353,7 +353,7 @@ export default function BlogPage() {
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <i className="ri-chat-3-line"></i>
-                      {blog.comment_count || 0} yorum
+                      0 yorum
                     </span>
                   </div>
                   
