@@ -112,50 +112,82 @@ export default function OrdersPage() {
             </div>
           </div>
         ) : orders.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-24 h-24 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-              <i className="ri-shopping-bag-3-line text-3xl text-gray-400 dark:text-gray-500"></i>
+          <div className="text-center py-16">
+            <div className="w-32 h-32 bg-gradient-to-r from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+              <i className="ri-shopping-bag-3-line text-4xl text-orange-500 dark:text-orange-400"></i>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Henüz Siparişiniz Yok
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Sipariş Yok
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
-              İlk siparişinizi vermek için ürünlerimizi keşfedin
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+              Henüz hiç sipariş vermediniz. İlk siparişinizi vermek için ürünlerimizi keşfedin ve alışverişe başlayın!
             </p>
-            <Link
-              href="/products"
-              className="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-colors"
-            >
-              <i className="ri-store-line mr-2"></i>
-              Ürünlere Git
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/products"
+                className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <i className="ri-store-line mr-2"></i>
+                Ürünleri Keşfet
+              </Link>
+              <Link
+                href="/"
+                className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300"
+              >
+                <i className="ri-home-line mr-2"></i>
+                Ana Sayfaya Dön
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Sipariş Sayısı */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    Toplam Sipariş
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {orders.length} sipariş bulundu
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                    {orders.length}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Sipariş Listesi */}
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-300"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
               >
                 {/* Sipariş Başlığı */}
-                <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                         Sipariş #{order.id.slice(-8)}
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        <i className="ri-calendar-line mr-1"></i>
                         {formatDate(order.created_at)}
                       </p>
                     </div>
                     <div className="mt-4 sm:mt-0 flex items-center space-x-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                      <span className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusColor(order.status)} shadow-sm`}>
+                        <i className="ri-checkbox-circle-line mr-1"></i>
                         {getStatusText(order.status)}
                       </span>
                       <Link
                         href={`/orders/${order.id}`}
-                        className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium text-sm"
+                        className="bg-orange-500 text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-orange-600 transition-colors shadow-sm"
                       >
+                        <i className="ri-eye-line mr-1"></i>
                         Detayları Gör
                       </Link>
                     </div>
@@ -200,21 +232,26 @@ export default function OrdersPage() {
                   </div>
 
                   {/* Sipariş Özeti */}
-                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800 -mx-6 px-6 py-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                          <i className="ri-shopping-bag-line mr-1"></i>
                           Toplam {order.items.length} ürün
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <i className="ri-bank-card-line mr-1"></i>
                           Ödeme: {order.payment_method === 'credit_card' ? 'Kredi Kartı' : 
                                   order.payment_method === 'bank_transfer' ? 'Banka Havalesi' : 
                                   'Kapıda Ödeme'}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-semibold text-orange-600 dark:text-orange-400">
+                        <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                           {formatPrice(order.total_amount)}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          Toplam Tutar
                         </p>
                       </div>
                     </div>
