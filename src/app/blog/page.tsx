@@ -350,6 +350,11 @@ export default function BlogPage() {
                       <i className="ri-time-line"></i>
                       {blog.read_time} dk
                     </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <i className="ri-chat-3-line"></i>
+                      {blog.comment_count || 0} yorum
+                    </span>
                   </div>
                   
                   <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">

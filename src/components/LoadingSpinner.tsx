@@ -1,87 +1,43 @@
 'use client';
 
-import React from 'react';
-
 interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  color?: 'primary' | 'secondary' | 'white' | 'gray';
   text?: string;
-  fullScreen?: boolean;
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
 
-// Ana Loading Spinner bileşeni
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = 'md',
-  color = 'primary',
-  text,
-  fullScreen = false,
-  className = ''
-}) => {
+export function LoadingSpinner({ text, size = 'md', className = '' }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
-    lg: 'w-12 h-12',
-    xl: 'w-16 h-16'
+    lg: 'w-12 h-12'
   };
 
-  const colorClasses = {
-    primary: 'text-blue-600',
-    secondary: 'text-purple-600',
-    white: 'text-white',
-    gray: 'text-gray-600'
-  };
-
-  const spinner = (
+  return (
     <div className={`flex flex-col items-center justify-center ${className}`}>
-      <div className={`animate-spin rounded-full border-2 border-gray-300 border-t-current ${sizeClasses[size]} ${colorClasses[color]}`}></div>
+      <div className={`${sizeClasses[size]} animate-spin rounded-full border-4 border-gray-200 border-t-blue-600`}></div>
       {text && (
-        <p className={`mt-3 text-sm font-medium ${color === 'white' ? 'text-white' : 'text-gray-600'}`}>
-          {text}
-        </p>
+        <p className="mt-4 text-gray-600 text-center">{text}</p>
       )}
     </div>
   );
+}
 
-  if (fullScreen) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        {spinner}
-      </div>
-    );
-  }
-
-  return spinner;
-};
-
-// Sayfa yükleme spinner'ı
-export const PageLoader: React.FC<{ text?: string }> = ({ text = 'Sayfa yükleniyor...' }) => {
+export function PageLoader({ text = 'Yükleniyor...' }: { text?: string }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      <div className="text-center">
-        <div className="w-16 h-16 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium">{text}</p>
-        <div className="mt-4 flex space-x-1 justify-center">
-          <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-          <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-          <div className="w-2 h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+      <LoadingSpinner text={text} size="lg" />
     </div>
   );
-};
+}
 
-// Buton loading spinner'ı
-export const ButtonLoader: React.FC<{ size?: 'sm' | 'md' }> = ({ size = 'md' }) => {
-  const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5'
-  };
-
+export function ButtonLoader({ size = 'sm' }: { size?: 'sm' | 'md' | 'lg' }) {
   return (
-    <div className={`animate-spin rounded-full border-2 border-white border-t-transparent ${sizeClasses[size]}`}></div>
+    <div className="flex items-center justify-center">
+      <LoadingSpinner size={size} />
+    </div>
   );
-};
+}
 
 // Kart loading skeleton'ı
 export const CardSkeleton: React.FC<{ count?: number }> = ({ count = 1 }) => {
@@ -207,5 +163,3 @@ export const PulseLoader: React.FC<{ text?: string }> = ({ text = 'Yükleniyor..
     </div>
   );
 };
-
-export default LoadingSpinner;

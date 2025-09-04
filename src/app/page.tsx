@@ -216,7 +216,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-12">
             <div className="mb-8">
-              <h1 className="text-6xl md:text-8xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 animate-logo-appear">
+              <h1 className="text-6xl md:text-8xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 animate-fade-in-up">
                 TDC Products
               </h1>
             </div>

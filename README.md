@@ -1,172 +1,164 @@
 # TDC Products Website
 
-Modern ve responsive 3D baskı figür satış sitesi. Next.js 15, React 19, TypeScript ve Tailwind CSS kullanılarak geliştirilmiştir.
+Modern ve kullanıcı dostu bir e-ticaret web sitesi. Anime, oyun ve film karakterlerinin yüksek kaliteli 3D baskı figürlerini satan platform.
 
 ## 🚀 Özellikler
 
-- **Modern Tasarım**: Responsive ve kullanıcı dostu arayüz
-- **3D Figür Koleksiyonu**: Anime, oyun ve film karakterleri
-- **Admin Paneli**: Ürün, kupon ve sipariş yönetimi
-- **BİST Entegrasyonu**: Borsa verileri takibi
-- **Blog Sistemi**: İçerik yönetimi
-- **WhatsApp Entegrasyonu**: Müşteri iletişimi
-- **SEO Optimizasyonu**: Meta etiketleri ve yapılandırılmış veri
+### 🔐 Kullanıcı Yönetimi
+- **Kayıt Olma**: E-posta ve şifre ile kolay kayıt
+- **Giriş Yapma**: Güvenli kimlik doğrulama
+- **Profil Yönetimi**: Kişisel bilgileri güncelleme
+- **Şifre Sıfırlama**: E-posta ile şifre sıfırlama
+- **Oturum Yönetimi**: Güvenli çıkış yapma
+
+### 🛍️ E-ticaret Özellikleri
+- **Ürün Kataloğu**: Kategorilere göre ürün listesi
+- **Arama Sistemi**: Gelişmiş ürün arama
+- **Sepet Yönetimi**: Ürün ekleme/çıkarma
+- **Favori Listesi**: Beğenilen ürünleri kaydetme
+- **Sipariş Takibi**: Sipariş geçmişi ve durumu
+
+### ✍️ Blog Sistemi
+- **Blog Yazma**: Zengin metin editörü
+- **Otomatik Kaydetme**: Draft otomatik kaydetme
+- **Klavye Kısayolları**: Hızlı işlemler
+- **Etiket Sistemi**: Kategorilere göre etiketleme
+- **Validasyon**: Form doğrulama sistemi
+
+### 🎨 Kullanıcı Arayüzü
+- **Responsive Tasarım**: Mobil ve masaüstü uyumlu
+- **Dark Mode**: Karanlık tema desteği
+- **Modern UI**: Tailwind CSS ile tasarım
+- **Animasyonlar**: Smooth geçişler ve efektler
+- **Toast Bildirimleri**: Kullanıcı geri bildirimleri
 
 ## 🛠️ Teknolojiler
 
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Styling**: Tailwind CSS
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **Styling**: Tailwind CSS, CSS Modules
+- **Backend**: Supabase (Auth, Database, Storage)
+- **State Management**: React Context API
 - **Icons**: Remix Icons
-- **Fonts**: Google Fonts (Inter, Pacifico)
-- **Images**: Next.js Image Optimization
 - **Deployment**: Vercel
-
-## 📦 Kurulum
-
-1. **Projeyi klonlayın:**
-```bash
-git clone <repository-url>
-cd tdc-products-website
-```
-
-2. **Bağımlılıkları yükleyin:**
-```bash
-npm install
-```
-
-3. **Development server'ı başlatın:**
-```bash
-npm run dev
-```
-
-4. **Tarayıcıda açın:**
-```
-http://localhost:3000
-```
-
-## 🏗️ Build ve Deploy
-
-### Production Build
-```bash
-npm run build
-```
-
-### Production Server
-```bash
-npm start
-```
-
-### Vercel Deploy
-Proje Vercel'e deploy edilmeye hazırdır. `vercel.json` dosyası konfigüre edilmiştir.
 
 ## 📁 Proje Yapısı
 
 ```
-tdc-products-website/
-├── components/           # Shared components
-│   ├── Header.tsx       # Navigation header
-│   ├── Footer.tsx       # Site footer
-│   └── WhatsAppButton.tsx # WhatsApp contact button
-├── src/
-│   ├── app/             # Next.js App Router
-│   │   ├── about/       # About page
-│   │   ├── admin/       # Admin panel
-│   │   ├── blog/        # Blog pages
-│   │   ├── contact/     # Contact page
-│   │   ├── products/    # Product pages
-│   │   ├── tdc-bist/    # BIST page
-│   │   ├── globals.css  # Global styles
-│   │   ├── layout.tsx   # Root layout
-│   │   └── page.tsx     # Home page
-│   └── data/            # Static data
-│       └── products.ts  # Product data
-├── public/              # Static assets
-├── next.config.ts       # Next.js config
-├── tailwind.config.ts   # Tailwind config
-├── tsconfig.json        # TypeScript config
-└── vercel.json          # Vercel config
+src/
+├── app/                    # Next.js App Router
+│   ├── auth/              # Kimlik doğrulama sayfaları
+│   ├── blog/              # Blog sistemi
+│   ├── products/          # Ürün sayfaları
+│   ├── profile/           # Kullanıcı profili
+│   └── ...
+├── components/             # Yeniden kullanılabilir bileşenler
+│   ├── Header.tsx         # Site başlığı
+│   ├── Footer.tsx         # Site alt bilgisi
+│   ├── Toast.tsx          # Bildirim sistemi
+│   └── ...
+├── contexts/               # React Context'ler
+│   ├── AuthContext.tsx    # Kimlik doğrulama
+│   ├── CartContext.tsx    # Sepet yönetimi
+│   └── ...
+└── ...
 ```
 
-## 🎨 Tasarım Sistemi
+## 🚀 Kurulum
 
-### Renkler
-- **Primary**: Orange (#f97316)
-- **Secondary**: Blue (#3b82f6)
-- **Background**: White, Gray gradients
-- **Text**: Gray scale (#374151, #6b7280, etc.)
+### Gereksinimler
+- Node.js 18+ 
+- npm veya yarn
+- Supabase hesabı
 
-### Typography
-- **Headings**: Inter (Bold)
-- **Body**: Inter (Regular)
-- **Logo**: Pacifico (Cursive)
+### Adımlar
 
-### Components
-- **Cards**: Rounded corners, shadows, hover effects
-- **Buttons**: Gradient backgrounds, hover animations
-- **Forms**: Clean inputs with focus states
-- **Navigation**: Sticky header with mobile menu
-
-## 📱 Responsive Design
-
-- **Mobile First**: 320px+
-- **Tablet**: 768px+
-- **Desktop**: 1024px+
-- **Large Desktop**: 1280px+
-
-## 🔧 Konfigürasyon
-
-### Tailwind CSS
-```typescript
-// tailwind.config.ts
-content: [
-  './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-  './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-  './components/**/*.{js,ts,jsx,tsx,mdx}',
-  './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-]
+1. **Projeyi klonlayın**
+```bash
+git clone https://github.com/username/tdc-products-website.git
+cd tdc-products-website
 ```
 
-### Next.js
-```typescript
-// next.config.ts
-const nextConfig: NextConfig = {
-  images: {
-    domains: ['readdy.ai'],
-  },
-  experimental: {
-    optimizeCss: true,
-  },
-}
+2. **Bağımlılıkları yükleyin**
+```bash
+npm install
+# veya
+yarn install
 ```
 
-## 🚀 Performance
+3. **Environment variables oluşturun**
+```bash
+cp .env.example .env.local
+```
 
-- **Image Optimization**: Next.js Image component
-- **CSS Optimization**: Tailwind CSS purging
-- **Code Splitting**: Automatic by Next.js
-- **Static Generation**: Pre-rendered pages
-- **Lazy Loading**: Images and components
+4. **Supabase bilgilerini ekleyin**
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-## 📊 SEO
+5. **Geliştirme sunucusunu başlatın**
+```bash
+npm run dev
+# veya
+yarn dev
+```
 
-- **Meta Tags**: Dynamic meta descriptions
-- **Structured Data**: Product schema markup
-- **Sitemap**: Automatic generation
-- **Robots.txt**: Search engine directives
-- **Open Graph**: Social media sharing
+6. **Tarayıcıda açın**
+```
+http://localhost:3000
+```
 
-## 🔒 Güvenlik
+## 🔧 Geliştirme
 
-- **TypeScript**: Type safety
-- **ESLint**: Code quality
-- **Next.js Security**: Built-in protections
-- **Input Validation**: Form validation
+### Scripts
 
-## 📈 Analytics
+```bash
+npm run dev          # Geliştirme sunucusu
+npm run build        # Production build
+npm run start        # Production sunucusu
+npm run lint         # ESLint kontrolü
+npm run type-check   # TypeScript kontrolü
+```
 
-- **Performance Monitoring**: Vercel Analytics
-- **Error Tracking**: Built-in error boundaries
-- **User Analytics**: Ready for integration
+### Kod Standartları
+
+- **TypeScript**: Strict mode kullanımı
+- **ESLint**: Kod kalitesi kontrolü
+- **Prettier**: Kod formatlaması
+- **Husky**: Git hooks
+
+## 📱 Responsive Tasarım
+
+- **Mobile First**: Mobil öncelikli tasarım
+- **Breakpoints**: sm, md, lg, xl
+- **Touch Friendly**: Dokunmatik cihaz uyumlu
+- **Performance**: Optimize edilmiş görüntüler
+
+## 🔐 Güvenlik
+
+- **Supabase Auth**: Güvenli kimlik doğrulama
+- **JWT Tokens**: Güvenli oturum yönetimi
+- **Input Validation**: Form doğrulama
+- **XSS Protection**: Güvenlik önlemleri
+
+## 🚀 Deployment
+
+### Vercel (Önerilen)
+
+1. **Vercel'e bağlayın**
+```bash
+npm i -g vercel
+vercel
+```
+
+2. **Environment variables ekleyin**
+3. **Deploy edin**
+
+### Diğer Platformlar
+
+- **Netlify**: Static site hosting
+- **AWS Amplify**: Full-stack hosting
+- **Docker**: Container deployment
 
 ## 🤝 Katkıda Bulunma
 
@@ -174,7 +166,7 @@ const nextConfig: NextConfig = {
 2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
 3. Commit yapın (`git commit -m 'Add amazing feature'`)
 4. Push yapın (`git push origin feature/amazing-feature`)
-5. Pull Request açın
+5. Pull Request oluşturun
 
 ## 📄 Lisans
 
@@ -182,18 +174,17 @@ Bu proje MIT lisansı altında lisanslanmıştır.
 
 ## 📞 İletişim
 
-- **Telefon**: 0555 898 82 42
-- **E-posta**: bentahasarii@gmail.com
-- **Adres**: Erzene, 66. Sk. No:5 D:1A, 35040 Bornova/İzmir
+- **Website**: [tdc-products.com](https://tdc-products.com)
+- **Email**: info@tdc-products.com
+- **GitHub**: [@username](https://github.com/username)
 
 ## 🙏 Teşekkürler
 
-- Next.js ekibi
-- Tailwind CSS ekibi
-- Remix Icons
-- Google Fonts
-- Vercel
+- [Next.js](https://nextjs.org/) - React framework
+- [Supabase](https://supabase.com/) - Backend as a Service
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [Remix Icons](https://remixicon.com/) - Icon library
 
 ---
 
-**TDC Products** - Hayallerinizi gerçeğe dönüştürüyoruz! 🎨✨
+⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!

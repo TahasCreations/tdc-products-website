@@ -385,49 +385,111 @@ export default async function ProductDetailPage({ params }: Props) {
                 </div>
               </div>
             </div>
-
-            {/* Similar Products */}
-            {similarProducts.length > 0 && (
-              <div className="mt-20">
-                <div className="text-center mb-12">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-4">Benzer Ürünler</h2>
-                  <p className="text-gray-600 max-w-2xl mx-auto">
-                    Bu ürünle birlikte alabileceğiniz diğer harika ürünlerimizi keşfedin
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {similarProducts.map((p: any) => (
-                    <Link 
-                      key={p.id} 
-                      href={`/products/${p.slug}`}
-                      className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-orange-200"
-                    >
-                      <div className="relative overflow-hidden">
-                        <Image 
-                          src={p.image} 
-                          alt={p.title} 
-                          width={300} 
-                          height={200} 
-                          className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500" 
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-orange-600 transition-colors line-clamp-2 mb-2">
-                          {p.title}
-                        </h3>
-                        <div className="flex items-center justify-between">
-                          <span className="text-lg font-bold text-orange-600">₺{p.price.toLocaleString('tr-TR')}</span>
-                          <span className="text-sm text-gray-500">{p.category}</span>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
+
+        {/* Similar Products Section */}
+        {similarProducts.length > 0 && (
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Benzer Ürünler
+                </h2>
+                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                  Bu ürünü beğendiyseniz, aşağıdaki benzer ürünler de ilginizi çekebilir
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {similarProducts.map((similarProduct) => (
+                  <div key={similarProduct.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                    <div className="relative h-48 bg-gray-100">
+                      {similarProduct.image ? (
+                        <Image
+                          src={similarProduct.image}
+                          alt={similarProduct.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <i className="ri-image-line text-4xl text-gray-400"></i>
+                        </div>
+                      )}
+                      
+                      {/* Stock Badge */}
+                      <div className="absolute top-3 right-3">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          similarProduct.stock > 10 
+                            ? 'bg-green-100 text-green-800' 
+                            : similarProduct.stock > 0 
+                            ? 'bg-yellow-100 text-yellow-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {similarProduct.stock > 10 
+                            ? 'Stokta' 
+                            : similarProduct.stock > 0 
+                            ? `Son ${similarProduct.stock}` 
+                            : 'Tükendi'
+                          }
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                        {similarProduct.name}
+                      </h3>
+                      
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <i key={star} className="ri-star-fill text-yellow-400 text-sm"></i>
+                          ))}
+                        </div>
+                        <span className="text-xs text-gray-500">(4.8)</span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-lg font-bold text-blue-600">
+                          ₺{similarProduct.price}
+                        </span>
+                        {similarProduct.originalPrice && similarProduct.originalPrice > similarProduct.price && (
+                          <span className="text-sm text-gray-500 line-through">
+                            ₺{similarProduct.originalPrice}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Link
+                          href={`/products/${similarProduct.slug}`}
+                          className="flex-1 py-2 px-4 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors text-center"
+                        >
+                          Detaylar
+                        </Link>
+                        <button className="py-2 px-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                          <i className="ri-heart-line"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="text-center mt-8">
+                <Link
+                  href={`/products?category=${product.category}`}
+                  className="inline-flex items-center gap-2 py-3 px-6 bg-white text-gray-700 font-medium rounded-xl shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <span>Bu Kategorideki Tüm Ürünleri Gör</span>
+                  <i className="ri-arrow-right-line"></i>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </>
     );
   } catch (error) {

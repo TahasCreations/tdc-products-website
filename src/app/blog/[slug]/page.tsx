@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
 import { PageLoader } from '../../../components/LoadingSpinner';
+import BlogComments from '../../../components/BlogComments';
 
 // Client-side Supabase client
 const createClientSupabaseClient = () => {
@@ -166,6 +167,10 @@ export default function BlogDetailPage() {
               <i className="ri-book-open-line"></i>
               <span>{blog.read_time} dakika okuma</span>
             </div>
+            <div className="flex items-center gap-2">
+              <i className="ri-chat-3-line"></i>
+              <span>{blog.comment_count || 0} yorum</span>
+            </div>
           </div>
 
           {blog.image && (
@@ -240,8 +245,11 @@ export default function BlogDetailPage() {
               ))}
             </div>
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
+                 )}
+       </div>
+
+       {/* Yorumlar Bölümü */}
+       <BlogComments blogId={blog.id} blogSlug={blog.slug} />
+     </div>
+   );
+ }

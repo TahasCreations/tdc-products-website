@@ -1639,6 +1639,7 @@ export default function AdminPage() {
               { id: 'products', name: 'Ürünler', icon: 'ri-shopping-bag-line' },
               { id: 'categories', name: 'Kategoriler', icon: 'ri-folder-line' },
               { id: 'blogs', name: 'Blog Yönetimi', icon: 'ri-article-line' },
+        { id: 'comments', name: 'Yorum Yönetimi', icon: 'ri-chat-3-line' },
               { id: 'orders', name: 'Siparişler', icon: 'ri-shopping-cart-line' },
               { id: 'customers', name: 'Müşteriler', icon: 'ri-user-line' },
               { id: 'coupons', name: 'Kuponlar', icon: 'ri-coupon-line' },
@@ -2378,6 +2379,26 @@ export default function AdminPage() {
               <p className="text-gray-600">
                 Blog yazılarını yönetmek, kullanıcı blog&apos;larını onaylamak ve yeni blog oluşturmak için 
                 blog yönetimi sayfasını kullanın.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'comments' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Yorum Yönetimi</h2>
+                <a
+                  href="/admin/comments"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Yorum Yönetimi Sayfasına Git
+                </a>
+              </div>
+              <p className="text-gray-600">
+                Kullanıcı yorumlarını onaylamak, reddetmek, spam olarak işaretlemek ve moderasyon yapmak için 
+                yorum yönetimi sayfasını kullanın.
               </p>
             </div>
           </div>

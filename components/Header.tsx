@@ -247,83 +247,178 @@ export default function Header() {
 
             {/* Kullanıcı Menüsü */}
             <div className="relative">
-              <button 
-                className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300"
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              >
-                <i className="ri-user-line text-xl text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"></i>
-              </button>
+              {user ? (
+                <button 
+                  className="flex items-center space-x-2 hover:scale-105 transition-transform duration-300"
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                >
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg">
+                    {user.user_metadata?.first_name ? 
+                      user.user_metadata.first_name.charAt(0).toUpperCase() : 
+                      user.email?.charAt(0).toUpperCase()
+                    }
+                  </div>
+                  <span className="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {user.user_metadata?.first_name || 'Kullanıcı'}
+                  </span>
+                  <i className="ri-arrow-down-s-line text-gray-500 transition-transform duration-200"></i>
+                </button>
+              ) : (
+                <button 
+                  className="w-8 h-8 flex items-center justify-center hover:scale-110 transition-transform duration-300"
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                >
+                  <i className="ri-user-line text-xl text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer"></i>
+                </button>
+              )}
 
               {/* Kullanıcı Dropdown */}
               {isUserMenuOpen && (
-                <div className="absolute right-0 top-12 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 transition-colors duration-300">
+                <div className="absolute right-0 top-12 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl z-50 transition-all duration-300 transform origin-top-right">
                   <div className="p-4">
                     {user ? (
                       <>
-                        <div className="mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
-                          <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                            {user.user_metadata?.first_name || user.email}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {user.email}
-                          </p>
+                        {/* Kullanıcı Bilgileri */}
+                        <div className="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg shadow-lg">
+                              {user.user_metadata?.first_name ? 
+                                user.user_metadata.first_name.charAt(0).toUpperCase() : 
+                                user.email?.charAt(0).toUpperCase()
+                              }
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
+                                {user.user_metadata?.first_name && user.user_metadata?.last_name ? 
+                                  `${user.user_metadata.first_name} ${user.user_metadata.last_name}` : 
+                                  user.user_metadata?.full_name || user.email
+                                }
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                {user.email}
+                              </p>
+                              <div className="flex items-center mt-1">
+                                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                <span className="text-xs text-green-600 dark:text-green-400">Çevrimiçi</span>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                         
-                        <div className="space-y-2">
+                        {/* Hızlı Erişim */}
+                        <div className="grid grid-cols-2 gap-2 mb-4">
                           <Link
                             href="/profile"
-                            className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2"
+                            className="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
-                            <i className="ri-user-settings-line"></i>
-                            <span>Profilim</span>
+                            <i className="ri-user-settings-line text-blue-500 text-lg mb-1"></i>
+                            <span className="text-xs text-gray-700 dark:text-gray-300">Profilim</span>
                           </Link>
                           
                           <Link
                             href="/orders"
-                            className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2"
+                            className="flex flex-col items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200"
                             onClick={() => setIsUserMenuOpen(false)}
                           >
-                            <i className="ri-shopping-bag-line"></i>
-                            <span>Siparişlerim</span>
+                            <i className="ri-shopping-bag-line text-green-500 text-lg mb-1"></i>
+                            <span className="text-xs text-gray-700 dark:text-gray-300">Siparişlerim</span>
+                          </Link>
+                        </div>
+                        
+                        {/* Ana Menü */}
+                        <div className="space-y-1">
+                          <Link
+                            href="/wishlist"
+                            className="flex items-center space-x-3 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <i className="ri-heart-line text-red-500"></i>
+                            <span>Favorilerim</span>
+                            {wishlistCount > 0 && (
+                              <span className="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                {wishlistCount}
+                              </span>
+                            )}
                           </Link>
                           
-                          <button
-                            onClick={async () => {
-                              await signOut();
-                              setIsUserMenuOpen(false);
-                              addToast({
-                                type: 'success',
-                                title: 'Çıkış yapıldı',
-                                message: 'Başarıyla çıkış yaptınız'
-                              });
-                            }}
-                            className="flex items-center space-x-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors py-2 w-full text-left"
+                          <Link
+                            href="/cart"
+                            className="flex items-center space-x-3 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                            onClick={() => setIsUserMenuOpen(false)}
                           >
-                            <i className="ri-logout-box-line"></i>
-                            <span>Çıkış Yap</span>
-                          </button>
+                            <i className="ri-shopping-cart-line text-blue-500"></i>
+                            <span>Sepetim</span>
+                            {state.items.length > 0 && (
+                              <span className="ml-auto bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                                {state.items.length}
+                              </span>
+                            )}
+                          </Link>
+                          
+                          <Link
+                            href="/blog/write"
+                            className="flex items-center space-x-3 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            <i className="ri-edit-line text-purple-500"></i>
+                            <span>Blog Yaz</span>
+                          </Link>
                         </div>
+                        
+                        {/* Ayırıcı */}
+                        <div className="border-t border-gray-200 dark:border-gray-700 my-3"></div>
+                        
+                        {/* Çıkış */}
+                        <button
+                          onClick={async () => {
+                            await signOut();
+                            setIsUserMenuOpen(false);
+                            addToast({
+                              type: 'success',
+                              title: 'Çıkış yapıldı',
+                              message: 'Başarıyla çıkış yaptınız'
+                            });
+                          }}
+                          className="flex items-center space-x-3 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors py-2 px-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 w-full text-left"
+                        >
+                          <i className="ri-logout-box-line"></i>
+                          <span>Çıkış Yap</span>
+                        </button>
                       </>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
+                        <div className="text-center mb-4">
+                          <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-3">
+                            <i className="ri-user-line"></i>
+                          </div>
+                          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                            Giriş yapın
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Hesabınıza giriş yaparak tüm özelliklere erişin
+                          </p>
+                        </div>
+                        
                         <Link
                           href="/auth"
-                          className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2"
+                          className="flex items-center justify-center space-x-2 w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <i className="ri-login-box-line"></i>
                           <span>Giriş Yap</span>
                         </Link>
                         
-                        <Link
-                          href="/auth"
-                          className="flex items-center space-x-2 text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors py-2"
-                          onClick={() => setIsUserMenuOpen(false)}
-                        >
-                          <i className="ri-user-add-line"></i>
-                          <span>Kayıt Ol</span>
-                        </Link>
+                        <div className="text-center">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">Hesabınız yok mu?</span>
+                          <Link
+                            href="/auth"
+                            className="block mt-1 text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                            onClick={() => setIsUserMenuOpen(false)}
+                          >
+                            Hemen kayıt olun
+                          </Link>
+                        </div>
                       </div>
                     )}
                   </div>
