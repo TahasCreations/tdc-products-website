@@ -1,10 +1,13 @@
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartButton from "../../../../AddToCartButton";
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { PageLoader } from '../../../components/LoadingSpinner';
+import { useState, useEffect } from 'react';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,203 +38,172 @@ const createServerSupabaseClient = () => {
   }
 };
 
-type Props = { params: Promise<{ slug: string }> };
+// Default ürünler
+const getDefaultProducts = () => [
+  {
+    id: "1",
+    slug: "naruto-uzumaki-figuru",
+    title: "Naruto Uzumaki Figürü",
+    price: 299.99,
+    category: "Anime",
+    stock: 15,
+    image: "",
+    images: [],
+    description: "Naruto anime serisinin baş karakteri olan Naruto Uzumaki'nin detaylı 3D baskı figürü. Yüksek kaliteli malzemelerle üretilmiştir.",
+    status: "active",
+    created_at: "2024-01-01T00:00:00.000Z",
+    updated_at: "2024-01-01T00:00:00.000Z"
+  },
+  {
+    id: "2",
+    slug: "goku-super-saiyan-figuru",
+    title: "Goku Super Saiyan Figürü",
+    price: 349.99,
+    category: "Anime",
+    stock: 8,
+    image: "",
+    images: [],
+    description: "Dragon Ball serisinin efsanevi karakteri Goku'nun Super Saiyan formundaki detaylı figürü. Koleksiyon değeri yüksek.",
+    status: "active",
+    created_at: "2024-01-01T00:00:00.000Z",
+    updated_at: "2024-01-01T00:00:00.000Z"
+  },
+  {
+    id: "3",
+    slug: "mario-bros-figuru",
+    title: "Mario Bros Figürü",
+    price: 199.99,
+    category: "Gaming",
+    stock: 25,
+    image: "",
+    images: [],
+    description: "Nintendo'nun efsanevi karakteri Mario'nun 3D baskı figürü. Oyun dünyasının en sevilen karakteri.",
+    status: "active",
+    created_at: "2024-01-01T00:00:00.000Z",
+    updated_at: "2024-01-01T00:00:00.000Z"
+  },
+  {
+    id: "4",
+    slug: "iron-man-mark-85-figuru",
+    title: "Iron Man Mark 85 Figürü",
+    price: 449.99,
+    category: "Film",
+    stock: 5,
+    image: "",
+    images: [],
+    description: "Marvel Cinematic Universe'den Iron Man'in Mark 85 zırhının detaylı figürü. LED aydınlatmalı.",
+    status: "active",
+    created_at: "2024-01-01T00:00:00.000Z",
+    updated_at: "2024-01-01T00:00:00.000Z"
+  }
+];
 
-export async function generateMetadata({ params }: Props) {
-  const { slug } = await params;
+
+export default function ProductDetailPage() {
+  const params = useParams();
+  const slug = params?.slug as string;
   
-  try {
-    const supabase = createServerSupabaseClient();
-    if (!supabase) {
-      return {
-        title: 'Ürün Detayı | TDC Products',
-        description: 'Premium kalitede figürler ve koleksiyon ürünleri',
-      };
-    }
-    
-    // Supabase'den direkt veri çek
-    const { data: product, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('slug', slug)
-      .single();
-    
-    if (error || !product) {
-      console.error('Product not found for metadata:', slug);
-      return {
-        title: 'Ürün Detayı | TDC Products',
-        description: 'Premium kalitede figürler ve koleksiyon ürünleri',
-      };
-    }
-    
-    return {
-      title: `${product.title} | TDC Products`,
-      description: product.description?.slice(0, 160) || 'Premium kalitede figürler ve koleksiyon ürünleri',
-      openGraph: {
-        title: `${product.title} | TDC Products`,
-        description: product.description,
-        images: product.image ? [product.image] : [],
-        type: 'product',
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: `${product.title} | TDC Products`,
-        description: product.description,
-        images: product.image ? [product.image] : [],
-      }
-    };
-  } catch (error) {
-    console.error('Metadata generation error:', error);
-    return {
-      title: 'Ürün Detayı | TDC Products',
-      description: 'Premium kalitede figürler ve koleksiyon ürünleri',
-    };
-  }
-}
+  const [product, setProduct] = useState<any>(null);
+  const [similarProducts, setSimilarProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-// Supabase'den tek ürünü getir
-async function getProductBySlug(slug: string) {
-  try {
-    const supabase = createServerSupabaseClient();
-    if (!supabase) {
-      console.error('Supabase client could not be created');
-      return null;
-    }
-    
-    const { data: product, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('slug', slug)
-      .single();
-    
-    if (error) {
-      console.error('Supabase error:', error);
-      return null;
-    }
-    
-    if (!product) {
-      console.error('Product not found:', slug);
-      return null;
-    }
-    
-    return product;
-  } catch (error) {
-    console.error('Ürün yüklenirken hata:', error);
-    return null;
-  }
-}
-
-// Benzer ürünleri getir
-async function getSimilarProducts(currentSlug: string, category: string) {
-  try {
-    const supabase = createServerSupabaseClient();
-    if (!supabase) {
-      console.error('Supabase client could not be created');
-      return [];
-    }
-    
-    const { data: products, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('category', category)
-      .neq('slug', currentSlug)
-      .eq('status', 'active')
-      .limit(4);
-    
-    if (error) {
-      console.error('Similar products error:', error);
-      return [];
-    }
-    
-    return products || [];
-  } catch (error) {
-    console.error('Benzer ürünler yüklenirken hata:', error);
-    return [];
-  }
-}
-
-export default async function ProductDetailPage({ params }: Props) {
-  try {
-    const { slug } = await params;
-    
-    if (!slug) {
-      console.error('No slug provided');
-      notFound();
-    }
-    
-    const product = await getProductBySlug(slug);
-    
-    if (!product) {
-      console.error('Product not found for slug:', slug);
-      notFound();
-    }
-
-    // Bu kontrol gereksiz çünkü yukarıda zaten kontrol ediliyor
-    // if (!product) {
-    //   return <PageLoader text="Ürün detayları yükleniyor..." />;
-    // }
-
-    const similarProducts = await getSimilarProducts(product.slug, product.category);
-
-    // Stok durumunu belirle
-    const getStockStatus = (stock: number) => {
-      if (stock > 10) return { 
-        status: 'Stokta', 
-        color: 'text-green-600', 
-        bg: 'bg-green-100',
-        icon: 'ri-check-line'
-      };
-      if (stock > 0) return { 
-        status: `Son ${stock} adet`, 
-        color: 'text-yellow-600', 
-        bg: 'bg-yellow-100',
-        icon: 'ri-time-line'
-      };
-      return { 
-        status: 'Stokta yok', 
-        color: 'text-red-600', 
-        bg: 'bg-red-100',
-        icon: 'ri-close-line'
-      };
-    };
-
-    const stockInfo = getStockStatus(product.stock);
-
-    // Structured Data for SEO
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      name: product.title,
-      description: product.description,
-      image: product.image,
-      category: product.category,
-      brand: {
-        "@type": "Brand",
-        name: "TDC Products"
-      },
-      offers: {
-        "@type": "Offer",
-        price: product.price,
-        priceCurrency: "TRY",
-        availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-        seller: {
-          "@type": "Organization",
-          name: "TDC Products"
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        if (!slug) {
+          setError('Ürün bulunamadı');
+          setLoading(false);
+          return;
         }
-      },
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "4.8",
-        reviewCount: "127"
+
+        // Önce API'den dene
+        try {
+          const response = await fetch(`/api/products?slug=${slug}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data && data.id) {
+              setProduct(data);
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (apiError) {
+          console.log('API hatası, default ürünlerden aranıyor...', apiError);
+        }
+
+        // API başarısız olursa default ürünlerden bul
+        const defaultProducts = getDefaultProducts();
+        const foundProduct = defaultProducts.find(p => p.slug === slug);
+        
+        if (foundProduct) {
+          setProduct(foundProduct);
+          // Benzer ürünleri de ayarla
+          const similar = defaultProducts.filter(p => p.category === foundProduct.category && p.slug !== slug).slice(0, 4);
+          setSimilarProducts(similar);
+        } else {
+          setError('Ürün bulunamadı');
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Ürün yüklenirken hata:', error);
+        setError('Ürün yüklenirken hata oluştu');
+        setLoading(false);
       }
     };
 
+    fetchProduct();
+  }, [slug]);
+
+  if (loading) {
+    return <PageLoader text="Ürün detayları yükleniyor..." />;
+  }
+
+  if (error || !product) {
     return (
-      <>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-        />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Ürün Bulunamadı</h1>
+          <p className="text-gray-600 mb-8">Aradığınız ürün mevcut değil.</p>
+          <Link 
+            href="/products"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <i className="ri-arrow-left-line mr-2"></i>
+            Ürünlere Dön
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Stok durumunu belirle
+  const getStockStatus = (stock: number) => {
+    if (stock > 10) return { 
+      status: 'Stokta', 
+      color: 'text-green-600', 
+      bg: 'bg-green-100',
+      icon: 'ri-check-line'
+    };
+    if (stock > 0) return { 
+      status: `Son ${stock} adet`, 
+      color: 'text-yellow-600', 
+      bg: 'bg-yellow-100',
+      icon: 'ri-time-line'
+    };
+    return { 
+      status: 'Stokta yok', 
+      color: 'text-red-600', 
+      bg: 'bg-red-100',
+      icon: 'ri-close-line'
+    };
+  };
+
+  const stockInfo = getStockStatus(product.stock);
+
+  return (
+    <>
         
         <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
           {/* Hero Section */}
@@ -533,8 +505,4 @@ export default async function ProductDetailPage({ params }: Props) {
         )}
       </>
     );
-  } catch (error) {
-    console.error('Product detail page error:', error);
-    notFound();
-  }
 }
