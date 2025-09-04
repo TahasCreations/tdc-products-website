@@ -19,7 +19,7 @@ export default function AuthPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
 
-  const { signIn, signUp, resetPassword } = useAuth();
+  const { signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
   const router = useRouter();
   const { addToast } = useToast();
 
@@ -165,6 +165,30 @@ export default function AuthPage() {
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        addToast({
+          type: 'error',
+          title: 'Google Giriş Hatası',
+          message: error.message,
+          duration: 5000
+        });
+      }
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'Hata',
+        message: 'Beklenmeyen bir hata oluştu.',
+        duration: 5000
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSocialLogin = (provider: string) => {
     addToast({
       type: 'info',
@@ -213,11 +237,14 @@ export default function AuthPage() {
         {/* Sosyal Medya Girişi */}
         <div className="space-y-3">
           <button
-            onClick={() => handleSocialLogin('Google')}
-            className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-50 transition-colors duration-200"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <i className="ri-google-fill text-red-500 text-xl mr-3"></i>
-            <span className="text-gray-700 font-medium">Google ile devam et</span>
+            <span className="text-gray-700 font-medium">
+              {loading ? 'Yönlendiriliyor...' : 'Google ile devam et'}
+            </span>
           </button>
           
           <button
