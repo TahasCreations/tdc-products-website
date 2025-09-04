@@ -18,7 +18,12 @@ const createServerSupabaseClient = () => {
     return null;
   }
   
-  return createClient(supabaseUrl, supabaseAnonKey);
+  try {
+    return createClient(supabaseUrl, supabaseAnonKey);
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    return null;
+  }
 };
 
 type Props = { params: Promise<{ slug: string }> };
@@ -152,10 +157,10 @@ export default async function ProductDetailPage({ params }: Props) {
       notFound();
     }
 
-    // Loading durumu kontrolü
-    if (!product) {
-      return <PageLoader text="Ürün detayları yükleniyor..." />;
-    }
+    // Bu kontrol gereksiz çünkü yukarıda zaten kontrol ediliyor
+    // if (!product) {
+    //   return <PageLoader text="Ürün detayları yükleniyor..." />;
+    // }
 
     const similarProducts = await getSimilarProducts(product.slug, product.category);
 
@@ -244,9 +249,44 @@ export default async function ProductDetailPage({ params }: Props) {
               <div className="space-y-6">
                 <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
                   <ProductGallery 
-                    images={Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image]} 
+                    images={Array.isArray(product.images) && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])} 
                     alt={product.title} 
                   />
+                </div>
+                
+                {/* Product Features Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 text-center">
+                    <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <i className="ri-medal-line text-white text-xl"></i>
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Premium Kalite</h4>
+                    <p className="text-sm text-gray-600">Yüksek kaliteli malzemeler</p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 text-center">
+                    <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <i className="ri-truck-line text-white text-xl"></i>
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Hızlı Teslimat</h4>
+                    <p className="text-sm text-gray-600">1-3 iş günü</p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 text-center">
+                    <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <i className="ri-shield-check-line text-white text-xl"></i>
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-1">Güvenli Ödeme</h4>
+                    <p className="text-sm text-gray-600">SSL koruması</p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 text-center">
+                    <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <i className="ri-customer-service-2-line text-white text-xl"></i>
+                    </div>
+                    <h4 className="font-semibold text-gray-900 mb-1">7/24 Destek</h4>
+                    <p className="text-sm text-gray-600">WhatsApp & Email</p>
+                  </div>
                 </div>
               </div>
 
@@ -283,10 +323,42 @@ export default async function ProductDetailPage({ params }: Props) {
                 </div>
 
                 {/* Product Description */}
-                <div className="prose prose-gray max-w-none">
-                  <p className="text-lg text-gray-700 leading-relaxed">
-                    {product.description}
-                  </p>
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                    <i className="ri-file-text-line mr-2 text-blue-600"></i>
+                    Ürün Açıklaması
+                  </h3>
+                  <div className="prose prose-gray max-w-none">
+                    <p className="text-lg text-gray-700 leading-relaxed">
+                      {product.description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Product Specifications */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                    <i className="ri-settings-3-line mr-2 text-purple-600"></i>
+                    Ürün Özellikleri
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                      <span className="text-gray-600 font-medium">Kategori:</span>
+                      <span className="text-gray-900 font-semibold">{product.category}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                      <span className="text-gray-600 font-medium">Stok Durumu:</span>
+                      <span className={`font-semibold ${stockInfo.color}`}>{stockInfo.status}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                      <span className="text-gray-600 font-medium">Ürün Kodu:</span>
+                      <span className="text-gray-900 font-semibold">{product.id}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                      <span className="text-gray-600 font-medium">Durum:</span>
+                      <span className="text-green-600 font-semibold capitalize">{product.status}</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Variations */}
@@ -323,66 +395,31 @@ export default async function ProductDetailPage({ params }: Props) {
                       />
                     </div>
                     
-                    <button className="w-full h-14 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                    <button className="w-full h-14 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
                       <i className="ri-flashlight-line text-xl"></i>
                       Hızlı Al
                     </button>
                   </div>
                   
-                  <Link 
-                    href="/products"
-                    className="w-full h-14 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all duration-300 flex items-center justify-center gap-2"
-                  >
-                    <i className="ri-arrow-left-line"></i>
-                    Diğer Ürünleri Gör
-                  </Link>
-                </div>
-
-                {/* Product Features */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Özellikler</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <i className="ri-shield-check-line text-green-600"></i>
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">Güvenli Ödeme</div>
-                        <div className="text-sm text-gray-500">256-bit SSL koruması</div>
-                      </div>
-                    </div>
+                    <Link 
+                      href="/products"
+                      className="w-full h-12 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      <i className="ri-arrow-left-line"></i>
+                      Diğer Ürünler
+                    </Link>
                     
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i className="ri-truck-line text-blue-600"></i>
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">Hızlı Teslimat</div>
-                        <div className="text-sm text-gray-500">1-3 iş günü</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                        <i className="ri-refund-2-line text-purple-600"></i>
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">Kolay İade</div>
-                        <div className="text-sm text-gray-500">14 gün içinde</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                        <i className="ri-customer-service-2-line text-orange-600"></i>
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">7/24 Destek</div>
-                        <div className="text-sm text-gray-500">WhatsApp & Email</div>
-                      </div>
-                    </div>
+                    <Link 
+                      href="/contact"
+                      className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      <i className="ri-customer-service-2-line"></i>
+                      Destek
+                    </Link>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -408,7 +445,7 @@ export default async function ProductDetailPage({ params }: Props) {
                       {similarProduct.image ? (
                         <Image
                           src={similarProduct.image}
-                          alt={similarProduct.name}
+                          alt={similarProduct.title}
                           fill
                           className="object-cover"
                         />
@@ -439,7 +476,7 @@ export default async function ProductDetailPage({ params }: Props) {
                     
                     <div className="p-4">
                       <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                        {similarProduct.name}
+                        {similarProduct.title}
                       </h3>
                       
                       <div className="flex items-center gap-2 mb-3">
@@ -453,13 +490,8 @@ export default async function ProductDetailPage({ params }: Props) {
                       
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-lg font-bold text-blue-600">
-                          ₺{similarProduct.price}
+                          ₺{similarProduct.price.toLocaleString('tr-TR')}
                         </span>
-                        {similarProduct.originalPrice && similarProduct.originalPrice > similarProduct.price && (
-                          <span className="text-sm text-gray-500 line-through">
-                            ₺{similarProduct.originalPrice}
-                          </span>
-                        )}
                       </div>
                       
                       <div className="flex gap-2">

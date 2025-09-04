@@ -13,7 +13,18 @@ const createServerSupabaseClient = () => {
     return null;
   }
   
-  return createClient(supabaseUrl, supabaseAnonKey);
+  // URL formatını kontrol et
+  if (supabaseUrl.includes('your_supabase_project_url') || supabaseUrl === 'your_supabase_project_url/') {
+    console.error('Supabase URL is not configured properly');
+    return null;
+  }
+  
+  try {
+    return createClient(supabaseUrl, supabaseAnonKey);
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    return null;
+  }
 };
 
 const getDefaultProducts = () => [
