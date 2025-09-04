@@ -8,6 +8,8 @@ interface Category {
   name: string;
   color: string;
   icon: string;
+  parent_id?: string | null;
+  level?: number;
   created_at: string;
   updated_at: string;
 }
@@ -29,6 +31,14 @@ export default function CategorySidebar({ categories, selectedCategory }: Catego
       params.set('category', categoryName);
     }
     return `${pathname}?${params.toString()}`;
+  };
+
+  // Kategorileri hiyerarşik olarak düzenle
+  const parentCategories = categories.filter(cat => !cat.parent_id || cat.level === 0);
+  const childCategories = categories.filter(cat => cat.parent_id && cat.level === 1);
+
+  const getChildCategories = (parentId: string) => {
+    return childCategories.filter(cat => cat.parent_id === parentId);
   };
 
   return (
@@ -67,46 +77,91 @@ export default function CategorySidebar({ categories, selectedCategory }: Catego
           )}
         </Link>
 
-        {/* Kategoriler */}
-        {categories.map((category) => (
-          <Link
-            key={category.id}
-            href={createCategoryUrl(category.name)}
-            className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 group ${
-              selectedCategory === category.name
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            <div 
-              className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
-                selectedCategory === category.name
-                  ? 'bg-white/20'
-                  : 'bg-gray-100 dark:bg-gray-600'
-              }`}
-              style={{
-                backgroundColor: selectedCategory === category.name 
-                  ? 'rgba(255, 255, 255, 0.2)' 
-                  : category.color + '20'
-              }}
-            >
-              <i 
-                className={`${category.icon} text-lg`}
-                style={{
-                  color: selectedCategory === category.name 
-                    ? 'white' 
-                    : category.color
-                }}
-              ></i>
+        {/* Ana Kategoriler */}
+        {parentCategories.map((category) => {
+          const children = getChildCategories(category.id);
+          return (
+            <div key={category.id} className="space-y-1">
+              {/* Ana Kategori */}
+              <Link
+                href={createCategoryUrl(category.name)}
+                className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 group ${
+                  selectedCategory === category.name
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+              >
+                <div 
+                  className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                    selectedCategory === category.name
+                      ? 'bg-white/20'
+                      : 'bg-gray-100 dark:bg-gray-600'
+                  }`}
+                  style={{
+                    backgroundColor: selectedCategory === category.name 
+                      ? 'rgba(255, 255, 255, 0.2)' 
+                      : category.color + '20'
+                  }}
+                >
+                  <i 
+                    className={`${category.icon} text-lg`}
+                    style={{
+                      color: selectedCategory === category.name 
+                        ? 'white' 
+                        : category.color
+                    }}
+                  ></i>
+                </div>
+                <span className="font-medium">{category.name}</span>
+                {children.length > 0 && (
+                  <div className="ml-auto">
+                    <i className="ri-arrow-down-s-line text-sm"></i>
+                  </div>
+                )}
+              </Link>
+
+              {/* Alt Kategoriler */}
+              {children.length > 0 && (
+                <div className="ml-4 space-y-1">
+                  {children.map((child) => (
+                    <Link
+                      key={child.id}
+                      href={createCategoryUrl(child.name)}
+                      className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 group text-sm ${
+                        selectedCategory === child.name
+                          ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <div 
+                        className={`w-6 h-6 rounded-full flex items-center justify-center mr-2 ${
+                          selectedCategory === child.name
+                            ? 'bg-white/20'
+                            : 'bg-gray-100 dark:bg-gray-600'
+                        }`}
+                        style={{
+                          backgroundColor: selectedCategory === child.name 
+                            ? 'rgba(255, 255, 255, 0.2)' 
+                            : child.color + '20'
+                        }}
+                      >
+                        <i 
+                          className={`${child.icon} text-sm`}
+                          style={{
+                            color: selectedCategory === child.name 
+                              ? 'white' 
+                              : child.color
+                          }}
+                        ></i>
+                      </div>
+                      <span className="font-medium">{child.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
-            <span className="font-medium">{category.name}</span>
-            {selectedCategory === category.name && (
-              <div className="ml-auto bg-white/20 px-2 py-1 rounded-full text-xs">
-                {/* Burada kategori ürün sayısı gösterilebilir */}
-              </div>
-            )}
-          </Link>
-        ))}
+          );
+        })}
       </div>
 
       {/* Kategori İstatistikleri */}

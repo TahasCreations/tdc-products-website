@@ -22,6 +22,8 @@ const getDefaultCategories = () => [
     name: 'Anime',
     color: '#ec4899',
     icon: 'ri-gamepad-line',
+    parent_id: null,
+    level: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -30,6 +32,8 @@ const getDefaultCategories = () => [
     name: 'Gaming',
     color: '#3b82f6',
     icon: 'ri-controller-line',
+    parent_id: null,
+    level: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -38,6 +42,8 @@ const getDefaultCategories = () => [
     name: 'Film',
     color: '#8b5cf6',
     icon: 'ri-movie-line',
+    parent_id: null,
+    level: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -46,6 +52,8 @@ const getDefaultCategories = () => [
     name: 'Diğer',
     color: '#6b7280',
     icon: 'ri-more-line',
+    parent_id: null,
+    level: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }
@@ -125,11 +133,14 @@ export async function POST(request: NextRequest) {
       }
 
       const categoryName = name.trim();
+      const { parent_id } = body;
 
       const newCategory = {
         name: categoryName,
         color: color || '#6b7280',
-        icon: icon || 'ri-more-line'
+        icon: icon || 'ri-more-line',
+        parent_id: parent_id || null,
+        level: parent_id ? 1 : 0
       };
 
       console.log('Adding new category to Supabase:', newCategory);

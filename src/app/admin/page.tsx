@@ -16,6 +16,8 @@ interface Category {
   name: string;
   color: string;
   icon: string;
+  parent_id?: string | null;
+  level?: number;
   created_at: string;
   updated_at: string;
 }
@@ -110,7 +112,7 @@ export default function AdminPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // Form states
-  const [newCategory, setNewCategory] = useState({ name: '', color: '#6b7280', icon: 'ri-more-line' });
+  const [newCategory, setNewCategory] = useState({ name: '', color: '#6b7280', icon: 'ri-more-line', parent_id: null as string | null });
   const [newProduct, setNewProduct] = useState({
     title: '', price: '', category: '', stock: '', image: '', images: [] as string[], description: '', slug: '', variations: [] as string[]
   });
@@ -1083,7 +1085,9 @@ export default function AdminPage() {
       const categoryData = {
         name: newCategory.name.trim(),
         color: newCategory.color,
-        icon: newCategory.icon
+        icon: newCategory.icon,
+        parent_id: newCategory.parent_id,
+        level: newCategory.parent_id ? 1 : 0
       };
 
       const supabase = createClientSupabaseClient();
@@ -1105,7 +1109,7 @@ export default function AdminPage() {
       } else {
         const newCategoryItem = data[0];
         setCategories([newCategoryItem, ...categories]);
-        setNewCategory({ name: '', color: '#6b7280', icon: 'ri-more-line' });
+        setNewCategory({ name: '', color: '#6b7280', icon: 'ri-more-line', parent_id: null });
         setMessage('Kategori başarıyla eklendi!');
         setMessageType('success');
         setTimeout(() => setMessage(''), 3000);
@@ -2270,7 +2274,7 @@ export default function AdminPage() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Kategori Ekle</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Kategori Adı</label>
                   <input
@@ -2280,6 +2284,21 @@ export default function AdminPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Kategori adını girin"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ana Kategori</label>
+                  <select
+                    value={newCategory.parent_id || ''}
+                    onChange={(e) => setNewCategory({ ...newCategory, parent_id: e.target.value || null })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Ana Kategori (Seviye 0)</option>
+                    {categories.filter(cat => !cat.parent_id || cat.level === 0).map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Renk</label>
