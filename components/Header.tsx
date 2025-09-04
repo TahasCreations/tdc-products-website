@@ -245,6 +245,17 @@ export default function Header() {
             {/* Theme Toggle */}
             <ThemeToggle />
 
+            {/* Giriş Yap/Kayıt Ol Butonu - Sadece giriş yapmamış kullanıcılar için */}
+            {!user && (
+              <Link
+                href="/auth"
+                className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <i className="ri-login-box-line"></i>
+                <span>Giriş Yap</span>
+              </Link>
+            )}
+
             {/* Kullanıcı Menüsü */}
             <div className="relative">
               {user ? (
@@ -452,6 +463,17 @@ export default function Header() {
             <Link href="/tdc-bist" className="block bg-gradient-to-r from-blue-500 to-blue-600 text-black font-bold px-4 py-2 rounded-full w-fit">
               TDC BİST
             </Link>
+            
+            {/* Mobil Giriş Yap Butonu */}
+            {!user && (
+              <Link
+                href="/auth"
+                className="flex items-center justify-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-4 py-3 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 w-full"
+              >
+                <i className="ri-login-box-line"></i>
+                <span>Giriş Yap / Kayıt Ol</span>
+              </Link>
+            )}
           </div>
         )}
       </div>
