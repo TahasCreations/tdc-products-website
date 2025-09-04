@@ -192,18 +192,18 @@ export default function CategorySidebar({ categories, selectedCategory }: Catego
         </h4>
         <div className="space-y-2">
           <Link
-            href="/admin"
-            className="flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-          >
-            <i className="ri-admin-line mr-2"></i>
-            Admin Paneli
-          </Link>
-          <Link
             href="/cart"
             className="flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             <i className="ri-shopping-cart-line mr-2"></i>
             Sepetim
+          </Link>
+          <Link
+            href="/wishlist"
+            className="flex items-center px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+          >
+            <i className="ri-heart-line mr-2"></i>
+            Favorilerim
           </Link>
         </div>
       </div>

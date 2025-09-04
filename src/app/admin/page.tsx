@@ -90,9 +90,36 @@ const createClientSupabaseClient = () => {
   return createClient(supabaseUrl, supabaseAnonKey);
 };
 
+// Admin kullanıcı kontrolü
+const checkAdminUser = async (email: string) => {
+  const supabase = createClientSupabaseClient();
+  if (!supabase) return false;
+
+  try {
+    // Admin kullanıcıları kontrol et
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('email')
+      .eq('email', email)
+      .eq('is_active', true)
+      .single();
+
+    if (error) {
+      console.error('Admin user check error:', error);
+      return false;
+    }
+
+    return !!data;
+  } catch (error) {
+    console.error('Admin user check error:', error);
+    return false;
+  }
+};
+
 export default function AdminPage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -983,15 +1010,7 @@ export default function AdminPage() {
       setApiLoading(true);
       setMessage('Giriş yapılıyor...');
 
-      // Önce demo giriş kontrolü
-      if (username === 'admin' && password === 'admin123') {
-        setIsAuthenticated(true);
-        setCurrentUser({ email: 'admin@demo.com', user_metadata: { name: 'Demo Admin' } });
-        setMessage('Demo hesabı ile giriş yapıldı!');
-        setMessageType('success');
-        setTimeout(() => setMessage(''), 3000);
-        return;
-      }
+      // Demo giriş kaldırıldı - sadece admin kullanıcılar giriş yapabilir
 
       // Supabase authentication ile giriş
       const supabase = createClientSupabaseClient();
@@ -1011,13 +1030,26 @@ export default function AdminPage() {
         setMessage('Giriş hatası: ' + error.message);
         setMessageType('error');
         setTimeout(() => setMessage(''), 5000);
-      } else {
-        setIsAuthenticated(true);
-        setCurrentUser(data.user);
-        setMessage('Supabase hesabı ile giriş yapıldı!');
-        setMessageType('success');
-        setTimeout(() => setMessage(''), 3000);
+        return;
       }
+
+      // Admin kullanıcı kontrolü
+      const isAdminUser = await checkAdminUser(data.user.email || '');
+      if (!isAdminUser) {
+        setMessage('Bu hesap admin paneline erişim yetkisine sahip değil!');
+        setMessageType('error');
+        // Kullanıcıyı çıkış yap
+        await supabase.auth.signOut();
+        setTimeout(() => setMessage(''), 5000);
+        return;
+      }
+
+      setIsAuthenticated(true);
+      setIsAdmin(true);
+      setCurrentUser(data.user);
+      setMessage('Admin paneline başarıyla giriş yapıldı!');
+      setMessageType('success');
+      setTimeout(() => setMessage(''), 3000);
     } catch (error) {
       console.error('Login error:', error);
       setMessage('Bağlantı hatası');
