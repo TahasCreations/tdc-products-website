@@ -44,19 +44,22 @@ export default function WishlistPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="mb-6">
-            <i className="ri-heart-line text-8xl text-gray-300"></i>
+          <div className="w-32 h-32 bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-900 dark:to-pink-900 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+            <i className="ri-heart-line text-4xl text-red-500 dark:text-red-400"></i>
           </div>
-                      <h1 className="text-3xl font-bold text-gray-900 mb-4">Wishlist&apos;e Erişim</h1>
-          <p className="text-lg text-gray-600 mb-8">
-            Wishlist&apos;inizi görüntülemek için giriş yapmanız gerekiyor.
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            Favorilerim&apos;e Erişim
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
+            Favori ürünlerinizi görüntülemek için giriş yapmanız gerekiyor.
           </p>
           <Link
             href="/auth"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+            className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-red-600 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
+            <i className="ri-login-box-line mr-2"></i>
             Giriş Yap
           </Link>
         </div>
@@ -69,21 +72,27 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8 transition-colors duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Wishlist</h1>
-              <p className="text-gray-600 mt-2">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <i className="ri-heart-line text-red-500 mr-2"></i>
+                Favorilerim
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
                 Favori ürünlerinizi kaydedin ve daha sonra kolayca erişin
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500">
-                {wishlistItems.length} ürün
-              </span>
+              <div className="bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-900 dark:to-pink-900 px-4 py-2 rounded-full">
+                <span className="text-sm font-semibold text-red-600 dark:text-red-400">
+                  <i className="ri-heart-fill mr-1"></i>
+                  {wishlistItems.length} ürün
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -117,26 +126,38 @@ export default function WishlistPage() {
 
         {/* Wishlist Items */}
         {wishlistItems.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-            <div className="mb-6">
-              <i className="ri-heart-line text-8xl text-gray-300"></i>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-12 text-center transition-colors duration-300">
+            <div className="w-32 h-32 bg-gradient-to-r from-red-100 to-pink-100 dark:from-red-900 dark:to-pink-900 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+              <i className="ri-heart-line text-4xl text-red-500 dark:text-red-400"></i>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Wishlist&apos;iniz Boş</h2>
-            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Favorilerim Boş
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
               Henüz favori ürününüz yok. Ürünleri keşfedin ve beğendiğiniz ürünleri 
-              wishlist&apos;inize ekleyin.
+              favorilerinize ekleyin.
             </p>
-            <Link
-              href="/products"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Ürünleri Keşfet
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/products"
+                className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-red-600 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <i className="ri-store-line mr-2"></i>
+                Ürünleri Keşfet
+              </Link>
+              <Link
+                href="/"
+                className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300"
+              >
+                <i className="ri-home-line mr-2"></i>
+                Ana Sayfaya Dön
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {wishlistItems.map((item) => (
-              <div key={item.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+              <div key={item.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
                 {/* Product Image */}
                 <div className="relative h-48 overflow-hidden">
                   <Image
@@ -162,20 +183,20 @@ export default function WishlistPage() {
 
                 {/* Product Info */}
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
                     {item.product.title}
                   </h3>
                   
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-2xl font-bold text-blue-600">
+                    <span className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                       ₺{item.product.price.toLocaleString('tr-TR')}
                     </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       item.product.stock > 10 
-                        ? 'bg-green-100 text-green-800' 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
                         : item.product.stock > 0 
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-red-100 text-red-800'
+                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                     }`}>
                       {item.product.stock > 10 
                         ? 'Stokta' 
@@ -186,7 +207,8 @@ export default function WishlistPage() {
                     </span>
                   </div>
 
-                  <div className="text-xs text-gray-500 mb-4">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mb-4 flex items-center">
+                    <i className="ri-calendar-line mr-1"></i>
                     Eklenme tarihi: {formatDate(item.created_at)}
                   </div>
 

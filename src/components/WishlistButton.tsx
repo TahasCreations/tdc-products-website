@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -21,13 +22,14 @@ export default function WishlistButton({
 }: WishlistButtonProps) {
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const { user } = useAuth();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const isWishlisted = isInWishlist(productId);
 
   const handleWishlistToggle = async () => {
     if (!user) {
-      alert('Wishlist\'e ürün eklemek için giriş yapmanız gerekiyor!');
+      alert('Favorilerinize ürün eklemek için giriş yapmanız gerekiyor!');
       return;
     }
 
@@ -40,6 +42,12 @@ export default function WishlistButton({
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDoubleClick = () => {
+    if (user) {
+      router.push('/wishlist');
     }
   };
 
@@ -69,6 +77,7 @@ export default function WishlistButton({
     return (
       <button
         onClick={handleWishlistToggle}
+        onDoubleClick={handleDoubleClick}
         disabled={isLoading}
         className={`
           ${getSizeClasses()}
@@ -80,7 +89,7 @@ export default function WishlistButton({
           ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'}
           ${className}
         `}
-        title={isWishlisted ? 'Wishlist\'ten çıkar' : 'Wishlist\'e ekle'}
+        title={isWishlisted ? 'Favorilerden çıkar (çift tık: favorilerim)' : 'Favorilere ekle (çift tık: favorilerim)'}
       >
         {isLoading ? (
           <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-red-500" />
@@ -90,7 +99,9 @@ export default function WishlistButton({
         
         {/* Tooltip */}
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-10">
-          {isWishlisted ? 'Wishlist\'ten çıkar' : 'Wishlist\'e ekle'}
+          {isWishlisted ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+          <br />
+          <span className="text-gray-300">Çift tık: Favorilerim</span>
         </div>
       </button>
     );

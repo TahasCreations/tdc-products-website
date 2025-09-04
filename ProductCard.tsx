@@ -89,7 +89,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Wishlist Button */}
-          <div className="absolute top-4 right-4 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 delay-100">
+          <div className="absolute top-4 right-4 z-20">
             <WishlistButton
               productId={product.id}
               productTitle={product.title}
