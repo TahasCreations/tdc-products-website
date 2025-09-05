@@ -5,7 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { PageLoader } from '../../components/LoadingSpinner';
 import WishlistButton from '../../components/WishlistButton';
-import AddToCartButton from '../../../AddToCartButton';
+import AddToCartButton from '../../components/AddToCartButton';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useCart } from './src/contexts/CartContext';
-import { useToast } from './src/components/Toast';
-import { ButtonLoader } from './src/components/LoadingSpinner';
+import { useCart } from '../contexts/CartContext';
+import { useToast } from './Toast';
+import { ButtonLoader } from './LoadingSpinner';
 
 interface Product {
   id: string;

@@ -1,7 +1,7 @@
 'use client';
 
-import ProductCard from '../../ProductCard';
-import AddToCartButton from '../../AddToCartButton';
+import ProductCard from '../components/ProductCard';
+import AddToCartButton from '../components/AddToCartButton';
 import AnimatedText from '../../animated-text';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';

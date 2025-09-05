@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import { useCart } from './src/contexts/CartContext';
-import { useWishlist } from './src/contexts/WishlistContext';
-import { useToast } from './src/components/Toast';
-import WishlistButton from './src/components/WishlistButton';
+import { useCart } from '../contexts/CartContext';
+import { useWishlist } from '../contexts/WishlistContext';
+import { useToast } from './Toast';
+import WishlistButton from './WishlistButton';
 
 interface Product {
   id: string;

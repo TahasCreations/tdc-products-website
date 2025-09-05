@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import ProductGallery from "@/components/ProductGallery";
-import AddToCartButton from "../../../../AddToCartButton";
+import AddToCartButton from "../../../components/AddToCartButton";
 import { notFound, useParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { PageLoader } from '../../../components/LoadingSpinner';

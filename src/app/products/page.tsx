@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import ProductCard from '../../../ProductCard';
+import ProductCard from '../../components/ProductCard';
 import SearchAndFilter from '../../components/SearchAndFilter';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import CategorySidebar from '../../components/CategorySidebar';
