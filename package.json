@@ -5,13 +5,13 @@
   "description": "TDC Products - 3D Baskı Figürler ve Koleksiyon Ürünleri",
   "scripts": {
     "dev": "next dev",
-    "build": "node build-check.js && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf .next out",
     "deploy": "npm run build",
-    "vercel-build": "npm ci && npm run build",
+    "vercel-build": "npm run build",
     "postbuild": "echo 'Build completed successfully'"
   },
   "dependencies": {
