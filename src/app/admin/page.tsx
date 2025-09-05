@@ -140,6 +140,9 @@ export default function AdminPage() {
 
   // Form states
   const [newCategory, setNewCategory] = useState({ name: '', color: '#6b7280', icon: 'ri-more-line', parent_id: null as string | null });
+  const [newSubCategory, setNewSubCategory] = useState({ name: '', color: '#6b7280', icon: 'ri-more-line', parent_id: null as string | null });
+  const [adminUsers, setAdminUsers] = useState<any[]>([]);
+  const [newAdminUser, setNewAdminUser] = useState({ email: '', name: '' });
   const [newProduct, setNewProduct] = useState({
     title: '', price: '', category: '', stock: '', image: '', images: [] as string[], description: '', slug: '', variations: [] as string[]
   });
@@ -284,6 +287,9 @@ export default function AdminPage() {
       
       // Stok uyarılarını getir
       await fetchStockAlerts();
+      
+      // Admin kullanıcılarını getir
+      await fetchAdminUsers();
     } catch (error) {
       console.error('Data loading error:', error);
       setCategories(getDefaultCategories());
@@ -406,6 +412,30 @@ export default function AdminPage() {
       setStockAlerts(data || []);
     } catch (error) {
       console.error('Stok uyarısı getirme hatası:', error);
+    }
+  };
+
+  const fetchAdminUsers = async () => {
+    try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        console.error('Supabase client could not be created');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Admin kullanıcıları getirme hatası:', error);
+        return;
+      }
+
+      setAdminUsers(data || []);
+    } catch (error) {
+      console.error('Admin kullanıcıları getirme hatası:', error);
     }
   };
 
@@ -1118,8 +1148,8 @@ export default function AdminPage() {
         name: newCategory.name.trim(),
         color: newCategory.color,
         icon: newCategory.icon,
-        parent_id: newCategory.parent_id,
-        level: newCategory.parent_id ? 1 : 0
+        parent_id: null,
+        level: 0
       };
 
       const supabase = createClientSupabaseClient();
@@ -1143,6 +1173,158 @@ export default function AdminPage() {
         setCategories([newCategoryItem, ...categories]);
         setNewCategory({ name: '', color: '#6b7280', icon: 'ri-more-line', parent_id: null });
         setMessage('Kategori başarıyla eklendi!');
+        setMessageType('success');
+        setTimeout(() => setMessage(''), 3000);
+      }
+    } catch (error) {
+      setMessage('Bağlantı hatası');
+      setMessageType('error');
+    } finally {
+      setApiLoading(false);
+    }
+  };
+
+  // Alt kategori ekle
+  const handleAddSubCategory = async () => {
+    if (!newSubCategory.name.trim()) {
+      setMessage('Alt kategori adı gerekli');
+      setMessageType('error');
+      return;
+    }
+
+    if (!newSubCategory.parent_id) {
+      setMessage('Ana kategori seçimi gerekli');
+      setMessageType('error');
+      return;
+    }
+
+    try {
+      setApiLoading(true);
+      setMessage('Alt kategori ekleniyor...');
+
+      const subCategoryData = {
+        name: newSubCategory.name.trim(),
+        color: newSubCategory.color,
+        icon: newSubCategory.icon,
+        parent_id: newSubCategory.parent_id,
+        level: 1
+      };
+
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('categories')
+        .insert([subCategoryData])
+        .select();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        setMessage('Alt kategori eklenemedi: ' + error.message);
+        setMessageType('error');
+      } else {
+        const newSubCategoryItem = data[0];
+        setCategories([newSubCategoryItem, ...categories]);
+        setNewSubCategory({ name: '', color: '#6b7280', icon: 'ri-more-line', parent_id: null });
+        setMessage('Alt kategori başarıyla eklendi!');
+        setMessageType('success');
+        setTimeout(() => setMessage(''), 3000);
+      }
+    } catch (error) {
+      setMessage('Bağlantı hatası');
+      setMessageType('error');
+    } finally {
+      setApiLoading(false);
+    }
+  };
+
+  // Admin kullanıcı ekle
+  const handleAddAdminUser = async () => {
+    if (!newAdminUser.email.trim()) {
+      setMessage('E-posta adresi gerekli');
+      setMessageType('error');
+      return;
+    }
+
+    if (!newAdminUser.name.trim()) {
+      setMessage('İsim gerekli');
+      setMessageType('error');
+      return;
+    }
+
+    try {
+      setApiLoading(true);
+      setMessage('Admin kullanıcı ekleniyor...');
+
+      const adminUserData = {
+        email: newAdminUser.email.trim(),
+        name: newAdminUser.name.trim(),
+        is_active: true
+      };
+
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('admin_users')
+        .insert([adminUserData])
+        .select();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        setMessage('Admin kullanıcı eklenemedi: ' + error.message);
+        setMessageType('error');
+      } else {
+        const newAdminUserItem = data[0];
+        setAdminUsers([newAdminUserItem, ...adminUsers]);
+        setNewAdminUser({ email: '', name: '' });
+        setMessage('Admin kullanıcı başarıyla eklendi!');
+        setMessageType('success');
+        setTimeout(() => setMessage(''), 3000);
+      }
+    } catch (error) {
+      setMessage('Bağlantı hatası');
+      setMessageType('error');
+    } finally {
+      setApiLoading(false);
+    }
+  };
+
+  // Admin kullanıcı durumunu değiştir
+  const handleToggleAdminUserStatus = async (userId: string, currentStatus: boolean) => {
+    try {
+      setApiLoading(true);
+      setMessage('Admin kullanıcı durumu güncelleniyor...');
+
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('admin_users')
+        .update({ is_active: !currentStatus })
+        .eq('id', userId);
+
+      if (error) {
+        console.error('Supabase error:', error);
+        setMessage('Admin kullanıcı durumu güncellenemedi: ' + error.message);
+        setMessageType('error');
+      } else {
+        setAdminUsers(adminUsers.map(user => 
+          user.id === userId ? { ...user, is_active: !currentStatus } : user
+        ));
+        setMessage(`Admin kullanıcı ${!currentStatus ? 'aktif' : 'pasif'} edildi!`);
         setMessageType('success');
         setTimeout(() => setMessage(''), 3000);
       }
@@ -1683,7 +1865,8 @@ export default function AdminPage() {
               { id: 'email', name: 'E-posta Yönetimi', icon: 'ri-mail-line' },
               { id: 'analytics', name: 'Analitik', icon: 'ri-bar-chart-line' },
               { id: 'bist', name: 'BİST Kontrol', icon: 'ri-line-chart-line' },
-              { id: 'finance', name: 'Finans', icon: 'ri-money-dollar-circle-line' }
+              { id: 'finance', name: 'Finans', icon: 'ri-money-dollar-circle-line' },
+              { id: 'admin-users', name: 'Admin Kullanıcıları', icon: 'ri-shield-user-line' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -2304,9 +2487,10 @@ export default function AdminPage() {
 
         {activeTab === 'categories' && (
           <div className="space-y-6">
+            {/* Ana Kategori Oluşturma */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Kategori Ekle</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Ana Kategori Oluştur</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Kategori Adı</label>
                   <input
@@ -2314,23 +2498,8 @@ export default function AdminPage() {
                     value={newCategory.name}
                     onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Kategori adını girin"
+                    placeholder="Ana kategori adını girin"
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ana Kategori</label>
-                  <select
-                    value={newCategory.parent_id || ''}
-                    onChange={(e) => setNewCategory({ ...newCategory, parent_id: e.target.value || null })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Ana Kategori (Seviye 0)</option>
-                    {categories.filter(cat => !cat.parent_id || cat.level === 0).map(category => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Renk</label>
@@ -2356,15 +2525,80 @@ export default function AdminPage() {
                     <option value="ri-star-line">Yıldız</option>
                   </select>
                 </div>
-                <div className="md:col-span-3">
-                  <button
-                    onClick={handleAddCategory}
-                    disabled={apiLoading}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              </div>
+              <div className="mt-6">
+                <button
+                  onClick={handleAddCategory}
+                  disabled={apiLoading}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {apiLoading ? 'Ekleniyor...' : 'Ana Kategori Ekle'}
+                </button>
+              </div>
+            </div>
+
+            {/* Alt Kategori Oluşturma */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Alt Kategori Oluştur</h2>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ana Kategori Seç</label>
+                  <select
+                    value={newSubCategory.parent_id || ''}
+                    onChange={(e) => setNewSubCategory({ ...newSubCategory, parent_id: e.target.value || null })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    {apiLoading ? 'Ekleniyor...' : 'Kategori Ekle'}
-                  </button>
+                    <option value="">Ana kategori seçin</option>
+                    {categories.filter(cat => !cat.parent_id || cat.level === 0).map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Alt Kategori Adı</label>
+                  <input
+                    type="text"
+                    value={newSubCategory.name}
+                    onChange={(e) => setNewSubCategory({ ...newSubCategory, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Alt kategori adını girin"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Renk</label>
+                  <input
+                    type="color"
+                    value={newSubCategory.color}
+                    onChange={(e) => setNewSubCategory({ ...newSubCategory, color: e.target.value })}
+                    className="w-full h-10 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">İkon</label>
+                  <select
+                    value={newSubCategory.icon}
+                    onChange={(e) => setNewSubCategory({ ...newSubCategory, icon: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="ri-more-line">Genel</option>
+                    <option value="ri-gamepad-line">Oyun</option>
+                    <option value="ri-movie-line">Film</option>
+                    <option value="ri-controller-line">Kontrol</option>
+                    <option value="ri-heart-line">Favori</option>
+                    <option value="ri-star-line">Yıldız</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-6">
+                <button
+                  onClick={handleAddSubCategory}
+                  disabled={apiLoading || !newSubCategory.parent_id}
+                  className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {apiLoading ? 'Ekleniyor...' : 'Alt Kategori Ekle'}
+                </button>
               </div>
             </div>
 
@@ -3229,6 +3463,109 @@ export default function AdminPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Finans Yönetimi</h2>
             <p className="text-gray-600">Bu özellik yakında eklenecek...</p>
+          </div>
+        )}
+
+        {activeTab === 'admin-users' && (
+          <div className="space-y-6">
+            {/* Admin Kullanıcı Ekleme */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Admin Kullanıcı Ekle</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">E-posta Adresi</label>
+                  <input
+                    type="email"
+                    value={newAdminUser.email}
+                    onChange={(e) => setNewAdminUser({ ...newAdminUser, email: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="admin@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">İsim</label>
+                  <input
+                    type="text"
+                    value={newAdminUser.name}
+                    onChange={(e) => setNewAdminUser({ ...newAdminUser, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Admin İsmi"
+                  />
+                </div>
+              </div>
+              <div className="mt-6">
+                <button
+                  onClick={handleAddAdminUser}
+                  disabled={apiLoading}
+                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {apiLoading ? 'Ekleniyor...' : 'Admin Kullanıcı Ekle'}
+                </button>
+              </div>
+            </div>
+
+            {/* Mevcut Admin Kullanıcılar */}
+            <div className="bg-white rounded-lg shadow">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">Mevcut Admin Kullanıcılar ({adminUsers.length})</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İsim</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-posta</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durum</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Oluşturulma</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {adminUsers.map((user) => (
+                      <tr key={user.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{user.email}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.is_active 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {user.is_active ? 'Aktif' : 'Pasif'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(user.created_at).toLocaleDateString('tr-TR')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleToggleAdminUserStatus(user.id, user.is_active)}
+                            disabled={apiLoading}
+                            className={`mr-2 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                              user.is_active
+                                ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                                : 'bg-green-100 text-green-700 hover:bg-green-200'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          >
+                            {user.is_active ? 'Pasif Et' : 'Aktif Et'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {adminUsers.length === 0 && (
+                  <div className="text-center py-8">
+                    <i className="ri-shield-user-line text-4xl text-gray-400 mb-4"></i>
+                    <p className="text-gray-500">Henüz admin kullanıcı eklenmemiş</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
