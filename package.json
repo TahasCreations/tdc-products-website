@@ -10,9 +10,7 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf .next out",
-    "deploy": "npm run build",
-    "vercel-build": "npm run build",
-    "postbuild": "echo 'Build completed successfully'"
+    "deploy": "npm run build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
