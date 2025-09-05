@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 300; // 5 dakika cache
 
 // Server-side Supabase client
 const createServerSupabaseClient = () => {

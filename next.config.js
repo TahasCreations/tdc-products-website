@@ -41,30 +41,6 @@ const nextConfig = {
   swcMinify: true,
   compress: true,
   poweredByHeader: false,
-  
-  // Bundle analyzer (sadece development'ta)
-  ...(process.env.ANALYZE === 'true' && {
-    webpack: (config) => {
-      if (typeof require !== 'undefined') {
-        try {
-          const BundleAnalyzerPlugin = require('@next/bundle-analyzer');
-          config.plugins.push(
-            new BundleAnalyzerPlugin({
-              enabled: true,
-            })
-          );
-        } catch (e) {
-          // Bundle analyzer yoksa devam et
-        }
-      }
-      return config;
-    },
-  }),
-
-  // Experimental features
-  experimental: {
-    optimizeCss: false,
-  },
 };
 
 module.exports = nextConfig;
