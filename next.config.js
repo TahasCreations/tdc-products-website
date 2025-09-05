@@ -64,7 +64,6 @@ const nextConfig = {
   // Experimental features
   experimental: {
     optimizeCss: false,
-    optimizePackageImports: ['@supabase/supabase-js', 'date-fns'],
   },
 };
 

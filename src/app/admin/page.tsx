@@ -4,21 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
-import { StatCard } from '../../components/AnalyticsCharts';
-import dynamic from 'next/dynamic';
-
-// Lazy load heavy components
-const DailyOrdersChart = dynamic(() => import('../../components/AnalyticsCharts').then(mod => ({ default: mod.DailyOrdersChart })), {
-  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>
-});
-
-const DailySalesChart = dynamic(() => import('../../components/AnalyticsCharts').then(mod => ({ default: mod.DailySalesChart })), {
-  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>
-});
-
-const AnalyticsTable = dynamic(() => import('../../components/AnalyticsCharts').then(mod => ({ default: mod.AnalyticsTable })), {
-  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>
-});
+import { 
+  StatCard, 
+  DailyOrdersChart, 
+  DailySalesChart, 
+  AnalyticsTable 
+} from '../../components/AnalyticsCharts';
 
 interface Category {
   id: string;
