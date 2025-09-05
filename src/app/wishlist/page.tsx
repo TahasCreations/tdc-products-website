@@ -5,11 +5,17 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { PageLoader } from '../../components/LoadingSpinner';
 import WishlistButton from '../../components/WishlistButton';
-import AddToCartButton from '../../../AddToCartButton';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import { tr } from 'date-fns/locale';
+import dynamic from 'next/dynamic';
+
+// Lazy load AddToCartButton
+const AddToCartButton = dynamic(() => import('../../../AddToCartButton'), {
+  loading: () => <div className="h-10 bg-gray-200 animate-pulse rounded-lg"></div>,
+  ssr: false
+});
 
 export default function WishlistPage() {
   const { user } = useAuth();

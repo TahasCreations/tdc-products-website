@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 300; // 5 dakika cache
 
 // Server-side Supabase client
 const createServerSupabaseClient = () => {
@@ -148,7 +149,9 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await supabase
       .from('products')
-      .select('*');
+      .select('id, slug, title, price, category, stock, image, description, status, created_at, updated_at')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('All products fetch error:', error);
@@ -202,7 +205,9 @@ export async function POST(request: NextRequest) {
       }
       const { data, error } = await supabase
         .from('products')
-        .select('*');
+        .select('id, slug, title, price, category, stock, image, description, status, created_at, updated_at')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
       if (error) {
         console.error('Supabase get all error:', error);
         return NextResponse.json({ error: 'Ürünler alınamadı' }, { status: 500 });

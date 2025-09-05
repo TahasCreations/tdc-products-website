@@ -41,10 +41,23 @@ const nextConfig = {
   swcMinify: true,
   compress: true,
   poweredByHeader: false,
+  
+  // Bundle analyzer (sadece development'ta)
+  ...(process.env.ANALYZE === 'true' && {
+    webpack: (config) => {
+      config.plugins.push(
+        new (require('@next/bundle-analyzer'))({
+          enabled: true,
+        })
+      );
+      return config;
+    },
+  }),
 
   // Experimental features
   experimental: {
     optimizeCss: false,
+    optimizePackageImports: ['@supabase/supabase-js', 'date-fns'],
   },
 };
 
