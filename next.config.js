@@ -45,11 +45,18 @@ const nextConfig = {
   // Bundle analyzer (sadece development'ta)
   ...(process.env.ANALYZE === 'true' && {
     webpack: (config) => {
-      config.plugins.push(
-        new (require('@next/bundle-analyzer'))({
-          enabled: true,
-        })
-      );
+      if (typeof require !== 'undefined') {
+        try {
+          const BundleAnalyzerPlugin = require('@next/bundle-analyzer');
+          config.plugins.push(
+            new BundleAnalyzerPlugin({
+              enabled: true,
+            })
+          );
+        } catch (e) {
+          // Bundle analyzer yoksa devam et
+        }
+      }
       return config;
     },
   }),

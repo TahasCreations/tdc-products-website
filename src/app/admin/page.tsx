@@ -9,18 +9,15 @@ import dynamic from 'next/dynamic';
 
 // Lazy load heavy components
 const DailyOrdersChart = dynamic(() => import('../../components/AnalyticsCharts').then(mod => ({ default: mod.DailyOrdersChart })), {
-  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>,
-  ssr: false
+  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>
 });
 
 const DailySalesChart = dynamic(() => import('../../components/AnalyticsCharts').then(mod => ({ default: mod.DailySalesChart })), {
-  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>,
-  ssr: false
+  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>
 });
 
 const AnalyticsTable = dynamic(() => import('../../components/AnalyticsCharts').then(mod => ({ default: mod.AnalyticsTable })), {
-  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>,
-  ssr: false
+  loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg"></div>
 });
 
 interface Category {

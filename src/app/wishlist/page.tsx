@@ -13,8 +13,7 @@ import dynamic from 'next/dynamic';
 
 // Lazy load AddToCartButton
 const AddToCartButton = dynamic(() => import('../../../AddToCartButton'), {
-  loading: () => <div className="h-10 bg-gray-200 animate-pulse rounded-lg"></div>,
-  ssr: false
+  loading: () => <div className="h-10 bg-gray-200 animate-pulse rounded-lg"></div>
 });
 
 export default function WishlistPage() {
