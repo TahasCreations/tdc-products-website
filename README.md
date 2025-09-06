@@ -1,6 +1,6 @@
 # TDC Products Website
 
-<!-- Deploy trigger -->
+<!-- Deploy trigger - Build test -->
 
 Modern ve kullanıcı dostu bir e-ticaret web sitesi. Anime, oyun ve film karakterlerinin yüksek kaliteli 3D baskı figürlerini satan platform.
 
