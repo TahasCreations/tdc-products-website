@@ -144,7 +144,7 @@ export default function AdminPage() {
   const [adminUsers, setAdminUsers] = useState<any[]>([]);
   const [newAdminUser, setNewAdminUser] = useState({ email: '', name: '' });
   const [newProduct, setNewProduct] = useState({
-    title: '', price: '', category: '', stock: '', image: '', images: [] as string[], description: '', slug: '', variations: [] as string[]
+    title: '', price: '', category: '', stock: '', image: '', images: [] as string[], description: '', slug: '', variations: [] as string[], hasVariationPrices: false, variationPrices: {} as Record<string, number>
   });
   const [newCoupon, setNewCoupon] = useState({
     code: '',
@@ -1344,8 +1344,14 @@ export default function AdminPage() {
       return;
     }
 
-    if (!newProduct.price || isNaN(parseFloat(newProduct.price))) {
+    if (!newProduct.hasVariationPrices && (!newProduct.price || isNaN(parseFloat(newProduct.price)))) {
       setMessage('Geçerli fiyat gerekli');
+      setMessageType('error');
+      return;
+    }
+
+    if (newProduct.hasVariationPrices && Object.keys(newProduct.variationPrices).length === 0) {
+      setMessage('Varyasyon fiyatları gerekli');
       setMessageType('error');
       return;
     }
@@ -1368,14 +1374,16 @@ export default function AdminPage() {
 
       const productData = {
         title: newProduct.title.trim(),
-        price: parseFloat(newProduct.price),
+        price: newProduct.hasVariationPrices ? 0 : parseFloat(newProduct.price),
         category: newProduct.category.trim(),
         stock: parseInt(newProduct.stock),
         image: newProduct.image,
         images: newProduct.images,
         description: newProduct.description.trim(),
         slug: newProduct.slug.trim() || newProduct.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
-        variations: newProduct.variations || []
+        variations: newProduct.variations || [],
+        hasVariationPrices: newProduct.hasVariationPrices,
+        variationPrices: newProduct.variationPrices
       };
 
       const supabase = createClientSupabaseClient();
@@ -1397,7 +1405,7 @@ export default function AdminPage() {
       } else {
         const newProductItem = data[0];
         setProducts([newProductItem, ...products]);
-        setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '', variations: [] });
+        setNewProduct({ title: '', price: '', category: '', stock: '', image: '', images: [], description: '', slug: '', variations: [], hasVariationPrices: false, variationPrices: {} });
         setMessage('Ürün başarıyla eklendi!');
         setMessageType('success');
         
@@ -1542,21 +1550,25 @@ export default function AdminPage() {
       setUploadProgress(0);
       setMessage('Görseller yükleniyor...');
 
-      const uploadedUrls: string[] = [];
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        
-        // Dosya boyutu kontrolü (5MB)
+      // Dosya boyutu kontrolü
+      const validFiles = files.filter(file => {
         if (file.size > 5 * 1024 * 1024) {
           setMessage(`${file.name} dosyası çok büyük (max 5MB)`);
           setMessageType('error');
-          continue;
+          return false;
         }
+        return true;
+      });
 
-        // Dosya adını benzersiz yap
+      if (validFiles.length === 0) {
+        setApiLoading(false);
+        return;
+      }
+
+      // Paralel yükleme için Promise.all kullan
+      const uploadPromises = validFiles.map(async (file, index) => {
         const timestamp = Date.now();
-        const fileName = `${timestamp}-${file.name}`;
+        const fileName = `${timestamp}-${index}-${file.name}`;
         const filePath = `products/${fileName}`;
 
         try {
@@ -1565,9 +1577,7 @@ export default function AdminPage() {
           // Supabase Storage'a yükle
           const supabase = createClientSupabaseClient();
           if (!supabase) {
-            setMessage('Supabase client oluşturulamadı');
-            setMessageType('error');
-            continue;
+            throw new Error('Supabase client oluşturulamadı');
           }
 
           const { data, error } = await supabase.storage
@@ -1579,40 +1589,7 @@ export default function AdminPage() {
 
           if (error) {
             console.error('Upload error:', error);
-            
-            // RLS hatası ise alternatif yöntem dene
-            if (error.message.includes('row-level security') || error.message.includes('policy')) {
-              console.log('RLS politikası hatası, alternatif yöntem deneniyor...');
-              
-              // API route üzerinden yükleme dene
-              try {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('path', filePath);
-                
-                const response = await fetch('/api/upload', {
-                  method: 'POST',
-                  body: formData
-                });
-                
-                if (response.ok) {
-                  const result = await response.json();
-                  uploadedUrls.push(result.url);
-                  setUploadProgress(((i + 1) / files.length) * 100);
-                  continue;
-                }
-              } catch (apiError) {
-                console.error('API upload error:', apiError);
-              }
-              
-              setMessage('Storage politikası hatası. Lütfen Supabase Dashboard\'da storage politikalarını kontrol edin.');
-              setMessageType('error');
-              continue;
-            }
-            
-            setMessage(`Görsel yüklenemedi: ${error.message}`);
-            setMessageType('error');
-            continue;
+            throw new Error(`Görsel yüklenemedi: ${error.message}`);
           }
 
           // Public URL al
@@ -1621,31 +1598,16 @@ export default function AdminPage() {
             .getPublicUrl(filePath);
 
           console.log('Görsel başarıyla yüklendi:', urlData.publicUrl);
-          
-          // URL'yi test et
-          try {
-            const response = await fetch(urlData.publicUrl, { method: 'HEAD' });
-            if (response.ok) {
-              uploadedUrls.push(urlData.publicUrl);
-              console.log('Görsel URL doğrulandı:', urlData.publicUrl);
-            } else {
-              console.error('Görsel URL erişilemez:', urlData.publicUrl);
-              setMessage(`Görsel yüklendi ama erişilemez: ${fileName}`);
-              setMessageType('error');
-            }
-          } catch (urlError) {
-            console.error('URL test hatası:', urlError);
-            uploadedUrls.push(urlData.publicUrl); // Yine de ekle, belki çalışır
-          }
-          setUploadProgress(((i + 1) / files.length) * 100);
+          return urlData.publicUrl;
 
         } catch (uploadError) {
           console.error('Upload process error:', uploadError);
-          setMessage(`Görsel yükleme hatası: ${uploadError}`);
-          setMessageType('error');
-          continue;
+          throw uploadError;
         }
-      }
+      });
+
+      // Tüm yüklemeleri paralel olarak bekle
+      const uploadedUrls = await Promise.all(uploadPromises);
 
       if (uploadedUrls.length > 0) {
         // İlk görseli ana görsel olarak ayarla
@@ -1657,20 +1619,16 @@ export default function AdminPage() {
 
         setMessage(`${uploadedUrls.length} görsel başarıyla yüklendi!`);
         setMessageType('success');
-        
-        // Ürünler listesini yenile
-        setTimeout(() => {
-          fetchData();
-        }, 1000);
+        setUploadProgress(100);
       }
 
     } catch (error) {
       console.error('Upload error:', error);
-      setMessage('Görsel yükleme hatası');
+      setMessage('Görsel yükleme hatası: ' + (error as Error).message);
       setMessageType('error');
     } finally {
       setApiLoading(false);
-      setUploadProgress(0);
+      setTimeout(() => setUploadProgress(0), 2000);
     }
   };
 
@@ -2123,7 +2081,23 @@ export default function AdminPage() {
                     onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="0.00"
+                    disabled={newProduct.hasVariationPrices}
                   />
+                  <div className="mt-2">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={newProduct.hasVariationPrices}
+                        onChange={(e) => setNewProduct({ 
+                          ...newProduct, 
+                          hasVariationPrices: e.target.checked,
+                          variationPrices: e.target.checked ? {} : {}
+                        })}
+                        className="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-600">Varyasyonlar için farklı fiyatlar</span>
+                    </label>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
@@ -2371,13 +2345,46 @@ export default function AdminPage() {
                                 onClick={() => {
                                   setNewProduct({
                                     ...newProduct,
-                                    variations: newProduct.variations?.filter((_, i) => i !== index)
+                                    variations: newProduct.variations?.filter((_, i) => i !== index),
+                                    variationPrices: newProduct.hasVariationPrices ? 
+                                      Object.fromEntries(
+                                        Object.entries(newProduct.variationPrices).filter(([key]) => key !== variation)
+                                      ) : newProduct.variationPrices
                                   });
                                 }}
                                 className="ml-1 text-blue-600 hover:text-blue-800 font-bold"
                               >
                                 ×
                               </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Varyasyon Fiyatları */}
+                    {newProduct.hasVariationPrices && newProduct.variations && newProduct.variations.length > 0 && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Varyasyon Fiyatları</label>
+                        <div className="space-y-3">
+                          {newProduct.variations.map((variation) => (
+                            <div key={variation} className="flex items-center gap-3">
+                              <label className="w-24 text-sm font-medium text-gray-700">{variation}:</label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={newProduct.variationPrices[variation] || ''}
+                                onChange={(e) => setNewProduct({
+                                  ...newProduct,
+                                  variationPrices: {
+                                    ...newProduct.variationPrices,
+                                    [variation]: parseFloat(e.target.value) || 0
+                                  }
+                                })}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="0.00"
+                              />
+                              <span className="text-sm text-gray-500">TL</span>
                             </div>
                           ))}
                         </div>
@@ -2390,9 +2397,9 @@ export default function AdminPage() {
                   <textarea
                     value={newProduct.description}
                     onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ürün açıklaması"
+                    rows={15}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical"
+                    placeholder="Ürün açıklaması (HTML desteklenir)"
                   />
                 </div>
                 <div className="md:col-span-2">
