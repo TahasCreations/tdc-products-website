@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@supabase/supabase-js';
+import AdminDashboard from '../../components/admin/AdminDashboard';
+import ProductForm from '../../components/admin/ProductForm';
 import { 
   StatCard, 
   DailyOrdersChart, 
