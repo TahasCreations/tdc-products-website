@@ -24,7 +24,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, userData?: any) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updateProfile: (updates: any) => Promise<{ error: any }>;
 }
@@ -51,10 +51,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Mevcut session'ı al
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Session get error:', error);
+        }
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      } catch (error) {
+        console.error('Session fetch error:', error);
+        setLoading(false);
+      }
     };
 
     getSession();
@@ -62,9 +70,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Auth state değişikliklerini dinle
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: string, session: Session | null) => {
+        console.log('Auth state change:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Çıkış durumunda local storage'ı temizle
+        if (event === 'SIGNED_OUT') {
+          localStorage.removeItem('supabase.auth.token');
+        }
       }
     );
 
@@ -140,8 +154,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    if (!supabase) {
+      return { error: { message: 'Supabase client not initialized' } };
+    }
+    
+    try {
+      // Önce local state'i temizle (instant feedback için)
+      setUser(null);
+      setSession(null);
+      
+      // Supabase'den çıkış yap
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        // Hata durumunda state'i geri yükle
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
+        return { error };
+      }
+      
+      return { error: null };
+    } catch (error) {
+      console.error('Sign out error:', error);
+      return { error: { message: 'Çıkış yapılırken bir hata oluştu' } };
+    }
   };
 
   const resetPassword = async (email: string) => {

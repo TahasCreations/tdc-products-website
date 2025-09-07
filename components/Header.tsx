@@ -17,6 +17,7 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { state, removeItem, updateQuantity } = useCart();
   const { isDark } = useTheme();
   const { user, signOut } = useAuth();
@@ -383,18 +384,57 @@ export default function Header() {
                         {/* Çıkış */}
                         <button
                           onClick={async () => {
-                            await signOut();
+                            if (isLoggingOut) return; // Çift tıklamayı önle
+                            
+                            setIsLoggingOut(true);
                             setIsUserMenuOpen(false);
-                            addToast({
-                              type: 'success',
-                              title: 'Çıkış yapıldı',
-                              message: 'Başarıyla çıkış yaptınız'
-                            });
+                            
+                            try {
+                              const { error } = await signOut();
+                              
+                              if (error) {
+                                addToast({
+                                  type: 'error',
+                                  title: 'Çıkış Hatası',
+                                  message: error.message || 'Çıkış yapılırken bir hata oluştu'
+                                });
+                              } else {
+                                addToast({
+                                  type: 'success',
+                                  title: 'Çıkış yapıldı',
+                                  message: 'Başarıyla çıkış yaptınız'
+                                });
+                                // Ana sayfaya yönlendir
+                                router.push('/');
+                              }
+                            } catch (error) {
+                              addToast({
+                                type: 'error',
+                                title: 'Çıkış Hatası',
+                                message: 'Beklenmeyen bir hata oluştu'
+                              });
+                            } finally {
+                              setIsLoggingOut(false);
+                            }
                           }}
-                          className="flex items-center space-x-3 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors py-2 px-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 w-full text-left"
+                          disabled={isLoggingOut}
+                          className={`flex items-center space-x-3 text-sm transition-colors py-2 px-2 rounded-lg w-full text-left ${
+                            isLoggingOut 
+                              ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed' 
+                              : 'text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20'
+                          }`}
                         >
-                          <i className="ri-logout-box-line"></i>
-                          <span>Çıkış Yap</span>
+                          {isLoggingOut ? (
+                            <>
+                              <i className="ri-loader-4-line animate-spin"></i>
+                              <span>Çıkış yapılıyor...</span>
+                            </>
+                          ) : (
+                            <>
+                              <i className="ri-logout-box-line"></i>
+                              <span>Çıkış Yap</span>
+                            </>
+                          )}
                         </button>
                       </>
                     ) : (
