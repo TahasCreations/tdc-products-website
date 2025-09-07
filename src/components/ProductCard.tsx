@@ -7,6 +7,7 @@ import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useToast } from './Toast';
 import WishlistButton from './WishlistButton';
+import ImageSkeleton from './ImageSkeleton';
 
 interface Product {
   id: string;
@@ -29,6 +30,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [selectedVariation, setSelectedVariation] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
   const { addItem } = useCart();
   const { addToast } = useToast();
 
@@ -49,23 +51,32 @@ export default function ProductCard({ product }: ProductCardProps) {
         
         {/* Product Image */}
         <div className="relative overflow-hidden">
+          {imageLoading && imageUrl && (
+            <ImageSkeleton variant="card" className="absolute inset-0 z-10" />
+          )}
           {imageUrl ? (
             <Image
               src={imageUrl}
               alt={product.title}
               width={400}
               height={256}
-              className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
-              quality={75}
+              className={`w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700 ease-out ${
+                imageLoading ? 'opacity-0' : 'opacity-100'
+              }`}
+              quality={85}
               priority={false}
               loading="lazy"
               placeholder="blur"
               blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
               onError={(e) => {
                 setImageError(true);
+                setImageLoading(false);
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';
+              }}
+              onLoad={() => {
+                setImageLoading(false);
               }}
             />
           ) : (

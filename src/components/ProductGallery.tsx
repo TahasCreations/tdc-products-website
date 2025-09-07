@@ -58,9 +58,12 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
               alt={alt}
               width={800}
               height={400}
+              quality={90}
+              priority={false}
               className={`absolute inset-0 w-full h-full object-cover transition-all duration-200 ease-out ${
                 direction === 1 ? 'opacity-0 scale-95 -translate-x-3' : 'opacity-0 scale-95 translate-x-3'
               }`}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
             />
           )}
 
@@ -71,6 +74,8 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
             alt={alt}
             width={800}
             height={400}
+            quality={90}
+            priority={activeIndex === 0}
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-200 ease-out ${
               animating
                 ? direction === 1
@@ -78,6 +83,7 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
                   : 'opacity-100 scale-100 translate-x-0'
                 : 'opacity-100 scale-100'
             }`}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 40vw"
             onError={(e) => {
               console.error('Image load error:', validImages[activeIndex]);
               const target = e.target as HTMLImageElement;
