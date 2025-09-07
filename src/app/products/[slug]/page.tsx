@@ -129,7 +129,7 @@ export default function ProductDetailPage() {
             }
           }
         } catch (apiError) {
-          console.log('API hatası, default ürünlerden aranıyor...', apiError);
+          // API hatası, default ürünlerden aranıyor
         }
 
         // API başarısız olursa default ürünlerden bul

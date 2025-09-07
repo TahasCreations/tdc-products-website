@@ -84,7 +84,7 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
               target.style.display = 'none';
             }}
             onLoad={() => {
-              console.log('Image loaded successfully:', validImages[activeIndex]);
+              // Image loaded successfully
             }}
           />
 

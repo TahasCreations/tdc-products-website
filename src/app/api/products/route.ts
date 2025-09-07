@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
     
-    console.log('API: Ürünler isteniyor...', slug ? `(slug: ${slug})` : '');
+    // API: Ürünler isteniyor
     
     // Eğer slug parametresi varsa, tek ürün getir
     if (slug) {
@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
           return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
         }
 
-        console.log('API: Tek ürün bulundu:', data.title);
+        // API: Tek ürün bulundu
         return NextResponse.json(data, {
           headers: {
             'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Ürünler alınamadı' }, { status: 500 });
     }
     
-    console.log('API: Supabase\'den', data.length, 'ürün alındı');
+    // API: Supabase'den ürünler alındı
     
     if (data.length > 0) {
       return NextResponse.json(data, {
@@ -170,7 +170,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Eğer Supabase'de ürün yoksa default ürünleri döndür
-    console.log('API: Default ürünler döndürülüyor');
+    // API: Default ürünler döndürülüyor
     return NextResponse.json(getDefaultProducts(), {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { title, price, category, stock, image, images, description, slug, action } = body;
 
-    console.log('Product POST request:', { title, price, category, stock, action });
+    // Product POST request
 
     if (action === 'get') {
       const supabase = createServerSupabaseClient();
@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
         status: 'active'
       };
 
-      console.log('Adding new product to Supabase:', newProduct);
+      // Adding new product to Supabase
 
       try {
         const { data, error } = await supabase

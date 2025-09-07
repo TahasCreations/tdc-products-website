@@ -25,7 +25,7 @@ const createServerSupabaseClient = () => {
 // Ürünleri Supabase'den çek
 async function getProducts() {
   try {
-    console.log('Ürünler sayfası: Supabase\'den ürünler isteniyor...');
+    // Ürünler sayfası: Supabase'den ürünler isteniyor
     
     const supabase = createServerSupabaseClient();
     if (!supabase) {
@@ -44,7 +44,7 @@ async function getProducts() {
       return [];
     }
     
-    console.log('Ürünler sayfası:', products?.length || 0, 'ürün alındı');
+    // Ürünler sayfası: ürünler alındı
     return products || [];
   } catch (error) {
     console.error('Ürünler yüklenirken hata:', error);

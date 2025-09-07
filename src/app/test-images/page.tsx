@@ -37,7 +37,7 @@ export default function TestImagesPage() {
         const fileName = `${timestamp}-${file.name}`;
         const filePath = `test/${fileName}`;
 
-        console.log('Görsel yükleniyor:', fileName);
+        // Görsel yükleniyor
 
         const supabase = createClientSupabaseClient();
         if (!supabase) {
@@ -62,7 +62,7 @@ export default function TestImagesPage() {
           .from('images')
           .getPublicUrl(filePath);
 
-        console.log('Görsel URL:', urlData.publicUrl);
+        // Görsel URL alındı
         uploadedUrls.push(urlData.publicUrl);
 
       } catch (error) {
@@ -129,7 +129,7 @@ export default function TestImagesPage() {
                         target.style.display = 'none';
                       }}
                       onLoad={() => {
-                        console.log('Görsel başarıyla yüklendi:', url);
+                        // Görsel başarıyla yüklendi
                       }}
                     />
                   </div>

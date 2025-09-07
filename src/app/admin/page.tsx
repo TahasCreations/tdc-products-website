@@ -1009,7 +1009,7 @@ export default function AdminPage() {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (session && !sessionError) {
-          console.log('Mevcut session bulundu:', session.user.email);
+          // Session bulundu
           setIsAuthenticated(true);
           setCurrentUser(session.user);
         }
@@ -1572,7 +1572,7 @@ export default function AdminPage() {
         const filePath = `products/${fileName}`;
 
         try {
-          console.log('Görsel yükleniyor:', fileName);
+          // Görsel yükleniyor
 
           // Supabase Storage'a yükle
           const supabase = createClientSupabaseClient();
@@ -1597,7 +1597,7 @@ export default function AdminPage() {
             .from('images')
             .getPublicUrl(filePath);
 
-          console.log('Görsel başarıyla yüklendi:', urlData.publicUrl);
+          // Görsel başarıyla yüklendi
           return urlData.publicUrl;
 
         } catch (uploadError) {

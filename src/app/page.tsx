@@ -124,7 +124,7 @@ export default function HomePage() {
         return;
       }
 
-      console.log('Ürünler yükleniyor...', forceRefresh ? '(zorla yenileme)' : '(cache kontrolü)');
+      // Ürünler yükleniyor
       
       const supabase = createClientSupabaseClient();
       if (!supabase) {
@@ -146,7 +146,7 @@ export default function HomePage() {
         if (response.ok) {
           const data = await response.json();
           if (data && data.length > 0) {
-            console.log('API\'den ürünler yüklendi:', data.length);
+            // API'den ürünler yüklendi
             setProducts(data);
             setLastFetch(now);
             setLoading(false);
@@ -154,7 +154,7 @@ export default function HomePage() {
           }
         }
       } catch (apiError) {
-        console.log('API hatası, Supabase\'den yükleniyor...', apiError);
+        // API hatası, Supabase'den yükleniyor
       }
 
       // API başarısız olursa doğrudan Supabase'den yükle
@@ -167,7 +167,7 @@ export default function HomePage() {
         console.error('Supabase error:', error);
         setProducts(getDefaultProducts());
       } else {
-        console.log('Supabase\'den ürünler yüklendi:', data?.length || 0);
+        // Supabase'den ürünler yüklendi
         setProducts(data && data.length > 0 ? data : getDefaultProducts());
       }
       

@@ -315,7 +315,7 @@ export const sendEmail = async (to: string, template: keyof typeof emailTemplate
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('E-posta gönderildi:', info.messageId);
+    // E-posta gönderildi
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error('E-posta gönderme hatası:', error);

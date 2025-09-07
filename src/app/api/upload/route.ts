@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     const filePath = `products/${fileName}`;
 
     // Bucket kontrolünü atla, doğrudan yükleme yap
-    console.log('Bucket kontrolü atlandı, doğrudan yükleme yapılıyor...');
+    // Bucket kontrolü atlandı, doğrudan yükleme yapılıyor
 
     // Supabase Storage'a yükle - RLS bypass
     try {

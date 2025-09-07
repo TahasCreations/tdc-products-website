@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, color, icon, action } = body;
 
-    console.log('Category POST request:', { name, color, icon, action });
+    // Category POST request
 
     if (action === 'get') {
       const supabase = createServerSupabaseClient();
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
         level: parent_id ? 1 : 0
       };
 
-      console.log('Adding new category to Supabase:', newCategory);
+      // Adding new category to Supabase
 
       try {
         const supabase = createServerSupabaseClient();
