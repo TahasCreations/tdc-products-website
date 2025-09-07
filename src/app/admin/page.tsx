@@ -144,7 +144,8 @@ export default function AdminPage() {
   const [newCategory, setNewCategory] = useState({ name: '', color: '#6b7280', icon: 'ri-more-line', parent_id: null as string | null });
   const [newSubCategory, setNewSubCategory] = useState({ name: '', color: '#6b7280', icon: 'ri-more-line', parent_id: null as string | null });
   const [adminUsers, setAdminUsers] = useState<any[]>([]);
-  const [newAdminUser, setNewAdminUser] = useState({ email: '', name: '' });
+  const [newAdminUser, setNewAdminUser] = useState({ email: '', name: '', password: '' });
+  const [editingAdminUser, setEditingAdminUser] = useState<any>(null);
   const [newProduct, setNewProduct] = useState({
     title: '', price: '', category: '', stock: '', image: '', images: [] as string[], description: '', slug: '', variations: [] as string[], hasVariationPrices: false, variationPrices: {} as Record<string, number>
   });
@@ -1092,6 +1093,50 @@ export default function AdminPage() {
     }
   };
 
+  // Admin kullanıcı sil
+  const handleDeleteAdminUser = async (userId: string, userEmail: string) => {
+    if (!confirm(`${userEmail} adresli admin kullanıcısını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`)) {
+      return;
+    }
+
+    try {
+      setApiLoading(true);
+      setMessage('Admin kullanıcı siliniyor...');
+
+      const supabase = createClientSupabaseClient();
+      if (!supabase) {
+        setMessage('Supabase client oluşturulamadı');
+        setMessageType('error');
+        return;
+      }
+
+      // Önce admin_users tablosundan sil
+      const { error: adminError } = await supabase
+        .from('admin_users')
+        .delete()
+        .eq('id', userId);
+
+      if (adminError) {
+        console.error('Admin user delete error:', adminError);
+        setMessage('Admin kullanıcı silinemedi: ' + adminError.message);
+        setMessageType('error');
+        return;
+      }
+
+      setMessage('Admin kullanıcı başarıyla silindi!');
+      setMessageType('success');
+      fetchAdminUsers();
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      console.error('Admin user delete error:', error);
+      setMessage('Bağlantı hatası');
+      setMessageType('error');
+      setTimeout(() => setMessage(''), 5000);
+    } finally {
+      setApiLoading(false);
+    }
+  };
+
   // Çıkış yap
   const handleLogout = async () => {
     try {
@@ -1258,15 +1303,30 @@ export default function AdminPage() {
       return;
     }
 
+    if (!newAdminUser.password.trim()) {
+      setMessage('Şifre gerekli');
+      setMessageType('error');
+      return;
+    }
+
+    // E-posta formatı kontrolü
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newAdminUser.email.trim())) {
+      setMessage('Geçerli bir e-posta adresi girin');
+      setMessageType('error');
+      return;
+    }
+
+    // Şifre uzunluk kontrolü
+    if (newAdminUser.password.length < 6) {
+      setMessage('Şifre en az 6 karakter olmalıdır');
+      setMessageType('error');
+      return;
+    }
+
     try {
       setApiLoading(true);
-      setMessage('Admin kullanıcı ekleniyor...');
-
-      const adminUserData = {
-        email: newAdminUser.email.trim(),
-        name: newAdminUser.name.trim(),
-        is_active: true
-      };
+      setMessage('Admin kullanıcı oluşturuluyor...');
 
       const supabase = createClientSupabaseClient();
       if (!supabase) {
@@ -1274,6 +1334,32 @@ export default function AdminPage() {
         setMessageType('error');
         return;
       }
+
+      // Önce Supabase Auth'da kullanıcı oluştur
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: newAdminUser.email.trim(),
+        password: newAdminUser.password,
+        options: {
+          data: {
+            first_name: newAdminUser.name.trim(),
+            full_name: newAdminUser.name.trim(),
+            is_admin: true
+          }
+        }
+      });
+
+      if (authError) {
+        console.error('Auth signup error:', authError);
+        setMessage('Kullanıcı oluşturulamadı: ' + authError.message);
+        setMessageType('error');
+        return;
+      }
+
+      const adminUserData = {
+        email: newAdminUser.email.trim(),
+        name: newAdminUser.name.trim(),
+        is_active: true
+      };
 
       const { data, error } = await supabase
         .from('admin_users')
@@ -1287,8 +1373,8 @@ export default function AdminPage() {
       } else {
         const newAdminUserItem = data[0];
         setAdminUsers([newAdminUserItem, ...adminUsers]);
-        setNewAdminUser({ email: '', name: '' });
-        setMessage('Admin kullanıcı başarıyla eklendi!');
+        setNewAdminUser({ email: '', name: '', password: '' });
+        setMessage('Admin kullanıcı başarıyla oluşturuldu!');
         setMessageType('success');
         setTimeout(() => setMessage(''), 3000);
       }
@@ -3480,25 +3566,39 @@ export default function AdminPage() {
             {/* Admin Kullanıcı Ekleme */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Admin Kullanıcı Ekle</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">E-posta Adresi</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">E-posta Adresi *</label>
                   <input
                     type="email"
                     value={newAdminUser.email}
                     onChange={(e) => setNewAdminUser({ ...newAdminUser, email: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="admin@example.com"
+                    required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">İsim</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">İsim *</label>
                   <input
                     type="text"
                     value={newAdminUser.name}
                     onChange={(e) => setNewAdminUser({ ...newAdminUser, name: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Admin İsmi"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Şifre *</label>
+                  <input
+                    type="password"
+                    value={newAdminUser.password}
+                    onChange={(e) => setNewAdminUser({ ...newAdminUser, password: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="En az 6 karakter"
+                    minLength={6}
+                    required
                   />
                 </div>
               </div>
@@ -3551,17 +3651,26 @@ export default function AdminPage() {
                           {new Date(user.created_at).toLocaleDateString('tr-TR')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleToggleAdminUserStatus(user.id, user.is_active)}
-                            disabled={apiLoading}
-                            className={`mr-2 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                              user.is_active
-                                ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                                : 'bg-green-100 text-green-700 hover:bg-green-200'
-                            } disabled:opacity-50 disabled:cursor-not-allowed`}
-                          >
-                            {user.is_active ? 'Pasif Et' : 'Aktif Et'}
-                          </button>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleToggleAdminUserStatus(user.id, user.is_active)}
+                              disabled={apiLoading}
+                              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                user.is_active
+                                  ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                                  : 'bg-green-100 text-green-700 hover:bg-green-200'
+                              } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                              {user.is_active ? 'Pasif Et' : 'Aktif Et'}
+                            </button>
+                            <button
+                              onClick={() => handleDeleteAdminUser(user.id, user.email)}
+                              disabled={apiLoading}
+                              className="px-3 py-1 rounded-md text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                              Sil
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
