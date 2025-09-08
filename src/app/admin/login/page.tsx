@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -11,8 +11,16 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
+  // Optimized login handler with useCallback
+  const handleLogin = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Fast validation
+    if (!email.trim() || !password.trim()) {
+      setError('E-posta ve şifre gerekli');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -22,15 +30,16 @@ export default function AdminLoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        // Admin bilgilerini localStorage'a kaydet
+        // Optimized localStorage save
         localStorage.setItem('admin_user', JSON.stringify(data.admin));
-        router.push('/admin');
+        // Fast redirect
+        router.replace('/admin');
       } else {
         setError(data.error || 'Giriş başarısız');
       }
@@ -40,7 +49,7 @@ export default function AdminLoginPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [email, password, router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">

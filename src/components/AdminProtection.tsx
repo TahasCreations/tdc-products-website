@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -14,32 +14,47 @@ export default function AdminProtection({ children }: AdminProtectionProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [adminUser, setAdminUser] = useState<any>(null);
 
-  useEffect(() => {
-    const checkAdminAuth = () => {
-      try {
-        const storedAdmin = localStorage.getItem('admin_user');
-        if (storedAdmin) {
-          const admin = JSON.parse(storedAdmin);
-          setAdminUser(admin);
-          setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-        }
-      } catch (error) {
-        console.error('Admin auth check error:', error);
+  // Optimized auth check with useCallback
+  const checkAdminAuth = useCallback(() => {
+    try {
+      const storedAdmin = localStorage.getItem('admin_user');
+      if (storedAdmin) {
+        const admin = JSON.parse(storedAdmin);
+        setAdminUser(admin);
+        setIsAuthenticated(true);
+      } else {
         setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
       }
-    };
-
-    checkAdminAuth();
+    } catch (error) {
+      console.error('Admin auth check error:', error);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const handleLogout = () => {
+  useEffect(() => {
+    checkAdminAuth();
+  }, [checkAdminAuth]);
+
+  // Optimized logout with immediate UI update
+  const handleLogout = useCallback(() => {
+    // Immediate UI update
+    setIsAuthenticated(false);
+    setAdminUser(null);
+    
+    // Clear localStorage
     localStorage.removeItem('admin_user');
-    router.push('/admin/login');
-  };
+    
+    // Fast redirect
+    router.replace('/admin/login');
+  }, [router]);
+
+  // Memoized admin info for better performance
+  const adminInfo = useMemo(() => ({
+    name: adminUser?.name || adminUser?.email || 'Admin',
+    isMainAdmin: adminUser?.is_main_admin || false
+  }), [adminUser]);
 
   if (isLoading) {
     return (
@@ -87,7 +102,7 @@ export default function AdminProtection({ children }: AdminProtectionProps) {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <h1 className="text-xl font-semibold text-gray-900">Admin Paneli</h1>
-              {adminUser?.is_main_admin && (
+              {adminInfo.isMainAdmin && (
                 <span className="ml-3 px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
                   Ana Admin
                 </span>
@@ -95,14 +110,25 @@ export default function AdminProtection({ children }: AdminProtectionProps) {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
-                Hoş geldin, {adminUser?.name || adminUser?.email}
+                Hoş geldin, {adminInfo.name}
               </span>
-              <button
-                onClick={handleLogout}
-                className="text-sm text-red-600 hover:text-red-700 font-medium"
-              >
-                Çıkış Yap
-              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors duration-150 hover:bg-red-50 px-3 py-1 rounded-md border border-red-200 hover:border-red-300"
+                  title="Hızlı çıkış"
+                >
+                  <i className="ri-logout-box-line mr-1"></i>
+                  Çıkış Yap
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="text-xs text-gray-500 hover:text-red-600 transition-colors duration-150 p-1 rounded"
+                  title="Anında çıkış"
+                >
+                  <i className="ri-close-line text-lg"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>

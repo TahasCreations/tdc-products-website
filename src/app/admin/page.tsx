@@ -9,10 +9,10 @@ export default function AdminPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Eğer admin girişi yapılmamışsa login sayfasına yönlendir
+    // Optimized admin check
     const storedAdmin = localStorage.getItem('admin_user');
     if (!storedAdmin) {
-      router.push('/admin/login');
+      router.replace('/admin/login');
     }
   }, [router]);
 
