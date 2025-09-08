@@ -5,8 +5,10 @@ import { getServerSupabaseClient } from '../../../lib/supabase-client';
 export async function POST(request: NextRequest) {
   try {
     console.log('Admin auth API called');
+    
+    // Basit test için önce hardcoded kontrol
     const { email, password } = await request.json();
-    console.log('Email:', email);
+    console.log('Email:', email, 'Password:', password);
 
     if (!email || !password) {
       return NextResponse.json({ 
@@ -15,6 +17,21 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Test için basit kontrol
+    if (email === 'bentahasarii@gmail.com' && password === '35sandalye') {
+      return NextResponse.json({ 
+        success: true,
+        admin: {
+          id: 'test-admin-id',
+          email: 'bentahasarii@gmail.com',
+          name: 'Benta Hasarı',
+          is_main_admin: true,
+          is_active: true
+        }
+      });
+    }
+
+    // Supabase kontrolü
     const supabase = getServerSupabaseClient();
     if (!supabase) {
       console.error('Supabase client is null');
@@ -71,7 +88,7 @@ export async function POST(request: NextRequest) {
     console.error('Admin auth API error:', error);
     return NextResponse.json({ 
       success: false, 
-      error: 'Sunucu hatası' 
+      error: 'Sunucu hatası: ' + error.message 
     }, { status: 500 });
   }
 }
