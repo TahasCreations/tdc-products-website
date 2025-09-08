@@ -1527,8 +1527,8 @@ export default function AdminPage() {
         description: newProduct.description.trim(),
         slug: newProduct.slug.trim() || newProduct.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
         variations: newProduct.variations || [],
-        hasVariationPrices: newProduct.hasVariationPrices,
-        variationPrices: newProduct.variationPrices
+        hasVariationPrices: newProduct.hasVariationPrices || false,
+        variationPrices: newProduct.variationPrices || {}
       };
 
       const supabase = createClientSupabaseClient();
@@ -2205,7 +2205,63 @@ export default function AdminPage() {
         {activeTab === 'products' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Ürün Ekle</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Ürün ve Kategori Yönetimi</h2>
+              
+              {/* Kategori Ekleme Bölümü */}
+              <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Hızlı Kategori Ekleme</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Kategori Adı</label>
+                    <input
+                      type="text"
+                      value={newCategory.name}
+                      onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Kategori adı"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Renk</label>
+                    <input
+                      type="color"
+                      value={newCategory.color}
+                      onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })}
+                      className="w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">İkon</label>
+                    <select
+                      value={newCategory.icon}
+                      onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="ri-more-line">Genel</option>
+                      <option value="ri-smartphone-line">Telefon</option>
+                      <option value="ri-computer-line">Bilgisayar</option>
+                      <option value="ri-headphone-line">Kulaklık</option>
+                      <option value="ri-gamepad-line">Oyun</option>
+                      <option value="ri-camera-line">Kamera</option>
+                      <option value="ri-book-line">Kitap</option>
+                      <option value="ri-shirt-line">Giyim</option>
+                    </select>
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      onClick={handleAddCategory}
+                      disabled={apiLoading || !newCategory.name.trim()}
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {apiLoading ? 'Ekleniyor...' : 'Kategori Ekle'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ürün Ekleme Bölümü */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Yeni Ürün Ekle</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Ürün Adı</label>
@@ -2556,6 +2612,7 @@ export default function AdminPage() {
                     {apiLoading ? 'Ekleniyor...' : 'Ürün Ekle'}
                   </button>
                 </div>
+              </div>
               </div>
             </div>
 
