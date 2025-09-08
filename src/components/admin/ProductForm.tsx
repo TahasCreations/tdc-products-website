@@ -3,10 +3,21 @@
 import { useState } from 'react';
 import Image from 'next/image';
 
+interface Category {
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
+  parent_id?: string | null;
+  level?: number;
+  created_at: string;
+  updated_at: string;
+}
+
 interface ProductFormProps {
   newProduct: any;
   setNewProduct: (product: any) => void;
-  categories: any[];
+  categories: Category[];
   handleAddProduct: () => void;
   handleFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleDragOver: (e: React.DragEvent) => void;
@@ -30,6 +41,25 @@ export default function ProductForm({
   uploadProgress,
   apiLoading
 }: ProductFormProps) {
+  // Kategorileri ana ve alt kategoriler olarak ayır
+  const parentCategories = categories.filter(cat => !cat.parent_id || cat.level === 0);
+  const subCategories = categories.filter(cat => cat.parent_id && cat.level === 1);
+  
+  // Seçilen ana kategoriye ait alt kategorileri getir
+  const getSubCategories = (parentId: string) => {
+    return subCategories.filter(cat => cat.parent_id === parentId);
+  };
+
+  // Ana kategori değiştiğinde alt kategoriyi sıfırla
+  const handleCategoryChange = (categoryName: string) => {
+    const selectedCategory = parentCategories.find(cat => cat.name === categoryName);
+    setNewProduct({ 
+      ...newProduct, 
+      category: categoryName,
+      subcategory: '' // Alt kategoriyi sıfırla
+    });
+  };
+
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Ürün Ekle</h2>
@@ -72,16 +102,34 @@ export default function ProductForm({
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Ana Kategori</label>
           <select
             value={newProduct.category}
-            onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+            onChange={(e) => handleCategoryChange(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Kategori seçin</option>
-            {categories.map((category) => (
+            <option value="">Ana kategori seçin</option>
+            {parentCategories.map((category) => (
               <option key={category.id} value={category.name}>
                 {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Alt Kategori</label>
+          <select
+            value={newProduct.subcategory}
+            onChange={(e) => setNewProduct({ ...newProduct, subcategory: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={!newProduct.category}
+          >
+            <option value="">Alt kategori seçin (opsiyonel)</option>
+            {newProduct.category && getSubCategories(
+              parentCategories.find(cat => cat.name === newProduct.category)?.id || ''
+            ).map((subCategory) => (
+              <option key={subCategory.id} value={subCategory.name}>
+                {subCategory.name}
               </option>
             ))}
           </select>

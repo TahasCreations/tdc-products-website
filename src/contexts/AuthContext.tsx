@@ -21,12 +21,16 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isAdmin: boolean;
+  isMainAdmin: boolean;
+  adminLoading: boolean;
   signUp: (email: string, password: string, userData?: any) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updateProfile: (updates: any) => Promise<{ error: any }>;
+  checkAdminStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isMainAdmin, setIsMainAdmin] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(false);
   const [supabase, setSupabase] = useState<any>(null);
 
   useEffect(() => {
@@ -75,9 +82,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Çıkış durumunda local storage'ı temizle
+        // Çıkış durumunda local storage'ı temizle ve admin durumunu sıfırla
         if (event === 'SIGNED_OUT') {
           localStorage.removeItem('supabase.auth.token');
+          setIsAdmin(false);
+          setIsMainAdmin(false);
+        } else if (event === 'SIGNED_IN' && session?.user) {
+          // Giriş yapıldığında admin durumunu kontrol et
+          setTimeout(() => checkAdminStatus(), 100);
         }
       }
     );
@@ -199,16 +211,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  const checkAdminStatus = async () => {
+    if (!supabase || !user?.email) {
+      setIsAdmin(false);
+      setIsMainAdmin(false);
+      return;
+    }
+
+    setAdminLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('is_main_admin, is_active')
+        .eq('email', user.email)
+        .eq('is_active', true)
+        .single();
+
+      if (error || !data) {
+        setIsAdmin(false);
+        setIsMainAdmin(false);
+      } else {
+        setIsAdmin(true);
+        setIsMainAdmin(data.is_main_admin || false);
+      }
+    } catch (error) {
+      console.error('Admin status check error:', error);
+      setIsAdmin(false);
+      setIsMainAdmin(false);
+    } finally {
+      setAdminLoading(false);
+    }
+  };
+
   const value = {
     user,
     session,
     loading,
+    isAdmin,
+    isMainAdmin,
+    adminLoading,
     signUp,
     signIn,
     signInWithGoogle,
     signOut,
     resetPassword,
-    updateProfile
+    updateProfile,
+    checkAdminStatus
   };
 
   return (

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
 import { createClient } from '@supabase/supabase-js';
 import { PageLoader } from '../../../components/LoadingSpinner';
+import AdminProtection from '../../../components/AdminProtection';
 import Link from 'next/link';
 
 // Client-side Supabase client
@@ -37,12 +37,9 @@ interface BlogPost {
 }
 
 export default function AdminBlogsPage() {
-  const { user } = useAuth();
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'published' | 'pending' | 'rejected'>('published');
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminCheckLoading, setAdminCheckLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newBlog, setNewBlog] = useState({
     title: '',
@@ -222,50 +219,6 @@ export default function AdminBlogsPage() {
     }
   };
 
-  if (adminCheckLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Yetki kontrolü yapılıyor...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Erişim Reddedildi</h1>
-          <p className="text-gray-600 mb-6">Bu sayfaya erişmek için giriş yapmanız gerekiyor.</p>
-          <Link
-            href="/auth"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            Giriş Yap
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Erişim Reddedildi</h1>
-          <p className="text-gray-600 mb-6">Bu sayfaya erişmek için admin yetkisine sahip olmanız gerekiyor.</p>
-          <Link
-            href="/"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            Ana Sayfaya Dön
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return <PageLoader text="Blog'lar yükleniyor..." />;
@@ -298,7 +251,8 @@ export default function AdminBlogsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <AdminProtection>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
@@ -513,5 +467,6 @@ export default function AdminBlogsPage() {
         </div>
       </div>
     </div>
+    </AdminProtection>
   );
 }

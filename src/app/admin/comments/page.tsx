@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../../contexts/AuthContext';
 import { createClient } from '@supabase/supabase-js';
 import { PageLoader } from '../../../components/LoadingSpinner';
+import AdminProtection from '../../../components/AdminProtection';
 import Link from 'next/link';
 
 // Client-side Supabase client
@@ -48,12 +48,10 @@ interface Comment {
 }
 
 export default function AdminCommentsPage() {
-  const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected' | 'spam'>('pending');
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminCheckLoading, setAdminCheckLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected' | 'spam' | 'customers'>('pending');
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -81,29 +79,45 @@ export default function AdminCommentsPage() {
     if (!supabase) return;
 
     try {
-      const { data, error } = await supabase
-        .from('blog_comments')
-        .select(`
-          *,
-          blog:blog_id (
-            title,
-            slug
-          ),
-          user:user_id (
-            id,
-            email,
-            raw_user_meta_data
-          )
-        `)
-        .eq('status', activeTab)
-        .order('created_at', { ascending: false });
+      if (activeTab === 'customers') {
+        // Müşterileri getir
+        const { data: usersData, error: usersError } = await supabase
+          .from('auth.users')
+          .select('id, email, created_at, raw_user_meta_data')
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching comments:', error);
-        return;
+        if (usersError) {
+          console.error('Error fetching customers:', usersError);
+          return;
+        }
+
+        setCustomers(usersData || []);
+      } else {
+        // Yorumları getir
+        const { data, error } = await supabase
+          .from('blog_comments')
+          .select(`
+            *,
+            blog:blog_id (
+              title,
+              slug
+            ),
+            user:user_id (
+              id,
+              email,
+              raw_user_meta_data
+            )
+          `)
+          .eq('status', activeTab)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching comments:', error);
+          return;
+        }
+
+        setComments(data || []);
       }
-
-      setComments(data || []);
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -112,10 +126,8 @@ export default function AdminCommentsPage() {
   }, [activeTab]);
 
   useEffect(() => {
-    if (user) {
-      fetchComments();
-    }
-  }, [user, activeTab, fetchComments]);
+    fetchComments();
+  }, [activeTab, fetchComments]);
 
   // Admin kontrolü
   useEffect(() => {
@@ -223,64 +235,21 @@ export default function AdminCommentsPage() {
     });
   };
 
-  if (adminCheckLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Yetki kontrolü yapılıyor...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Erişim Reddedildi</h1>
-          <p className="text-gray-600 mb-6">Bu sayfaya erişmek için giriş yapmanız gerekiyor.</p>
-          <Link
-            href="/auth"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            Giriş Yap
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Erişim Reddedildi</h1>
-          <p className="text-gray-600 mb-6">Bu sayfaya erişmek için admin yetkisine sahip olmanız gerekiyor.</p>
-          <Link
-            href="/"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            Ana Sayfaya Dön
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return <PageLoader text="Yorumlar yükleniyor..." />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <AdminProtection>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Yorum Yönetimi</h1>
-              <p className="text-gray-600 mt-2">Kullanıcı yorumlarını onaylayın, reddedin ve spam&apos;leri temizleyin</p>
+              <h1 className="text-3xl font-bold text-gray-900">Yorum & Müşteri Yönetimi</h1>
+              <p className="text-gray-600 mt-2">Blog yorumlarını ve müşteri bilgilerini yönetin</p>
             </div>
             <Link
               href="/admin"
@@ -335,11 +304,99 @@ export default function AdminCommentsPage() {
               >
                 Spam ({comments.filter(c => c.status === 'spam').length})
               </button>
+              <button
+                onClick={() => setActiveTab('customers')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'customers'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Müşteriler ({customers.length})
+              </button>
             </nav>
           </div>
 
           <div className="p-6">
-            {comments.length === 0 ? (
+            {activeTab === 'customers' ? (
+              // Müşteriler Tab'ı
+              customers.length === 0 ? (
+                <div className="text-center py-12">
+                  <i className="ri-user-line text-6xl text-gray-400 mb-4"></i>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Henüz müşteri yok</h3>
+                  <p className="text-gray-600">Henüz kayıt olan müşteri bulunmuyor.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Müşteri
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          E-posta
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Kayıt Tarihi
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          İletişim Bilgileri
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {customers.map((customer) => (
+                        <tr key={customer.id}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10">
+                                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                  <i className="ri-user-line text-blue-600"></i>
+                                </div>
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {customer.raw_user_meta_data?.first_name || customer.raw_user_meta_data?.name || 'İsimsiz'}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  ID: {customer.id.slice(0, 8)}...
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{customer.email}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(customer.created_at).toLocaleDateString('tr-TR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div>
+                              {customer.raw_user_meta_data?.phone && (
+                                <div>📞 {customer.raw_user_meta_data.phone}</div>
+                              )}
+                              {customer.raw_user_meta_data?.address && (
+                                <div>📍 {customer.raw_user_meta_data.address}</div>
+                              )}
+                              {!customer.raw_user_meta_data?.phone && !customer.raw_user_meta_data?.address && (
+                                <span className="text-gray-400">Bilgi yok</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            ) : comments.length === 0 ? (
               <div className="text-center py-12">
                 <i className="ri-chat-3-line text-6xl text-gray-400 mb-4"></i>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -516,5 +573,6 @@ export default function AdminCommentsPage() {
         </div>
       </div>
     </div>
+    </AdminProtection>
   );
 }
