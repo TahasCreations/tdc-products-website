@@ -59,9 +59,9 @@ export async function GET(request: NextRequest) {
       // İstatistikler
       const totalFollowers = socialAccounts?.reduce((sum, account) => sum + account.followers_count, 0) || 0;
       const targetedKeywords = keywords?.length || 0;
-      const avgRanking = keywords?.length > 0 ? 
+      const avgRanking = keywords && keywords.length > 0 ? 
         keywords.reduce((sum, kw) => sum + (kw.current_ranking || 0), 0) / keywords.length : 0;
-      const avgOpenRate = campaigns?.length > 0 ?
+      const avgOpenRate = campaigns && campaigns.length > 0 ?
         campaigns.reduce((sum, camp) => sum + (camp.open_rate || 0), 0) / campaigns.length : 0;
 
       return NextResponse.json({

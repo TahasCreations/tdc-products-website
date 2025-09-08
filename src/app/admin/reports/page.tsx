@@ -206,7 +206,7 @@ export default function AdminReportsPage() {
           expense.category,
           expense.subcategory,
           expense.description,
-          expense.amount,
+          expense.amount.toString(),
           expense.expense_date,
           expense.supplier_name,
           expense.status
@@ -225,7 +225,7 @@ export default function AdminReportsPage() {
         invoicesData.push([
           invoice.invoice_number,
           invoice.customer_name,
-          invoice.total_amount,
+          invoice.total_amount.toString(),
           invoice.invoice_date,
           invoice.status
         ]);

@@ -53,24 +53,6 @@ export default function AdminBlogsPage() {
 
   const categories = ['Genel', 'Anime', 'Gaming', 'Film', 'Teknoloji', 'Lifestyle'];
 
-  // Admin kullanıcı kontrolü
-  const checkAdminUser = async (email: string) => {
-    try {
-      const response = await fetch('/api/admin-check', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-      
-      const data = await response.json();
-      return data.isAdmin;
-    } catch (error) {
-      console.error('Admin check error:', error);
-      return false;
-    }
-  };
 
   const fetchBlogs = useCallback(async () => {
     const supabase = createClientSupabaseClient();
@@ -97,25 +79,10 @@ export default function AdminBlogsPage() {
   }, [activeTab]);
 
   useEffect(() => {
-    if (user) {
-      fetchBlogs();
-    }
-  }, [user, activeTab, fetchBlogs]);
+    fetchBlogs();
+  }, [activeTab, fetchBlogs]);
 
-  // Admin kontrolü
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (user?.email) {
-        const adminStatus = await checkAdminUser(user.email);
-        setIsAdmin(adminStatus);
-        setAdminCheckLoading(false);
-      } else {
-        setAdminCheckLoading(false);
-      }
-    };
-
-    checkAdmin();
-  }, [user]);
+  // Admin kontrolü AdminProtection component'i tarafından yapılıyor
 
   const handleCreateBlog = async () => {
     if (!newBlog.title || !newBlog.content || !newBlog.author) {

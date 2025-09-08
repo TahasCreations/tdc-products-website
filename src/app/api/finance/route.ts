@@ -380,16 +380,24 @@ export async function POST(request: NextRequest) {
           created_by
         });
 
-    return NextResponse.json({
-      success: true,
-      invoice: newInvoice
-    });
-  }
+      return NextResponse.json({
+        success: true,
+        invoice: newInvoice
+      });
+    }
 
-  return NextResponse.json({ 
-    success: false, 
-    error: 'Geçersiz işlem' 
-  }, { status: 400 });
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Geçersiz işlem' 
+    }, { status: 400 });
+
+  } catch (error) {
+    console.error('Finance POST API error:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Sunucu hatası' 
+    }, { status: 500 });
+  }
 }
 
 // Fatura durumu güncelle
@@ -440,14 +448,6 @@ export async function PUT(request: NextRequest) {
 
   } catch (error) {
     console.error('Finance PUT API error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Sunucu hatası' 
-    }, { status: 500 });
-  }
-
-  } catch (error) {
-    console.error('Finance POST API error:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Sunucu hatası' 

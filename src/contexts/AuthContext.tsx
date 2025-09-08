@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { User, Session } from '@supabase/supabase-js';
 
@@ -73,28 +73,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     getSession();
-
-    // Auth state değişikliklerini dinle
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: string, session: Session | null) => {
-        console.log('Auth state change:', event, session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Çıkış durumunda local storage'ı temizle ve admin durumunu sıfırla
-        if (event === 'SIGNED_OUT') {
-          localStorage.removeItem('supabase.auth.token');
-          setIsAdmin(false);
-          setIsMainAdmin(false);
-        } else if (event === 'SIGNED_IN' && session?.user) {
-          // Giriş yapıldığında admin durumunu kontrol et
-          setTimeout(() => checkAdminStatus(), 100);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
   }, [supabase]);
 
   const signUp = async (email: string, password: string, userData?: any) => {
@@ -202,16 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const updateProfile = async (updates: any) => {
-    if (!supabase) {
-      return { error: { message: 'Supabase client not initialized' } };
-    }
-    
-    const { error } = await supabase.auth.updateUser(updates);
-    return { error };
-  };
-
-  const checkAdminStatus = async () => {
+  const checkAdminStatus = useCallback(async () => {
     if (!supabase || !user?.email) {
       setIsAdmin(false);
       setIsMainAdmin(false);
@@ -241,6 +210,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setAdminLoading(false);
     }
+  }, [supabase, user?.email]);
+
+  // Auth state değişikliklerini dinle
+  useEffect(() => {
+    if (!supabase) return;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event: string, session: Session | null) => {
+        console.log('Auth state change:', event, session?.user?.email);
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        // Çıkış durumunda local storage'ı temizle ve admin durumunu sıfırla
+        if (event === 'SIGNED_OUT') {
+          localStorage.removeItem('supabase.auth.token');
+          setIsAdmin(false);
+          setIsMainAdmin(false);
+        } else if (event === 'SIGNED_IN' && session?.user) {
+          // Giriş yapıldığında admin durumunu kontrol et
+          setTimeout(() => checkAdminStatus(), 100);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [supabase, checkAdminStatus]);
+
+  const updateProfile = async (updates: any) => {
+    if (!supabase) {
+      return { error: { message: 'Supabase client not initialized' } };
+    }
+    
+    const { error } = await supabase.auth.updateUser(updates);
+    return { error };
   };
 
   const value = {

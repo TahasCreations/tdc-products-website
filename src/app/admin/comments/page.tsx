@@ -129,20 +129,7 @@ export default function AdminCommentsPage() {
     fetchComments();
   }, [activeTab, fetchComments]);
 
-  // Admin kontrolü
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (user?.email) {
-        const adminStatus = await checkAdminUser(user.email);
-        setIsAdmin(adminStatus);
-        setAdminCheckLoading(false);
-      } else {
-        setAdminCheckLoading(false);
-      }
-    };
-
-    checkAdmin();
-  }, [user]);
+  // Admin kontrolü AdminProtection component'i tarafından yapılıyor
 
   const handleStatusUpdate = async (commentId: string, newStatus: 'approved' | 'rejected' | 'spam') => {
     try {
