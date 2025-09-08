@@ -293,6 +293,9 @@ export default function AdminPage() {
       
       // Admin kullanıcılarını getir
       await fetchAdminUsers();
+      
+      // İlk admin kullanıcısını oluştur (eğer hiç admin yoksa)
+      await createFirstAdmin();
     } catch (error) {
       console.error('Data loading error:', error);
       setCategories(getDefaultCategories());
@@ -439,6 +442,60 @@ export default function AdminPage() {
       setAdminUsers(data || []);
     } catch (error) {
       console.error('Admin kullanıcıları getirme hatası:', error);
+    }
+  };
+
+  // İlk admin kullanıcısını oluştur (sadece hiç admin yoksa)
+  const createFirstAdmin = async () => {
+    try {
+      const supabase = createClientSupabaseClient();
+      if (!supabase) return;
+
+      // Önce admin kullanıcı var mı kontrol et
+      const { data: existingAdmins } = await supabase
+        .from('admin_users')
+        .select('id')
+        .limit(1);
+
+      if (existingAdmins && existingAdmins.length > 0) {
+        return; // Zaten admin var
+      }
+
+      // İlk admin kullanıcısını oluştur
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: 'bentahasarii@gmail.com',
+        password: '35sandalye',
+        options: {
+          data: {
+            first_name: 'Admin',
+            full_name: 'Admin User',
+            is_admin: true
+          }
+        }
+      });
+
+      if (authError) {
+        console.error('First admin auth creation error:', authError);
+        return;
+      }
+
+      // Admin kullanıcıları tablosuna ekle
+      const { error: adminError } = await supabase
+        .from('admin_users')
+        .insert([{
+          email: 'bentahasarii@gmail.com',
+          name: 'Admin User',
+          is_active: true
+        }]);
+
+      if (adminError) {
+        console.error('First admin table insert error:', adminError);
+        return;
+      }
+
+      console.log('İlk admin kullanıcısı oluşturuldu: bentahasarii@gmail.com');
+    } catch (error) {
+      console.error('First admin creation error:', error);
     }
   };
 
@@ -3566,6 +3623,21 @@ export default function AdminPage() {
             {/* Admin Kullanıcı Ekleme */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Admin Kullanıcı Ekle</h2>
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-start">
+                  <i className="ri-information-line text-blue-500 text-lg mr-2 mt-0.5"></i>
+                  <div>
+                    <h3 className="text-sm font-medium text-blue-800">İlk Admin Kullanıcısı</h3>
+                    <p className="text-sm text-blue-700 mt-1">
+                      İlk admin kullanıcısı otomatik olarak oluşturulmuştur:
+                      <br />
+                      <strong>E-posta:</strong> bentahasarii@gmail.com
+                      <br />
+                      <strong>Şifre:</strong> 35sandalye
+                    </p>
+                  </div>
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">E-posta Adresi *</label>
