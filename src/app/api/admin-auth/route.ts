@@ -1,18 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcrypt';
-
-const createServerSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
-  if (!supabaseUrl || !supabaseServiceKey) {
-    console.error('Supabase environment variables are missing');
-    return null;
-  }
-  
-  return createClient(supabaseUrl, supabaseServiceKey);
-};
+import { getServerSupabaseClient } from '../../../lib/supabase-client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,7 +13,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const supabase = createServerSupabaseClient();
+    const supabase = getServerSupabaseClient();
     if (!supabase) {
       return NextResponse.json({ 
         success: false, 
