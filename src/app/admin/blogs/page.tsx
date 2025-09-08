@@ -41,6 +41,8 @@ export default function AdminBlogsPage() {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'published' | 'pending' | 'rejected'>('published');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminCheckLoading, setAdminCheckLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newBlog, setNewBlog] = useState({
     title: '',
@@ -53,6 +55,25 @@ export default function AdminBlogsPage() {
   });
 
   const categories = ['Genel', 'Anime', 'Gaming', 'Film', 'Teknoloji', 'Lifestyle'];
+
+  // Admin kullanıcı kontrolü
+  const checkAdminUser = async (email: string) => {
+    try {
+      const response = await fetch('/api/admin-check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const data = await response.json();
+      return data.isAdmin;
+    } catch (error) {
+      console.error('Admin check error:', error);
+      return false;
+    }
+  };
 
   const fetchBlogs = useCallback(async () => {
     const supabase = createClientSupabaseClient();
@@ -83,6 +104,21 @@ export default function AdminBlogsPage() {
       fetchBlogs();
     }
   }, [user, activeTab, fetchBlogs]);
+
+  // Admin kontrolü
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (user?.email) {
+        const adminStatus = await checkAdminUser(user.email);
+        setIsAdmin(adminStatus);
+        setAdminCheckLoading(false);
+      } else {
+        setAdminCheckLoading(false);
+      }
+    };
+
+    checkAdmin();
+  }, [user]);
 
   const handleCreateBlog = async () => {
     if (!newBlog.title || !newBlog.content || !newBlog.author) {
@@ -186,6 +222,17 @@ export default function AdminBlogsPage() {
     }
   };
 
+  if (adminCheckLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Yetki kontrolü yapılıyor...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
@@ -197,6 +244,23 @@ export default function AdminBlogsPage() {
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
           >
             Giriş Yap
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Erişim Reddedildi</h1>
+          <p className="text-gray-600 mb-6">Bu sayfaya erişmek için admin yetkisine sahip olmanız gerekiyor.</p>
+          <Link
+            href="/"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+          >
+            Ana Sayfaya Dön
           </Link>
         </div>
       </div>
