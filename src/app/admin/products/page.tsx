@@ -2,23 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { createClient } from '@supabase/supabase-js';
 import AdminProtection from '../../../components/AdminProtection';
 import ProductForm from '../../../components/admin/ProductForm';
-import { PageLoader } from '../../../components/LoadingSpinner';
-
-// Client-side Supabase client
-const createClientSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables are missing');
-    return null;
-  }
-  
-  return createClient(supabaseUrl, supabaseAnonKey);
-};
+import OptimizedLoader from '../../../components/OptimizedLoader';
+import { getSupabaseClient } from '../../../lib/supabase-client';
 
 interface Category {
   id: string;
@@ -279,7 +266,7 @@ export default function AdminProductsPage() {
   };
 
   if (loading) {
-    return <PageLoader text="Ürünler yükleniyor..." />;
+    return <OptimizedLoader message="Ürünler yükleniyor..." />;
   }
 
   return (

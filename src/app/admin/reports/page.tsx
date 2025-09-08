@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
 import FinanceCharts from '../../../components/FinanceCharts';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
@@ -258,7 +258,7 @@ export default function AdminReportsPage() {
   };
 
   if (loading) {
-    return <PageLoader text="Rapor verileri yükleniyor..." />;
+    return <OptimizedLoader message="Rapor verileri yükleniyor..." />;
   }
 
   return (

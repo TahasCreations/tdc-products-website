@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 
 interface ShippingCompany {
   id: string;
@@ -319,7 +319,7 @@ export default function AdminEcommercePage() {
   };
 
   if (loading) {
-    return <PageLoader text="E-ticaret verileri yükleniyor..." />;
+    return <OptimizedLoader message="E-ticaret verileri yükleniyor..." />;
   }
 
   return (

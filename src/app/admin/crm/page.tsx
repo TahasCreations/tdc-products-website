@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 
 interface CRMDashboardData {
   totalCustomers: number;
@@ -460,7 +460,7 @@ export default function AdminCRMPage() {
   };
 
   if (loading) {
-    return <PageLoader text="CRM verileri yükleniyor..." />;
+    return <OptimizedLoader message="CRM verileri yükleniyor..." />;
   }
 
   return (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 import AdminProtection from '../../../components/AdminProtection';
 import Link from 'next/link';
 
@@ -188,7 +188,7 @@ export default function AdminBlogsPage() {
 
 
   if (loading) {
-    return <PageLoader text="Blog'lar yükleniyor..." />;
+    return <OptimizedLoader message="Blog'lar yükleniyor..." />;
   }
 
   const getStatusColor = (status: string) => {

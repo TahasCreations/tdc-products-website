@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 
 interface AdminUser {
   id: string;
@@ -127,7 +127,7 @@ export default function AdminUsersPage() {
   };
 
   if (loading) {
-    return <PageLoader text="Admin kullanıcıları yükleniyor..." />;
+    return <OptimizedLoader message="Admin kullanıcıları yükleniyor..." />;
   }
 
   return (

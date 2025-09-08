@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 
 interface HRDashboardData {
   totalEmployees: number;
@@ -434,7 +434,7 @@ export default function AdminHRPage() {
   };
 
   if (loading) {
-    return <PageLoader text="HR verileri yükleniyor..." />;
+    return <OptimizedLoader message="HR verileri yükleniyor..." />;
   }
 
   return (

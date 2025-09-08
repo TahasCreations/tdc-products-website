@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 
 interface MarketingDashboardData {
   totalFollowers: number;
@@ -311,7 +311,7 @@ export default function AdminMarketingPage() {
   };
 
   if (loading) {
-    return <PageLoader text="Pazarlama verileri yükleniyor..." />;
+    return <OptimizedLoader message="Pazarlama verileri yükleniyor..." />;
   }
 
   return (

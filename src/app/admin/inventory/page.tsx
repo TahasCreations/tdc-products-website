@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 
 interface InventoryData {
   totalProducts: number;
@@ -359,7 +359,7 @@ export default function AdminInventoryPage() {
   };
 
   if (loading) {
-    return <PageLoader text="Stok verileri yükleniyor..." />;
+    return <OptimizedLoader message="Stok verileri yükleniyor..." />;
   }
 
   return (

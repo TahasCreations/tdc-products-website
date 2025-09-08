@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
 import InvoiceTemplate from '../../../components/InvoiceTemplate';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -266,7 +266,7 @@ export default function AdminInvoicesPage() {
   };
 
   if (loading) {
-    return <PageLoader text="Faturalar yükleniyor..." />;
+    return <OptimizedLoader message="Faturalar yükleniyor..." />;
   }
 
   return (

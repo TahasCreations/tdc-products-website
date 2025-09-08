@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 
 interface FinanceData {
   totalRevenue: number;
@@ -274,7 +274,7 @@ export default function AdminFinancePage() {
   };
 
   if (loading) {
-    return <PageLoader text="Finansal veriler yükleniyor..." />;
+    return <OptimizedLoader message="Finansal veriler yükleniyor..." />;
   }
 
   return (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 import AdminProtection from '../../../components/AdminProtection';
 import Link from 'next/link';
 
@@ -224,7 +224,7 @@ export default function AdminCommentsPage() {
 
 
   if (loading) {
-    return <PageLoader text="Yorumlar yükleniyor..." />;
+    return <OptimizedLoader message="Yorumlar yükleniyor..." />;
   }
 
   return (
