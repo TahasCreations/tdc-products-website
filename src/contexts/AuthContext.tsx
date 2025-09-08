@@ -4,8 +4,14 @@ import React, { createContext, useContext, useEffect, useState, useCallback, Rea
 import { createClient } from '@supabase/supabase-js';
 import { User, Session } from '@supabase/supabase-js';
 
-// Client-side Supabase client
+// Client-side Supabase client - singleton pattern
+let supabaseClient: any = null;
+
 const createClientSupabaseClient = () => {
+  if (supabaseClient) {
+    return supabaseClient;
+  }
+  
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
@@ -14,7 +20,8 @@ const createClientSupabaseClient = () => {
     return null;
   }
   
-  return createClient(supabaseUrl, supabaseAnonKey);
+  supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+  return supabaseClient;
 };
 
 interface AuthContextType {
