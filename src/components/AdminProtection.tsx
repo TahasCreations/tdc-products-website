@@ -6,10 +6,9 @@ import Link from 'next/link';
 
 interface AdminProtectionProps {
   children: React.ReactNode;
-  requireMainAdmin?: boolean;
 }
 
-export default function AdminProtection({ children, requireMainAdmin = false }: AdminProtectionProps) {
+export default function AdminProtection({ children }: AdminProtectionProps) {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,12 +21,7 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
         if (storedAdmin) {
           const admin = JSON.parse(storedAdmin);
           setAdminUser(admin);
-          
-          if (requireMainAdmin && !admin.is_main_admin) {
-            setIsAuthenticated(false);
-          } else {
-            setIsAuthenticated(true);
-          }
+          setIsAuthenticated(true);
         } else {
           setIsAuthenticated(false);
         }
@@ -40,7 +34,7 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
     };
 
     checkAdminAuth();
-  }, [requireMainAdmin]);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('admin_user');
@@ -64,10 +58,7 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Erişim Reddedildi</h1>
           <p className="text-gray-600 mb-6">
-            {requireMainAdmin 
-              ? 'Bu sayfaya erişmek için ana admin yetkisine sahip olmanız gerekiyor.'
-              : 'Bu sayfaya erişmek için admin girişi yapmanız gerekiyor.'
-            }
+            Bu sayfaya erişmek için admin girişi yapmanız gerekiyor.
           </p>
           <div className="space-x-4">
             <Link
