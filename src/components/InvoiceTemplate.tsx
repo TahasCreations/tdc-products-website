@@ -74,17 +74,13 @@ const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
 
         {/* Customer Info */}
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Fatura Edilecek</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Müşteri Bilgileri</h3>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="font-semibold text-gray-900">{invoice.customer_name}</p>
-            {invoice.customer_address && (
-              <p className="text-gray-600">{invoice.customer_address}</p>
-            )}
-            {invoice.customer_email && (
-              <p className="text-gray-600">E-posta: {invoice.customer_email}</p>
-            )}
+            <p><strong>Ad:</strong> {invoice.customer_name}</p>
+            <p><strong>E-posta:</strong> {invoice.customer_email}</p>
+            <p><strong>Adres:</strong> {invoice.customer_address}</p>
             {invoice.customer_tax_number && (
-              <p className="text-gray-600">Vergi No: {invoice.customer_tax_number}</p>
+              <p><strong>Vergi No:</strong> {invoice.customer_tax_number}</p>
             )}
           </div>
         </div>
@@ -146,7 +142,6 @@ const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
         {/* Footer */}
         <div className="text-center text-sm text-gray-500 border-t border-gray-300 pt-4">
           <p>Bu fatura elektronik ortamda oluşturulmuştur.</p>
-          <p>Ödeme yapıldıktan sonra fatura geçerlidir.</p>
         </div>
       </div>
     );

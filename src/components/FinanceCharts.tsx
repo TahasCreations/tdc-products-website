@@ -128,26 +128,23 @@ export default function FinanceCharts({ financeData, monthlyData }: FinanceChart
       {
         label: 'Gelir',
         data: monthlyData.map(item => item.revenue),
-        borderColor: 'rgb(34, 197, 94)',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-        tension: 0.4,
-        fill: true
+        borderColor: '#36A2EB',
+        backgroundColor: 'rgba(54, 162, 235, 0.1)',
+        tension: 0.4
       },
       {
         label: 'Gider',
         data: monthlyData.map(item => item.expenses),
-        borderColor: 'rgb(239, 68, 68)',
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        tension: 0.4,
-        fill: true
+        borderColor: '#FF6384',
+        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+        tension: 0.4
       },
       {
-        label: 'Net Kar',
+        label: 'Kar',
         data: monthlyData.map(item => item.profit),
-        borderColor: 'rgb(59, 130, 246)',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        tension: 0.4,
-        fill: true
+        borderColor: '#4BC0C0',
+        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+        tension: 0.4
       }
     ]
   } : null;
@@ -186,25 +183,26 @@ export default function FinanceCharts({ financeData, monthlyData }: FinanceChart
     }
   };
 
-  // Kar-Zarar Bar Chart
+  // Kar-Zarar Analizi Bar Chart
   const profitLossData = {
     labels: ['Gelir', 'Gider', 'Net Kar'],
     datasets: [
       {
+        label: 'Tutar (₺)',
         data: [
-          financeData.totalRevenue + financeData.totalOrders,
+          financeData.totalRevenue,
           financeData.totalExpenses,
           financeData.netProfit
         ],
         backgroundColor: [
-          'rgba(34, 197, 94, 0.8)',
-          'rgba(239, 68, 68, 0.8)',
-          financeData.netProfit >= 0 ? 'rgba(59, 130, 246, 0.8)' : 'rgba(239, 68, 68, 0.8)'
+          '#4BC0C0',
+          '#FF6384',
+          financeData.netProfit >= 0 ? '#36A2EB' : '#FF6384'
         ],
         borderColor: [
-          'rgb(34, 197, 94)',
-          'rgb(239, 68, 68)',
-          financeData.netProfit >= 0 ? 'rgb(59, 130, 246)' : 'rgb(239, 68, 68)'
+          '#4BC0C0',
+          '#FF6384',
+          financeData.netProfit >= 0 ? '#36A2EB' : '#FF6384'
         ],
         borderWidth: 2
       }
@@ -274,61 +272,59 @@ export default function FinanceCharts({ financeData, monthlyData }: FinanceChart
 
       {/* Finansal Özet Kartları */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-lg text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm">Toplam Gelir</p>
-              <p className="text-2xl font-bold">
-                {formatCurrency(financeData.totalRevenue + financeData.totalOrders)}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <i className="ri-money-dollar-circle-line text-2xl text-green-600"></i>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Toplam Gelir</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                {formatCurrency(financeData.totalRevenue)}
               </p>
             </div>
-            <i className="ri-money-dollar-circle-line text-3xl text-green-200"></i>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-lg text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-red-100 text-sm">Toplam Gider</p>
-              <p className="text-2xl font-bold">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <i className="ri-money-dollar-box-line text-2xl text-red-600"></i>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Toplam Gider</p>
+              <p className="text-2xl font-semibold text-gray-900">
                 {formatCurrency(financeData.totalExpenses)}
               </p>
             </div>
-            <i className="ri-money-dollar-box-line text-3xl text-red-200"></i>
           </div>
         </div>
 
-        <div className={`p-6 rounded-lg text-white ${
-          financeData.netProfit >= 0 
-            ? 'bg-gradient-to-r from-blue-500 to-blue-600' 
-            : 'bg-gradient-to-r from-red-500 to-red-600'
-        }`}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className={`text-sm ${financeData.netProfit >= 0 ? 'text-blue-100' : 'text-red-100'}`}>
-                Net Kar
-              </p>
-              <p className="text-2xl font-bold">
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className={`p-2 rounded-lg ${financeData.netProfit >= 0 ? 'bg-blue-100' : 'bg-red-100'}`}>
+              <i className={`ri-line-chart-line text-2xl ${financeData.netProfit >= 0 ? 'text-blue-600' : 'text-red-600'}`}></i>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Net Kar</p>
+              <p className={`text-2xl font-semibold ${financeData.netProfit >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                 {formatCurrency(financeData.netProfit)}
               </p>
             </div>
-            <i className={`text-3xl ${
-              financeData.netProfit >= 0 
-                ? 'ri-trending-up-line text-blue-200' 
-                : 'ri-trending-down-line text-red-200'
-            }`}></i>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-lg text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-sm">Kar Marjı</p>
-              <p className="text-2xl font-bold">
-                %{financeData.profitMargin}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <i className="ri-percent-line text-2xl text-purple-600"></i>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Kar Marjı</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                %{financeData.profitMargin.toFixed(1)}
               </p>
             </div>
-            <i className="ri-percent-line text-3xl text-purple-200"></i>
           </div>
         </div>
       </div>

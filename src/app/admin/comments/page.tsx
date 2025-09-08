@@ -1,23 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import OptimizedLoader from '../../../components/OptimizedLoader';
 import AdminProtection from '../../../components/AdminProtection';
 import Link from 'next/link';
-
-// Client-side Supabase client
-const createClientSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables are missing');
-    return null;
-  }
-  
-  return createClient(supabaseUrl, supabaseAnonKey);
-};
+import { getSupabaseClient } from '../../../lib/supabase-client';
 
 interface Comment {
   id: string;
