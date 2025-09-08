@@ -350,6 +350,25 @@ export default function AdminPage() {
                   Kayıtlı kullanıcıları görüntüleyin, düzenleyin ve yönetin.
                 </p>
               </Link>
+
+              {/* Admin Users Management */}
+              <Link
+                href="/admin/admin-users"
+                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
+                    <i className="ri-shield-user-line text-2xl text-red-600"></i>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">Admin Kullanıcıları</h3>
+                    <p className="text-sm text-gray-600">Yetkili kullanıcıları yönetin</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Admin kullanıcıları ekleyin, düzenleyin ve yönetin.
+                </p>
+              </Link>
             </div>
           </div>
         </div>
