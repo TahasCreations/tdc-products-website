@@ -1957,8 +1957,7 @@ export default function AdminPage() {
           <nav className="flex space-x-8">
             {[
               { id: 'dashboard', name: 'Dashboard', icon: 'ri-dashboard-line' },
-              { id: 'products', name: 'Ürünler', icon: 'ri-shopping-bag-line' },
-              { id: 'categories', name: 'Kategoriler', icon: 'ri-folder-line' },
+              { id: 'products', name: 'Ürünler & Kategoriler', icon: 'ri-shopping-bag-line' },
               { id: 'blogs', name: 'Blog Yönetimi', icon: 'ri-article-line' },
         { id: 'comments', name: 'Yorum Yönetimi', icon: 'ri-chat-3-line' },
               { id: 'orders', name: 'Siparişler', icon: 'ri-shopping-cart-line' },
@@ -2207,9 +2206,9 @@ export default function AdminPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Ürün ve Kategori Yönetimi</h2>
               
-              {/* Kategori Ekleme Bölümü */}
-              <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Hızlı Kategori Ekleme</h3>
+              {/* Ana Kategori Oluşturma */}
+              <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Ana Kategori Oluştur</h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Kategori Adı</label>
@@ -2218,7 +2217,7 @@ export default function AdminPage() {
                       value={newCategory.name}
                       onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Kategori adı"
+                      placeholder="Ana kategori adını girin"
                     />
                   </div>
                   <div>
@@ -2238,10 +2237,14 @@ export default function AdminPage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="ri-more-line">Genel</option>
+                      <option value="ri-gamepad-line">Oyun</option>
+                      <option value="ri-movie-line">Film</option>
+                      <option value="ri-controller-line">Kontrol</option>
+                      <option value="ri-heart-line">Favori</option>
+                      <option value="ri-star-line">Yıldız</option>
                       <option value="ri-smartphone-line">Telefon</option>
                       <option value="ri-computer-line">Bilgisayar</option>
                       <option value="ri-headphone-line">Kulaklık</option>
-                      <option value="ri-gamepad-line">Oyun</option>
                       <option value="ri-camera-line">Kamera</option>
                       <option value="ri-book-line">Kitap</option>
                       <option value="ri-shirt-line">Giyim</option>
@@ -2251,11 +2254,107 @@ export default function AdminPage() {
                     <button
                       onClick={handleAddCategory}
                       disabled={apiLoading || !newCategory.name.trim()}
-                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      {apiLoading ? 'Ekleniyor...' : 'Kategori Ekle'}
+                      {apiLoading ? 'Ekleniyor...' : 'Ana Kategori Ekle'}
                     </button>
                   </div>
+                </div>
+              </div>
+
+              {/* Alt Kategori Oluşturma */}
+              <div className="mb-6 p-4 bg-green-50 rounded-lg">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Alt Kategori Oluştur</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Ana Kategori Seç</label>
+                    <select
+                      value={newSubCategory.parent_id || ''}
+                      onChange={(e) => setNewSubCategory({ ...newSubCategory, parent_id: e.target.value || null })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Ana kategori seçin</option>
+                      {categories.filter(cat => !cat.parent_id || cat.level === 0).map(category => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Alt Kategori Adı</label>
+                    <input
+                      type="text"
+                      value={newSubCategory.name}
+                      onChange={(e) => setNewSubCategory({ ...newSubCategory, name: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Alt kategori adını girin"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Renk</label>
+                    <input
+                      type="color"
+                      value={newSubCategory.color}
+                      onChange={(e) => setNewSubCategory({ ...newSubCategory, color: e.target.value })}
+                      className="w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <button
+                      onClick={handleAddSubCategory}
+                      disabled={apiLoading || !newSubCategory.parent_id || !newSubCategory.name.trim()}
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {apiLoading ? 'Ekleniyor...' : 'Alt Kategori Ekle'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mevcut Kategoriler */}
+              <div className="mb-6 bg-white rounded-lg shadow">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h3 className="text-lg font-medium text-gray-900">Mevcut Kategoriler ({categories.length})</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Renk</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İkon</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {categories.map((category) => (
+                        <tr key={category.id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{category.name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div 
+                                className="w-4 h-4 rounded-full mr-2"
+                                style={{ backgroundColor: category.color }}
+                              ></div>
+                              <span className="text-sm text-gray-900">{category.color}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <i className={category.icon}></i>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              onClick={() => handleDeleteCategory(category.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Sil
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
@@ -2694,169 +2793,6 @@ export default function AdminPage() {
           </div>
         )}
 
-        {activeTab === 'categories' && (
-          <div className="space-y-6">
-            {/* Ana Kategori Oluşturma */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Ana Kategori Oluştur</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Kategori Adı</label>
-                  <input
-                    type="text"
-                    value={newCategory.name}
-                    onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ana kategori adını girin"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Renk</label>
-                  <input
-                    type="color"
-                    value={newCategory.color}
-                    onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })}
-                    className="w-full h-10 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">İkon</label>
-                  <select
-                    value={newCategory.icon}
-                    onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="ri-more-line">Genel</option>
-                    <option value="ri-gamepad-line">Oyun</option>
-                    <option value="ri-movie-line">Film</option>
-                    <option value="ri-controller-line">Kontrol</option>
-                    <option value="ri-heart-line">Favori</option>
-                    <option value="ri-star-line">Yıldız</option>
-                  </select>
-                </div>
-              </div>
-              <div className="mt-6">
-                <button
-                  onClick={handleAddCategory}
-                  disabled={apiLoading}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {apiLoading ? 'Ekleniyor...' : 'Ana Kategori Ekle'}
-                </button>
-              </div>
-            </div>
-
-            {/* Alt Kategori Oluşturma */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Alt Kategori Oluştur</h2>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ana Kategori Seç</label>
-                  <select
-                    value={newSubCategory.parent_id || ''}
-                    onChange={(e) => setNewSubCategory({ ...newSubCategory, parent_id: e.target.value || null })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Ana kategori seçin</option>
-                    {categories.filter(cat => !cat.parent_id || cat.level === 0).map(category => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Alt Kategori Adı</label>
-                  <input
-                    type="text"
-                    value={newSubCategory.name}
-                    onChange={(e) => setNewSubCategory({ ...newSubCategory, name: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Alt kategori adını girin"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Renk</label>
-                  <input
-                    type="color"
-                    value={newSubCategory.color}
-                    onChange={(e) => setNewSubCategory({ ...newSubCategory, color: e.target.value })}
-                    className="w-full h-10 border border-gray-300 rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">İkon</label>
-                  <select
-                    value={newSubCategory.icon}
-                    onChange={(e) => setNewSubCategory({ ...newSubCategory, icon: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="ri-more-line">Genel</option>
-                    <option value="ri-gamepad-line">Oyun</option>
-                    <option value="ri-movie-line">Film</option>
-                    <option value="ri-controller-line">Kontrol</option>
-                    <option value="ri-heart-line">Favori</option>
-                    <option value="ri-star-line">Yıldız</option>
-                  </select>
-                </div>
-              </div>
-              <div className="mt-6">
-                <button
-                  onClick={handleAddSubCategory}
-                  disabled={apiLoading || !newSubCategory.parent_id}
-                  className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {apiLoading ? 'Ekleniyor...' : 'Alt Kategori Ekle'}
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900">Mevcut Kategoriler ({categories.length})</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Renk</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İkon</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">İşlemler</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {categories.map((category) => (
-                      <tr key={category.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{category.name}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div 
-                              className="w-4 h-4 rounded-full mr-2"
-                              style={{ backgroundColor: category.color }}
-                            ></div>
-                            <span className="text-sm text-gray-900">{category.color}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <i className={category.icon}></i>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleDeleteCategory(category.id)}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Sil
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
 
         {activeTab === 'blogs' && (
           <div className="space-y-6">
