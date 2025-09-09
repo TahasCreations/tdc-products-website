@@ -10,6 +10,8 @@ interface AdminUser {
   name: string;
   is_main_admin: boolean;
   is_active: boolean;
+  last_login_at: string | null;
+  login_count: number;
   created_at: string;
   created_by: string;
 }
@@ -126,6 +128,10 @@ export default function AdminUsersPage() {
     return new Date(dateString).toLocaleDateString('tr-TR');
   };
 
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString('tr-TR');
+  };
+
   if (loading) {
     return <OptimizedLoader message="Admin kullanıcıları yükleniyor..." />;
   }
@@ -180,6 +186,12 @@ export default function AdminUsersPage() {
                     Durum
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Son Giriş
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Giriş Sayısı
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Oluşturulma Tarihi
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -215,6 +227,12 @@ export default function AdminUsersPage() {
                       }`}>
                         {admin.is_active ? 'Aktif' : 'Pasif'}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {admin.last_login_at ? formatDateTime(admin.last_login_at) : 'Hiç giriş yapmamış'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {admin.login_count}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(admin.created_at)}

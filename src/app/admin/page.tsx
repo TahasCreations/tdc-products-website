@@ -87,7 +87,7 @@ export default function AdminPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Admin Users Management */}
               <Link
-                href="/admin/dashboard"
+                href="/admin/admin-users"
                 className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
               >
                 <div className="flex items-center mb-4">
@@ -139,6 +139,25 @@ export default function AdminPage() {
                 </div>
                 <p className="text-sm text-gray-500">
                   Blog yorumlarını onaylayın ve müşteri bilgilerini görüntüleyin.
+                </p>
+              </Link>
+
+              {/* Orders Management */}
+              <Link
+                href="/admin/orders"
+                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
+                    <i className="ri-shopping-cart-line text-2xl text-orange-600"></i>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">Sipariş Yönetimi</h3>
+                    <p className="text-sm text-gray-600">E-ticaret siparişleri</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Siparişleri görüntüleyin, durumlarını güncelleyin ve takip edin.
                 </p>
               </Link>
 
@@ -389,6 +408,25 @@ export default function AdminPage() {
                 </p>
               </Link>
 
+              {/* Period Operations */}
+              <Link
+                href="/admin/period-operations"
+                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
+                    <i className="ri-calendar-check-line text-2xl text-orange-600"></i>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">Dönem İşlemleri</h3>
+                    <p className="text-sm text-gray-600">Muhasebe dönemleri</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Muhasebe dönemlerini açın, kapatın ve düzeltme işlemleri yapın.
+                </p>
+              </Link>
+
               {/* Security Management */}
               <Link
                 href="/admin/accounting/security"
@@ -503,24 +541,6 @@ export default function AdminPage() {
                 </p>
               </Link>
 
-              {/* Admin Users Management */}
-              <Link
-                href="/admin/admin-users"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
-                    <i className="ri-shield-user-line text-2xl text-red-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Admin Kullanıcıları</h3>
-                    <p className="text-sm text-gray-600">Yetkili kullanıcıları yönetin</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Admin kullanıcıları ekleyin, düzenleyin ve yönetin.
-                </p>
-              </Link>
             </div>
           </div>
         </div>

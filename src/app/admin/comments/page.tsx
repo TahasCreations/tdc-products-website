@@ -41,6 +41,15 @@ export default function AdminCommentsPage() {
   const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'rejected' | 'spam' | 'customers'>('pending');
   const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [showAddCommentForm, setShowAddCommentForm] = useState(false);
+  const [newComment, setNewComment] = useState({
+    blog_id: '',
+    author_name: '',
+    author_email: '',
+    content: '',
+    status: 'approved' as 'pending' | 'approved' | 'rejected' | 'spam'
+  });
+  const [blogs, setBlogs] = useState<any[]>([]);
 
   // Admin kullanıcı kontrolü
   const checkAdminUser = async (email: string) => {
@@ -60,6 +69,28 @@ export default function AdminCommentsPage() {
       return false;
     }
   };
+
+  const fetchBlogs = useCallback(async () => {
+    const supabase = getSupabaseClient();
+    if (!supabase) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('blogs')
+        .select('id, title, slug')
+        .eq('status', 'published')
+        .order('title');
+
+      if (error) {
+        console.error('Error fetching blogs:', error);
+        return;
+      }
+
+      setBlogs(data || []);
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+    }
+  }, []);
 
   const fetchComments = useCallback(async () => {
     const supabase = getSupabaseClient();
@@ -114,9 +145,49 @@ export default function AdminCommentsPage() {
 
   useEffect(() => {
     fetchComments();
-  }, [activeTab, fetchComments]);
+    fetchBlogs();
+  }, [activeTab, fetchComments, fetchBlogs]);
 
   // Admin kontrolü AdminProtection component'i tarafından yapılıyor
+
+  const handleAddComment = async () => {
+    if (!newComment.blog_id || !newComment.author_name || !newComment.content) {
+      alert('Lütfen tüm gerekli alanları doldurun');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/comments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...newComment,
+          is_admin_comment: true
+        }),
+      });
+
+      if (response.ok) {
+        alert('Yorum başarıyla eklendi!');
+        setShowAddCommentForm(false);
+        setNewComment({
+          blog_id: '',
+          author_name: '',
+          author_email: '',
+          content: '',
+          status: 'approved'
+        });
+        fetchComments();
+      } else {
+        const error = await response.json();
+        alert('Hata: ' + error.error);
+      }
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      alert('Yorum eklenirken hata oluştu');
+    }
+  };
 
   const handleStatusUpdate = async (commentId: string, newStatus: 'approved' | 'rejected' | 'spam') => {
     try {
@@ -225,14 +296,101 @@ export default function AdminCommentsPage() {
               <h1 className="text-3xl font-bold text-gray-900">Yorum & Müşteri Yönetimi</h1>
               <p className="text-gray-600 mt-2">Blog yorumlarını ve müşteri bilgilerini yönetin</p>
             </div>
-            <Link
-              href="/admin"
-              className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Admin Paneli
-            </Link>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowAddCommentForm(!showAddCommentForm)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                {showAddCommentForm ? 'İptal' : 'Manuel Yorum Ekle'}
+              </button>
+              <Link
+                href="/admin"
+                className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              >
+                Admin Paneli
+              </Link>
+            </div>
           </div>
         </div>
+
+        {/* Manuel Yorum Ekleme Formu */}
+        {showAddCommentForm && (
+          <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Manuel Yorum Ekle</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Blog Seçin *</label>
+                <select
+                  value={newComment.blog_id}
+                  onChange={(e) => setNewComment({ ...newComment, blog_id: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Blog seçin...</option>
+                  {blogs.map(blog => (
+                    <option key={blog.id} value={blog.id}>{blog.title}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Yazar Adı *</label>
+                <input
+                  type="text"
+                  value={newComment.author_name}
+                  onChange={(e) => setNewComment({ ...newComment, author_name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Yazar adı"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">E-posta</label>
+                <input
+                  type="email"
+                  value={newComment.author_email}
+                  onChange={(e) => setNewComment({ ...newComment, author_email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="E-posta adresi (opsiyonel)"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Durum</label>
+                <select
+                  value={newComment.status}
+                  onChange={(e) => setNewComment({ ...newComment, status: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="approved">Onaylandı</option>
+                  <option value="pending">Onay Bekliyor</option>
+                  <option value="rejected">Reddedildi</option>
+                  <option value="spam">Spam</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Yorum İçeriği *</label>
+                <textarea
+                  value={newComment.content}
+                  onChange={(e) => setNewComment({ ...newComment, content: e.target.value })}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Yorum içeriği"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={handleAddComment}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+              >
+                Yorum Ekle
+              </button>
+              <button
+                onClick={() => setShowAddCommentForm(false)}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+              >
+                İptal
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="bg-white rounded-2xl shadow-lg mb-8">
@@ -398,6 +556,11 @@ export default function AdminCommentsPage() {
                             {comment.user?.raw_user_meta_data?.role === 'admin' && (
                               <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                                 Admin
+                              </span>
+                            )}
+                            {(comment as any).is_admin_comment && (
+                              <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                Manuel Yorum
                               </span>
                             )}
                           </h3>

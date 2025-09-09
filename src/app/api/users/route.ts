@@ -29,22 +29,39 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
+    // Filtreler
+    const provider = searchParams.get('provider') || 'all';
+    const status = searchParams.get('status') || 'all';
+    const sortBy = searchParams.get('sort_by') || 'created_at';
+    const sortOrder = searchParams.get('sort_order') || 'desc';
+
     let query = supabase
-      .from('user_profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .from('users')
+      .select(`
+        *,
+        orders:orders(count),
+        order_totals:orders(sum:total_amount)
+      `);
 
     // Arama filtresi
     if (search) {
-      query = query.or(`email.ilike.%${search}%, first_name.ilike.%${search}%, last_name.ilike.%${search}%`);
+      query = query.or(`email.ilike.%${search}%, first_name.ilike.%${search}%, last_name.ilike.%${search}%, phone.ilike.%${search}%`);
     }
 
-    // Sayfalama
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
-    query = query.range(from, to);
+    // Provider filtresi
+    if (provider !== 'all') {
+      query = query.eq('provider', provider);
+    }
 
-    const { data: users, error, count } = await query;
+    // Status filtresi
+    if (status !== 'all') {
+      query = query.eq('is_active', status === 'active');
+    }
+
+    // Sıralama
+    query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+
+    const { data: users, error } = await query;
 
     if (error) {
       console.error('Users fetch error:', error);
@@ -54,15 +71,53 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
+    // İstatistikleri hesapla
+    const { data: allUsers, error: statsError } = await supabase
+      .from('users')
+      .select('id, provider, is_active, newsletter_subscription, created_at');
+
+    if (statsError) {
+      console.error('Stats fetch error:', statsError);
+    }
+
+    const stats = {
+      totalUsers: allUsers?.length || 0,
+      activeUsers: allUsers?.filter(u => u.is_active).length || 0,
+      googleUsers: allUsers?.filter(u => u.provider === 'google').length || 0,
+      emailUsers: allUsers?.filter(u => u.provider === 'email').length || 0,
+      newsletterSubscribers: allUsers?.filter(u => u.newsletter_subscription).length || 0,
+      newUsersThisMonth: allUsers?.filter(u => {
+        const userDate = new Date(u.created_at);
+        const monthStart = new Date();
+        monthStart.setDate(1);
+        return userDate >= monthStart;
+      }).length || 0,
+      averageOrdersPerUser: 0,
+      topSpenders: []
+    };
+
+    // Top spenders için ayrı sorgu
+    const { data: topSpenders, error: topSpendersError } = await supabase
+      .from('users')
+      .select(`
+        id, first_name, last_name, email,
+        orders:orders(sum:total_amount)
+      `)
+      .order('orders.sum', { ascending: false })
+      .limit(5);
+
+    if (!topSpendersError && topSpenders) {
+      stats.topSpenders = topSpenders.map(user => ({
+        ...user,
+        total_spent: user.orders?.[0]?.sum || 0,
+        total_orders: user.orders?.length || 0
+      }));
+    }
+
     return NextResponse.json({
       success: true,
       users: users || [],
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit)
-      }
+      stats
     });
 
   } catch (error) {

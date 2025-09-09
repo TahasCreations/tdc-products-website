@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const { data: adminUsers, error } = await supabase
       .from('admin_users')
-      .select('id, email, name, is_main_admin, is_active, created_at, updated_at')
+      .select('id, email, name, is_main_admin, is_active, last_login_at, login_count, created_at, updated_at')
       .order('created_at', { ascending: false });
 
     if (error) {

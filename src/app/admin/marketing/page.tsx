@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import AdminProtection from '../../../components/AdminProtection';
-import OptimizedLoader from '../../../components/OptimizedLoader';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import AdminProtection from '@/components/AdminProtection';
+import OptimizedLoader from '@/components/OptimizedLoader';
 
 interface MarketingDashboardData {
   totalFollowers: number;
@@ -43,17 +45,18 @@ interface EmailCampaign {
 }
 
 export default function AdminMarketingPage() {
+  const router = useRouter();
   const [dashboardData, setDashboardData] = useState<MarketingDashboardData | null>(null);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>([]);
   const [emailCampaigns, setEmailCampaigns] = useState<EmailCampaign[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'seo' | 'social' | 'email'>('dashboard');
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [activeTab, setActiveTab] = useState<'overview' | 'seo' | 'social' | 'email' | 'ads'>('overview');
   const [showAddKeyword, setShowAddKeyword] = useState(false);
   const [showAddSocialAccount, setShowAddSocialAccount] = useState(false);
   const [showAddEmailCampaign, setShowAddEmailCampaign] = useState(false);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
 
   const [newKeyword, setNewKeyword] = useState({
     keyword: '',
@@ -318,10 +321,33 @@ export default function AdminMarketingPage() {
     <AdminProtection>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Pazarlama & SEO</h1>
-            <p className="text-gray-600">SEO optimizasyonu ve pazarlama kampanyaları</p>
+        <div className="bg-white shadow">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => router.back()}
+                  className="text-red-600 hover:text-red-700 text-2xl font-bold"
+                >
+                  ✕
+                </button>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Pazarlama & SEO</h1>
+                  <p className="text-gray-600">SEO optimizasyonu ve pazarlama kampanyaları</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                  Yeni Kampanya
+                </button>
+                <Link
+                  href="/admin"
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Admin Paneli
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -347,14 +373,14 @@ export default function AdminMarketingPage() {
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
               <button
-                onClick={() => setActiveTab('dashboard')}
+                onClick={() => setActiveTab('overview')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'dashboard'
+                  activeTab === 'overview'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Dashboard
+                📊 Genel Bakış
               </button>
               <button
                 onClick={() => setActiveTab('seo')}
@@ -364,7 +390,7 @@ export default function AdminMarketingPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                SEO
+                🔍 SEO
               </button>
               <button
                 onClick={() => setActiveTab('social')}
@@ -374,7 +400,7 @@ export default function AdminMarketingPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Sosyal Medya
+                📱 Sosyal Medya
               </button>
               <button
                 onClick={() => setActiveTab('email')}
@@ -384,13 +410,23 @@ export default function AdminMarketingPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                E-posta
+                📧 E-posta
+              </button>
+              <button
+                onClick={() => setActiveTab('ads')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'ads'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                🎯 Reklamlar
               </button>
             </nav>
           </div>
 
           <div className="p-6">
-            {activeTab === 'dashboard' && dashboardData && (
+            {activeTab === 'overview' && dashboardData && (
               <div className="space-y-6">
                 {/* Pazarlama Özeti */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -648,6 +684,130 @@ export default function AdminMarketingPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            )}
+
+            {/* Ads Tab */}
+            {activeTab === 'ads' && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-900">Reklam Kampanyaları</h3>
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                    Yeni Reklam
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <div className="flex items-center mb-4">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <i className="ri-google-line text-xl text-blue-600"></i>
+                      </div>
+                      <div className="ml-4">
+                        <h4 className="font-semibold text-gray-900">Google Ads</h4>
+                        <p className="text-sm text-gray-500">Arama Reklamları</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Günlük Bütçe:</span>
+                        <span className="font-medium">₺500</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Tıklama:</span>
+                        <span className="font-medium">1,250</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Dönüşüm:</span>
+                        <span className="font-medium">45</span>
+                      </div>
+                    </div>
+                    <button className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                      Detaylar
+                    </button>
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <div className="flex items-center mb-4">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <i className="ri-facebook-line text-xl text-purple-600"></i>
+                      </div>
+                      <div className="ml-4">
+                        <h4 className="font-semibold text-gray-900">Facebook Ads</h4>
+                        <p className="text-sm text-gray-500">Sosyal Medya</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Günlük Bütçe:</span>
+                        <span className="font-medium">₺300</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Erişim:</span>
+                        <span className="font-medium">8,500</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Etkileşim:</span>
+                        <span className="font-medium">425</span>
+                      </div>
+                    </div>
+                    <button className="w-full bg-purple-50 hover:bg-purple-100 text-purple-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                      Detaylar
+                    </button>
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <div className="flex items-center mb-4">
+                      <div className="p-2 bg-pink-100 rounded-lg">
+                        <i className="ri-instagram-line text-xl text-pink-600"></i>
+                      </div>
+                      <div className="ml-4">
+                        <h4 className="font-semibold text-gray-900">Instagram Ads</h4>
+                        <p className="text-sm text-gray-500">Görsel Reklamlar</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Günlük Bütçe:</span>
+                        <span className="font-medium">₺200</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Erişim:</span>
+                        <span className="font-medium">5,200</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Beğeni:</span>
+                        <span className="font-medium">312</span>
+                      </div>
+                    </div>
+                    <button className="w-full bg-pink-50 hover:bg-pink-100 text-pink-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                      Detaylar
+                    </button>
+                  </div>
+                </div>
+
+                {/* Reklam Performansı */}
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Reklam Performansı</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">₺15,000</div>
+                      <div className="text-sm text-gray-600">Toplam Harcama</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">₺45,000</div>
+                      <div className="text-sm text-gray-600">Toplam Gelir</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">3.0x</div>
+                      <div className="text-sm text-gray-600">ROAS</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">₺3.33</div>
+                      <div className="text-sm text-gray-600">CPA</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

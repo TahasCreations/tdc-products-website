@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import AdminProtection from '../../../components/AdminProtection';
 import OptimizedLoader from '../../../components/OptimizedLoader';
 
@@ -92,18 +94,69 @@ interface LeaveRequest {
   };
 }
 
+interface PerformanceReview {
+  id: string;
+  review_period: string;
+  overall_rating: number;
+  goals_achieved: number;
+  goals_total: number;
+  feedback: string;
+  employee: {
+    first_name: string;
+    last_name: string;
+    employee_number: string;
+  };
+  reviewer: {
+    first_name: string;
+    last_name: string;
+  };
+  status: string;
+}
+
+interface Training {
+  id: string;
+  title: string;
+  description: string;
+  training_type: string;
+  duration_hours: number;
+  start_date: string;
+  end_date: string;
+  status: string;
+  participants_count: number;
+  instructor: string;
+}
+
+interface Recruitment {
+  id: string;
+  position_title: string;
+  department: string;
+  status: string;
+  applications_count: number;
+  posted_date: string;
+  deadline: string;
+  salary_range: string;
+  requirements: string;
+}
+
 export default function AdminHRPage() {
+  const router = useRouter();
   const [dashboardData, setDashboardData] = useState<HRDashboardData | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [payrolls, setPayrolls] = useState<Payroll[]>([]);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [performanceReviews, setPerformanceReviews] = useState<PerformanceReview[]>([]);
+  const [trainings, setTrainings] = useState<Training[]>([]);
+  const [recruitments, setRecruitments] = useState<Recruitment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'employees' | 'departments' | 'payrolls' | 'leaves'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'employees' | 'departments' | 'payrolls' | 'leaves' | 'performance' | 'training' | 'recruitment'>('dashboard');
   const [showAddEmployee, setShowAddEmployee] = useState(false);
   const [showAddDepartment, setShowAddDepartment] = useState(false);
   const [showAddPayroll, setShowAddPayroll] = useState(false);
+  const [showAddPerformance, setShowAddPerformance] = useState(false);
+  const [showAddTraining, setShowAddTraining] = useState(false);
+  const [showAddRecruitment, setShowAddRecruitment] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
 
@@ -149,11 +202,44 @@ export default function AdminHRPage() {
     notes: ''
   });
 
+  const [newPerformanceReview, setNewPerformanceReview] = useState({
+    employee_id: '',
+    review_period: '',
+    overall_rating: '',
+    goals_achieved: '',
+    goals_total: '',
+    feedback: '',
+    reviewer_id: ''
+  });
+
+  const [newTraining, setNewTraining] = useState({
+    title: '',
+    description: '',
+    training_type: 'internal',
+    duration_hours: '',
+    start_date: '',
+    end_date: '',
+    instructor: '',
+    max_participants: '',
+    requirements: ''
+  });
+
+  const [newRecruitment, setNewRecruitment] = useState({
+    position_title: '',
+    department: '',
+    salary_range: '',
+    requirements: '',
+    deadline: '',
+    description: '',
+    location: '',
+    employment_type: 'full_time'
+  });
+
   useEffect(() => {
     fetchHRData();
   }, []);
 
-  const fetchHRData = async () => {
+  const fetchHRData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -166,20 +252,26 @@ export default function AdminHRPage() {
       }
 
       // Diğer verileri getir
-      const [employeesResponse, departmentsResponse, positionsResponse, payrollsResponse, leaveRequestsResponse] = await Promise.all([
+      const [employeesResponse, departmentsResponse, positionsResponse, payrollsResponse, leaveRequestsResponse, performanceResponse, trainingResponse, recruitmentResponse] = await Promise.all([
         fetch('/api/hr?type=employees'),
         fetch('/api/hr?type=departments'),
         fetch('/api/hr?type=positions'),
         fetch('/api/hr?type=payrolls'),
-        fetch('/api/hr?type=leave_requests')
+        fetch('/api/hr?type=leave_requests'),
+        fetch('/api/hr?type=performance_reviews'),
+        fetch('/api/hr?type=trainings'),
+        fetch('/api/hr?type=recruitments')
       ]);
 
-      const [employeesData, departmentsData, positionsData, payrollsData, leaveRequestsData] = await Promise.all([
+      const [employeesData, departmentsData, positionsData, payrollsData, leaveRequestsData, performanceData, trainingData, recruitmentData] = await Promise.all([
         employeesResponse.json(),
         departmentsResponse.json(),
         positionsResponse.json(),
         payrollsResponse.json(),
-        leaveRequestsResponse.json()
+        leaveRequestsResponse.json(),
+        performanceResponse.json(),
+        trainingResponse.json(),
+        recruitmentResponse.json()
       ]);
 
       if (employeesData.success) {
@@ -202,6 +294,18 @@ export default function AdminHRPage() {
         setLeaveRequests(leaveRequestsData.leaveRequests);
       }
 
+      if (performanceData.success) {
+        setPerformanceReviews(performanceData.reviews);
+      }
+
+      if (trainingData.success) {
+        setTrainings(trainingData.trainings);
+      }
+
+      if (recruitmentData.success) {
+        setRecruitments(recruitmentData.recruitments);
+      }
+
     } catch (error) {
       console.error('Fetch HR data error:', error);
       setMessage('Veriler yüklenemedi');
@@ -209,7 +313,7 @@ export default function AdminHRPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handleAddEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -433,6 +537,152 @@ export default function AdminHRPage() {
     return statuses[status] || status;
   };
 
+  const handleAddPerformanceReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const storedAdmin = localStorage.getItem('admin_user');
+      const currentAdmin = storedAdmin ? JSON.parse(storedAdmin) : null;
+
+      const response = await fetch('/api/hr', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'create_performance_review',
+          ...newPerformanceReview,
+          overall_rating: parseFloat(newPerformanceReview.overall_rating),
+          goals_achieved: parseInt(newPerformanceReview.goals_achieved),
+          goals_total: parseInt(newPerformanceReview.goals_total),
+          created_by: currentAdmin?.id
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage('Performans değerlendirmesi başarıyla oluşturuldu');
+        setMessageType('success');
+        setNewPerformanceReview({
+          employee_id: '',
+          review_period: '',
+          overall_rating: '',
+          goals_achieved: '',
+          goals_total: '',
+          feedback: '',
+          reviewer_id: ''
+        });
+        setShowAddPerformance(false);
+        fetchHRData();
+      } else {
+        setMessage(data.error || 'Performans değerlendirmesi oluşturulamadı');
+        setMessageType('error');
+      }
+    } catch (error) {
+      console.error('Add performance review error:', error);
+      setMessage('Bağlantı hatası');
+      setMessageType('error');
+    }
+  };
+
+  const handleAddTraining = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const storedAdmin = localStorage.getItem('admin_user');
+      const currentAdmin = storedAdmin ? JSON.parse(storedAdmin) : null;
+
+      const response = await fetch('/api/hr', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'create_training',
+          ...newTraining,
+          duration_hours: parseInt(newTraining.duration_hours),
+          max_participants: parseInt(newTraining.max_participants),
+          created_by: currentAdmin?.id
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage('Eğitim programı başarıyla oluşturuldu');
+        setMessageType('success');
+        setNewTraining({
+          title: '',
+          description: '',
+          training_type: 'internal',
+          duration_hours: '',
+          start_date: '',
+          end_date: '',
+          instructor: '',
+          max_participants: '',
+          requirements: ''
+        });
+        setShowAddTraining(false);
+        fetchHRData();
+      } else {
+        setMessage(data.error || 'Eğitim programı oluşturulamadı');
+        setMessageType('error');
+      }
+    } catch (error) {
+      console.error('Add training error:', error);
+      setMessage('Bağlantı hatası');
+      setMessageType('error');
+    }
+  };
+
+  const handleAddRecruitment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const storedAdmin = localStorage.getItem('admin_user');
+      const currentAdmin = storedAdmin ? JSON.parse(storedAdmin) : null;
+
+      const response = await fetch('/api/hr', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'create_recruitment',
+          ...newRecruitment,
+          created_by: currentAdmin?.id
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage('İş ilanı başarıyla oluşturuldu');
+        setMessageType('success');
+        setNewRecruitment({
+          position_title: '',
+          department: '',
+          salary_range: '',
+          requirements: '',
+          deadline: '',
+          description: '',
+          location: '',
+          employment_type: 'full_time'
+        });
+        setShowAddRecruitment(false);
+        fetchHRData();
+      } else {
+        setMessage(data.error || 'İş ilanı oluşturulamadı');
+        setMessageType('error');
+      }
+    } catch (error) {
+      console.error('Add recruitment error:', error);
+      setMessage('Bağlantı hatası');
+      setMessageType('error');
+    }
+  };
+
   if (loading) {
     return <OptimizedLoader message="HR verileri yükleniyor..." />;
   }
@@ -532,6 +782,36 @@ export default function AdminHRPage() {
                 }`}
               >
                 İzin Talepleri
+              </button>
+              <button
+                onClick={() => setActiveTab('performance')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'performance'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                📊 Performans
+              </button>
+              <button
+                onClick={() => setActiveTab('training')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'training'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                🎓 Eğitimler
+              </button>
+              <button
+                onClick={() => setActiveTab('recruitment')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'recruitment'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                💼 İş İlanları
               </button>
             </nav>
           </div>
@@ -889,6 +1169,199 @@ export default function AdminHRPage() {
                 </div>
               </div>
             )}
+
+            {/* Performance Reviews Tab */}
+            {activeTab === 'performance' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-900">Performans Değerlendirmeleri</h3>
+                  <button
+                    onClick={() => setShowAddPerformance(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    Yeni Değerlendirme
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {performanceReviews.map((review) => (
+                    <div key={review.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 bg-blue-100 rounded-lg">
+                            <i className="ri-user-line text-xl text-blue-600"></i>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-gray-900">
+                              {review.employee?.first_name} {review.employee?.last_name}
+                            </h4>
+                            <p className="text-sm text-gray-500">{review.review_period}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-blue-600">{review.overall_rating}/5</div>
+                          <div className="text-sm text-gray-500">Genel Puan</div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2 mb-4">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Hedef Başarısı:</span>
+                          <span className="font-medium">{review.goals_achieved}/{review.goals_total}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-green-500 h-2 rounded-full" 
+                            style={{ width: `${(review.goals_achieved / review.goals_total) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      <div className="text-sm text-gray-600 mb-4">
+                        <p className="line-clamp-2">{review.feedback}</p>
+                      </div>
+
+                      <div className="flex space-x-2">
+                        <button className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                          Detaylar
+                        </button>
+                        <button className="flex-1 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                          Düzenle
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Training Tab */}
+            {activeTab === 'training' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-900">Eğitim Programları</h3>
+                  <button
+                    onClick={() => setShowAddTraining(true)}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    Yeni Eğitim
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {trainings.map((training) => (
+                    <div key={training.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 mb-2">{training.title}</h4>
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{training.description}</p>
+                        </div>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          training.training_type === 'internal' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>
+                          {training.training_type === 'internal' ? 'İç Eğitim' : 'Dış Eğitim'}
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <i className="ri-time-line mr-2"></i>
+                          <span>{training.duration_hours} saat</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <i className="ri-calendar-line mr-2"></i>
+                          <span>{formatDate(training.start_date)} - {formatDate(training.end_date)}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <i className="ri-user-line mr-2"></i>
+                          <span>{training.instructor}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <i className="ri-group-line mr-2"></i>
+                          <span>Max {training.max_participants} katılımcı</span>
+                        </div>
+                      </div>
+
+                      <div className="flex space-x-2">
+                        <button className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                          Detaylar
+                        </button>
+                        <button className="flex-1 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                          Düzenle
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recruitment Tab */}
+            {activeTab === 'recruitment' && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-900">İş İlanları</h3>
+                  <button
+                    onClick={() => setShowAddRecruitment(true)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    Yeni İlan
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {recruitments.map((recruitment) => (
+                    <div key={recruitment.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 mb-2">{recruitment.position_title}</h4>
+                          <p className="text-sm text-gray-600 mb-2">{recruitment.department}</p>
+                          <p className="text-sm text-gray-500 mb-3 line-clamp-2">{recruitment.description}</p>
+                        </div>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          recruitment.employment_type === 'full_time' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {recruitment.employment_type === 'full_time' ? 'Tam Zamanlı' : 'Yarı Zamanlı'}
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-center text-sm text-gray-600">
+                          <i className="ri-money-dollar-circle-line mr-2"></i>
+                          <span>{recruitment.salary_range}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <i className="ri-map-pin-line mr-2"></i>
+                          <span>{recruitment.location}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-gray-600">
+                          <i className="ri-calendar-line mr-2"></i>
+                          <span>Son Başvuru: {formatDate(recruitment.deadline)}</span>
+                        </div>
+                      </div>
+
+                      <div className="text-sm text-gray-600 mb-4">
+                        <p className="font-medium mb-1">Gereksinimler:</p>
+                        <p className="line-clamp-2">{recruitment.requirements}</p>
+                      </div>
+
+                      <div className="flex space-x-2">
+                        <button className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                          Detaylar
+                        </button>
+                        <button className="flex-1 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                          Düzenle
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1088,6 +1561,349 @@ export default function AdminHRPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddDepartment(false)}
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    İptal
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Add Performance Review Modal */}
+        {showAddPerformance && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Performans Değerlendirmesi</h2>
+              <form onSubmit={handleAddPerformanceReview} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Çalışan</label>
+                    <select
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newPerformanceReview.employee_id}
+                      onChange={(e) => setNewPerformanceReview({ ...newPerformanceReview, employee_id: e.target.value })}
+                    >
+                      <option value="">Çalışan Seçin</option>
+                      {employees.map((employee) => (
+                        <option key={employee.id} value={employee.id}>
+                          {employee.first_name} {employee.last_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Değerlendirme Dönemi</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Örn: 2024 Q1"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newPerformanceReview.review_period}
+                      onChange={(e) => setNewPerformanceReview({ ...newPerformanceReview, review_period: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Genel Puan (1-5)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="5"
+                      step="0.1"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newPerformanceReview.overall_rating}
+                      onChange={(e) => setNewPerformanceReview({ ...newPerformanceReview, overall_rating: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Başarılan Hedef</label>
+                    <input
+                      type="number"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newPerformanceReview.goals_achieved}
+                      onChange={(e) => setNewPerformanceReview({ ...newPerformanceReview, goals_achieved: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Toplam Hedef</label>
+                    <input
+                      type="number"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newPerformanceReview.goals_total}
+                      onChange={(e) => setNewPerformanceReview({ ...newPerformanceReview, goals_total: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Değerlendiren</label>
+                    <select
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newPerformanceReview.reviewer_id}
+                      onChange={(e) => setNewPerformanceReview({ ...newPerformanceReview, reviewer_id: e.target.value })}
+                    >
+                      <option value="">Değerlendiren Seçin</option>
+                      {employees.map((employee) => (
+                        <option key={employee.id} value={employee.id}>
+                          {employee.first_name} {employee.last_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Geri Bildirim</label>
+                  <textarea
+                    rows={4}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={newPerformanceReview.feedback}
+                    onChange={(e) => setNewPerformanceReview({ ...newPerformanceReview, feedback: e.target.value })}
+                  />
+                </div>
+                <div className="flex space-x-3">
+                  <button
+                    type="submit"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    Değerlendirme Ekle
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddPerformance(false)}
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    İptal
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Add Training Modal */}
+        {showAddTraining && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Eğitim Programı</h2>
+              <form onSubmit={handleAddTraining} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Eğitim Başlığı</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newTraining.title}
+                      onChange={(e) => setNewTraining({ ...newTraining, title: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Eğitim Türü</label>
+                    <select
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newTraining.training_type}
+                      onChange={(e) => setNewTraining({ ...newTraining, training_type: e.target.value as 'internal' | 'external' })}
+                    >
+                      <option value="internal">İç Eğitim</option>
+                      <option value="external">Dış Eğitim</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Süre (Saat)</label>
+                    <input
+                      type="number"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newTraining.duration_hours}
+                      onChange={(e) => setNewTraining({ ...newTraining, duration_hours: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Eğitmen</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newTraining.instructor}
+                      onChange={(e) => setNewTraining({ ...newTraining, instructor: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Başlangıç Tarihi</label>
+                    <input
+                      type="date"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newTraining.start_date}
+                      onChange={(e) => setNewTraining({ ...newTraining, start_date: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Bitiş Tarihi</label>
+                    <input
+                      type="date"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newTraining.end_date}
+                      onChange={(e) => setNewTraining({ ...newTraining, end_date: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Max Katılımcı</label>
+                    <input
+                      type="number"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newTraining.max_participants}
+                      onChange={(e) => setNewTraining({ ...newTraining, max_participants: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
+                  <textarea
+                    rows={3}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={newTraining.description}
+                    onChange={(e) => setNewTraining({ ...newTraining, description: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Gereksinimler</label>
+                  <textarea
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={newTraining.requirements}
+                    onChange={(e) => setNewTraining({ ...newTraining, requirements: e.target.value })}
+                  />
+                </div>
+                <div className="flex space-x-3">
+                  <button
+                    type="submit"
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    Eğitim Ekle
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddTraining(false)}
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    İptal
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Add Recruitment Modal */}
+        {showAddRecruitment && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni İş İlanı</h2>
+              <form onSubmit={handleAddRecruitment} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Pozisyon</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newRecruitment.position_title}
+                      onChange={(e) => setNewRecruitment({ ...newRecruitment, position_title: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Departman</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newRecruitment.department}
+                      onChange={(e) => setNewRecruitment({ ...newRecruitment, department: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Maaş Aralığı</label>
+                    <input
+                      type="text"
+                      placeholder="Örn: 15.000 - 25.000 TL"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newRecruitment.salary_range}
+                      onChange={(e) => setNewRecruitment({ ...newRecruitment, salary_range: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Çalışma Türü</label>
+                    <select
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newRecruitment.employment_type}
+                      onChange={(e) => setNewRecruitment({ ...newRecruitment, employment_type: e.target.value as 'full_time' | 'part_time' })}
+                    >
+                      <option value="full_time">Tam Zamanlı</option>
+                      <option value="part_time">Yarı Zamanlı</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Lokasyon</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newRecruitment.location}
+                      onChange={(e) => setNewRecruitment({ ...newRecruitment, location: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Son Başvuru</label>
+                    <input
+                      type="date"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newRecruitment.deadline}
+                      onChange={(e) => setNewRecruitment({ ...newRecruitment, deadline: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">İş Tanımı</label>
+                  <textarea
+                    rows={4}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={newRecruitment.description}
+                    onChange={(e) => setNewRecruitment({ ...newRecruitment, description: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Gereksinimler</label>
+                  <textarea
+                    rows={4}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={newRecruitment.requirements}
+                    onChange={(e) => setNewRecruitment({ ...newRecruitment, requirements: e.target.value })}
+                  />
+                </div>
+                <div className="flex space-x-3">
+                  <button
+                    type="submit"
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    İlan Ekle
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddRecruitment(false)}
                     className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition-colors"
                   >
                     İptal

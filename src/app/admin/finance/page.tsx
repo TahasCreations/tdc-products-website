@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
 import OptimizedLoader from '../../../components/OptimizedLoader';
+import Link from 'next/link';
 
 interface FinanceData {
   totalRevenue: number;
@@ -279,101 +280,117 @@ export default function AdminFinancePage() {
 
   return (
     <AdminProtection>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Finans Yönetimi</h1>
-            <p className="text-gray-600">Gelir, gider ve kar analizi</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <div className="container mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Finans Yönetimi</h1>
+                <p className="text-gray-600 mt-2">Gelir, gider ve kar analizi - Gelişmiş finansal raporlama</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowAddExpense(true)}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  <i className="ri-add-line mr-2"></i>
+                  Gider Ekle
+                </button>
+                <button
+                  onClick={() => setShowCreateInvoice(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  <i className="ri-file-text-line mr-2"></i>
+                  Fatura Kes
+                </button>
+                <Link
+                  href="/admin"
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  <i className="ri-arrow-left-line mr-2"></i>
+                  Admin Paneli
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="flex space-x-3">
-            <button
-              onClick={() => setShowAddExpense(true)}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-            >
-              Gider Ekle
-            </button>
-            <button
-              onClick={() => setShowCreateInvoice(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-            >
-              Fatura Kes
-            </button>
-          </div>
-        </div>
 
-        {/* Message */}
-        {message && (
-          <div className={`p-4 rounded-lg ${
-            messageType === 'success' 
-              ? 'bg-green-50 border border-green-200 text-green-700' 
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}>
-            {message}
-            <button
-              onClick={() => setMessage('')}
-              className="float-right text-lg font-bold"
-            >
-              ×
-            </button>
-          </div>
-        )}
+          {/* Message */}
+          {message && (
+            <div className={`p-4 rounded-lg mb-6 ${
+              messageType === 'success' 
+                ? 'bg-green-50 border border-green-200 text-green-700' 
+                : 'bg-red-50 border border-red-200 text-red-700'
+            }`}>
+              {message}
+              <button
+                onClick={() => setMessage('')}
+                className="float-right text-lg font-bold"
+              >
+                ×
+              </button>
+            </div>
+          )}
 
-        {/* Tabs */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'dashboard'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Dashboard
-              </button>
-              <button
-                onClick={() => setActiveTab('expenses')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'expenses'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Giderler
-              </button>
-              <button
-                onClick={() => setActiveTab('invoices')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'invoices'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Faturalar
-              </button>
-              <button
-                onClick={() => setActiveTab('orders')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'orders'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Siparişler
-              </button>
-            </nav>
-          </div>
+          {/* Tabs */}
+          <div className="bg-white rounded-2xl shadow-lg mb-8">
+            <div className="border-b border-gray-200">
+              <nav className="flex space-x-8 px-6">
+                <button
+                  onClick={() => setActiveTab('dashboard')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'dashboard'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <i className="ri-dashboard-line mr-2"></i>
+                  Dashboard
+                </button>
+                <button
+                  onClick={() => setActiveTab('expenses')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'expenses'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <i className="ri-money-dollar-box-line mr-2"></i>
+                  Giderler ({expenses.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('invoices')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'invoices'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <i className="ri-file-text-line mr-2"></i>
+                  Faturalar ({invoices.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('orders')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'orders'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <i className="ri-shopping-cart-line mr-2"></i>
+                  Siparişler ({orders.length})
+                </button>
+              </nav>
+            </div>
 
           <div className="p-6">
             {activeTab === 'dashboard' && financeData && (
               <div className="space-y-6">
                 {/* Finansal Özet */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className="bg-green-50 p-6 rounded-lg">
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
                     <div className="flex items-center">
-                      <div className="p-2 bg-green-100 rounded-lg">
+                      <div className="p-3 bg-green-100 rounded-lg">
                         <i className="ri-money-dollar-circle-line text-2xl text-green-600"></i>
                       </div>
                       <div className="ml-4">
@@ -381,13 +398,14 @@ export default function AdminFinancePage() {
                         <p className="text-2xl font-semibold text-gray-900">
                           {formatCurrency(financeData.totalRevenue)}
                         </p>
+                        <p className="text-xs text-green-600">Bu ay</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-red-50 p-6 rounded-lg">
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
                     <div className="flex items-center">
-                      <div className="p-2 bg-red-100 rounded-lg">
+                      <div className="p-3 bg-red-100 rounded-lg">
                         <i className="ri-money-dollar-box-line text-2xl text-red-600"></i>
                       </div>
                       <div className="ml-4">
@@ -395,13 +413,14 @@ export default function AdminFinancePage() {
                         <p className="text-2xl font-semibold text-gray-900">
                           {formatCurrency(financeData.totalExpenses)}
                         </p>
+                        <p className="text-xs text-red-600">Bu ay</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 p-6 rounded-lg">
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
                     <div className="flex items-center">
-                      <div className="p-2 bg-blue-100 rounded-lg">
+                      <div className="p-3 bg-blue-100 rounded-lg">
                         <i className="ri-shopping-cart-line text-2xl text-blue-600"></i>
                       </div>
                       <div className="ml-4">
@@ -409,13 +428,14 @@ export default function AdminFinancePage() {
                         <p className="text-2xl font-semibold text-gray-900">
                           {formatCurrency(financeData.totalOrders)}
                         </p>
+                        <p className="text-xs text-blue-600">Bu ay</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className={`p-6 rounded-lg ${financeData.netProfit >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+                  <div className={`bg-white rounded-2xl shadow-lg p-6 ${financeData.netProfit >= 0 ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'}`}>
                     <div className="flex items-center">
-                      <div className={`p-2 rounded-lg ${financeData.netProfit >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
+                      <div className={`p-3 rounded-lg ${financeData.netProfit >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
                         <i className={`text-2xl ${financeData.netProfit >= 0 ? 'ri-trending-up-line text-green-600' : 'ri-trending-down-line text-red-600'}`}></i>
                       </div>
                       <div className="ml-4">
@@ -423,7 +443,7 @@ export default function AdminFinancePage() {
                         <p className={`text-2xl font-semibold ${financeData.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {formatCurrency(financeData.netProfit)}
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-xs text-gray-500">
                           Kar Marjı: %{financeData.profitMargin}
                         </p>
                       </div>
@@ -432,210 +452,365 @@ export default function AdminFinancePage() {
                 </div>
 
                 {/* Gider Kategorileri */}
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Gider Kategorileri</h3>
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Gider Kategorileri</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {Object.entries(financeData.expensesByCategory).map(([category, amount]) => (
-                      <div key={category} className="p-4 border border-gray-200 rounded-lg">
-                        <p className="text-sm font-medium text-gray-600">{getCategoryName(category)}</p>
-                        <p className="text-xl font-semibold text-gray-900">{formatCurrency(amount)}</p>
+                      <div key={category} className="p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-600">{getCategoryName(category)}</p>
+                            <p className="text-xl font-semibold text-gray-900">{formatCurrency(amount)}</p>
+                          </div>
+                          <div className="p-2 bg-gray-100 rounded-lg">
+                            <i className="ri-folder-line text-gray-600"></i>
+                          </div>
+                        </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                {/* Hızlı İşlemler */}
+                <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-6">Hızlı İşlemler</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button
+                      onClick={() => setShowAddExpense(true)}
+                      className="p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left"
+                    >
+                      <div className="flex items-center">
+                        <div className="p-2 bg-green-100 rounded-lg mr-3">
+                          <i className="ri-add-line text-green-600"></i>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Gider Ekle</p>
+                          <p className="text-sm text-gray-600">Yeni gider kaydı oluştur</p>
+                        </div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setShowCreateInvoice(true)}
+                      className="p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left"
+                    >
+                      <div className="flex items-center">
+                        <div className="p-2 bg-blue-100 rounded-lg mr-3">
+                          <i className="ri-file-text-line text-blue-600"></i>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Fatura Kes</p>
+                          <p className="text-sm text-gray-600">Yeni fatura oluştur</p>
+                        </div>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('expenses')}
+                      className="p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left"
+                    >
+                      <div className="flex items-center">
+                        <div className="p-2 bg-purple-100 rounded-lg mr-3">
+                          <i className="ri-bar-chart-line text-purple-600"></i>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Raporlar</p>
+                          <p className="text-sm text-gray-600">Detaylı finansal raporlar</p>
+                        </div>
+                      </div>
+                    </button>
                   </div>
                 </div>
               </div>
             )}
 
             {activeTab === 'expenses' && (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Gider No
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Kategori
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Açıklama
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tutar
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tarih
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tedarikçi
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {expenses.map((expense) => (
-                      <tr key={expense.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {expense.expense_number}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                            {getCategoryName(expense.category)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {expense.description}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatCurrency(expense.amount)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(expense.expense_date)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {expense.supplier_name}
-                        </td>
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">Giderler</h3>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-sm text-gray-600">
+                        Toplam: <span className="font-semibold text-red-600">{formatCurrency(financeData.totalExpenses)}</span>
+                      </div>
+                      <button
+                        onClick={() => setShowAddExpense(true)}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                      >
+                        <i className="ri-add-line mr-2"></i>
+                        Yeni Gider
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Gider No
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Kategori
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Açıklama
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tutar
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tarih
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tedarikçi
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          İşlemler
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {expenses.map((expense) => (
+                        <tr key={expense.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <div className="flex items-center">
+                              <div className="p-1 bg-red-100 rounded mr-3">
+                                <i className="ri-subtract-line text-red-600 text-sm"></i>
+                              </div>
+                              {expense.expense_number}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                              {getCategoryName(expense.category)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {expense.description}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">
+                            -{formatCurrency(expense.amount)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {formatDate(expense.expense_date)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {expense.supplier_name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              onClick={() => handleDeleteExpense(expense.id)}
+                              className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
+                              title="Gideri sil"
+                            >
+                              <i className="ri-delete-bin-line"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
             {activeTab === 'invoices' && (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Fatura No
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Müşteri
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tutar
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tarih
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Durum
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {invoices.map((invoice) => (
-                      <tr key={invoice.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {invoice.invoice_number}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {invoice.customer_name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatCurrency(invoice.total_amount)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(invoice.invoice_date)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            invoice.status === 'paid' 
-                              ? 'bg-green-100 text-green-800'
-                              : invoice.status === 'sent'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {invoice.status === 'paid' ? 'Ödendi' : 
-                             invoice.status === 'sent' ? 'Gönderildi' : 'Taslak'}
-                          </span>
-                        </td>
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">Faturalar</h3>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-sm text-gray-600">
+                        Toplam: <span className="font-semibold text-green-600">{formatCurrency(financeData.totalInvoices)}</span>
+                      </div>
+                      <button
+                        onClick={() => setShowCreateInvoice(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                      >
+                        <i className="ri-file-text-line mr-2"></i>
+                        Yeni Fatura
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Fatura No
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Müşteri
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tutar
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tarih
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Durum
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          İşlemler
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {invoices.map((invoice) => (
+                        <tr key={invoice.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <div className="flex items-center">
+                              <div className="p-1 bg-green-100 rounded mr-3">
+                                <i className="ri-file-text-line text-green-600 text-sm"></i>
+                              </div>
+                              {invoice.invoice_number}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {invoice.customer_name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                            +{formatCurrency(invoice.total_amount)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {formatDate(invoice.invoice_date)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              invoice.status === 'paid' 
+                                ? 'bg-green-100 text-green-800'
+                                : invoice.status === 'sent'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {invoice.status === 'paid' ? 'Ödendi' : 
+                               invoice.status === 'sent' ? 'Gönderildi' : 'Taslak'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              onClick={() => handleDeleteInvoice(invoice.id)}
+                              className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
+                              title="Faturayı sil"
+                            >
+                              <i className="ri-delete-bin-line"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
 
             {activeTab === 'orders' && (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Sipariş No
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Müşteri
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tutar
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tarih
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ödeme
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        İşlemler
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {orders.map((order) => (
-                      <tr key={order.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {order.order_number}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {order.customer_name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatCurrency(order.total_amount)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(order.created_at)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            order.payment_status === 'paid' 
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {order.payment_status === 'paid' ? 'Ödendi' : 'Ödenmedi'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          {order.payment_status === 'paid' && (
-                            <button
-                              onClick={() => {
-                                setSelectedOrder(order);
-                                setNewInvoice({
-                                  customer_name: order.customer_name,
-                                  customer_email: '',
-                                  customer_address: '',
-                                  customer_tax_number: '',
-                                  subtotal: (order.total_amount / 1.2).toFixed(2),
-                                  tax_rate: '20',
-                                  tax_amount: (order.total_amount * 0.2 / 1.2).toFixed(2),
-                                  total_amount: order.total_amount.toFixed(2),
-                                  invoice_date: new Date().toISOString().split('T')[0],
-                                  due_date: '',
-                                  notes: `Sipariş: ${order.order_number}`
-                                });
-                                setShowCreateInvoice(true);
-                              }}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              Fatura Kes
-                            </button>
-                          )}
-                        </td>
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">Siparişler</h3>
+                    <div className="flex items-center space-x-4">
+                      <div className="text-sm text-gray-600">
+                        Toplam: <span className="font-semibold text-blue-600">{formatCurrency(financeData.totalOrders)}</span>
+                      </div>
+                      <Link
+                        href="/admin/orders"
+                        className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                      >
+                        <i className="ri-shopping-cart-line mr-2"></i>
+                        Sipariş Yönetimi
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Sipariş No
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Müşteri
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tutar
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tarih
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Ödeme
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          İşlemler
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {orders.map((order) => (
+                        <tr key={order.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <div className="flex items-center">
+                              <div className="p-1 bg-orange-100 rounded mr-3">
+                                <i className="ri-shopping-cart-line text-orange-600 text-sm"></i>
+                              </div>
+                              {order.order_number}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {order.customer_name}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">
+                            {formatCurrency(order.total_amount)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {formatDate(order.created_at)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                              order.payment_status === 'paid' 
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {order.payment_status === 'paid' ? 'Ödendi' : 'Ödenmedi'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            {order.payment_status === 'paid' && (
+                              <button
+                                onClick={() => {
+                                  setSelectedOrder(order);
+                                  setNewInvoice({
+                                    customer_name: order.customer_name,
+                                    customer_email: '',
+                                    customer_address: '',
+                                    customer_tax_number: '',
+                                    subtotal: (order.total_amount / 1.2).toFixed(2),
+                                    tax_rate: '20',
+                                    tax_amount: (order.total_amount * 0.2 / 1.2).toFixed(2),
+                                    total_amount: order.total_amount.toFixed(2),
+                                    invoice_date: new Date().toISOString().split('T')[0],
+                                    due_date: '',
+                                    notes: `Sipariş: ${order.order_number}`
+                                  });
+                                  setShowCreateInvoice(true);
+                                }}
+                                className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
+                                title="Fatura kes"
+                              >
+                                <i className="ri-file-text-line"></i>
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>

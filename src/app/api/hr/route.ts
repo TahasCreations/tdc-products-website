@@ -42,6 +42,21 @@ export async function GET(request: NextRequest) {
         }, { status: 500 });
       }
 
+      // Performans değerlendirmeleri
+      const { data: performanceReviews, error: performanceError } = await supabase
+        .from('performance_reviews')
+        .select('id, overall_rating, goals_achieved, goals_total, review_period');
+
+      // Eğitim programları
+      const { data: trainings, error: trainingError } = await supabase
+        .from('trainings')
+        .select('id, title, training_type, start_date, end_date');
+
+      // İş ilanları
+      const { data: recruitments, error: recruitmentError } = await supabase
+        .from('recruitments')
+        .select('id, position_title, department, deadline');
+
       // İstatistikler
       const totalEmployees = employees?.length || 0;
       const activeEmployees = employees?.filter(e => e.employment_status === 'active').length || 0;
@@ -59,13 +74,33 @@ export async function GET(request: NextRequest) {
         return acc;
       }, {} as Record<string, number>) || {};
 
+      // Performans istatistikleri
+      const avgPerformanceRating = performanceReviews?.length > 0 
+        ? performanceReviews.reduce((sum, review) => sum + review.overall_rating, 0) / performanceReviews.length 
+        : 0;
+
+      // Aktif eğitim programları
+      const activeTrainings = trainings?.filter(training => {
+        const endDate = new Date(training.end_date);
+        return endDate >= new Date();
+      }).length || 0;
+
+      // Açık iş ilanları
+      const openRecruitments = recruitments?.filter(recruitment => {
+        const deadline = new Date(recruitment.deadline);
+        return deadline >= new Date();
+      }).length || 0;
+
       return NextResponse.json({
         success: true,
         data: {
           totalEmployees,
           activeEmployees,
           newHires,
-          departmentStats
+          departmentStats,
+          avgPerformanceRating: Math.round(avgPerformanceRating * 10) / 10,
+          activeTrainings,
+          openRecruitments
         }
       });
     }
@@ -217,6 +252,80 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         leaveRequests: leaveRequests || []
+      });
+    }
+
+    if (type === 'performance_reviews') {
+      // Performans değerlendirmelerini getir
+      const { data: performanceReviews, error } = await supabase
+        .from('performance_reviews')
+        .select(`
+          *,
+          employee:employee_id (
+            first_name,
+            last_name,
+            employee_number
+          ),
+          reviewer:reviewer_id (
+            first_name,
+            last_name
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Performance reviews fetch error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Performans değerlendirmeleri alınamadı' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        performanceReviews: performanceReviews || []
+      });
+    }
+
+    if (type === 'trainings') {
+      // Eğitim programlarını getir
+      const { data: trainings, error } = await supabase
+        .from('trainings')
+        .select('*')
+        .order('start_date', { ascending: false });
+
+      if (error) {
+        console.error('Trainings fetch error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Eğitim programları alınamadı' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        trainings: trainings || []
+      });
+    }
+
+    if (type === 'recruitments') {
+      // İş ilanlarını getir
+      const { data: recruitments, error } = await supabase
+        .from('recruitments')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Recruitments fetch error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'İş ilanları alınamadı' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        recruitments: recruitments || []
       });
     }
 
@@ -722,6 +831,135 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({
         success: true,
         leaveRequest: updatedRequest
+      });
+    }
+
+    if (action === 'create_performance_review') {
+      const {
+        employee_id,
+        review_period,
+        overall_rating,
+        goals_achieved,
+        goals_total,
+        feedback,
+        reviewer_id,
+        created_by
+      } = data;
+
+      const { data: newReview, error } = await supabase
+        .from('performance_reviews')
+        .insert({
+          employee_id,
+          review_period,
+          overall_rating: parseFloat(overall_rating),
+          goals_achieved: parseInt(goals_achieved),
+          goals_total: parseInt(goals_total),
+          feedback,
+          reviewer_id,
+          created_by
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Create performance review error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Performans değerlendirmesi oluşturulamadı' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        performanceReview: newReview
+      });
+    }
+
+    if (action === 'create_training') {
+      const {
+        title,
+        description,
+        training_type,
+        duration_hours,
+        start_date,
+        end_date,
+        instructor,
+        max_participants,
+        requirements,
+        created_by
+      } = data;
+
+      const { data: newTraining, error } = await supabase
+        .from('trainings')
+        .insert({
+          title,
+          description,
+          training_type,
+          duration_hours: parseInt(duration_hours),
+          start_date,
+          end_date,
+          instructor,
+          max_participants: parseInt(max_participants),
+          requirements,
+          created_by
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Create training error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Eğitim programı oluşturulamadı' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        training: newTraining
+      });
+    }
+
+    if (action === 'create_recruitment') {
+      const {
+        position_title,
+        department,
+        salary_range,
+        requirements,
+        deadline,
+        description,
+        location,
+        employment_type,
+        created_by
+      } = data;
+
+      const { data: newRecruitment, error } = await supabase
+        .from('recruitments')
+        .insert({
+          position_title,
+          department,
+          salary_range,
+          requirements,
+          deadline,
+          description,
+          location,
+          employment_type,
+          created_by
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Create recruitment error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'İş ilanı oluşturulamadı' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        recruitment: newRecruitment
       });
     }
 

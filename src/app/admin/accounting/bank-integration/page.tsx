@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { ApiWrapper } from '@/lib/api-wrapper';
 
 interface Bank {
@@ -65,7 +67,8 @@ interface BankTransfer {
 }
 
 export default function BankIntegrationPage() {
-  const [activeTab, setActiveTab] = useState('integrations');
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [banks, setBanks] = useState<Bank[]>([]);
   const [integrations, setIntegrations] = useState<BankIntegration[]>([]);
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
@@ -335,6 +338,45 @@ export default function BankIntegrationPage() {
     });
   };
 
+  // Statistics calculations
+  const statistics = useMemo(() => {
+    const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0);
+    const activeIntegrations = integrations.filter(i => i.is_active).length;
+    const activeAccounts = accounts.filter(a => a.is_active).length;
+    const totalTransactions = transactions.length;
+    const totalTransfers = transfers.length;
+    const pendingTransfers = transfers.filter(t => t.status === 'processing').length;
+    const completedTransfers = transfers.filter(t => t.status === 'completed').length;
+    
+    const monthlyTransactions = transactions.filter(t => {
+      const transactionDate = new Date(t.transaction_date);
+      const now = new Date();
+      return transactionDate.getMonth() === now.getMonth() && 
+             transactionDate.getFullYear() === now.getFullYear();
+    });
+
+    const monthlyIncome = monthlyTransactions
+      .filter(t => t.transaction_type === 'credit')
+      .reduce((sum, t) => sum + t.amount, 0);
+    
+    const monthlyExpense = monthlyTransactions
+      .filter(t => t.transaction_type === 'debit')
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    return {
+      totalBalance,
+      activeIntegrations,
+      activeAccounts,
+      totalTransactions,
+      totalTransfers,
+      pendingTransfers,
+      completedTransfers,
+      monthlyIncome,
+      monthlyExpense,
+      monthlyTransactions: monthlyTransactions.length
+    };
+  }, [accounts, integrations, transactions, transfers]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -348,39 +390,50 @@ export default function BankIntegrationPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Banka Entegrasyonları</h1>
-          <p className="text-gray-600">Halkbank, İş Bankası ve diğer bankalarla entegrasyon</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowIntegrationForm(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-          >
-            <i className="ri-add-line"></i>
-            Entegrasyon Ekle
-          </button>
-          <button
-            onClick={() => setShowAccountForm(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-          >
-            <i className="ri-bank-line"></i>
-            Hesap Ekle
-          </button>
+      {/* Enhanced Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-6 text-white">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Banka Entegrasyonları</h1>
+            <p className="text-blue-100 text-lg">Halkbank, İş Bankası ve diğer bankalarla entegrasyon yönetimi</p>
+          </div>
+          <div className="flex gap-3">
+            <Link 
+              href="/admin/accounting"
+              className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <i className="ri-arrow-left-line"></i>
+              Muhasebe
+            </Link>
+            <button
+              onClick={() => setShowIntegrationForm(true)}
+              className="bg-white hover:bg-gray-100 text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <i className="ri-add-line"></i>
+              Entegrasyon Ekle
+            </button>
+            <button
+              onClick={() => setShowAccountForm(true)}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <i className="ri-bank-line"></i>
+              Hesap Ekle
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8">
-          {[
-            { id: 'integrations', label: 'Entegrasyonlar', icon: 'ri-plug-line' },
-            { id: 'accounts', label: 'Hesaplar', icon: 'ri-bank-line' },
-            { id: 'transactions', label: 'İşlemler', icon: 'ri-exchange-line' },
-            { id: 'transfers', label: 'Transferler', icon: 'ri-send-plane-line' }
-          ].map((tab) => (
+      {/* Enhanced Tabs */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8 px-6">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: 'ri-dashboard-line' },
+              { id: 'integrations', label: 'Entegrasyonlar', icon: 'ri-plug-line' },
+              { id: 'accounts', label: 'Hesaplar', icon: 'ri-bank-line' },
+              { id: 'transactions', label: 'İşlemler', icon: 'ri-exchange-line' },
+              { id: 'transfers', label: 'Transferler', icon: 'ri-send-plane-line' }
+            ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -397,9 +450,183 @@ export default function BankIntegrationPage() {
         </nav>
       </div>
 
+      {/* Dashboard Tab */}
+      {activeTab === 'dashboard' && (
+        <div className="p-6 space-y-6">
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-100 text-sm font-medium">Toplam Bakiye</p>
+                  <p className="text-2xl font-bold">{formatCurrency(statistics.totalBalance)}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <i className="ri-wallet-3-line text-2xl"></i>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-green-100 text-sm font-medium">Aktif Entegrasyonlar</p>
+                  <p className="text-2xl font-bold">{statistics.activeIntegrations}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <i className="ri-plug-line text-2xl"></i>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-purple-100 text-sm font-medium">Aktif Hesaplar</p>
+                  <p className="text-2xl font-bold">{statistics.activeAccounts}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <i className="ri-bank-line text-2xl"></i>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-6 text-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-orange-100 text-sm font-medium">Bu Ay İşlem</p>
+                  <p className="text-2xl font-bold">{statistics.monthlyTransactions}</p>
+                </div>
+                <div className="bg-white/20 rounded-full p-3">
+                  <i className="ri-exchange-line text-2xl"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Monthly Summary */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i className="ri-line-chart-line text-blue-600"></i>
+                Bu Ay Gelir-Gider Özeti
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-green-500 rounded-full p-2">
+                      <i className="ri-arrow-up-line text-white"></i>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Toplam Gelir</p>
+                      <p className="text-lg font-semibold text-green-600">{formatCurrency(statistics.monthlyIncome)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-red-500 rounded-full p-2">
+                      <i className="ri-arrow-down-line text-white"></i>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Toplam Gider</p>
+                      <p className="text-lg font-semibold text-red-600">{formatCurrency(statistics.monthlyExpense)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-500 rounded-full p-2">
+                      <i className="ri-calculator-line text-white"></i>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Net Kar/Zarar</p>
+                      <p className={`text-lg font-semibold ${statistics.monthlyIncome - statistics.monthlyExpense >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatCurrency(statistics.monthlyIncome - statistics.monthlyExpense)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i className="ri-send-plane-line text-blue-600"></i>
+                Transfer Durumu
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-green-500 rounded-full p-2">
+                      <i className="ri-check-line text-white"></i>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Tamamlanan Transferler</p>
+                      <p className="text-lg font-semibold text-green-600">{statistics.completedTransfers}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-yellow-500 rounded-full p-2">
+                      <i className="ri-time-line text-white"></i>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Bekleyen Transferler</p>
+                      <p className="text-lg font-semibold text-yellow-600">{statistics.pendingTransfers}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-500 rounded-full p-2">
+                      <i className="ri-file-list-line text-white"></i>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Toplam Transfer</p>
+                      <p className="text-lg font-semibold text-blue-600">{statistics.totalTransfers}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <i className="ri-history-line text-blue-600"></i>
+              Son Aktiviteler
+            </h3>
+            <div className="space-y-3">
+              {transactions.slice(0, 5).map((transaction) => (
+                <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className={`rounded-full p-2 ${transaction.transaction_type === 'credit' ? 'bg-green-100' : 'bg-red-100'}`}>
+                      <i className={`ri-${transaction.transaction_type === 'credit' ? 'arrow-up' : 'arrow-down'}-line ${transaction.transaction_type === 'credit' ? 'text-green-600' : 'text-red-600'}`}></i>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{transaction.description || 'İşlem'}</p>
+                      <p className="text-xs text-gray-500">{transaction.bank_accounts.account_name}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-sm font-semibold ${transaction.transaction_type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
+                      {transaction.transaction_type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount, transaction.currency_code)}
+                    </p>
+                    <p className="text-xs text-gray-500">{formatDate(transaction.transaction_date)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Entegrasyonlar Tab */}
       {activeTab === 'integrations' && (
-        <div className="space-y-6">
+        <div className="p-6 space-y-6">
           {/* Entegrasyon Formu */}
           {showIntegrationForm && (
             <div className="bg-gray-50 rounded-lg p-6">
@@ -617,7 +844,7 @@ export default function BankIntegrationPage() {
 
       {/* Hesaplar Tab */}
       {activeTab === 'accounts' && (
-        <div className="space-y-6">
+        <div className="p-6 space-y-6">
           {/* Hesap Formu */}
           {showAccountForm && (
             <div className="bg-gray-50 rounded-lg p-6">
@@ -831,7 +1058,7 @@ export default function BankIntegrationPage() {
 
       {/* İşlemler Tab */}
       {activeTab === 'transactions' && (
-        <div className="space-y-6">
+        <div className="p-6 space-y-6">
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">Son İşlemler</h3>
@@ -898,7 +1125,7 @@ export default function BankIntegrationPage() {
 
       {/* Transferler Tab */}
       {activeTab === 'transfers' && (
-        <div className="space-y-6">
+        <div className="p-6 space-y-6">
           {/* Transfer Formu */}
           {showTransferForm && (
             <div className="bg-gray-50 rounded-lg p-6">

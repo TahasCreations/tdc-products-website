@@ -21,6 +21,12 @@ interface BlogPost {
   status: 'published' | 'pending' | 'rejected';
   user_id?: string;
   created_at: string;
+  meta_title?: string;
+  meta_description?: string;
+  featured: boolean;
+  views: number;
+  likes: number;
+  comments_count: number;
 }
 
 export default function AdminBlogsPage() {
@@ -35,10 +41,31 @@ export default function AdminBlogsPage() {
     image: '',
     category: 'Genel',
     tags: [] as string[],
-    author: ''
+    author: '',
+    meta_title: '',
+    meta_description: '',
+    featured: false,
+    tagInput: ''
   });
 
   const categories = ['Genel', 'Anime', 'Gaming', 'Film', 'Teknoloji', 'Lifestyle'];
+
+  const addTag = () => {
+    if (newBlog.tagInput.trim() && !newBlog.tags.includes(newBlog.tagInput.trim())) {
+      setNewBlog({
+        ...newBlog,
+        tags: [...newBlog.tags, newBlog.tagInput.trim()],
+        tagInput: ''
+      });
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    setNewBlog({
+      ...newBlog,
+      tags: newBlog.tags.filter(tag => tag !== tagToRemove)
+    });
+  };
 
 
   const fetchBlogs = useCallback(async () => {
@@ -103,7 +130,11 @@ export default function AdminBlogsPage() {
           image: '',
           category: 'Genel',
           tags: [],
-          author: ''
+          author: '',
+          meta_title: '',
+          meta_description: '',
+          featured: false,
+          tagInput: ''
         });
         fetchBlogs();
       } else {
@@ -224,75 +255,223 @@ export default function AdminBlogsPage() {
           </div>
         </div>
 
+        {/* İstatistikler */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-lg">
+                <i className="ri-article-line text-2xl text-green-600"></i>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Toplam Blog</p>
+                <p className="text-2xl font-semibold text-gray-900">{blogs.length}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center">
+              <div className="p-3 bg-blue-100 rounded-lg">
+                <i className="ri-eye-line text-2xl text-blue-600"></i>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Toplam Görüntüleme</p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {blogs.reduce((sum, blog) => sum + (blog.views || 0), 0)}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center">
+              <div className="p-3 bg-red-100 rounded-lg">
+                <i className="ri-heart-line text-2xl text-red-600"></i>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Toplam Beğeni</p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {blogs.reduce((sum, blog) => sum + (blog.likes || 0), 0)}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="flex items-center">
+              <div className="p-3 bg-yellow-100 rounded-lg">
+                <i className="ri-star-line text-2xl text-yellow-600"></i>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Öne Çıkan</p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {blogs.filter(blog => blog.featured).length}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Create Blog Form */}
         {showCreateForm && (
           <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Blog Oluştur</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Başlık *</label>
-                <input
-                  type="text"
-                  value={newBlog.title}
-                  onChange={(e) => setNewBlog({ ...newBlog, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Blog başlığı"
-                />
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Yeni Blog Oluştur</h2>
+            
+            {/* Temel Bilgiler */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Temel Bilgiler</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Başlık *</label>
+                  <input
+                    type="text"
+                    value={newBlog.title}
+                    onChange={(e) => setNewBlog({ ...newBlog, title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Blog başlığı"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                  <select
+                    value={newBlog.category}
+                    onChange={(e) => setNewBlog({ ...newBlog, category: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Yazar *</label>
+                  <input
+                    type="text"
+                    value={newBlog.author}
+                    onChange={(e) => setNewBlog({ ...newBlog, author: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Yazar adı"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Görsel URL</label>
+                  <input
+                    type="url"
+                    value={newBlog.image}
+                    onChange={(e) => setNewBlog({ ...newBlog, image: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-                <select
-                  value={newBlog.category}
-                  onChange={(e) => setNewBlog({ ...newBlog, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+            </div>
+
+            {/* SEO Ayarları */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">SEO Ayarları</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Meta Başlık</label>
+                  <input
+                    type="text"
+                    value={newBlog.meta_title}
+                    onChange={(e) => setNewBlog({ ...newBlog, meta_title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="SEO için özel başlık"
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    checked={newBlog.featured}
+                    onChange={(e) => setNewBlog({ ...newBlog, featured: e.target.checked })}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="featured" className="ml-2 block text-sm text-gray-900">
+                    Öne Çıkan Blog
+                  </label>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Yazar</label>
-                <input
-                  type="text"
-                  value={newBlog.author}
-                  onChange={(e) => setNewBlog({ ...newBlog, author: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Yazar adı"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Görsel URL</label>
-                <input
-                  type="url"
-                  value={newBlog.image}
-                  onChange={(e) => setNewBlog({ ...newBlog, image: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Özet</label>
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Meta Açıklama</label>
                 <textarea
-                  value={newBlog.excerpt}
-                  onChange={(e) => setNewBlog({ ...newBlog, excerpt: e.target.value })}
+                  value={newBlog.meta_description}
+                  onChange={(e) => setNewBlog({ ...newBlog, meta_description: e.target.value })}
                   rows={2}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Blog özeti (opsiyonel)"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">İçerik *</label>
-                <textarea
-                  value={newBlog.content}
-                  onChange={(e) => setNewBlog({ ...newBlog, content: e.target.value })}
-                  rows={8}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Blog içeriği (HTML desteklenir)"
+                  placeholder="SEO için açıklama (160 karakter önerilir)"
                 />
               </div>
             </div>
-            <div className="flex gap-3 mt-4">
+
+            {/* Etiketler */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Etiketler</h3>
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  value={newBlog.tagInput}
+                  onChange={(e) => setNewBlog({ ...newBlog, tagInput: e.target.value })}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Etiket ekle ve Enter'a bas"
+                />
+                <button
+                  type="button"
+                  onClick={addTag}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Ekle
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {newBlog.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="ml-2 text-blue-600 hover:text-blue-800"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* İçerik */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">İçerik</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Özet</label>
+                  <textarea
+                    value={newBlog.excerpt}
+                    onChange={(e) => setNewBlog({ ...newBlog, excerpt: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Blog özeti (opsiyonel)"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">İçerik *</label>
+                  <textarea
+                    value={newBlog.content}
+                    onChange={(e) => setNewBlog({ ...newBlog, content: e.target.value })}
+                    rows={10}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Blog içeriği (HTML desteklenir)"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
               <button
                 onClick={handleCreateBlog}
                 className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
@@ -379,7 +558,26 @@ export default function AdminBlogsPage() {
                           <span>Kategori: {blog.category}</span>
                           <span>Oluşturulma: {new Date(blog.created_at).toLocaleDateString('tr-TR')}</span>
                           {blog.user_id && <span className="text-blue-600">Kullanıcı Blog&apos;u</span>}
+                          {blog.featured && <span className="text-yellow-600">⭐ Öne Çıkan</span>}
                         </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-500 mt-2">
+                          <span>👁️ {blog.views || 0} görüntüleme</span>
+                          <span>❤️ {blog.likes || 0} beğeni</span>
+                          <span>💬 {blog.comments_count || 0} yorum</span>
+                          <span>⏱️ {blog.read_time || 5} dk okuma</span>
+                        </div>
+                        {blog.tags && blog.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {blog.tags.map((tag, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-600"
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2">
                         {blog.status === 'pending' && (

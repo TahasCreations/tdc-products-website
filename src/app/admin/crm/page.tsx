@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import AdminProtection from '../../../components/AdminProtection';
 import OptimizedLoader from '../../../components/OptimizedLoader';
 
@@ -77,6 +79,7 @@ interface Opportunity {
 }
 
 export default function AdminCRMPage() {
+  const router = useRouter();
   const [dashboardData, setDashboardData] = useState<CRMDashboardData | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -85,13 +88,19 @@ export default function AdminCRMPage() {
   const [customerTasks, setCustomerTasks] = useState<Task[]>([]);
   const [customerOpportunities, setCustomerOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'customers' | 'customer_detail'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'customers' | 'customer_detail' | 'analytics' | 'campaigns' | 'reports'>('dashboard');
   const [showAddCustomer, setShowAddCustomer] = useState(false);
   const [showAddCommunication, setShowAddCommunication] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
   const [showAddOpportunity, setShowAddOpportunity] = useState(false);
+  const [showAddCampaign, setShowAddCampaign] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterTier, setFilterTier] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [sortBy, setSortBy] = useState('total_spent');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const [newCustomer, setNewCustomer] = useState({
     first_name: '',
@@ -137,11 +146,22 @@ export default function AdminCRMPage() {
     notes: ''
   });
 
+  const [newCampaign, setNewCampaign] = useState({
+    name: '',
+    type: 'email',
+    subject: '',
+    content: '',
+    target_tier: 'all',
+    target_status: 'all',
+    scheduled_date: '',
+    status: 'draft'
+  });
+
   useEffect(() => {
     fetchCRMData();
   }, []);
 
-  const fetchCRMData = async () => {
+  const fetchCRMData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -176,7 +196,7 @@ export default function AdminCRMPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const fetchCustomerDetail = async (customerId: string) => {
     try {
@@ -459,6 +479,87 @@ export default function AdminCRMPage() {
     return colors[stage] || 'bg-gray-100 text-gray-800';
   };
 
+  // Filtrelenmiş ve sıralanmış müşteriler
+  const filteredCustomers = useMemo(() => {
+    let filtered = customers.filter(customer => {
+      const matchesSearch = searchTerm === '' || 
+        customer.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.company_name?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesTier = filterTier === 'all' || customer.customer_tier === filterTier;
+      const matchesStatus = filterStatus === 'all' || customer.customer_status === filterStatus;
+      
+      return matchesSearch && matchesTier && matchesStatus;
+    });
+
+    // Sıralama
+    filtered.sort((a, b) => {
+      let aValue: any = a[sortBy as keyof Customer];
+      let bValue: any = b[sortBy as keyof Customer];
+      
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+      
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    return filtered;
+  }, [customers, searchTerm, filterTier, filterStatus, sortBy, sortOrder]);
+
+  const handleAddCampaign = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const storedAdmin = localStorage.getItem('admin_user');
+      const currentAdmin = storedAdmin ? JSON.parse(storedAdmin) : null;
+
+      const response = await fetch('/api/crm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'create_campaign',
+          ...newCampaign,
+          created_by: currentAdmin?.id
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage('Kampanya başarıyla oluşturuldu');
+        setMessageType('success');
+        setNewCampaign({
+          name: '',
+          type: 'email',
+          subject: '',
+          content: '',
+          target_tier: 'all',
+          target_status: 'all',
+          scheduled_date: '',
+          status: 'draft'
+        });
+        setShowAddCampaign(false);
+      } else {
+        setMessage(data.error || 'Kampanya oluşturulamadı');
+        setMessageType('error');
+      }
+    } catch (error) {
+      console.error('Add campaign error:', error);
+      setMessage('Bağlantı hatası');
+      setMessageType('error');
+    }
+  };
+
   if (loading) {
     return <OptimizedLoader message="CRM verileri yükleniyor..." />;
   }
@@ -469,15 +570,30 @@ export default function AdminCRMPage() {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Müşteri Yönetimi (CRM)</h1>
-            <p className="text-gray-600">Müşteri ilişkileri ve satış süreçleri</p>
+            <h1 className="text-2xl font-bold text-gray-900">Gelişmiş CRM Yönetimi</h1>
+            <p className="text-gray-600">Müşteri ilişkileri, satış süreçleri ve pazarlama kampanyaları</p>
           </div>
           <div className="flex space-x-3">
+            <Link
+              href="/admin"
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+            >
+              <i className="ri-close-line mr-2"></i>
+              Çıkış
+            </Link>
             <button
               onClick={() => setShowAddCustomer(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
             >
+              <i className="ri-user-add-line mr-2"></i>
               Müşteri Ekle
+            </button>
+            <button
+              onClick={() => setShowAddCampaign(true)}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+            >
+              <i className="ri-mail-send-line mr-2"></i>
+              Kampanya Oluştur
             </button>
           </div>
         </div>
@@ -511,6 +627,7 @@ export default function AdminCRMPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
+                <i className="ri-dashboard-line mr-2"></i>
                 Dashboard
               </button>
               <button
@@ -521,7 +638,41 @@ export default function AdminCRMPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
+                <i className="ri-user-line mr-2"></i>
                 Müşteriler
+              </button>
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'analytics'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <i className="ri-bar-chart-line mr-2"></i>
+                Analitik
+              </button>
+              <button
+                onClick={() => setActiveTab('campaigns')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'campaigns'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <i className="ri-mail-send-line mr-2"></i>
+                Kampanyalar
+              </button>
+              <button
+                onClick={() => setActiveTab('reports')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'reports'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <i className="ri-file-chart-line mr-2"></i>
+                Raporlar
               </button>
               {selectedCustomer && (
                 <button
@@ -532,6 +683,7 @@ export default function AdminCRMPage() {
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
+                  <i className="ri-user-settings-line mr-2"></i>
                   {selectedCustomer.first_name} {selectedCustomer.last_name}
                 </button>
               )}
@@ -630,8 +782,81 @@ export default function AdminCRMPage() {
             )}
 
             {activeTab === 'customers' && (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+              <div className="space-y-4">
+                {/* Filtreleme ve Arama */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Arama</label>
+                      <input
+                        type="text"
+                        placeholder="Müşteri ara..."
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Tier</label>
+                      <select
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={filterTier}
+                        onChange={(e) => setFilterTier(e.target.value)}
+                      >
+                        <option value="all">Tümü</option>
+                        <option value="bronze">Bronz</option>
+                        <option value="silver">Gümüş</option>
+                        <option value="gold">Altın</option>
+                        <option value="platinum">Platin</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Durum</label>
+                      <select
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                      >
+                        <option value="all">Tümü</option>
+                        <option value="active">Aktif</option>
+                        <option value="inactive">Pasif</option>
+                        <option value="suspended">Askıda</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Sıralama</label>
+                      <div className="flex space-x-2">
+                        <select
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value)}
+                        >
+                          <option value="total_spent">Toplam Harcama</option>
+                          <option value="total_orders">Sipariş Sayısı</option>
+                          <option value="first_name">Ad</option>
+                          <option value="last_name">Soyad</option>
+                          <option value="created_at">Kayıt Tarihi</option>
+                        </select>
+                        <button
+                          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                          className="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+                        >
+                          <i className={`ri-sort-${sortOrder === 'asc' ? 'asc' : 'desc'}`}></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Müşteri Sayısı */}
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-gray-600">
+                    Toplam {filteredCustomers.length} müşteri gösteriliyor
+                  </p>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -658,7 +883,7 @@ export default function AdminCRMPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {customers.map((customer) => (
+                    {filteredCustomers.map((customer) => (
                       <tr key={customer.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
@@ -813,6 +1038,255 @@ export default function AdminCRMPage() {
                         <p className="text-gray-500 text-center py-4">Henüz iletişim kaydı bulunmuyor</p>
                       )}
                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'analytics' && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900">CRM Analitikleri</h3>
+                
+                {/* Analitik Kartları */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-blue-50 p-6 rounded-lg">
+                    <div className="flex items-center">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <i className="ri-line-chart-line text-2xl text-blue-600"></i>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">Müşteri Büyüme Oranı</p>
+                        <p className="text-2xl font-semibold text-gray-900">+12.5%</p>
+                        <p className="text-xs text-gray-500">Son 30 gün</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 p-6 rounded-lg">
+                    <div className="flex items-center">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <i className="ri-money-dollar-circle-line text-2xl text-green-600"></i>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">Ortalama Müşteri Değeri</p>
+                        <p className="text-2xl font-semibold text-gray-900">₺2,450</p>
+                        <p className="text-xs text-gray-500">Son 12 ay</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-purple-50 p-6 rounded-lg">
+                    <div className="flex items-center">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <i className="ri-customer-service-2-line text-2xl text-purple-600"></i>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-600">Müşteri Memnuniyeti</p>
+                        <p className="text-2xl font-semibold text-gray-900">4.8/5</p>
+                        <p className="text-xs text-gray-500">Son 100 değerlendirme</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Grafik Alanı */}
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Müşteri Tier Dağılımı</h4>
+                  <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                    <p className="text-gray-500">Grafik burada görüntülenecek</p>
+                  </div>
+                </div>
+
+                {/* En Aktif Müşteriler */}
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">En Aktif Müşteriler</h4>
+                  <div className="space-y-3">
+                    {customers.slice(0, 5).map((customer, index) => (
+                      <div key={customer.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600">
+                            {index + 1}
+                          </div>
+                          <div className="ml-3">
+                            <p className="font-medium text-gray-900">{customer.first_name} {customer.last_name}</p>
+                            <p className="text-sm text-gray-500">{customer.customer_code}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-medium text-gray-900">{formatCurrency(customer.total_spent)}</p>
+                          <p className="text-sm text-gray-500">{customer.total_orders} sipariş</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'campaigns' && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-900">Pazarlama Kampanyaları</h3>
+                  <button
+                    onClick={() => setShowAddCampaign(true)}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+                  >
+                    <i className="ri-add-line mr-2"></i>
+                    Yeni Kampanya
+                  </button>
+                </div>
+
+                {/* Kampanya Kartları */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-gray-900">Hoş Geldin Kampanyası</h4>
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                        Aktif
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Yeni müşterilere özel indirim kampanyası</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Gönderilen:</span>
+                        <span className="font-medium">1,250</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Açılma Oranı:</span>
+                        <span className="font-medium">24.5%</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Tıklama Oranı:</span>
+                        <span className="font-medium">8.2%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-gray-900">VIP Müşteri Kampanyası</h4>
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                        Planlanmış
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">VIP müşterilere özel ürün tanıtımı</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Hedef:</span>
+                        <span className="font-medium">150 müşteri</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Planlanan Tarih:</span>
+                        <span className="font-medium">15 Ocak</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-gray-900">Yeniden Aktivasyon</h4>
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                        Taslak
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Pasif müşterileri geri kazanma kampanyası</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Hedef:</span>
+                        <span className="font-medium">500 müşteri</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Durum:</span>
+                        <span className="font-medium">Hazırlanıyor</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'reports' && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900">CRM Raporları</h3>
+                
+                {/* Rapor Kartları */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-center mb-4">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <i className="ri-user-line text-xl text-blue-600"></i>
+                      </div>
+                      <h4 className="ml-3 font-semibold text-gray-900">Müşteri Analizi</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Müşteri segmentasyonu ve davranış analizi</p>
+                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+                      Raporu Görüntüle
+                    </button>
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-center mb-4">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <i className="ri-money-dollar-circle-line text-xl text-green-600"></i>
+                      </div>
+                      <h4 className="ml-3 font-semibold text-gray-900">Satış Performansı</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Satış ekibi ve müşteri performans raporu</p>
+                    <button className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+                      Raporu Görüntüle
+                    </button>
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-center mb-4">
+                      <div className="p-2 bg-purple-100 rounded-lg">
+                        <i className="ri-mail-send-line text-xl text-purple-600"></i>
+                      </div>
+                      <h4 className="ml-3 font-semibold text-gray-900">Kampanya Raporu</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Pazarlama kampanyalarının etkinlik analizi</p>
+                    <button className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+                      Raporu Görüntüle
+                    </button>
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-center mb-4">
+                      <div className="p-2 bg-orange-100 rounded-lg">
+                        <i className="ri-customer-service-2-line text-xl text-orange-600"></i>
+                      </div>
+                      <h4 className="ml-3 font-semibold text-gray-900">Müşteri Memnuniyeti</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Müşteri geri bildirimleri ve memnuniyet analizi</p>
+                    <button className="w-full bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+                      Raporu Görüntüle
+                    </button>
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-center mb-4">
+                      <div className="p-2 bg-red-100 rounded-lg">
+                        <i className="ri-user-unfollow-line text-xl text-red-600"></i>
+                      </div>
+                      <h4 className="ml-3 font-semibold text-gray-900">Müşteri Kaybı Analizi</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Müşteri kaybı nedenleri ve önleme stratejileri</p>
+                    <button className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+                      Raporu Görüntüle
+                    </button>
+                  </div>
+
+                  <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-center mb-4">
+                      <div className="p-2 bg-indigo-100 rounded-lg">
+                        <i className="ri-bar-chart-line text-xl text-indigo-600"></i>
+                      </div>
+                      <h4 className="ml-3 font-semibold text-gray-900">Trend Analizi</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4">Müşteri davranışları ve satış trendleri</p>
+                    <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium transition-colors">
+                      Raporu Görüntüle
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1012,6 +1486,127 @@ export default function AdminCRMPage() {
                   <button
                     type="button"
                     onClick={() => setShowAddCommunication(false)}
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    İptal
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Add Campaign Modal */}
+        {showAddCampaign && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Kampanya Oluştur</h2>
+              <form onSubmit={handleAddCampaign} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Kampanya Adı</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newCampaign.name}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Kampanya Tipi</label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newCampaign.type}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, type: e.target.value })}
+                    >
+                      <option value="email">E-posta</option>
+                      <option value="sms">SMS</option>
+                      <option value="push">Push Bildirimi</option>
+                      <option value="social">Sosyal Medya</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Hedef Tier</label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newCampaign.target_tier}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, target_tier: e.target.value })}
+                    >
+                      <option value="all">Tümü</option>
+                      <option value="bronze">Bronz</option>
+                      <option value="silver">Gümüş</option>
+                      <option value="gold">Altın</option>
+                      <option value="platinum">Platin</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Hedef Durum</label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newCampaign.target_status}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, target_status: e.target.value })}
+                    >
+                      <option value="all">Tümü</option>
+                      <option value="active">Aktif</option>
+                      <option value="inactive">Pasif</option>
+                      <option value="suspended">Askıda</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Planlanan Tarih</label>
+                    <input
+                      type="datetime-local"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newCampaign.scheduled_date}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, scheduled_date: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Durum</label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newCampaign.status}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, status: e.target.value })}
+                    >
+                      <option value="draft">Taslak</option>
+                      <option value="scheduled">Planlanmış</option>
+                      <option value="active">Aktif</option>
+                      <option value="paused">Duraklatıldı</option>
+                      <option value="completed">Tamamlandı</option>
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Konu</label>
+                    <input
+                      type="text"
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newCampaign.subject}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, subject: e.target.value })}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">İçerik</label>
+                    <textarea
+                      rows={6}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newCampaign.content}
+                      onChange={(e) => setNewCampaign({ ...newCampaign, content: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="flex space-x-3">
+                  <button
+                    type="submit"
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    Kampanya Oluştur
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddCampaign(false)}
                     className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition-colors"
                   >
                     İptal

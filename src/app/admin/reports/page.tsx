@@ -3,6 +3,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
 import OptimizedLoader from '../../../components/OptimizedLoader';
+import Link from 'next/link';
 
 // Lazy load heavy components
 const FinanceCharts = lazy(() => import('../../../components/FinanceCharts'));
@@ -70,6 +71,8 @@ export default function AdminReportsPage() {
   const [reportType, setReportType] = useState<'monthly' | 'yearly' | 'custom'>('monthly');
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [activeTab, setActiveTab] = useState('financial');
+  const [selectedReport, setSelectedReport] = useState('dashboard');
 
   useEffect(() => {
     fetchReportData();
@@ -276,34 +279,95 @@ export default function AdminReportsPage() {
 
   return (
     <AdminProtection>
-      <div className="space-y-6">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Finansal Raporlar</h1>
-            <p className="text-gray-600">Detaylı finansal analiz ve raporlar</p>
+        <div className="bg-white rounded-2xl shadow-lg mx-4 mt-4 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Gelişmiş Rapor Sistemi</h1>
+              <p className="mt-2 text-gray-600">Kapsamlı finansal analiz ve raporlama</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={generatePDFReport}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
+              >
+                <i className="ri-file-pdf-line"></i>
+                <span>PDF İndir</span>
+              </button>
+              <button
+                onClick={generateExcelReport}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
+              >
+                <i className="ri-file-excel-line"></i>
+                <span>Excel İndir</span>
+              </button>
+              <Link
+                href="/admin"
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                <i className="ri-arrow-left-line mr-2"></i>
+                Admin Paneli
+              </Link>
+            </div>
           </div>
-          <div className="flex space-x-3">
-            <button
-              onClick={generatePDFReport}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-            >
-              <i className="ri-file-pdf-line"></i>
-              <span>PDF İndir</span>
-            </button>
-            <button
-              onClick={generateExcelReport}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2"
-            >
-              <i className="ri-file-excel-line"></i>
-              <span>Excel İndir</span>
-            </button>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="mx-4 mt-6">
+          <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+              <button
+                onClick={() => setActiveTab('financial')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'financial'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <i className="ri-bar-chart-line mr-2"></i>
+                Finansal Raporlar
+              </button>
+              <button
+                onClick={() => setActiveTab('accounting')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'accounting'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <i className="ri-account-book-line mr-2"></i>
+                Muhasebe Raporları
+              </button>
+              <button
+                onClick={() => setActiveTab('sales')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'sales'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <i className="ri-shopping-cart-line mr-2"></i>
+                Satış Raporları
+              </button>
+              <button
+                onClick={() => setActiveTab('custom')}
+                className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                  activeTab === 'custom'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <i className="ri-file-chart-line mr-2"></i>
+                Özel Raporlar
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Message */}
         {message && (
-          <div className={`p-4 rounded-lg ${
+          <div className={`mx-4 mt-6 p-4 rounded-lg ${
             messageType === 'success' 
               ? 'bg-green-50 border border-green-200 text-green-700' 
               : 'bg-red-50 border border-red-200 text-red-700'
@@ -318,155 +382,408 @@ export default function AdminReportsPage() {
           </div>
         )}
 
-        {/* Period Selection */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Rapor Dönemi</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Başlangıç Ayı</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedPeriod.startMonth}
-                onChange={(e) => setSelectedPeriod({...selectedPeriod, startMonth: parseInt(e.target.value)})}
-              >
-                {Array.from({length: 12}, (_, i) => (
-                  <option key={i+1} value={i+1}>{i+1}. Ay</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Başlangıç Yılı</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedPeriod.startYear}
-                onChange={(e) => setSelectedPeriod({...selectedPeriod, startYear: parseInt(e.target.value)})}
-              >
-                {Array.from({length: 5}, (_, i) => {
-                  const year = new Date().getFullYear() - i;
-                  return <option key={year} value={year}>{year}</option>;
-                })}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bitiş Ayı</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedPeriod.endMonth}
-                onChange={(e) => setSelectedPeriod({...selectedPeriod, endMonth: parseInt(e.target.value)})}
-              >
-                {Array.from({length: 12}, (_, i) => (
-                  <option key={i+1} value={i+1}>{i+1}. Ay</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bitiş Yılı</label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedPeriod.endYear}
-                onChange={(e) => setSelectedPeriod({...selectedPeriod, endYear: parseInt(e.target.value)})}
-              >
-                {Array.from({length: 5}, (_, i) => {
-                  const year = new Date().getFullYear() - i;
-                  return <option key={year} value={year}>{year}</option>;
-                })}
-              </select>
-            </div>
-          </div>
-        </div>
+        {/* Tab Content */}
+        <div className="mx-4 mt-6">
+          {activeTab === 'financial' && (
+            <div className="space-y-6">
+              {/* Period Selection */}
+              <div className="bg-white rounded-2xl shadow-lg p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Rapor Dönemi</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Başlangıç Ayı</label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={selectedPeriod.startMonth}
+                      onChange={(e) => setSelectedPeriod({...selectedPeriod, startMonth: parseInt(e.target.value)})}
+                    >
+                      {Array.from({length: 12}, (_, i) => (
+                        <option key={i+1} value={i+1}>{i+1}. Ay</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Başlangıç Yılı</label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={selectedPeriod.startYear}
+                      onChange={(e) => setSelectedPeriod({...selectedPeriod, startYear: parseInt(e.target.value)})}
+                    >
+                      {Array.from({length: 5}, (_, i) => {
+                        const year = new Date().getFullYear() - i;
+                        return <option key={year} value={year}>{year}</option>;
+                      })}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Bitiş Ayı</label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={selectedPeriod.endMonth}
+                      onChange={(e) => setSelectedPeriod({...selectedPeriod, endMonth: parseInt(e.target.value)})}
+                    >
+                      {Array.from({length: 12}, (_, i) => (
+                        <option key={i+1} value={i+1}>{i+1}. Ay</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Bitiş Yılı</label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={selectedPeriod.endYear}
+                      onChange={(e) => setSelectedPeriod({...selectedPeriod, endYear: parseInt(e.target.value)})}
+                    >
+                      {Array.from({length: 5}, (_, i) => {
+                        const year = new Date().getFullYear() - i;
+                        return <option key={year} value={year}>{year}</option>;
+                      })}
+                    </select>
+                  </div>
+                </div>
+              </div>
 
-        {/* Report Content */}
-        <div id="report-content" className="space-y-6">
-          {financeData && (
-            <Suspense fallback={<OptimizedLoader />}>
-              <FinanceCharts 
-                financeData={financeData} 
-                monthlyData={monthlyData}
-              />
-            </Suspense>
+              {/* Report Content */}
+              <div id="report-content" className="space-y-6">
+                {financeData && (
+                  <Suspense fallback={<OptimizedLoader />}>
+                    <FinanceCharts 
+                      financeData={financeData} 
+                      monthlyData={monthlyData}
+                    />
+                  </Suspense>
+                )}
+
+                {/* Detailed Tables */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Recent Expenses */}
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Son Giderler</h3>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Gider No</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tutar</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {expenses.slice(0, 5).map((expense) => (
+                            <tr key={expense.id}>
+                              <td className="px-4 py-2 text-sm font-medium text-gray-900">
+                                {expense.expense_number}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-gray-900">
+                                {expense.category}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-gray-900">
+                                {formatCurrency(expense.amount)}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-gray-500">
+                                {formatDate(expense.expense_date)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Recent Invoices */}
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Son Faturalar</h3>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fatura No</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Müşteri</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tutar</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {invoices.slice(0, 5).map((invoice) => (
+                            <tr key={invoice.id}>
+                              <td className="px-4 py-2 text-sm font-medium text-gray-900">
+                                {invoice.invoice_number}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-gray-900">
+                                {invoice.customer_name}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-gray-900">
+                                {formatCurrency(invoice.total_amount)}
+                              </td>
+                              <td className="px-4 py-2 text-sm">
+                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                  invoice.status === 'paid' 
+                                    ? 'bg-green-100 text-green-800'
+                                    : invoice.status === 'sent'
+                                    ? 'bg-yellow-100 text-yellow-800'
+                                    : 'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {invoice.status === 'paid' ? 'Ödendi' : 
+                                   invoice.status === 'sent' ? 'Gönderildi' : 'Taslak'}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
-          {/* Detailed Tables */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Expenses */}
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Son Giderler</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Gider No</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tutar</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {expenses.slice(0, 5).map((expense) => (
-                      <tr key={expense.id}>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900">
-                          {expense.expense_number}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-900">
-                          {expense.category}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-900">
-                          {formatCurrency(expense.amount)}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-500">
-                          {formatDate(expense.expense_date)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          {activeTab === 'accounting' && (
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Muhasebe Raporları</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                      <i className="ri-file-list-line text-2xl text-blue-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Mizan</h3>
+                      <p className="text-sm text-gray-600">Genel mizan raporu</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Tüm hesapların borç/alacak bakiyeleri.
+                  </p>
+                </button>
 
-            {/* Recent Invoices */}
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Son Faturalar</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fatura No</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Müşteri</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tutar</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {invoices.slice(0, 5).map((invoice) => (
-                      <tr key={invoice.id}>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900">
-                          {invoice.invoice_number}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-900">
-                          {invoice.customer_name}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-900">
-                          {formatCurrency(invoice.total_amount)}
-                        </td>
-                        <td className="px-4 py-2 text-sm">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            invoice.status === 'paid' 
-                              ? 'bg-green-100 text-green-800'
-                              : invoice.status === 'sent'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {invoice.status === 'paid' ? 'Ödendi' : 
-                             invoice.status === 'sent' ? 'Gönderildi' : 'Taslak'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-green-100 rounded-lg">
+                      <i className="ri-bar-chart-line text-2xl text-green-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Kebir Defteri</h3>
+                      <p className="text-sm text-gray-600">Detaylı hesap hareketleri</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Hesap bazında detaylı hareket listesi.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-purple-100 rounded-lg">
+                      <i className="ri-file-text-line text-2xl text-purple-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Yevmiye Defteri</h3>
+                      <p className="text-sm text-gray-600">Günlük kayıtlar</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Tarih sırasına göre fiş listesi.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-orange-100 rounded-lg">
+                      <i className="ri-contacts-line text-2xl text-orange-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Cari Ekstre</h3>
+                      <p className="text-sm text-gray-600">Müşteri/tedarikçi ekstreleri</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Cari hesap detayları ve bakiyeler.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-red-100 rounded-lg">
+                      <i className="ri-calculator-line text-2xl text-red-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">KDV Raporu</h3>
+                      <p className="text-sm text-gray-600">KDV hesaplama raporu</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    KDV oranlarına göre detaylı rapor.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-teal-100 rounded-lg">
+                      <i className="ri-calendar-line text-2xl text-teal-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Dönem Raporu</h3>
+                      <p className="text-sm text-gray-600">Dönemsel özet rapor</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Belirli dönem için özet bilgiler.
+                  </p>
+                </button>
               </div>
             </div>
-          </div>
+          )}
+
+          {activeTab === 'sales' && (
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Satış Raporları</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                      <i className="ri-shopping-cart-line text-2xl text-blue-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Satış Özeti</h3>
+                      <p className="text-sm text-gray-600">Genel satış raporu</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Toplam satış, sipariş sayısı ve trend analizi.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-green-100 rounded-lg">
+                      <i className="ri-user-line text-2xl text-green-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Müşteri Analizi</h3>
+                      <p className="text-sm text-gray-600">Müşteri bazlı satış analizi</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    En çok satış yapan müşteriler ve segmentasyon.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-purple-100 rounded-lg">
+                      <i className="ri-stack-line text-2xl text-purple-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Ürün Analizi</h3>
+                      <p className="text-sm text-gray-600">Ürün bazlı satış analizi</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    En çok satılan ürünler ve kategori analizi.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-orange-100 rounded-lg">
+                      <i className="ri-calendar-line text-2xl text-orange-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Zaman Analizi</h3>
+                      <p className="text-sm text-gray-600">Zaman bazlı satış analizi</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Günlük, haftalık ve aylık satış trendleri.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-red-100 rounded-lg">
+                      <i className="ri-map-pin-line text-2xl text-red-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Bölge Analizi</h3>
+                      <p className="text-sm text-gray-600">Coğrafi satış analizi</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Şehir ve bölge bazında satış dağılımı.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-teal-100 rounded-lg">
+                      <i className="ri-money-dollar-circle-line text-2xl text-teal-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Kar Analizi</h3>
+                      <p className="text-sm text-gray-600">Kar marjı analizi</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Ürün ve kategori bazında kar marjı analizi.
+                  </p>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'custom' && (
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Özel Raporlar</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-blue-100 rounded-lg">
+                      <i className="ri-file-chart-line text-2xl text-blue-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Özel Rapor Oluştur</h3>
+                      <p className="text-sm text-gray-600">Kişiselleştirilmiş rapor</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Kendi kriterlerinize göre özel rapor oluşturun.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-green-100 rounded-lg">
+                      <i className="ri-save-line text-2xl text-green-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Kayıtlı Raporlar</h3>
+                      <p className="text-sm text-gray-600">Önceden kaydedilmiş raporlar</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Daha önce oluşturduğunuz raporları görüntüleyin.
+                  </p>
+                </button>
+
+                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 bg-purple-100 rounded-lg">
+                      <i className="ri-settings-line text-2xl text-purple-600"></i>
+                    </div>
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">Rapor Şablonları</h3>
+                      <p className="text-sm text-gray-600">Hazır rapor şablonları</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Hazır şablonlardan hızlı rapor oluşturun.
+                  </p>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </AdminProtection>
