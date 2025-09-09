@@ -1,3 +1,7 @@
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Image optimization
@@ -42,9 +46,53 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   
+  // Bundle optimization
+  webpack: (config, { dev, isServer }) => {
+    // Tree shaking optimization
+    config.optimization.usedExports = true;
+    config.optimization.sideEffects = false;
+    
+    // Code splitting optimization
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+            priority: 10,
+          },
+          supabase: {
+            test: /[\\/]node_modules[\\/]@supabase[\\/]/,
+            name: 'supabase',
+            chunks: 'all',
+            priority: 20,
+          },
+          charts: {
+            test: /[\\/]node_modules[\\/](chart\.js|react-chartjs-2|recharts)[\\/]/,
+            name: 'charts',
+            chunks: 'all',
+            priority: 15,
+          },
+        },
+      };
+    }
+    
+    return config;
+  },
+  
   // Experimental features for better performance
   experimental: {
-    optimizePackageImports: ['@supabase/supabase-js', 'lucide-react'],
+    optimizePackageImports: ['@supabase/supabase-js', 'lucide-react', 'chart.js', 'react-chartjs-2'],
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
   
   // Headers for better caching
@@ -63,4 +111,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
 import OptimizedLoader from '../../../components/OptimizedLoader';
 
@@ -43,11 +43,7 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  useEffect(() => {
-    fetchUsers();
-  }, [pagination.page, searchTerm]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(
@@ -69,7 +65,11 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, searchTerm]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

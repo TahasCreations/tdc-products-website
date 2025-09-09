@@ -1,9 +1,10 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Global Supabase client instance
-let supabaseClient: any = null;
+// Global Supabase client instances with proper typing
+let supabaseClient: SupabaseClient | null = null;
+let serverSupabaseClient: SupabaseClient | null = null;
 
-export const getSupabaseClient = () => {
+export const getSupabaseClient = (): SupabaseClient | null => {
   if (supabaseClient) {
     return supabaseClient;
   }
@@ -21,14 +22,24 @@ export const getSupabaseClient = () => {
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: true
+    },
+    // Performance optimizations
+    global: {
+      headers: {
+        'X-Client-Info': 'tdc-products-website'
+      }
     }
   });
   
   return supabaseClient;
 };
 
-// Server-side Supabase client
-export const getServerSupabaseClient = () => {
+// Server-side Supabase client with caching
+export const getServerSupabaseClient = (): SupabaseClient | null => {
+  if (serverSupabaseClient) {
+    return serverSupabaseClient;
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
@@ -37,5 +48,18 @@ export const getServerSupabaseClient = () => {
     return null;
   }
   
-  return createClient(supabaseUrl, supabaseServiceKey);
+  serverSupabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    },
+    // Performance optimizations
+    global: {
+      headers: {
+        'X-Client-Info': 'tdc-products-website-server'
+      }
+    }
+  });
+  
+  return serverSupabaseClient;
 };

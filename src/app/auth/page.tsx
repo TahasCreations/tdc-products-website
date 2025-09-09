@@ -5,6 +5,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useToast } from '../../components/Toast';
+import { useErrorToast } from '../../hooks/useErrorToast';
+import { ApiWrapper } from '../../lib/api-wrapper';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -22,6 +24,7 @@ export default function AuthPage() {
   const { signIn, signUp, signInWithGoogle, resetPassword } = useAuth();
   const router = useRouter();
   const { addToast } = useToast();
+  const { handleAsyncOperation, showError } = useErrorToast();
 
   // Form değiştiğinde hataları temizle
   useEffect(() => {

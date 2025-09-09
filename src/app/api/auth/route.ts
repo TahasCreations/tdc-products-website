@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { AppErrorHandler, ErrorCodes, validateRequired, validateEmail } from '@/lib/error-handler';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,117 +18,101 @@ const createServerSupabaseClient = () => {
 };
 
 export async function POST(request: NextRequest) {
-  try {
+  const result = await AppErrorHandler.withErrorHandling(async () => {
     const body = await request.json();
     const { action, email, password } = body;
 
+    // Validation
+    validateRequired(action, 'action');
+    validateRequired(email, 'email');
+    validateRequired(password, 'password');
+    validateEmail(email);
+
     const supabase = createServerSupabaseClient();
     if (!supabase) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Veritabanı bağlantısı kurulamadı' 
-      }, { status: 500 });
+      throw new Error('Veritabanı bağlantısı kurulamadı');
     }
 
     if (action === 'login') {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase!.auth.signInWithPassword({
         email,
         password
       });
 
       if (error) {
-        return NextResponse.json({ 
-          success: false, 
-          error: error.message 
-        }, { status: 400 });
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('E-posta veya şifre hatalı');
+        }
+        throw error;
       }
 
-      return NextResponse.json({ 
-        success: true, 
+      return AppErrorHandler.createApiSuccessResponse({
         user: data.user,
         session: data.session
       });
     }
 
     if (action === 'logout') {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabase!.auth.signOut();
 
       if (error) {
-        return NextResponse.json({ 
-          success: false, 
-          error: error.message 
-        }, { status: 400 });
+        throw error;
       }
 
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Başarıyla çıkış yapıldı' 
-      });
+      return AppErrorHandler.createApiSuccessResponse(
+        null,
+        'Başarıyla çıkış yapıldı'
+      );
     }
 
     if (action === 'register') {
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await supabase!.auth.signUp({
         email,
         password
       });
 
       if (error) {
-        return NextResponse.json({ 
-          success: false, 
-          error: error.message 
-        }, { status: 400 });
+        if (error.message.includes('User already registered')) {
+          throw new Error('Bu e-posta adresi zaten kayıtlı');
+        }
+        throw error;
       }
 
-      return NextResponse.json({ 
-        success: true, 
-        user: data.user,
-        message: 'Hesap oluşturuldu. Email doğrulaması gerekli.' 
-      });
+      return AppErrorHandler.createApiSuccessResponse(
+        { user: data.user },
+        'Hesap oluşturuldu. Email doğrulaması gerekli.'
+      );
     }
 
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Geçersiz işlem' 
-    }, { status: 400 });
+    throw new Error('Geçersiz işlem');
+  }, 'Auth API');
 
-  } catch (error) {
-    console.error('Auth API error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Sunucu hatası' 
-    }, { status: 500 });
+  if (result.success) {
+    return NextResponse.json(result);
+  } else {
+    return NextResponse.json(result, { status: 400 });
   }
 }
 
 export async function GET() {
-  try {
+  const result = await AppErrorHandler.withErrorHandling(async () => {
     const supabase = createServerSupabaseClient();
     if (!supabase) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Veritabanı bağlantısı kurulamadı' 
-      }, { status: 500 });
+      throw new Error('Veritabanı bağlantısı kurulamadı');
     }
 
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const { data: { user }, error } = await supabase!.auth.getUser();
 
     if (error) {
-      return NextResponse.json({ 
-        success: false, 
-        error: error.message 
-      }, { status: 400 });
+      throw error;
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      user: user 
-    });
+    return AppErrorHandler.createApiSuccessResponse({ user });
+  }, 'Auth GET API');
 
-  } catch (error) {
-    console.error('Auth GET error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Sunucu hatası' 
-    }, { status: 500 });
+  if (result.success) {
+    return NextResponse.json(result);
+  } else {
+    return NextResponse.json(result, { status: 400 });
   }
 }

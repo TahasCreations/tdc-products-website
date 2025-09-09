@@ -199,6 +199,25 @@ export default function AdminPage() {
                 </p>
               </Link>
 
+              {/* Muhasebe */}
+              <Link
+                href="/admin/accounting"
+                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors">
+                    <i className="ri-calculator-line text-2xl text-emerald-600"></i>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">Muhasebe</h3>
+                    <p className="text-sm text-gray-600">Gelişmiş muhasebe sistemi</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  TDHP hesap planı, yevmiye fişleri, faturalar, raporlar ve dönem işlemleri.
+                </p>
+              </Link>
+
               {/* Reports */}
               <Link
                 href="/admin/reports"

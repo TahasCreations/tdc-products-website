@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     );
     
     // Kullanıcı kontrolü
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase!.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     const { productId } = await request.json();
 
     // Kullanıcı kontrolü
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase!.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -171,7 +171,7 @@ export async function DELETE(request: NextRequest) {
     const productId = searchParams.get('productId');
 
     // Kullanıcı kontrolü
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase!.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

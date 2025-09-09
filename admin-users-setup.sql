@@ -1,4 +1,4 @@
--- Admin kullanıcıları tablosu
+-- Admin kullanıcıları tablosu (RBAC ile genişletilmiş)
 CREATE TABLE IF NOT EXISTS admin_users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,
@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS admin_users (
   password_hash VARCHAR(255), -- Admin kullanıcıları için özel şifre
   is_main_admin BOOLEAN DEFAULT false, -- Ana admin kontrolü
   is_active BOOLEAN DEFAULT true,
+  role VARCHAR(50) DEFAULT 'viewer' CHECK (role IN ('owner', 'accountant', 'cashier', 'auditor', 'viewer')),
+  permissions JSONB DEFAULT '[]', -- Özel izinler
+  company_id UUID, -- Hangi şirket için yetkili
   created_by UUID REFERENCES admin_users(id), -- Hangi admin tarafından oluşturuldu
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -20,6 +23,15 @@ ADD COLUMN IF NOT EXISTS is_main_admin BOOLEAN DEFAULT false;
 
 ALTER TABLE admin_users 
 ADD COLUMN IF NOT EXISTS created_by UUID REFERENCES admin_users(id);
+
+ALTER TABLE admin_users 
+ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'viewer';
+
+ALTER TABLE admin_users 
+ADD COLUMN IF NOT EXISTS permissions JSONB DEFAULT '[]';
+
+ALTER TABLE admin_users 
+ADD COLUMN IF NOT EXISTS company_id UUID;
 
 -- RLS (Row Level Security) etkinleştir
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;

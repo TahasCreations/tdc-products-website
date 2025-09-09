@@ -115,7 +115,7 @@ async function getOverviewAnalytics(startDate: Date, endDate: Date) {
     const totalRevenue = revenueData?.reduce((sum, order) => sum + order.total_amount, 0) || 0;
 
     // Toplam müşteri sayısı
-    const { data: usersData } = await supabase.auth.admin.listUsers();
+    const { data: usersData } = await supabase!.auth.admin.listUsers();
     const totalCustomers = usersData?.users?.length || 0;
 
     // Ortalama sipariş değeri
@@ -514,7 +514,7 @@ async function getNewCustomers(startDate: Date, endDate: Date) {
     }, { status: 500 });
   }
   
-  const { data } = await supabase.auth.admin.listUsers();
+  const { data } = await supabase!.auth.admin.listUsers();
   
   const newCustomers = data.users.filter(user => {
     const createdAt = new Date(user.created_at);

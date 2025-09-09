@@ -10,7 +10,10 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf .next out",
-    "deploy": "npm run build"
+    "deploy": "npm run build",
+    "analyze": "ANALYZE=true npm run build",
+    "analyze:server": "BUNDLE_ANALYZE=server npm run build",
+    "analyze:browser": "BUNDLE_ANALYZE=browser npm run build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -30,6 +33,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.5.2",
     "@types/bcrypt": "^6.0.0",
     "@types/node": "^20",
     "@types/react": "^18",

@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
     // Supabase Storage'a yükle - RLS bypass
     try {
-      const { data, error } = await supabase.storage
+      const { data, error } = await supabase!.storage
         .from('images')
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -124,7 +124,7 @@ export async function GET() {
     }
     
     // Storage bucket listesi
-    const { data, error } = await supabase.storage.listBuckets();
+    const { data, error } = await supabase!.storage.listBuckets();
 
     if (error) {
       return NextResponse.json({ 

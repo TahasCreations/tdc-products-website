@@ -1,11 +1,15 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
-import InvoiceTemplate from '../../../components/InvoiceTemplate';
 import OptimizedLoader from '../../../components/OptimizedLoader';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+
+// Lazy load heavy components
+const InvoiceTemplate = lazy(() => import('../../../components/InvoiceTemplate'));
+
+// Lazy load heavy libraries
+const loadPDFLibs = () => import('jspdf').then(module => ({ jsPDF: module.default }));
+const loadCanvasLib = () => import('html2canvas').then(module => ({ html2canvas: module.default }));
 
 interface Invoice {
   id: string;
@@ -117,6 +121,12 @@ export default function AdminInvoicesPage() {
       // Kısa bir gecikme sonrası PDF oluştur
       setTimeout(async () => {
         if (invoiceRef.current) {
+          // Lazy load libraries
+          const [{ html2canvas }, { jsPDF }] = await Promise.all([
+            loadCanvasLib(),
+            loadPDFLibs()
+          ]);
+
           const canvas = await html2canvas(invoiceRef.current, {
             scale: 2,
             useCORS: true,
@@ -416,12 +426,14 @@ export default function AdminInvoicesPage() {
                 </div>
               </div>
               <div className="p-6">
-                <InvoiceTemplate
-                  ref={invoiceRef}
-                  invoice={selectedInvoice}
-                  items={invoiceItems}
-                  companyInfo={companyInfo}
-                />
+                <Suspense fallback={<OptimizedLoader />}>
+                  <InvoiceTemplate
+                    ref={invoiceRef}
+                    invoice={selectedInvoice}
+                    items={invoiceItems}
+                    companyInfo={companyInfo}
+                  />
+                </Suspense>
               </div>
             </div>
           </div>

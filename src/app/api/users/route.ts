@@ -139,7 +139,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Auth kullanıcısını sil (bu da user_profiles'ı otomatik siler)
-    const { error } = await supabase.auth.admin.deleteUser(userId);
+    const { error } = await supabase!.auth.admin.deleteUser(userId);
 
     if (error) {
       console.error('Delete user error:', error);

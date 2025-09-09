@@ -1,12 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
-import FinanceCharts from '../../../components/FinanceCharts';
 import OptimizedLoader from '../../../components/OptimizedLoader';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import * as XLSX from 'xlsx';
+
+// Lazy load heavy components
+const FinanceCharts = lazy(() => import('../../../components/FinanceCharts'));
+
+// Lazy load heavy libraries
+const loadPDFLibs = () => import('jspdf').then(module => ({ jsPDF: module.default }));
+const loadCanvasLib = () => import('html2canvas').then(module => ({ html2canvas: module.default }));
+const loadXLSXLib = () => import('xlsx').then(module => ({ XLSX: module }));
 
 interface FinanceData {
   totalRevenue: number;
@@ -127,6 +131,12 @@ export default function AdminReportsPage() {
       const element = document.getElementById('report-content');
       if (!element) return;
 
+      // Lazy load libraries
+      const [{ html2canvas }, { jsPDF }] = await Promise.all([
+        loadCanvasLib(),
+        loadPDFLibs()
+      ]);
+
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -165,10 +175,13 @@ export default function AdminReportsPage() {
     }
   };
 
-  const generateExcelReport = () => {
+  const generateExcelReport = async () => {
     try {
       setMessage('Excel raporu oluşturuluyor...');
       setMessageType('success');
+
+      // Lazy load XLSX library
+      const { XLSX } = await loadXLSXLib();
 
       const workbook = XLSX.utils.book_new();
 
@@ -365,10 +378,12 @@ export default function AdminReportsPage() {
         {/* Report Content */}
         <div id="report-content" className="space-y-6">
           {financeData && (
-            <FinanceCharts 
-              financeData={financeData} 
-              monthlyData={monthlyData}
-            />
+            <Suspense fallback={<OptimizedLoader />}>
+              <FinanceCharts 
+                financeData={financeData} 
+                monthlyData={monthlyData}
+              />
+            </Suspense>
           )}
 
           {/* Detailed Tables */}
