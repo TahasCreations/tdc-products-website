@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import AdminProtection from '@/components/AdminProtection';
 import OptimizedLoader from '@/components/OptimizedLoader';
 
@@ -611,10 +612,12 @@ export default function AdminUsersPage() {
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10">
                                   {user.avatar_url ? (
-                                    <img
+                                    <Image
                                       className="h-10 w-10 rounded-full"
                                       src={user.avatar_url}
                                       alt=""
+                                      width={40}
+                                      height={40}
                                     />
                                   ) : (
                                     <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">

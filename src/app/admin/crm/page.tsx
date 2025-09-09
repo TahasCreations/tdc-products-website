@@ -157,10 +157,6 @@ export default function AdminCRMPage() {
     status: 'draft'
   });
 
-  useEffect(() => {
-    fetchCRMData();
-  }, []);
-
   const fetchCRMData = useCallback(async () => {
     try {
       setLoading(true);
@@ -197,6 +193,10 @@ export default function AdminCRMPage() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchCRMData();
+  }, [fetchCRMData]);
 
   const fetchCustomerDetail = async (customerId: string) => {
     try {

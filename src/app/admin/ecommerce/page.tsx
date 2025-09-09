@@ -146,10 +146,6 @@ export default function AdminEcommercePage() {
     ad_copy: ''
   });
 
-  useEffect(() => {
-    fetchEcommerceData();
-  }, []);
-
   const fetchEcommerceData = useCallback(async () => {
     try {
       setLoading(true);
@@ -198,6 +194,10 @@ export default function AdminEcommercePage() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchEcommerceData();
+  }, [fetchEcommerceData]);
 
   const handleAddShippingCompany = async (e: React.FormEvent) => {
     e.preventDefault();

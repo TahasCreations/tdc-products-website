@@ -239,10 +239,6 @@ export default function AdminHRPage() {
     employment_type: 'full_time'
   });
 
-  useEffect(() => {
-    fetchHRData();
-  }, []);
-
   const fetchHRData = useCallback(async () => {
     try {
       setLoading(true);
@@ -318,6 +314,10 @@ export default function AdminHRPage() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchHRData();
+  }, [fetchHRData]);
 
   const handleAddEmployee = async (e: React.FormEvent) => {
     e.preventDefault();
