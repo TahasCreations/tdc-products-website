@@ -62,7 +62,7 @@ export default function AdminCommentsPage() {
   };
 
   const fetchComments = useCallback(async () => {
-    const supabase = createClientSupabaseClient();
+    const supabase = getSupabaseClient();
     if (!supabase) return;
 
     try {

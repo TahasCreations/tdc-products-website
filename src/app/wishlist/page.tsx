@@ -3,7 +3,7 @@
 import { useWishlist } from '../../contexts/WishlistContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
-import { PageLoader } from '../../components/LoadingSpinner';
+import OptimizedLoader from '../../components/OptimizedLoader';
 import WishlistButton from '../../components/WishlistButton';
 import AddToCartButton from '../../components/AddToCartButton';
 import Link from 'next/link';
@@ -68,7 +68,7 @@ export default function WishlistPage() {
   }
 
   if (isLoading) {
-    return <PageLoader text="Wishlist yükleniyor..." />;
+    return <OptimizedLoader message="Wishlist yükleniyor..." />;
   }
 
   return (

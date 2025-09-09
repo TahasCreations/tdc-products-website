@@ -4,22 +4,9 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@supabase/supabase-js';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import { getSupabaseClient } from '../../../lib/supabase-client';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 import BlogComments from '../../../components/BlogComments';
-
-// Client-side Supabase client
-const createClientSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables are missing');
-    return null;
-  }
-  
-  return createClient(supabaseUrl, supabaseAnonKey);
-};
 
 interface BlogPost {
   id: string;
@@ -47,7 +34,7 @@ export default function BlogDetailPage() {
     const fetchBlog = async () => {
       if (!params.slug) return;
 
-      const supabase = createClientSupabaseClient();
+      const supabase = getSupabaseClient();
       if (!supabase) {
         console.error('Supabase client could not be created');
         setLoading(false);
@@ -93,7 +80,7 @@ export default function BlogDetailPage() {
   }, [params.slug, router]);
 
   if (loading) {
-    return <PageLoader text="Blog yükleniyor..." />;
+    return <OptimizedLoader message="Blog yükleniyor..." />;
   }
 
   if (!blog) {

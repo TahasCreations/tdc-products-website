@@ -1,21 +1,9 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../lib/supabase-client';
 import { useAuth } from './AuthContext';
 
-// Client-side Supabase client
-const createClientSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables are missing');
-    return null;
-  }
-  
-  return createClient(supabaseUrl, supabaseAnonKey);
-};
 
 interface WishlistItem {
   id: string;
@@ -73,7 +61,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
 
     setIsLoading(true);
     try {
-      const supabase = createClientSupabaseClient();
+      const supabase = getSupabaseClient();
       if (!supabase) {
         console.error('Supabase client could not be created');
         return;
@@ -104,7 +92,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
       }
 
       if (data) {
-        const formattedData = data.map(item => ({
+        const formattedData = data.map((item: any) => ({
           id: item.id,
           product_id: item.product_id,
           created_at: item.created_at,
@@ -129,7 +117,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     }
 
     try {
-      const supabase = createClientSupabaseClient();
+      const supabase = getSupabaseClient();
       if (!supabase) {
         alert('Veritabanı bağlantısı kurulamadı');
         return;
@@ -171,7 +159,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     if (!user) return;
 
     try {
-      const supabase = createClientSupabaseClient();
+      const supabase = getSupabaseClient();
       if (!supabase) {
         alert('Veritabanı bağlantısı kurulamadı');
         return;
@@ -208,7 +196,7 @@ export const WishlistProvider: React.FC<WishlistProviderProps> = ({ children }) 
     if (!user) return;
 
     try {
-      const supabase = createClientSupabaseClient();
+      const supabase = getSupabaseClient();
       if (!supabase) {
         alert('Veritabanı bağlantısı kurulamadı');
         return;

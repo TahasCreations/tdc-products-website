@@ -3,23 +3,16 @@ import ProductCard from '../../components/ProductCard';
 import SearchAndFilter from '../../components/SearchAndFilter';
 import SkeletonLoader from '../../components/SkeletonLoader';
 import CategorySidebar from '../../components/CategorySidebar';
-import { ProductCardSkeleton, PageLoader } from '../../components/LoadingSpinner';
+import { ProductCardSkeleton } from '../../components/LoadingSpinner';
+import OptimizedLoader from '../../components/OptimizedLoader';
 import Link from 'next/link';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../../lib/supabase-client';
 
 export const dynamic = 'force-dynamic';
 
 // Server-side Supabase client
 const createServerSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables are missing');
-    return null;
-  }
-  
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return getSupabaseClient();
 };
 
 // Ürünleri Supabase'den çek
@@ -191,7 +184,7 @@ export default async function ProductsPage({
 
   // Loading durumu kontrolü
   if (!products || products.length === 0) {
-    return <PageLoader text="Ürünler yükleniyor..." />;
+    return <OptimizedLoader message="Ürünler yükleniyor..." />;
   }
 
   // Filtreleme ve sıralama

@@ -2,20 +2,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseClient } from '../../lib/supabase-client';
 
-// Client-side Supabase client
-const createClientSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables are missing');
-    return null;
-  }
-  
-  return createClient(supabaseUrl, supabaseAnonKey);
-};
 
 export default function TestImagesPage() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
@@ -39,7 +27,7 @@ export default function TestImagesPage() {
 
         // Görsel yükleniyor
 
-        const supabase = createClientSupabaseClient();
+        const supabase = getSupabaseClient();
         if (!supabase) {
           setMessage('Supabase client oluşturulamadı');
           continue;

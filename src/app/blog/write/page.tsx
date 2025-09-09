@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 import Link from 'next/link';
 
 const categories = ['Genel', 'Anime', 'Gaming', 'Film', 'Teknoloji', 'Lifestyle'] as const;
@@ -145,7 +145,7 @@ export default function WriteBlogPage() {
   };
 
   if (!user) {
-    return <PageLoader text="Yönlendiriliyor..." />;
+    return <OptimizedLoader message="Yönlendiriliyor..." />;
   }
 
   return (

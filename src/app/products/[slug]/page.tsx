@@ -5,37 +5,15 @@ import Link from "next/link";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCartButton from "../../../components/AddToCartButton";
 import { notFound, useParams } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
-import { PageLoader } from '../../../components/LoadingSpinner';
+import { getSupabaseClient } from '../../../lib/supabase-client';
+import OptimizedLoader from '../../../components/OptimizedLoader';
 import { useState, useEffect } from 'react';
 
 export const dynamic = 'force-dynamic';
 
 // Server-side Supabase client
 const createServerSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables are missing');
-    return null;
-  }
-  
-  // URL formatını kontrol et
-  if (supabaseUrl.includes('your_supabase_project_url') || 
-      supabaseUrl === 'your_supabase_project_url/' ||
-      supabaseUrl === 'your_supabase_project_url' ||
-      !supabaseUrl.startsWith('https://')) {
-    console.error('Supabase URL is not configured properly:', supabaseUrl);
-    return null;
-  }
-  
-  try {
-    return createClient(supabaseUrl, supabaseAnonKey);
-  } catch (error) {
-    console.error('Failed to create Supabase client:', error);
-    return null;
-  }
+  return getSupabaseClient();
 };
 
 // Default ürünler
@@ -157,7 +135,7 @@ export default function ProductDetailPage() {
   }, [slug]);
 
   if (loading) {
-    return <PageLoader text="Ürün detayları yükleniyor..." />;
+    return <OptimizedLoader message="Ürün detayları yükleniyor..." />;
   }
 
   if (error || !product) {

@@ -5,34 +5,7 @@ import AddToCartButton from '../components/AddToCartButton';
 import AnimatedText from '../../animated-text';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-// Client-side Supabase client
-const createClientSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables are missing');
-    return null;
-  }
-  
-  // URL formatını kontrol et
-  if (supabaseUrl.includes('your_supabase_project_url') || 
-      supabaseUrl === 'your_supabase_project_url/' ||
-      supabaseUrl === 'your_supabase_project_url' ||
-      !supabaseUrl.startsWith('https://')) {
-    console.error('Supabase URL is not configured properly:', supabaseUrl);
-    return null;
-  }
-  
-  try {
-    return createClient(supabaseUrl, supabaseAnonKey);
-  } catch (error) {
-    console.error('Failed to create Supabase client:', error);
-    return null;
-  }
-};
+import { getSupabaseClient } from '../lib/supabase-client';
 
 interface Product {
   id: string;
@@ -126,7 +99,7 @@ export default function HomePage() {
 
       // Ürünler yükleniyor
       
-      const supabase = createClientSupabaseClient();
+      const supabase = getSupabaseClient();
       if (!supabase) {
         console.error('Supabase client could not be created');
         setProducts(getDefaultProducts());

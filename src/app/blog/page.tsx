@@ -3,22 +3,9 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
-import { createClient } from '@supabase/supabase-js';
-import { PageLoader } from '../../components/LoadingSpinner';
+import { getSupabaseClient } from '../../lib/supabase-client';
+import OptimizedLoader from '../../components/OptimizedLoader';
 import Link from 'next/link';
-
-// Client-side Supabase client
-const createClientSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables are missing');
-    return null;
-  }
-  
-  return createClient(supabaseUrl, supabaseAnonKey);
-};
 
 interface BlogPost {
   id: string;
@@ -55,7 +42,7 @@ export default function BlogPage() {
   }, []);
 
   const fetchBlogs = async () => {
-    const supabase = createClientSupabaseClient();
+    const supabase = getSupabaseClient();
     if (!supabase) return;
 
     try {
@@ -127,7 +114,7 @@ export default function BlogPage() {
   };
 
   if (loading) {
-    return <PageLoader text="Blog'lar yükleniyor..." />;
+    return <OptimizedLoader message="Blog'lar yükleniyor..." />;
   }
 
   return (

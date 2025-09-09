@@ -42,7 +42,7 @@ export default function AdminBlogsPage() {
 
 
   const fetchBlogs = useCallback(async () => {
-    const supabase = createClientSupabaseClient();
+    const supabase = getSupabaseClient();
     if (!supabase) return;
 
     try {
@@ -77,7 +77,7 @@ export default function AdminBlogsPage() {
       return;
     }
 
-    const supabase = createClientSupabaseClient();
+    const supabase = getSupabaseClient();
     if (!supabase) return;
 
     try {
@@ -117,7 +117,7 @@ export default function AdminBlogsPage() {
   };
 
   const handleStatusUpdate = async (blogId: string, newStatus: 'published' | 'rejected') => {
-    const supabase = createClientSupabaseClient();
+    const supabase = getSupabaseClient();
     if (!supabase) return;
 
     try {
@@ -148,7 +148,7 @@ export default function AdminBlogsPage() {
   const handleDeleteBlog = async (blogId: string) => {
     if (!confirm('Bu blog yazısını silmek istediğinizden emin misiniz?')) return;
 
-    const supabase = createClientSupabaseClient();
+    const supabase = getSupabaseClient();
     if (!supabase) return;
 
     try {

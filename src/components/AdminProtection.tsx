@@ -6,9 +6,10 @@ import Link from 'next/link';
 
 interface AdminProtectionProps {
   children: React.ReactNode;
+  requireMainAdmin?: boolean;
 }
 
-export default function AdminProtection({ children }: AdminProtectionProps) {
+export default function AdminProtection({ children, requireMainAdmin = false }: AdminProtectionProps) {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,32 +68,60 @@ export default function AdminProtection({ children }: AdminProtectionProps) {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Erişim Reddedildi</h1>
-          <p className="text-gray-600 mb-6">
-            Bu sayfaya erişmek için admin girişi yapmanız gerekiyor.
-          </p>
-          <div className="space-x-4">
-            <Link
-              href="/admin/login"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Admin Girişi
-            </Link>
-            <Link
-              href="/"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              Ana Sayfaya Dön
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+         if (!isAuthenticated) {
+           return (
+             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+               <div className="text-center">
+                 <h1 className="text-2xl font-bold text-red-600 mb-4">Erişim Reddedildi</h1>
+                 <p className="text-gray-600 mb-6">
+                   Bu sayfaya erişmek için admin girişi yapmanız gerekiyor.
+                 </p>
+                 <div className="space-x-4">
+                   <Link
+                     href="/admin/login"
+                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                   >
+                     Admin Girişi
+                   </Link>
+                   <Link
+                     href="/"
+                     className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                   >
+                     Ana Sayfaya Dön
+                   </Link>
+                 </div>
+               </div>
+             </div>
+           );
+         }
+
+         // Main admin kontrolü
+         if (requireMainAdmin && !adminInfo.isMainAdmin) {
+           return (
+             <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
+               <div className="text-center">
+                 <h1 className="text-2xl font-bold text-red-600 mb-4">Erişim Reddedildi</h1>
+                 <p className="text-gray-600 mb-6">
+                   Bu sayfaya erişmek için ana admin yetkisi gerekiyor.
+                 </p>
+                 <div className="space-x-4">
+                   <Link
+                     href="/admin"
+                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                   >
+                     Admin Paneli
+                   </Link>
+                   <Link
+                     href="/"
+                     className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                   >
+                     Ana Sayfaya Dön
+                   </Link>
+                 </div>
+               </div>
+             </div>
+           );
+         }
 
   return (
     <div className="min-h-screen bg-gray-50">
