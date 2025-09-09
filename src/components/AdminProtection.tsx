@@ -143,19 +143,19 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
               </span>
               <div className="flex items-center space-x-2">
                 <button
+                  onClick={() => router.back()}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors duration-150 p-2 rounded-full border border-red-200 hover:border-red-300"
+                  title="Önceki sayfaya dön"
+                >
+                  <i className="ri-close-line text-xl font-bold"></i>
+                </button>
+                <button
                   onClick={handleLogout}
                   className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors duration-150 hover:bg-red-50 px-3 py-1 rounded-md border border-red-200 hover:border-red-300"
                   title="Hızlı çıkış"
                 >
                   <i className="ri-logout-box-line mr-1"></i>
                   Çıkış Yap
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="text-xs text-gray-500 hover:text-red-600 transition-colors duration-150 p-1 rounded"
-                  title="Anında çıkış"
-                >
-                  <i className="ri-close-line text-lg"></i>
                 </button>
               </div>
             </div>

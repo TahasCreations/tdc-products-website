@@ -350,7 +350,7 @@ export default function AccountingPage() {
               </Link>
 
               <Link
-                href="/admin/accounting/periods"
+                href="/admin/accounting/period-operations"
                 className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
               >
                 <div className="flex items-center mb-4">
@@ -368,6 +368,60 @@ export default function AccountingPage() {
               </Link>
 
               <Link
+                href="/admin/accounting/efatura"
+                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors">
+                    <i className="ri-file-text-line text-2xl text-emerald-600"></i>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">E-Fatura</h3>
+                    <p className="text-sm text-gray-600">GİB E-Fatura entegrasyonu</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  E-Fatura gönderimi, durum takibi ve PDF indirme.
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/accounting/earsiv"
+                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-teal-100 rounded-lg group-hover:bg-teal-200 transition-colors">
+                    <i className="ri-archive-line text-2xl text-teal-600"></i>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">E-Arşiv</h3>
+                    <p className="text-sm text-gray-600">GİB E-Arşiv entegrasyonu</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  E-Arşiv gönderimi, toplu işlemler ve arşivleme.
+                </p>
+              </Link>
+
+              <Link
+                href="/admin/accounting/currency"
+                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-yellow-100 rounded-lg group-hover:bg-yellow-200 transition-colors">
+                    <i className="ri-exchange-line text-2xl text-yellow-600"></i>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">Döviz Kurları</h3>
+                    <p className="text-sm text-gray-600">TCMB döviz kuru yönetimi</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Otomatik kur güncelleme, çevirici ve alarm sistemi.
+                </p>
+              </Link>
+
+              <Link
                 href="/admin/accounting/settings"
                 className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
               >
@@ -381,7 +435,7 @@ export default function AccountingPage() {
                   </div>
                 </div>
                 <p className="text-sm text-gray-500">
-                  KDV oranları, tevkifat ve e-Fatura ayarları.
+                  KDV oranları, tevkifat ve sistem ayarları.
                 </p>
               </Link>
             </div>
