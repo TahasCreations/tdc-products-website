@@ -714,7 +714,7 @@ export default function AdminFinancePage() {
                     <h3 className="text-lg font-semibold text-gray-900">Siparişler</h3>
                     <div className="flex items-center space-x-4">
                       <div className="text-sm text-gray-600">
-                        Toplam: <span className="font-semibold text-blue-600">{formatCurrency(financeData.totalOrders)}</span>
+                        Toplam: <span className="font-semibold text-blue-600">{formatCurrency(financeData?.totalOrders || 0)}</span>
                       </div>
                       <Link
                         href="/admin/orders"

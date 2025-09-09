@@ -123,6 +123,7 @@ interface Training {
   end_date: string;
   status: string;
   participants_count: number;
+  max_participants: number;
   instructor: string;
 }
 
@@ -130,6 +131,9 @@ interface Recruitment {
   id: string;
   position_title: string;
   department: string;
+  description: string;
+  employment_type: string;
+  location: string;
   status: string;
   applications_count: number;
   posted_date: string;

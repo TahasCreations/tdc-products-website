@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
         return userDate >= monthStart;
       }).length || 0,
       averageOrdersPerUser: 0,
-      topSpenders: []
+      topSpenders: [] as any[]
     };
 
     // Top spenders için ayrı sorgu

@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
       }, {} as Record<string, number>) || {};
 
       // Performans istatistikleri
-      const avgPerformanceRating = performanceReviews?.length > 0 
+      const avgPerformanceRating = performanceReviews && performanceReviews.length > 0 
         ? performanceReviews.reduce((sum, review) => sum + review.overall_rating, 0) / performanceReviews.length 
         : 0;
 
