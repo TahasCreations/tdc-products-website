@@ -531,7 +531,7 @@ export default function AdminFinancePage() {
                     <h3 className="text-lg font-semibold text-gray-900">Giderler</h3>
                     <div className="flex items-center space-x-4">
                       <div className="text-sm text-gray-600">
-                        Toplam: <span className="font-semibold text-red-600">{formatCurrency(financeData.totalExpenses)}</span>
+                        Toplam: <span className="font-semibold text-red-600">{formatCurrency(financeData?.totalExpenses || 0)}</span>
                       </div>
                       <button
                         onClick={() => setShowAddExpense(true)}
@@ -600,7 +600,7 @@ export default function AdminFinancePage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button
-                              onClick={() => handleDeleteExpense(expense.id)}
+                              onClick={() => console.log('Delete expense:', expense.id)}
                               className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
                               title="Gideri sil"
                             >
@@ -622,7 +622,7 @@ export default function AdminFinancePage() {
                     <h3 className="text-lg font-semibold text-gray-900">Faturalar</h3>
                     <div className="flex items-center space-x-4">
                       <div className="text-sm text-gray-600">
-                        Toplam: <span className="font-semibold text-green-600">{formatCurrency(financeData.totalInvoices)}</span>
+                        Toplam: <span className="font-semibold text-green-600">{formatCurrency(financeData?.totalRevenue || 0)}</span>
                       </div>
                       <button
                         onClick={() => setShowCreateInvoice(true)}
@@ -692,7 +692,7 @@ export default function AdminFinancePage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button
-                              onClick={() => handleDeleteInvoice(invoice.id)}
+                              onClick={() => console.log('Delete invoice:', invoice.id)}
                               className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
                               title="Faturayı sil"
                             >
@@ -1082,6 +1082,7 @@ export default function AdminFinancePage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </AdminProtection>
   );

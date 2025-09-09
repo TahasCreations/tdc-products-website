@@ -929,6 +929,7 @@ export default function AdminCRMPage() {
                   </tbody>
                 </table>
               </div>
+            </div>
             )}
 
             {activeTab === 'customer_detail' && selectedCustomer && (
