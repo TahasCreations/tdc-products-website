@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
 import { useErrorToast } from '../../../hooks/useErrorToast';
 import { ApiWrapper } from '../../../lib/api-wrapper';
@@ -23,11 +23,7 @@ export default function BackupPage() {
 
   const { handleAsyncOperation, showSuccess, showError } = useErrorToast();
 
-  useEffect(() => {
-    fetchBackups();
-  }, []);
-
-  const fetchBackups = async () => {
+  const fetchBackups = useCallback(async () => {
     const result = await handleAsyncOperation(
       () => ApiWrapper.get('/api/backup?action=list'),
       undefined,
@@ -38,7 +34,11 @@ export default function BackupPage() {
       setBackups((result as any).data.backups || []);
     }
     setLoading(false);
-  };
+  }, [handleAsyncOperation]);
+
+  useEffect(() => {
+    fetchBackups();
+  }, [fetchBackups]);
 
   const handleCreateBackup = async () => {
     if (!backupName.trim()) {
