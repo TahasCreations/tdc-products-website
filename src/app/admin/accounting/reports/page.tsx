@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import AdminProtection from '../../../../components/AdminProtection';
 
 interface ReportData {
@@ -9,6 +10,7 @@ interface ReportData {
   journal: any[];
   accountStatement: any[];
   kdvSummary: any;
+  periodSummary: any;
 }
 
 interface ReportFilters {
@@ -20,6 +22,7 @@ interface ReportFilters {
 }
 
 export default function ReportsPage() {
+  const searchParams = useSearchParams();
   const [activeReport, setActiveReport] = useState<string>('trial-balance');
   const [reportData, setReportData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -31,6 +34,14 @@ export default function ReportsPage() {
     accountId: '',
     companyId: '550e8400-e29b-41d4-a716-446655440000'
   });
+
+  // URL parametresinden aktif raporu al
+  useEffect(() => {
+    const reportParam = searchParams.get('report');
+    if (reportParam) {
+      setActiveReport(reportParam);
+    }
+  }, [searchParams]);
 
   const reportTypes = [
     {
@@ -67,6 +78,13 @@ export default function ReportsPage() {
       description: 'KDV hesaplamaları',
       icon: 'ri-calculator-line',
       color: 'red'
+    },
+    {
+      id: 'period-summary',
+      name: 'Dönem Raporu',
+      description: 'Dönemsel özet rapor',
+      icon: 'ri-calendar-line',
+      color: 'teal'
     }
   ];
 
@@ -429,6 +447,125 @@ export default function ReportsPage() {
     );
   };
 
+  const renderPeriodSummary = () => {
+    const data = reportData?.periodSummary || {};
+    return (
+      <div className="space-y-6">
+        {/* Dönem Bilgileri */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Dönem Bilgileri</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Başlangıç:</span>
+                <span className="font-medium">{data.period?.startDate}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Bitiş:</span>
+                <span className="font-medium">{data.period?.endDate}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Süre:</span>
+                <span className="font-medium">{data.period?.duration} gün</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Hesap Özeti</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Toplam Hesap:</span>
+                <span className="font-medium">{data.accounts?.total || 0}</span>
+              </div>
+              {Object.entries(data.accounts?.byType || {}).map(([type, count]) => (
+                <div key={type} className="flex justify-between">
+                  <span className="text-gray-600">{type}:</span>
+                  <span className="font-medium">{count as number}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Cari Hesaplar</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Toplam Cari:</span>
+                <span className="font-medium">{data.contacts?.total || 0}</span>
+              </div>
+              {Object.entries(data.contacts?.byType || {}).map(([type, count]) => (
+                <div key={type} className="flex justify-between">
+                  <span className="text-gray-600">{type}:</span>
+                  <span className="font-medium">{count as number}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Finansal Özet */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Yevmiye Defteri</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Toplam Fiş:</span>
+                <span className="font-medium">{data.journal?.totalEntries || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Toplam Borç:</span>
+                <span className="font-medium text-red-600">
+                  {data.journal?.totalDebit?.toLocaleString('tr-TR') || '0.00'} TL
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Toplam Alacak:</span>
+                <span className="font-medium text-green-600">
+                  {data.journal?.totalCredit?.toLocaleString('tr-TR') || '0.00'} TL
+                </span>
+              </div>
+              <div className="flex justify-between border-t pt-3">
+                <span className="text-gray-600 font-semibold">Bakiye:</span>
+                <span className={`font-bold ${(data.journal?.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {data.journal?.balance?.toLocaleString('tr-TR') || '0.00'} TL
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Fatura Özeti</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Toplam Fatura:</span>
+                <span className="font-medium">{data.invoices?.totalCount || 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Toplam Tutar:</span>
+                <span className="font-medium">
+                  {data.invoices?.totalAmount?.toLocaleString('tr-TR') || '0.00'} TL
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Toplam KDV:</span>
+                <span className="font-medium text-blue-600">
+                  {data.invoices?.totalKdv?.toLocaleString('tr-TR') || '0.00'} TL
+                </span>
+              </div>
+              <div className="flex justify-between border-t pt-3">
+                <span className="text-gray-600 font-semibold">Net Tutar:</span>
+                <span className="font-bold text-gray-900">
+                  {data.invoices?.netAmount?.toLocaleString('tr-TR') || '0.00'} TL
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderReportContent = () => {
     switch (activeReport) {
       case 'trial-balance':
@@ -441,6 +578,8 @@ export default function ReportsPage() {
         return renderAccountStatement();
       case 'kdv-summary':
         return renderKdvSummary();
+      case 'period-summary':
+        return renderPeriodSummary();
       default:
         return <div className="text-center py-8 text-gray-500">Rapor seçin</div>;
     }

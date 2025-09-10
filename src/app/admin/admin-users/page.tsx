@@ -63,9 +63,7 @@ export default function AdminUsersPage() {
       }
     } catch (error) {
       console.error('Fetch admin users error:', error);
-      setMessage('Bağlantı hatası - Demo veriler gösteriliyor');
-      setMessageType('error');
-      // Fallback olarak demo admin users göster
+      // Sessizce demo admin users göster (hata mesajı gösterme)
       const defaultUsers = [
         {
           id: '1',

@@ -6,6 +6,8 @@ import AnimatedText from '../../animated-text';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { getSupabaseClient } from '../lib/supabase-client';
+import SmartRecommendations from '../components/SmartRecommendations';
+import GamificationDashboard from '../components/GamificationDashboard';
 
 interface Product {
   id: string;
@@ -353,6 +355,32 @@ export default function HomePage() {
             <i className="ri-shopping-cart-line mr-2"></i>
             Alışverişe Başla
           </Link>
+        </div>
+      </section>
+
+      {/* AI-Powered Smart Recommendations */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SmartRecommendations 
+            context="homepage"
+            limit={6}
+            title="🤖 AI Önerileri - Size Özel Figürler"
+          />
+        </div>
+      </section>
+
+      {/* Gamification Dashboard */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              🎮 Gamification Sistemi
+            </h2>
+            <p className="text-xl text-gray-600">
+              Alışveriş yaparken puan kazanın, seviye atlayın ve rozetler toplayın!
+            </p>
+          </div>
+          <GamificationDashboard />
         </div>
       </section>
     </div>

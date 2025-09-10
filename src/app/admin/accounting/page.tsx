@@ -520,7 +520,7 @@ export default function AccountingPage() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Hızlı Raporlar</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                <Link href="/admin/accounting/reports?report=trial-balance" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
                   <div className="flex items-center mb-4">
                     <div className="p-3 bg-blue-100 rounded-lg">
                       <i className="ri-file-list-line text-2xl text-blue-600"></i>
@@ -533,9 +533,9 @@ export default function AccountingPage() {
                   <p className="text-sm text-gray-500">
                     Tüm hesapların borç/alacak bakiyeleri.
                   </p>
-                </button>
+                </Link>
 
-                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                <Link href="/admin/accounting/reports?report=ledger" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
                   <div className="flex items-center mb-4">
                     <div className="p-3 bg-green-100 rounded-lg">
                       <i className="ri-bar-chart-line text-2xl text-green-600"></i>
@@ -548,9 +548,9 @@ export default function AccountingPage() {
                   <p className="text-sm text-gray-500">
                     Hesap bazında detaylı hareket listesi.
                   </p>
-                </button>
+                </Link>
 
-                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                <Link href="/admin/accounting/reports?report=journal" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
                   <div className="flex items-center mb-4">
                     <div className="p-3 bg-purple-100 rounded-lg">
                       <i className="ri-file-text-line text-2xl text-purple-600"></i>
@@ -563,9 +563,9 @@ export default function AccountingPage() {
                   <p className="text-sm text-gray-500">
                     Tarih sırasına göre fiş listesi.
                   </p>
-                </button>
+                </Link>
 
-                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                <Link href="/admin/accounting/reports?report=account-statement" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
                   <div className="flex items-center mb-4">
                     <div className="p-3 bg-orange-100 rounded-lg">
                       <i className="ri-contacts-line text-2xl text-orange-600"></i>
@@ -578,9 +578,9 @@ export default function AccountingPage() {
                   <p className="text-sm text-gray-500">
                     Cari hesap detayları ve bakiyeler.
                   </p>
-                </button>
+                </Link>
 
-                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                <Link href="/admin/accounting/reports?report=kdv-summary" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
                   <div className="flex items-center mb-4">
                     <div className="p-3 bg-red-100 rounded-lg">
                       <i className="ri-calculator-line text-2xl text-red-600"></i>
@@ -593,9 +593,9 @@ export default function AccountingPage() {
                   <p className="text-sm text-gray-500">
                     KDV oranlarına göre detaylı rapor.
                   </p>
-                </button>
+                </Link>
 
-                <button className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left">
+                <Link href="/admin/accounting/reports?report=period-summary" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
                   <div className="flex items-center mb-4">
                     <div className="p-3 bg-teal-100 rounded-lg">
                       <i className="ri-calendar-line text-2xl text-teal-600"></i>
@@ -608,7 +608,7 @@ export default function AccountingPage() {
                   <p className="text-sm text-gray-500">
                     Belirli dönem için özet bilgiler.
                   </p>
-                </button>
+                </Link>
               </div>
             </div>
           )}

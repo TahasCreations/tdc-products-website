@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import AIChatbot from './AIChatbot';
+import AdvancedAnalyticsDashboard from './AdvancedAnalyticsDashboard';
 
 interface AdminProtectionProps {
   children: React.ReactNode;
@@ -51,24 +53,59 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
     router.replace('/admin/login');
   }, [router]);
 
-  // Scroll position aware back navigation
+  // Enhanced scroll position aware back navigation
   const handleBackNavigation = useCallback(() => {
-    // Store current scroll position
+    // Store current scroll position with timestamp
     const currentScrollY = window.scrollY;
-    sessionStorage.setItem('admin_scroll_position', currentScrollY.toString());
+    const scrollData = {
+      position: currentScrollY,
+      timestamp: Date.now(),
+      url: window.location.pathname
+    };
+    sessionStorage.setItem('admin_scroll_data', JSON.stringify(scrollData));
     
     // Navigate back
     router.back();
   }, [router]);
 
-  // Restore scroll position on mount
+  // Enhanced scroll position restoration
   useEffect(() => {
-    const savedScrollY = sessionStorage.getItem('admin_scroll_position');
-    if (savedScrollY) {
-      setTimeout(() => {
-        window.scrollTo(0, parseInt(savedScrollY));
-        sessionStorage.removeItem('admin_scroll_position');
-      }, 100);
+    const savedScrollData = sessionStorage.getItem('admin_scroll_data');
+    if (savedScrollData) {
+      try {
+        const scrollData = JSON.parse(savedScrollData);
+        const { position, timestamp, url } = scrollData;
+        
+        // Check if data is recent (within 30 seconds) and from different page
+        const isRecent = Date.now() - timestamp < 30000;
+        const isDifferentPage = url !== window.location.pathname;
+        
+        if (isRecent && isDifferentPage) {
+          // Multiple attempts to ensure scroll restoration
+          const restoreScroll = () => {
+            window.scrollTo(0, position);
+          };
+          
+          // Immediate restoration
+          restoreScroll();
+          
+          // Delayed restoration for dynamic content
+          setTimeout(restoreScroll, 100);
+          setTimeout(restoreScroll, 300);
+          setTimeout(restoreScroll, 500);
+          
+          // Clean up after successful restoration
+          setTimeout(() => {
+            sessionStorage.removeItem('admin_scroll_data');
+          }, 1000);
+        } else {
+          // Clean up old data
+          sessionStorage.removeItem('admin_scroll_data');
+        }
+      } catch (error) {
+        console.error('Scroll restoration error:', error);
+        sessionStorage.removeItem('admin_scroll_data');
+      }
     }
   }, []);
 
@@ -174,20 +211,28 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
           </div>
         </div>
         
-        {/* Fixed Back Button - Top Right */}
+        {/* Fixed Back Button - Top Left */}
         <button
           onClick={handleBackNavigation}
-          className="fixed top-4 right-4 z-50 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 p-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
-          title="Önceki sayfaya dön"
+          className="fixed top-4 left-4 z-50 bg-red-600 hover:bg-red-700 text-black p-2 w-12 h-12 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-red-800 hover:border-red-900 flex items-center justify-center"
+          title="Önceki sayfaya dön (Scroll pozisyonu korunur)"
         >
-          <i className="ri-arrow-left-line text-xl"></i>
+          <i className="ri-close-line text-2xl font-black"></i>
         </button>
       </header>
 
       {/* Admin Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
+        
+        {/* Advanced Analytics Dashboard */}
+        <div className="mt-8">
+          <AdvancedAnalyticsDashboard />
+        </div>
       </main>
+      
+      {/* AI Chatbot for Admin */}
+      <AIChatbot context={{ userType: 'admin' }} />
     </div>
   );
 }
