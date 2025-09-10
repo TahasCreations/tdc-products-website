@@ -128,8 +128,23 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'add') {
+      // Gelişmiş validasyon
       if (!name || !name.trim()) {
         return NextResponse.json({ error: 'Kategori adı gerekli' }, { status: 400 });
+      }
+      
+      if (name.trim().length < 2) {
+        return NextResponse.json({ error: 'Kategori adı en az 2 karakter olmalı' }, { status: 400 });
+      }
+      
+      if (name.trim().length > 100) {
+        return NextResponse.json({ error: 'Kategori adı en fazla 100 karakter olabilir' }, { status: 400 });
+      }
+      
+      // Özel karakterler kontrolü
+      const invalidChars = /[<>:"/\\|?*]/;
+      if (invalidChars.test(name.trim())) {
+        return NextResponse.json({ error: 'Kategori adında geçersiz karakterler bulunuyor' }, { status: 400 });
       }
 
       const categoryName = name.trim();
@@ -143,34 +158,65 @@ export async function POST(request: NextRequest) {
         level: parent_id ? 1 : 0
       };
 
-      // Adding new category to Supabase
+      // Adding new category to Supabase - Retry mekanizması ile
+      const supabase = createServerSupabaseClient();
+      if (!supabase) {
+        return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
+      }
 
-      try {
-        const supabase = createServerSupabaseClient();
-        if (!supabase) {
-          return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
-        }
-        
-        const { data, error } = await supabase
-          .from('categories')
-          .insert([newCategory])
-          .select()
-          .single();
+      let insertSuccess = false;
+      let lastError: any = null;
+      const maxRetries = 3;
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const { data, error } = await supabase
+            .from('categories')
+            .insert([newCategory])
+            .select()
+            .single();
+            
+          if (error) {
+            lastError = error;
+            console.error(`Category insert attempt ${attempt} error:`, error);
+            
+            // Benzersizlik hatası
+            if (error.code === '23505' || error.message.includes('duplicate')) {
+              return NextResponse.json({ error: 'Bu kategori adı zaten kullanılıyor' }, { status: 400 });
+            }
+            
+            // Son deneme değilse tekrar dene
+            if (attempt < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+              continue;
+            }
+            
+            return NextResponse.json({ error: `Kategori eklenemedi (${maxRetries} deneme): ${error.message}` }, { status: 500 });
+          }
           
-        if (error) {
-          console.error('Supabase add category error:', error);
-          return NextResponse.json({ error: 'Kategori eklenemedi' }, { status: 500 });
+          insertSuccess = true;
+          return NextResponse.json({
+            success: true,
+            message: 'Kategori başarıyla eklendi',
+            category: data,
+            storageType: 'supabase',
+            attempts: attempt
+          });
+        } catch (supabaseError) {
+          lastError = supabaseError;
+          console.error(`Category insert attempt ${attempt} process error:`, supabaseError);
+          
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            continue;
+          }
+          
+          return NextResponse.json({ error: `Supabase hatası (${maxRetries} deneme): ${supabaseError}` }, { status: 500 });
         }
-        
-        return NextResponse.json({
-          success: true,
-          message: 'Kategori Supabase\'e eklendi',
-          category: data,
-          storageType: 'supabase'
-        });
-      } catch (supabaseError) {
-        console.error('Supabase error:', supabaseError);
-        return NextResponse.json({ error: 'Supabase hatası: ' + supabaseError }, { status: 500 });
+      }
+
+      if (!insertSuccess) {
+        return NextResponse.json({ error: 'Kategori eklenemedi' }, { status: 500 });
       }
     }
 

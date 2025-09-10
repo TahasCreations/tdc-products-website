@@ -26,17 +26,34 @@ interface ContactTransaction {
   credit: number;
   balance: number;
   reference: string;
+  currency_code: string;
+  created_at: string;
+}
+
+interface Payment {
+  id: string;
+  contact_id: string;
+  amount: number;
+  currency_code: string;
+  payment_type: 'INCOMING' | 'OUTGOING';
+  payment_method: 'CASH' | 'BANK_TRANSFER' | 'CHECK' | 'CREDIT_CARD';
+  description: string;
+  reference: string;
+  payment_date: string;
+  created_at: string;
 }
 
 export default function ContactsPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [contactTransactions, setContactTransactions] = useState<ContactTransaction[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  const [activeTab, setActiveTab] = useState<'list' | 'detail' | 'statement'>('list');
+  const [activeTab, setActiveTab] = useState<'list' | 'detail' | 'statement' | 'payments'>('list');
   const [filterType, setFilterType] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -49,6 +66,17 @@ export default function ContactsPage() {
     phone: '',
     email: '',
     is_active: true
+  });
+
+  // Yeni ödeme formu state'leri
+  const [newPayment, setNewPayment] = useState({
+    amount: '',
+    currency_code: 'TRY',
+    payment_type: 'INCOMING' as 'INCOMING' | 'OUTGOING',
+    payment_method: 'CASH' as 'CASH' | 'BANK_TRANSFER' | 'CHECK' | 'CREDIT_CARD',
+    description: '',
+    reference: '',
+    payment_date: new Date().toISOString().split('T')[0]
   });
 
   useEffect(() => {
@@ -165,6 +193,61 @@ export default function ContactsPage() {
     setSelectedContact(contact);
     setActiveTab('detail');
     fetchContactTransactions(contact.id);
+    fetchPayments(contact.id);
+  };
+
+  const fetchPayments = async (contactId: string) => {
+    try {
+      const response = await fetch(`/api/accounting/contacts/${contactId}/payments`);
+      if (!response.ok) {
+        throw new Error('Ödemeler alınamadı');
+      }
+      const data = await response.json();
+      setPayments(data);
+    } catch (error) {
+      console.error('Payments fetch error:', error);
+      setError('Ödemeler yüklenirken hata oluştu');
+    }
+  };
+
+  const handleAddPayment = async () => {
+    if (!selectedContact) return;
+
+    try {
+      const response = await fetch('/api/accounting/contacts/payments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contact_id: selectedContact.id,
+          ...newPayment,
+          amount: parseFloat(newPayment.amount)
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Ödeme eklenemedi');
+      }
+
+      await fetchPayments(selectedContact.id);
+      await fetchContactTransactions(selectedContact.id);
+      await fetchContacts(); // Bakiye güncellemesi için
+      setShowPaymentForm(false);
+      setNewPayment({
+        amount: '',
+        currency_code: 'TRY',
+        payment_type: 'INCOMING',
+        payment_method: 'CASH',
+        description: '',
+        reference: '',
+        payment_date: new Date().toISOString().split('T')[0]
+      });
+      setError('');
+    } catch (error) {
+      console.error('Add payment error:', error);
+      setError('Ödeme eklenirken hata oluştu');
+    }
   };
 
   const filteredContacts = contacts.filter(contact => {
@@ -251,6 +334,17 @@ export default function ContactsPage() {
                     >
                       <i className="ri-file-list-line mr-2"></i>
                       Cari Ekstre
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('payments')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                        activeTab === 'payments'
+                          ? 'border-blue-500 text-blue-600'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      <i className="ri-money-dollar-circle-line mr-2"></i>
+                      Ödemeler
                     </button>
                   </>
                 )}
@@ -599,11 +693,25 @@ export default function ContactsPage() {
 
               <div className="mt-6 flex items-center space-x-4">
                 <button
+                  onClick={() => setShowPaymentForm(true)}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  <i className="ri-add-line mr-2"></i>
+                  Ödeme Ekle
+                </button>
+                <button
                   onClick={() => setActiveTab('statement')}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                 >
                   <i className="ri-file-list-line mr-2"></i>
                   Cari Ekstre Görüntüle
+                </button>
+                <button
+                  onClick={() => setActiveTab('payments')}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  <i className="ri-money-dollar-circle-line mr-2"></i>
+                  Ödemeler
                 </button>
                 <button
                   onClick={() => setEditingContact(selectedContact)}
@@ -690,6 +798,299 @@ export default function ContactsPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* Ödemeler Tab */}
+          {activeTab === 'payments' && selectedContact && (
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {selectedContact.name} - Ödeme Geçmişi
+                </h2>
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => setShowPaymentForm(true)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    <i className="ri-add-line mr-2"></i>
+                    Yeni Ödeme
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('detail')}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <i className="ri-arrow-left-line text-xl"></i>
+                  </button>
+                </div>
+              </div>
+
+              {/* Ödeme İstatistikleri */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <div className="bg-green-500 rounded-full p-2">
+                      <i className="ri-arrow-down-line text-white"></i>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-gray-600">Gelen Ödemeler</p>
+                      <p className="text-lg font-semibold text-green-600">
+                        {payments
+                          .filter(p => p.payment_type === 'INCOMING')
+                          .reduce((sum, p) => sum + p.amount, 0)
+                          .toLocaleString('tr-TR')} TL
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-red-50 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <div className="bg-red-500 rounded-full p-2">
+                      <i className="ri-arrow-up-line text-white"></i>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-gray-600">Giden Ödemeler</p>
+                      <p className="text-lg font-semibold text-red-600">
+                        {payments
+                          .filter(p => p.payment_type === 'OUTGOING')
+                          .reduce((sum, p) => sum + p.amount, 0)
+                          .toLocaleString('tr-TR')} TL
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <div className="bg-blue-500 rounded-full p-2">
+                      <i className="ri-calculator-line text-white"></i>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-gray-600">Net Bakiye</p>
+                      <p className={`text-lg font-semibold ${
+                        (payments
+                          .filter(p => p.payment_type === 'INCOMING')
+                          .reduce((sum, p) => sum + p.amount, 0) -
+                        payments
+                          .filter(p => p.payment_type === 'OUTGOING')
+                          .reduce((sum, p) => sum + p.amount, 0)) >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {(payments
+                          .filter(p => p.payment_type === 'INCOMING')
+                          .reduce((sum, p) => sum + p.amount, 0) -
+                        payments
+                          .filter(p => p.payment_type === 'OUTGOING')
+                          .reduce((sum, p) => sum + p.amount, 0))
+                          .toLocaleString('tr-TR')} TL
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <div className="bg-gray-500 rounded-full p-2">
+                      <i className="ri-file-list-line text-white"></i>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-gray-600">Toplam İşlem</p>
+                      <p className="text-lg font-semibold text-gray-600">
+                        {payments.length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ödemeler Listesi */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tarih
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tip
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Yöntem
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Açıklama
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Referans
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tutar
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {payments.map((payment) => (
+                      <tr key={payment.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {new Date(payment.payment_date).toLocaleDateString('tr-TR')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                            payment.payment_type === 'INCOMING' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {payment.payment_type === 'INCOMING' ? 'Gelen' : 'Giden'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {payment.payment_method === 'CASH' ? 'Nakit' :
+                           payment.payment_method === 'BANK_TRANSFER' ? 'Banka Transferi' :
+                           payment.payment_method === 'CHECK' ? 'Çek' : 'Kredi Kartı'}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {payment.description}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {payment.reference}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                          <span className={`font-semibold ${
+                            payment.payment_type === 'INCOMING' ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {payment.payment_type === 'INCOMING' ? '+' : '-'}{payment.amount.toLocaleString('tr-TR')} {payment.currency_code}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Ödeme Ekleme Formu */}
+          {showPaymentForm && selectedContact && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    {selectedContact.name} - Yeni Ödeme
+                  </h2>
+                  <button
+                    onClick={() => setShowPaymentForm(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <i className="ri-close-line text-xl"></i>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Ödeme Tipi *
+                    </label>
+                    <select
+                      value={newPayment.payment_type}
+                      onChange={(e) => setNewPayment(prev => ({ ...prev, payment_type: e.target.value as any }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="INCOMING">Gelen Ödeme (Alacak)</option>
+                      <option value="OUTGOING">Giden Ödeme (Borç)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tutar *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={newPayment.amount}
+                      onChange={(e) => setNewPayment(prev => ({ ...prev, amount: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Para Birimi
+                    </label>
+                    <select
+                      value={newPayment.currency_code}
+                      onChange={(e) => setNewPayment(prev => ({ ...prev, currency_code: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="TRY">Türk Lirası (TRY)</option>
+                      <option value="USD">Amerikan Doları (USD)</option>
+                      <option value="EUR">Euro (EUR)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Ödeme Yöntemi *
+                    </label>
+                    <select
+                      value={newPayment.payment_method}
+                      onChange={(e) => setNewPayment(prev => ({ ...prev, payment_method: e.target.value as any }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="CASH">Nakit</option>
+                      <option value="BANK_TRANSFER">Banka Transferi</option>
+                      <option value="CHECK">Çek</option>
+                      <option value="CREDIT_CARD">Kredi Kartı</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Açıklama
+                    </label>
+                    <textarea
+                      value={newPayment.description}
+                      onChange={(e) => setNewPayment(prev => ({ ...prev, description: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      rows={3}
+                      placeholder="Ödeme açıklaması..."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Referans
+                    </label>
+                    <input
+                      type="text"
+                      value={newPayment.reference}
+                      onChange={(e) => setNewPayment(prev => ({ ...prev, reference: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Fatura no, çek no vb."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Ödeme Tarihi *
+                    </label>
+                    <input
+                      type="date"
+                      value={newPayment.payment_date}
+                      onChange={(e) => setNewPayment(prev => ({ ...prev, payment_date: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end space-x-4 mt-6">
+                  <button
+                    onClick={() => setShowPaymentForm(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    onClick={handleAddPayment}
+                    disabled={!newPayment.amount || parseFloat(newPayment.amount) <= 0}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                  >
+                    Ödeme Ekle
+                  </button>
+                </div>
               </div>
             </div>
           )}

@@ -36,6 +36,14 @@ interface CurrencyAlert {
   last_triggered?: string;
 }
 
+interface CurrencyHolding {
+  id: string;
+  currency_code: string;
+  amount: number;
+  equivalent_try: number;
+  last_updated: string;
+}
+
 export default function CurrencyPage() {
   const [rates, setRates] = useState<CurrencyRate[]>([]);
   const [settings, setSettings] = useState<CurrencySettings>({
@@ -44,6 +52,7 @@ export default function CurrencyPage() {
     update_frequency: 'DAILY'
   });
   const [alerts, setAlerts] = useState<CurrencyAlert[]>([]);
+  const [holdings, setHoldings] = useState<CurrencyHolding[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -59,7 +68,7 @@ export default function CurrencyPage() {
   const { handleAsyncOperation, showSuccess, showError } = useErrorToast();
 
   const fetchCurrencyData = useCallback(async () => {
-    const [ratesResult, settingsResult, alertsResult] = await Promise.all([
+    const [ratesResult, settingsResult, alertsResult, holdingsResult] = await Promise.all([
       handleAsyncOperation(
         () => ApiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=list'),
         undefined,
@@ -74,6 +83,11 @@ export default function CurrencyPage() {
         () => ApiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=alerts'),
         undefined,
         'Döviz alarmları yüklenirken'
+      ),
+      handleAsyncOperation(
+        () => ApiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=holdings'),
+        undefined,
+        'Döviz varlıkları yüklenirken'
       )
     ]);
 
@@ -85,6 +99,9 @@ export default function CurrencyPage() {
     }
     if (alertsResult && (alertsResult as any).data) {
       setAlerts((alertsResult as any).data);
+    }
+    if (holdingsResult && (holdingsResult as any).data) {
+      setHoldings((holdingsResult as any).data);
     }
     setLoading(false);
   }, [handleAsyncOperation, settings]);
@@ -359,6 +376,67 @@ export default function CurrencyPage() {
               </div>
             </div>
           )}
+
+          {/* Şirket Döviz Varlıkları */}
+          <div className="bg-white rounded-lg shadow-sm border mb-8">
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Şirket Döviz Varlıkları</h2>
+              <p className="text-sm text-gray-600">Şirketin sahip olduğu döviz miktarları ve TRY karşılıkları</p>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {holdings.map((holding) => (
+                  <div key={holding.id} className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center">
+                          <span className="text-2xl mr-2">{getCurrencyFlag(holding.currency_code)}</span>
+                          <span className="text-lg font-semibold text-gray-900">{holding.currency_code}</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {holding.amount.toLocaleString('tr-TR', { minimumFractionDigits: 2 })} {holding.currency_code}
+                        </p>
+                        <p className="text-lg font-bold text-blue-600 mt-2">
+                          {holding.equivalent_try.toLocaleString('tr-TR')} TL
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-gray-500">
+                          Son güncelleme
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {new Date(holding.last_updated).toLocaleDateString('tr-TR')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {holdings.length === 0 && (
+                  <div className="col-span-full text-center py-8 text-gray-500">
+                    <i className="ri-wallet-line text-4xl mb-4"></i>
+                    <p>Henüz döviz varlığı bulunmuyor</p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Toplam Varlık Özeti */}
+              {holdings.length > 0 && (
+                <div className="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Toplam Döviz Varlığı</h3>
+                      <p className="text-sm text-gray-600">Tüm dövizlerin TRY karşılığı</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-green-600">
+                        {holdings.reduce((sum, h) => sum + h.equivalent_try, 0).toLocaleString('tr-TR')} TL
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Döviz Kurları */}
           <div className="bg-white rounded-lg shadow-sm border">

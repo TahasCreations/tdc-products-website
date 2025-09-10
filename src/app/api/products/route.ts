@@ -219,17 +219,37 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'add') {
+      // Gelişmiş validasyon
       if (!title || !title.trim()) {
         return NextResponse.json({ error: 'Ürün adı gerekli' }, { status: 400 });
       }
-      if (!price || isNaN(parseFloat(price))) {
-        return NextResponse.json({ error: 'Geçerli fiyat gerekli' }, { status: 400 });
+      
+      if (title.trim().length < 3) {
+        return NextResponse.json({ error: 'Ürün adı en az 3 karakter olmalı' }, { status: 400 });
       }
+      
+      if (title.trim().length > 200) {
+        return NextResponse.json({ error: 'Ürün adı en fazla 200 karakter olabilir' }, { status: 400 });
+      }
+      
+      if (!price || isNaN(parseFloat(price)) || parseFloat(price) < 0) {
+        return NextResponse.json({ error: 'Geçerli fiyat gerekli (0 veya pozitif sayı)' }, { status: 400 });
+      }
+      
+      if (parseFloat(price) > 999999) {
+        return NextResponse.json({ error: 'Fiyat çok yüksek (max: 999,999)' }, { status: 400 });
+      }
+      
       if (!category || !category.trim()) {
         return NextResponse.json({ error: 'Kategori gerekli' }, { status: 400 });
       }
-      if (!stock || isNaN(parseInt(stock))) {
-        return NextResponse.json({ error: 'Geçerli stok miktarı gerekli' }, { status: 400 });
+      
+      if (!stock || isNaN(parseInt(stock)) || parseInt(stock) < 0) {
+        return NextResponse.json({ error: 'Geçerli stok miktarı gerekli (0 veya pozitif sayı)' }, { status: 400 });
+      }
+      
+      if (parseInt(stock) > 99999) {
+        return NextResponse.json({ error: 'Stok miktarı çok yüksek (max: 99,999)' }, { status: 400 });
       }
 
       const supabase = createServerSupabaseClient();
@@ -251,28 +271,60 @@ export async function POST(request: NextRequest) {
         status: 'active'
       };
 
-      // Adding new product to Supabase
+      // Adding new product to Supabase - Retry mekanizması ile
+      let insertSuccess = false;
+      let lastError: any = null;
+      const maxRetries = 3;
 
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .insert([newProduct])
-          .select()
-          .single();
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const { data, error } = await supabase
+            .from('products')
+            .insert([newProduct])
+            .select()
+            .single();
 
-        if (error) {
-          console.error('Supabase add product error:', error);
-          return NextResponse.json({ error: 'Ürün Supabase\'e eklenemedi' }, { status: 500 });
+          if (error) {
+            lastError = error;
+            console.error(`Product insert attempt ${attempt} error:`, error);
+            
+            // Benzersizlik hatası
+            if (error.code === '23505' || error.message.includes('duplicate')) {
+              return NextResponse.json({ error: 'Bu ürün zaten mevcut (slug benzersizlik hatası)' }, { status: 400 });
+            }
+            
+            // Son deneme değilse tekrar dene
+            if (attempt < maxRetries) {
+              await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+              continue;
+            }
+            
+            return NextResponse.json({ error: `Ürün eklenemedi (${maxRetries} deneme): ${error.message}` }, { status: 500 });
+          }
+
+          insertSuccess = true;
+          return NextResponse.json({
+            success: true,
+            message: 'Ürün başarıyla eklendi',
+            product: data,
+            storageType: 'supabase',
+            attempts: attempt
+          });
+        } catch (supabaseError) {
+          lastError = supabaseError;
+          console.error(`Product insert attempt ${attempt} process error:`, supabaseError);
+          
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+            continue;
+          }
+          
+          return NextResponse.json({ error: `Supabase hatası (${maxRetries} deneme): ${supabaseError}` }, { status: 500 });
         }
-        return NextResponse.json({
-          success: true,
-          message: 'Ürün Supabase\'e eklendi',
-          product: data,
-          storageType: 'supabase'
-        });
-      } catch (supabaseError) {
-        console.error('Supabase error:', supabaseError);
-        return NextResponse.json({ error: 'Supabase hatası: ' + supabaseError }, { status: 500 });
+      }
+
+      if (!insertSuccess) {
+        return NextResponse.json({ error: 'Ürün eklenemedi' }, { status: 500 });
       }
     }
 

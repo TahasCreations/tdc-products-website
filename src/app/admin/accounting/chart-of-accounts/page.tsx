@@ -10,7 +10,10 @@ interface Account {
   type: string;
   parent_id?: string;
   is_active: boolean;
+  currency_code: string;
   children?: Account[];
+  created_at: string;
+  updated_at: string;
 }
 
 export default function ChartOfAccountsPage() {
@@ -20,6 +23,14 @@ export default function ChartOfAccountsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+  const [newAccount, setNewAccount] = useState({
+    code: '',
+    name: '',
+    type: 'ASSET',
+    parent_id: '',
+    currency_code: 'TRY',
+    is_active: true
+  });
 
   useEffect(() => {
     fetchAccounts();
@@ -42,14 +53,14 @@ export default function ChartOfAccountsPage() {
     }
   };
 
-  const handleAddAccount = async (accountData: Partial<Account>) => {
+  const handleAddAccount = async () => {
     try {
       const response = await fetch('/api/accounting/accounts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(accountData),
+        body: JSON.stringify(newAccount),
       });
 
       if (!response.ok) {
@@ -58,6 +69,15 @@ export default function ChartOfAccountsPage() {
 
       await fetchAccounts();
       setShowAddForm(false);
+      setNewAccount({
+        code: '',
+        name: '',
+        type: 'ASSET',
+        parent_id: '',
+        currency_code: 'TRY',
+        is_active: true
+      });
+      setError('');
     } catch (error) {
       console.error('Add account error:', error);
       setError('Hesap eklenirken hata oluştu');
@@ -104,6 +124,27 @@ export default function ChartOfAccountsPage() {
     } catch (error) {
       console.error('Delete account error:', error);
       setError('Hesap silinirken hata oluştu');
+    }
+  };
+
+  const handleToggleStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/accounting/accounts/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_active: !currentStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Hesap durumu güncellenemedi');
+      }
+
+      await fetchAccounts();
+    } catch (error) {
+      console.error('Toggle status error:', error);
+      setError('Hesap durumu güncellenirken hata oluştu');
     }
   };
 
@@ -189,6 +230,9 @@ export default function ChartOfAccountsPage() {
                       Tip
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Para Birimi
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Durum
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -221,25 +265,35 @@ export default function ChartOfAccountsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          account.is_active 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {account.is_active ? 'Aktif' : 'Pasif'}
+                        <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                          {account.currency_code}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <button
+                          onClick={() => handleToggleStatus(account.id, account.is_active)}
+                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full transition-colors ${
+                            account.is_active 
+                              ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                              : 'bg-red-100 text-red-800 hover:bg-red-200'
+                          }`}
+                        >
+                          {account.is_active ? 'Aktif' : 'Pasif'}
+                        </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => setEditingAccount(account)}
                             className="text-blue-600 hover:text-blue-900"
+                            title="Düzenle"
                           >
                             <i className="ri-edit-line"></i>
                           </button>
                           <button
                             onClick={() => handleDeleteAccount(account.id)}
                             className="text-red-600 hover:text-red-900"
+                            title="Sil"
                           >
                             <i className="ri-delete-bin-line"></i>
                           </button>
@@ -251,6 +305,124 @@ export default function ChartOfAccountsPage() {
               </table>
             </div>
           </div>
+
+          {/* Yeni Hesap Formu */}
+          {showAddForm && (
+            <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">Yeni Hesap Ekle</h2>
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <i className="ri-close-line text-xl"></i>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hesap Kodu *
+                  </label>
+                  <input
+                    type="text"
+                    value={newAccount.code}
+                    onChange={(e) => setNewAccount(prev => ({ ...prev, code: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="100.01.001"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hesap Adı *
+                  </label>
+                  <input
+                    type="text"
+                    value={newAccount.name}
+                    onChange={(e) => setNewAccount(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Kasa Hesabı"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hesap Tipi *
+                  </label>
+                  <select
+                    value={newAccount.type}
+                    onChange={(e) => setNewAccount(prev => ({ ...prev, type: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="ASSET">Varlık</option>
+                    <option value="LIABILITY">Yükümlülük</option>
+                    <option value="EQUITY">Özkaynak</option>
+                    <option value="REVENUE">Gelir</option>
+                    <option value="EXPENSE">Gider</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Para Birimi *
+                  </label>
+                  <select
+                    value={newAccount.currency_code}
+                    onChange={(e) => setNewAccount(prev => ({ ...prev, currency_code: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="TRY">Türk Lirası (TRY)</option>
+                    <option value="USD">Amerikan Doları (USD)</option>
+                    <option value="EUR">Euro (EUR)</option>
+                    <option value="GBP">İngiliz Sterlini (GBP)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Üst Hesap
+                  </label>
+                  <select
+                    value={newAccount.parent_id}
+                    onChange={(e) => setNewAccount(prev => ({ ...prev, parent_id: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">Ana Hesap</option>
+                    {accounts.filter(acc => acc.is_active).map(account => (
+                      <option key={account.id} value={account.id}>
+                        {account.code} - {account.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="is_active"
+                    checked={newAccount.is_active}
+                    onChange={(e) => setNewAccount(prev => ({ ...prev, is_active: e.target.checked }))}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
+                    Aktif Hesap
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end space-x-4">
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={handleAddAccount}
+                  disabled={!newAccount.code.trim() || !newAccount.name.trim()}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+                >
+                  Hesap Ekle
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Hata Mesajı */}
           {error && (

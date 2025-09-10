@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
         name: body.name,
         type: body.type,
         parent_id: body.parent_id || null,
+        currency_code: body.currency_code || 'TRY',
         is_active: body.is_active !== undefined ? body.is_active : true,
         company_id: '550e8400-e29b-41d4-a716-446655440000' // Varsayılan şirket
       }])

@@ -64,8 +64,11 @@ export default function AdminUsersPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'create_admin',
-          ...newAdmin
+          email: newAdmin.email,
+          name: newAdmin.name,
+          password: newAdmin.password,
+          is_main_admin: newAdmin.is_main_admin,
+          created_by: 'current_admin'
         }),
       });
 
@@ -101,7 +104,6 @@ export default function AdminUsersPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'toggle_status',
           user_id: userId,
           is_active: !currentStatus
         }),

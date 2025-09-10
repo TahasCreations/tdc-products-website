@@ -51,6 +51,20 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
     router.replace('/admin/login');
   }, [router]);
 
+  // Scroll position aware back navigation
+  const handleBackNavigation = useCallback(() => {
+    // Store current scroll position
+    const currentScrollY = window.scrollY;
+    
+    // Navigate back
+    router.back();
+    
+    // Restore scroll position after navigation
+    setTimeout(() => {
+      window.scrollTo(0, currentScrollY);
+    }, 100);
+  }, [router]);
+
   // Memoized admin info for better performance
   const adminInfo = useMemo(() => ({
     name: adminUser?.name || adminUser?.email || 'Admin',
@@ -126,7 +140,7 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Admin Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -141,26 +155,26 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
               <span className="text-sm text-gray-600">
                 Hoş geldin, {adminInfo.name}
               </span>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => router.back()}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors duration-150 p-2 rounded-full border border-red-200 hover:border-red-300"
-                  title="Önceki sayfaya dön"
-                >
-                  <i className="ri-close-line text-xl font-bold"></i>
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors duration-150 hover:bg-red-50 px-3 py-1 rounded-md border border-red-200 hover:border-red-300"
-                  title="Hızlı çıkış"
-                >
-                  <i className="ri-logout-box-line mr-1"></i>
-                  Çıkış Yap
-                </button>
-              </div>
+              <button
+                onClick={handleLogout}
+                className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors duration-150 hover:bg-red-50 px-3 py-1 rounded-md border border-red-200 hover:border-red-300"
+                title="Hızlı çıkış"
+              >
+                <i className="ri-logout-box-line mr-1"></i>
+                Çıkış Yap
+              </button>
             </div>
           </div>
         </div>
+        
+        {/* Fixed Back Button - Top Right */}
+        <button
+          onClick={handleBackNavigation}
+          className="fixed top-4 right-4 z-50 bg-red-600 hover:bg-red-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          title="Önceki sayfaya dön"
+        >
+          <i className="ri-arrow-left-line text-xl font-bold"></i>
+        </button>
       </header>
 
       {/* Admin Content */}

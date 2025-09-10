@@ -28,19 +28,28 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Dosya tipi kontrolü
-    if (!file.type.startsWith('image/')) {
+    // Dosya tipi kontrolü - daha esnek
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type) && !file.type.startsWith('image/')) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Sadece görsel dosyaları yüklenebilir' 
+        error: 'Desteklenen dosya formatları: JPEG, PNG, GIF, WebP, SVG' 
       }, { status: 400 });
     }
 
-    // Dosya boyutu kontrolü (5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Dosya boyutu kontrolü (10MB'a çıkarıldı)
+    if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Dosya boyutu 5MB\'dan büyük olamaz' 
+        error: 'Dosya boyutu 10MB\'dan büyük olamaz' 
+      }, { status: 400 });
+    }
+
+    // Dosya adı kontrolü
+    if (!file.name || file.name.trim() === '') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Geçersiz dosya adı' 
       }, { status: 400 });
     }
 
@@ -60,36 +69,66 @@ export async function POST(request: NextRequest) {
     // Bucket kontrolünü atla, doğrudan yükleme yap
     // Bucket kontrolü atlandı, doğrudan yükleme yapılıyor
 
-    // Supabase Storage'a yükle - RLS bypass
-    try {
-      const { data, error } = await supabase!.storage
-        .from('images')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+    // Supabase Storage'a yükle - Retry mekanizması ile
+    let uploadSuccess = false;
+    let lastError: any = null;
+    const maxRetries = 3;
 
-      if (error) {
-        console.error('Upload error:', error);
-        
-        // RLS hatası ise detaylı hata mesajı
-        if (error.message.includes('row-level security')) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const { data, error } = await supabase!.storage
+          .from('images')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: attempt > 1 // İkinci denemeden sonra üzerine yaz
+          });
+
+        if (error) {
+          lastError = error;
+          console.error(`Upload attempt ${attempt} error:`, error);
+          
+          // RLS hatası ise detaylı hata mesajı
+          if (error.message.includes('row-level security')) {
+            return NextResponse.json({ 
+              success: false, 
+              error: 'RLS politikası hatası. Lütfen Supabase Dashboard\'da storage politikalarını kontrol edin.' 
+            }, { status: 500 });
+          }
+          
+          // Son deneme değilse tekrar dene
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+            continue;
+          }
+          
           return NextResponse.json({ 
             success: false, 
-            error: 'RLS politikası hatası. Lütfen Supabase Dashboard\'da storage politikalarını kontrol edin.' 
+            error: `Yükleme başarısız (${maxRetries} deneme): ${error.message}` 
           }, { status: 500 });
+        }
+
+        uploadSuccess = true;
+        break;
+      } catch (uploadError) {
+        lastError = uploadError;
+        console.error(`Upload attempt ${attempt} process error:`, uploadError);
+        
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          continue;
         }
         
         return NextResponse.json({ 
           success: false, 
-          error: error.message 
+          error: `Görsel yükleme hatası (${maxRetries} deneme): ${uploadError}` 
         }, { status: 500 });
       }
-    } catch (uploadError) {
-      console.error('Upload process error:', uploadError);
+    }
+
+    if (!uploadSuccess) {
       return NextResponse.json({ 
         success: false, 
-        error: `Görsel yükleme hatası: ${uploadError}` 
+        error: 'Yükleme başarısız' 
       }, { status: 500 });
     }
 

@@ -65,8 +65,11 @@ export default function AdminDashboardPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...newAdmin,
-          createdBy: currentAdmin?.id
+          email: newAdmin.email,
+          name: newAdmin.name,
+          password: newAdmin.password,
+          is_main_admin: newAdmin.isMainAdmin,
+          created_by: currentAdmin?.id
         }),
       });
 
@@ -380,6 +383,13 @@ export default function AdminDashboardPage() {
             >
               <h3 className="font-medium text-gray-900">Finans Yönetimi</h3>
               <p className="text-sm text-gray-600">Gelir, gider ve kar analizi</p>
+            </Link>
+            <Link
+              href="/admin/backup"
+              className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <h3 className="font-medium text-gray-900">Veri Yedekleme</h3>
+              <p className="text-sm text-gray-600">Sistem verilerini yedekleyin ve geri yükleyin</p>
             </Link>
           </div>
         </div>

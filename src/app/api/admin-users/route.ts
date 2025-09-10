@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
 // Yeni admin kullanıcı ekle
 export async function POST(request: NextRequest) {
   try {
-    const { email, name, password, isMainAdmin, createdBy } = await request.json();
+    const { email, name, password, is_main_admin, created_by } = await request.json();
 
     if (!email || !name || !password) {
       return NextResponse.json({ 
@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
         email,
         name,
         password_hash: passwordHash,
-        is_main_admin: isMainAdmin || false,
-        created_by: createdBy,
+        is_main_admin: is_main_admin || false,
+        created_by: created_by,
         is_active: true
       })
       .select('id, email, name, is_main_admin, is_active, created_at')
@@ -114,9 +114,9 @@ export async function POST(request: NextRequest) {
 // Admin kullanıcı güncelle
 export async function PUT(request: NextRequest) {
   try {
-    const { id, email, name, password, isMainAdmin, isActive } = await request.json();
+    const { action, user_id, is_active, email, name, password, is_main_admin } = await request.json();
 
-    if (!id) {
+    if (!user_id) {
       return NextResponse.json({ 
         success: false, 
         error: 'Admin kullanıcı ID gerekli' 
@@ -137,13 +137,13 @@ export async function PUT(request: NextRequest) {
     if (password) {
       updateData.password_hash = await bcrypt.hash(password, 10);
     }
-    if (typeof isMainAdmin === 'boolean') updateData.is_main_admin = isMainAdmin;
-    if (typeof isActive === 'boolean') updateData.is_active = isActive;
+    if (typeof is_main_admin === 'boolean') updateData.is_main_admin = is_main_admin;
+    if (typeof is_active === 'boolean') updateData.is_active = is_active;
 
     const { data: updatedAdmin, error } = await supabase
       .from('admin_users')
       .update(updateData)
-      .eq('id', id)
+      .eq('id', user_id)
       .select('id, email, name, is_main_admin, is_active, updated_at')
       .single();
 

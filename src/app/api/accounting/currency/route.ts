@@ -24,6 +24,8 @@ export async function GET(request: NextRequest) {
         return await getCurrencyFavorites(companyId, supabase);
       case 'alerts':
         return await getCurrencyAlerts(companyId, supabase);
+      case 'holdings':
+        return await getCurrencyHoldings(companyId, supabase);
       case 'history':
         return await getCurrencyHistory(companyId, searchParams, supabase);
       default:
@@ -139,6 +141,66 @@ async function getCurrencyAlerts(companyId: string, supabase: any) {
   }
 
   return AppErrorHandler.createApiSuccessResponse(alerts || []);
+}
+
+async function getCurrencyHoldings(companyId: string, supabase: any) {
+  // Şirketin döviz varlıklarını hesapla (hesaplardan)
+  const { data: accounts, error: accountsError } = await supabase!
+    .from('accounts')
+    .select('id, code, name, currency_code')
+    .eq('company_id', companyId)
+    .eq('is_active', true)
+    .neq('currency_code', 'TRY');
+
+  if (accountsError) {
+    throw accountsError;
+  }
+
+  // Her döviz hesabı için bakiye hesapla
+  const holdings = await Promise.all(
+    accounts?.map(async (account: any) => {
+      // Hesap bakiyesini hesapla
+      const { data: debitData } = await supabase!
+        .from('journal_lines')
+        .select('debit')
+        .eq('account_id', account.id);
+
+      const { data: creditData } = await supabase!
+        .from('journal_lines')
+        .select('credit')
+        .eq('account_id', account.id);
+
+      const debitTotal = debitData?.reduce((sum: number, line: any) => sum + (line.debit || 0), 0) || 0;
+      const creditTotal = creditData?.reduce((sum: number, line: any) => sum + (line.credit || 0), 0) || 0;
+      const balance = debitTotal - creditTotal;
+
+      if (balance <= 0) return null;
+
+      // Güncel kur ile TRY karşılığını hesapla
+      const { data: rateData } = await supabase!
+        .from('currency_rates')
+        .select('buy_rate')
+        .eq('currency_code', account.currency_code)
+        .eq('rate_date', new Date().toISOString().split('T')[0])
+        .single();
+
+      const currentRate = rateData?.buy_rate || 1;
+      const equivalentTry = balance * currentRate;
+
+      return {
+        id: account.id,
+        currency_code: account.currency_code,
+        amount: balance,
+        equivalent_try: equivalentTry,
+        last_updated: new Date().toISOString()
+      };
+    }) || []
+  );
+
+  // Null değerleri filtrele
+  const validHoldings = holdings.filter(h => h !== null);
+
+  return AppErrorHandler.createApiSuccessResponse(validHoldings);
 }
 
 async function getCurrencyHistory(companyId: string, searchParams: URLSearchParams, supabase: any) {

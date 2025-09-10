@@ -40,6 +40,7 @@ export async function PUT(
         name: body.name,
         type: body.type,
         parent_id: body.parent_id || null,
+        currency_code: body.currency_code || 'TRY',
         is_active: body.is_active !== undefined ? body.is_active : true,
         updated_at: new Date().toISOString()
       })
