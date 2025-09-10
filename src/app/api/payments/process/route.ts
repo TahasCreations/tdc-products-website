@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     if (!paymentResult.success) {
       return NextResponse.json({ 
         success: false, 
-        error: paymentResult.error,
+        error: (paymentResult as any).error || 'Ödeme başarısız',
         transactionId 
       }, { status: 400 });
     }
@@ -106,8 +106,8 @@ export async function POST(request: NextRequest) {
       transactionId,
       amount: paymentRequest.amount,
       currency: paymentRequest.currency,
-      fees: paymentResult.fees,
-      netAmount: paymentRequest.amount - paymentResult.fees,
+      fees: paymentResult.fees || 0,
+      netAmount: paymentRequest.amount - (paymentResult.fees || 0),
       paymentRecord
     });
 

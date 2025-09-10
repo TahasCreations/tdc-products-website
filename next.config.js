@@ -84,8 +84,6 @@ const nextConfig = {
     if (!dev) {
       config.optimization.usedExports = true;
       config.optimization.sideEffects = false;
-      // Fix webpack optimization conflict
-      config.optimization.cacheUnaffected = false;
     }
     
     // Advanced code splitting optimization

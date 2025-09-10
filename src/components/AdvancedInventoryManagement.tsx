@@ -273,7 +273,7 @@ export default function AdvancedInventoryManagement() {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="all">Tüm Kategoriler</option>
-              {[...new Set(inventoryItems.map(item => item.category))].map((category) => (
+              {Array.from(new Set(inventoryItems.map(item => item.category))).map((category) => (
                 <option key={category} value={category}>
                   {category}
                 </option>

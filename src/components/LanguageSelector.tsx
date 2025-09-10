@@ -200,7 +200,7 @@ export function useLanguage() {
     changeLanguage,
     formatCurrency: (amount: number) => formatCurrency(amount, language),
     formatDate: (date: Date) => formatDate(date, language),
-    formatNumber: (number: number) => formatNumber(number, language),
+    formatNumber: (number: number) => number.toLocaleString(language),
     t: (key: string) => getTranslation(key, language),
     isRTL: supportedLanguages.find(lang => lang.code === language)?.rtl || false
   };

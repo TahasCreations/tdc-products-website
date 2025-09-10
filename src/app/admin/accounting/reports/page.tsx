@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import AdminProtection from '../../../../components/AdminProtection';
 
@@ -21,7 +21,7 @@ interface ReportFilters {
   companyId: string;
 }
 
-export default function ReportsPage() {
+function ReportsPage() {
   const searchParams = useSearchParams();
   const [activeReport, setActiveReport] = useState<string>('trial-balance');
   const [reportData, setReportData] = useState<ReportData | null>(null);
@@ -731,5 +731,13 @@ export default function ReportsPage() {
         </div>
       </div>
     </AdminProtection>
+  );
+}
+
+export default function AdminAccountingReportsWrapper() {
+  return (
+    <Suspense fallback={<div className="p-8">Raporlar yükleniyor...</div>}>
+      <ReportsPage />
+    </Suspense>
   );
 }

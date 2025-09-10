@@ -144,11 +144,11 @@ export async function GET(request: NextRequest) {
     ];
 
     // Filter enabled methods and add real-time status
-    const activeMethods = paymentMethods.map(method => ({
+    const activeMethods = await Promise.all(paymentMethods.map(async method => ({
       ...method,
       status: await checkProviderStatus(method.provider),
       estimatedFee: calculateEstimatedFee(method.fees, 100) // Example for 100 TRY
-    }));
+    })));
 
     return NextResponse.json(activeMethods);
 
@@ -163,7 +163,7 @@ export async function GET(request: NextRequest) {
 
 async function checkProviderStatus(provider: string): Promise<'active' | 'maintenance' | 'error'> {
   // Simulate provider status check
-  const statuses = {
+  const statuses: Record<string, 'active' | 'maintenance' | 'error'> = {
     'iyzico': 'active',
     'bank': 'active',
     'coinbase': 'active',
@@ -174,7 +174,7 @@ async function checkProviderStatus(provider: string): Promise<'active' | 'mainte
     'klarna': 'maintenance'
   };
 
-  return statuses[provider as keyof typeof statuses] || 'error';
+  return statuses[provider] || 'error';
 }
 
 function calculateEstimatedFee(fees: { percentage: number; fixed: number }, amount: number): number {
