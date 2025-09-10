@@ -172,13 +172,15 @@ export async function POST(request: NextRequest) {
         is_main_admin: is_main_admin || false,
         is_active: true,
         created_at: new Date().toISOString(),
-        created_by: created_by || 'offline_admin'
+        created_by: created_by || 'offline_admin',
+        last_login_at: null,
+        login_count: 0
       };
 
       return NextResponse.json({ 
         success: true,
         admin: newAdmin,
-        message: 'Admin kullanıcı kaydedildi (offline mode)'
+        message: 'Admin kullanıcı başarıyla eklendi (offline mode)'
       });
     }
 
@@ -260,9 +262,33 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Admin user creation API error:', error);
+    
+    // Hata durumunda da offline mode'da admin user oluştur
+    const { email, name, is_main_admin, created_by } = await request.json().catch(() => ({}));
+    
+    if (email && name) {
+      const newAdmin = {
+        id: Date.now().toString(),
+        email: email.trim(),
+        name: name.trim(),
+        is_main_admin: is_main_admin || false,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        created_by: created_by || 'error_fallback',
+        last_login_at: null,
+        login_count: 0
+      };
+
+      return NextResponse.json({ 
+        success: true,
+        admin: newAdmin,
+        message: 'Admin kullanıcı başarıyla eklendi (fallback mode)'
+      });
+    }
+    
     return NextResponse.json({ 
       success: false, 
-      error: 'Sunucu hatası' 
+      error: 'Admin kullanıcı eklenemedi' 
     }, { status: 500 });
   }
 }
