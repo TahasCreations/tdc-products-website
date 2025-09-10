@@ -55,15 +55,22 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
   const handleBackNavigation = useCallback(() => {
     // Store current scroll position
     const currentScrollY = window.scrollY;
+    sessionStorage.setItem('admin_scroll_position', currentScrollY.toString());
     
     // Navigate back
     router.back();
-    
-    // Restore scroll position after navigation
-    setTimeout(() => {
-      window.scrollTo(0, currentScrollY);
-    }, 100);
   }, [router]);
+
+  // Restore scroll position on mount
+  useEffect(() => {
+    const savedScrollY = sessionStorage.getItem('admin_scroll_position');
+    if (savedScrollY) {
+      setTimeout(() => {
+        window.scrollTo(0, parseInt(savedScrollY));
+        sessionStorage.removeItem('admin_scroll_position');
+      }, 100);
+    }
+  }, []);
 
   // Memoized admin info for better performance
   const adminInfo = useMemo(() => ({
@@ -170,10 +177,10 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
         {/* Fixed Back Button - Top Right */}
         <button
           onClick={handleBackNavigation}
-          className="fixed top-4 right-4 z-50 bg-red-600 hover:bg-red-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          className="fixed top-4 right-4 z-50 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900 p-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border border-gray-200 hover:border-gray-300"
           title="Önceki sayfaya dön"
         >
-          <i className="ri-arrow-left-line text-xl font-bold"></i>
+          <i className="ri-arrow-left-line text-xl"></i>
         </button>
       </header>
 

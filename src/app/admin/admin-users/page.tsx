@@ -41,14 +41,32 @@ export default function AdminUsersPage() {
 
       if (data.success) {
         setAdminUsers(data.adminUsers);
+        if (data.message) {
+          setMessage(data.message);
+          setMessageType('success');
+        }
       } else {
         setMessage(data.error || 'Admin kullanıcıları yüklenemedi');
         setMessageType('error');
       }
     } catch (error) {
       console.error('Fetch admin users error:', error);
-      setMessage('Bağlantı hatası');
+      setMessage('Bağlantı hatası - Demo veriler gösteriliyor');
       setMessageType('error');
+      // Fallback olarak demo admin users göster
+      setAdminUsers([
+        {
+          id: '1',
+          email: 'bentahasarii@gmail.com',
+          name: 'Benta Hasarı',
+          is_main_admin: true,
+          is_active: true,
+          last_login_at: '2024-01-15T10:30:00.000Z',
+          login_count: 25,
+          created_at: '2024-01-01T00:00:00.000Z',
+          created_by: 'system'
+        }
+      ]);
     } finally {
       setLoading(false);
     }
@@ -56,6 +74,25 @@ export default function AdminUsersPage() {
 
   const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validasyon
+    if (!newAdmin.email || !newAdmin.email.includes('@')) {
+      setMessage('Geçerli bir e-posta adresi girin');
+      setMessageType('error');
+      return;
+    }
+
+    if (!newAdmin.name || newAdmin.name.trim().length < 2) {
+      setMessage('Ad soyad en az 2 karakter olmalı');
+      setMessageType('error');
+      return;
+    }
+
+    if (!newAdmin.password || newAdmin.password.length < 6) {
+      setMessage('Şifre en az 6 karakter olmalı');
+      setMessageType('error');
+      return;
+    }
     
     try {
       const response = await fetch('/api/admin-users', {
@@ -75,7 +112,7 @@ export default function AdminUsersPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage('Admin kullanıcı başarıyla eklendi');
+        setMessage(data.message || 'Admin kullanıcı başarıyla eklendi');
         setMessageType('success');
         setNewAdmin({
           email: '',
@@ -91,7 +128,7 @@ export default function AdminUsersPage() {
       }
     } catch (error) {
       console.error('Add admin error:', error);
-      setMessage('Bağlantı hatası');
+      setMessage('Bağlantı hatası - Admin kullanıcı eklenemedi');
       setMessageType('error');
     }
   };

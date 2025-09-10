@@ -4,15 +4,53 @@ import bcrypt from 'bcrypt';
 
 const createServerSupabaseClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
   if (!supabaseUrl || !supabaseServiceKey) {
     console.error('Supabase environment variables are missing');
     return null;
   }
   
-  return createClient(supabaseUrl, supabaseServiceKey);
+  // URL formatını kontrol et
+  if (supabaseUrl.includes('your_supabase_project_url') || 
+      supabaseUrl === 'your_supabase_project_url/' ||
+      supabaseUrl === 'your_supabase_project_url' ||
+      !supabaseUrl.startsWith('https://')) {
+    console.error('Supabase URL is not configured properly:', supabaseUrl);
+    return null;
+  }
+  
+  try {
+    return createClient(supabaseUrl, supabaseServiceKey);
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    return null;
+  }
 };
+
+// Default admin credentials for offline mode
+const DEFAULT_ADMINS = [
+  {
+    id: '1',
+    email: 'bentahasarii@gmail.com',
+    password: 'admin123', // Demo şifre
+    name: 'Benta Hasarı',
+    is_main_admin: true,
+    is_active: true,
+    login_count: 25,
+    last_login_at: '2024-01-15T10:30:00.000Z'
+  },
+  {
+    id: '2',
+    email: 'admin@tdc.com',
+    password: 'admin123',
+    name: 'TDC Admin',
+    is_main_admin: false,
+    is_active: true,
+    login_count: 12,
+    last_login_at: '2024-01-14T16:45:00.000Z'
+  }
+];
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,10 +65,28 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServerSupabaseClient();
     if (!supabase) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Veritabanı bağlantısı kurulamadı' 
-      }, { status: 500 });
+      // Offline mode - default admin credentials ile giriş
+      const admin = DEFAULT_ADMINS.find(admin => 
+        admin.email === email && admin.password === password && admin.is_active
+      );
+
+      if (admin) {
+        const { password: _, ...safeAdmin } = admin;
+        return NextResponse.json({ 
+          success: true,
+          admin: {
+            ...safeAdmin,
+            last_login_at: new Date().toISOString(),
+            login_count: admin.login_count + 1
+          },
+          message: 'Offline mode girişi başarılı'
+        });
+      } else {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Geçersiz e-posta veya şifre (offline mode)' 
+        }, { status: 401 });
+      }
     }
 
     // Admin kullanıcısını bul
