@@ -193,7 +193,8 @@ export async function POST(request: NextRequest) {
     // Şifre kontrolü (dinamik import ile güvenli)
     let bcryptLib: any;
     try {
-      bcryptLib = await import('bcrypt');
+      // Pure JS kütüphane: Vercel derlemelerinde native derlemeye gerek yok
+      bcryptLib = await import('bcryptjs');
     } catch (e) {
       console.error('bcrypt import error:', e);
       return NextResponse.json({ success: false, error: 'Şifre doğrulama hatası' }, { status: 500 });
