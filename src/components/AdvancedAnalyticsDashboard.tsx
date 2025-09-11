@@ -213,12 +213,12 @@ export default function AdvancedAnalyticsDashboard() {
             <div className="p-3 bg-green-100 rounded-lg">
               <i className="ri-money-dollar-circle-line text-2xl text-green-600"></i>
             </div>
-            <div className={`text-sm font-medium ${analyticsData.sales.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {analyticsData.sales.growth >= 0 ? '+' : ''}{analyticsData.sales.growth.toFixed(1)}%
+            <div className={`text-sm font-medium ${(analyticsData.sales?.growth || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {(analyticsData.sales?.growth || 0) >= 0 ? '+' : ''}{(analyticsData.sales?.growth || 0).toFixed(1)}%
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 mb-1">
-            ₺{analyticsData.sales.total.toLocaleString('tr-TR')}
+            ₺{(analyticsData.sales?.total || 0).toLocaleString('tr-TR')}
           </div>
           <div className="text-sm text-gray-600">Toplam Satış</div>
         </div>
@@ -229,11 +229,11 @@ export default function AdvancedAnalyticsDashboard() {
               <i className="ri-user-line text-2xl text-blue-600"></i>
             </div>
             <div className="text-sm font-medium text-blue-600">
-              {analyticsData.customers.returning} dönen
+              {analyticsData.customers?.returning || 0} dönen
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 mb-1">
-            {analyticsData.customers.total.toLocaleString('tr-TR')}
+            {(analyticsData.customers?.total || 0).toLocaleString('tr-TR')}
           </div>
           <div className="text-sm text-gray-600">Toplam Müşteri</div>
         </div>
@@ -244,11 +244,11 @@ export default function AdvancedAnalyticsDashboard() {
               <i className="ri-box-3-line text-2xl text-orange-600"></i>
             </div>
             <div className="text-sm font-medium text-orange-600">
-              {analyticsData.inventory.turnoverRate.toFixed(1)}x
+              {(analyticsData.inventory?.turnoverRate || 0).toFixed(1)}x
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 mb-1">
-            {analyticsData.inventory.totalProducts.toLocaleString('tr-TR')}
+            {(analyticsData.inventory?.totalProducts || 0).toLocaleString('tr-TR')}
           </div>
           <div className="text-sm text-gray-600">Toplam Ürün</div>
         </div>
@@ -259,11 +259,11 @@ export default function AdvancedAnalyticsDashboard() {
               <i className="ri-percent-line text-2xl text-purple-600"></i>
             </div>
             <div className="text-sm font-medium text-purple-600">
-              {analyticsData.performance.conversionRate.toFixed(1)}%
+              {(analyticsData.performance?.conversionRate || 0).toFixed(1)}%
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 mb-1">
-            ₺{analyticsData.performance.averageOrderValue.toLocaleString('tr-TR')}
+            ₺{(analyticsData.performance?.averageOrderValue || 0).toLocaleString('tr-TR')}
           </div>
           <div className="text-sm text-gray-600">Ortalama Sipariş</div>
         </div>
@@ -275,11 +275,11 @@ export default function AdvancedAnalyticsDashboard() {
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-4">Satış Trendi</h3>
           <div className="h-64 flex items-end justify-between space-x-2">
-            {analyticsData.sales.daily.slice(-14).map((value, index) => (
+            {(analyticsData.sales?.daily || []).slice(-14).map((value, index) => (
               <div key={index} className="flex flex-col items-center flex-1">
                 <div
                   className="bg-blue-500 rounded-t w-full transition-all duration-300 hover:bg-blue-600"
-                  style={{ height: `${(value / Math.max(...analyticsData.sales.daily)) * 200}px` }}
+                  style={{ height: `${(value / Math.max(...(analyticsData.sales?.daily || [1]))) * 200}px` }}
                 ></div>
                 <div className="text-xs text-gray-500 mt-2">
                   {new Date(Date.now() - (13 - index) * 24 * 60 * 60 * 1000).getDate()}
@@ -293,7 +293,7 @@ export default function AdvancedAnalyticsDashboard() {
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <h3 className="text-xl font-semibold text-gray-900 mb-4">Kategori Dağılımı</h3>
           <div className="space-y-3">
-            {analyticsData.sales.byCategory.map((category, index) => (
+            {(analyticsData.sales?.byCategory || []).map((category, index) => (
               <div key={index} className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div 
@@ -326,18 +326,18 @@ export default function AdvancedAnalyticsDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center p-4 bg-purple-50 rounded-lg">
             <div className="text-3xl font-bold text-purple-900 mb-2">
-              ₺{analyticsData.predictions.nextMonthSales.toLocaleString('tr-TR')}
+              ₺{(analyticsData.predictions?.nextMonthSales || 0).toLocaleString('tr-TR')}
             </div>
             <div className="text-sm text-purple-700 mb-2">Gelecek Ay Tahmini</div>
             <div className="text-xs text-purple-600">
-              %{analyticsData.predictions.confidence} güven
+              %{analyticsData.predictions?.confidence || 0} güven
             </div>
           </div>
           
           <div className="md:col-span-2">
             <h4 className="font-semibold text-gray-900 mb-3">AI Önerileri:</h4>
             <ul className="space-y-2">
-              {analyticsData.predictions.recommendations.map((recommendation, index) => (
+              {(analyticsData.predictions?.recommendations || []).map((recommendation, index) => (
                 <li key={index} className="flex items-start">
                   <i className="ri-lightbulb-line text-yellow-500 mr-2 mt-1"></i>
                   <span className="text-gray-700">{recommendation}</span>
@@ -352,7 +352,7 @@ export default function AdvancedAnalyticsDashboard() {
       <div className="bg-white rounded-2xl shadow-lg p-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-4">Müşteri Segmentleri</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {analyticsData.customers.segments.map((segment, index) => (
+          {(analyticsData.customers?.segments || []).map((segment, index) => (
             <div key={index} className="p-4 border border-gray-200 rounded-lg">
               <div className="text-2xl font-bold text-gray-900 mb-1">
                 {segment.count.toLocaleString('tr-TR')}
