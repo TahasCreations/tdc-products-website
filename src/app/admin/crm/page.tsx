@@ -569,9 +569,18 @@ export default function AdminCRMPage() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Gelişmiş CRM Yönetimi</h1>
-            <p className="text-gray-600">Müşteri ilişkileri, satış süreçleri ve pazarlama kampanyaları</p>
+          <div className="flex items-center">
+            <button
+              onClick={() => window.history.back()}
+              className="mr-3 p-1.5 rounded-full hover:bg-gray-100 transition-colors group"
+              title="Önceki sayfaya dön"
+            >
+              <i className="ri-close-line text-lg text-gray-600 group-hover:text-red-600 transition-colors"></i>
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Gelişmiş CRM Yönetimi</h1>
+              <p className="text-gray-600">Müşteri ilişkileri, satış süreçleri ve pazarlama kampanyaları</p>
+            </div>
           </div>
           <div className="flex space-x-3">
             <Link

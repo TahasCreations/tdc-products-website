@@ -188,6 +188,13 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
+              <button
+                onClick={handleBackNavigation}
+                className="mr-3 p-1.5 rounded-full hover:bg-gray-100 transition-colors group"
+                title="Önceki sayfaya dön"
+              >
+                <i className="ri-close-line text-lg text-gray-600 group-hover:text-red-600 transition-colors"></i>
+              </button>
               <h1 className="text-xl font-semibold text-gray-900">Admin Paneli</h1>
               {adminInfo.isMainAdmin && (
                 <span className="ml-3 px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
@@ -210,15 +217,6 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
             </div>
           </div>
         </div>
-        
-        {/* Fixed Back Button - Top Left */}
-        <button
-          onClick={handleBackNavigation}
-          className="fixed top-4 left-4 z-50 bg-red-600 hover:bg-red-700 text-black p-2 w-12 h-12 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-red-800 hover:border-red-900 flex items-center justify-center"
-          title="Önceki sayfaya dön (Scroll pozisyonu korunur)"
-        >
-          <i className="ri-close-line text-2xl font-black"></i>
-        </button>
       </header>
 
       {/* Admin Content */}

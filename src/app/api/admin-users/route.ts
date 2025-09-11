@@ -169,6 +169,7 @@ export async function POST(request: NextRequest) {
         id: Date.now().toString(),
         email: email.trim(),
         name: name.trim(),
+        password: password, // Şifreyi döndür (demo amaçlı)
         is_main_admin: is_main_admin || false,
         is_active: true,
         created_at: new Date().toISOString(),
@@ -264,13 +265,14 @@ export async function POST(request: NextRequest) {
     console.error('Admin user creation API error:', error);
     
     // Hata durumunda da offline mode'da admin user oluştur
-    const { email, name, is_main_admin, created_by } = await request.json().catch(() => ({}));
+    const { email, name, password, is_main_admin, created_by } = await request.json().catch(() => ({}));
     
     if (email && name) {
       const newAdmin = {
         id: Date.now().toString(),
         email: email.trim(),
         name: name.trim(),
+        password: password || 'admin123', // Şifreyi döndür (demo amaçlı)
         is_main_admin: is_main_admin || false,
         is_active: true,
         created_at: new Date().toISOString(),

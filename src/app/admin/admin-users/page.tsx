@@ -132,6 +132,7 @@ export default function AdminUsersPage() {
           id: data.admin?.id || Date.now().toString(),
           email: newAdmin.email,
           name: newAdmin.name,
+          password: newAdmin.password, // Şifreyi localStorage'da sakla (demo amaçlı)
           is_main_admin: newAdmin.is_main_admin,
           is_active: true,
           last_login_at: null,
@@ -166,6 +167,7 @@ export default function AdminUsersPage() {
         id: Date.now().toString(),
         email: newAdmin.email,
         name: newAdmin.name,
+        password: newAdmin.password, // Şifreyi localStorage'da sakla (demo amaçlı)
         is_main_admin: newAdmin.is_main_admin,
         is_active: true,
         last_login_at: null,
@@ -235,9 +237,18 @@ export default function AdminUsersPage() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Admin Kullanıcı Yönetimi</h1>
-            <p className="text-gray-600">Yetkili kullanıcıları yönetin</p>
+          <div className="flex items-center">
+            <button
+              onClick={() => window.history.back()}
+              className="mr-3 p-1.5 rounded-full hover:bg-gray-100 transition-colors group"
+              title="Önceki sayfaya dön"
+            >
+              <i className="ri-close-line text-lg text-gray-600 group-hover:text-red-600 transition-colors"></i>
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Admin Kullanıcı Yönetimi</h1>
+              <p className="text-gray-600">Yetkili kullanıcıları yönetin</p>
+            </div>
           </div>
           <button
             onClick={() => setShowAddForm(true)}

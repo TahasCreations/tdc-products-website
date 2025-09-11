@@ -320,9 +320,18 @@ export default function AdminOrdersPage() {
           {/* Header */}
           <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
             <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Sipariş Yönetimi</h1>
-                <p className="text-gray-600 mt-2">Tüm siparişleri görüntüleyin ve yönetin</p>
+              <div className="flex items-center">
+                <button
+                  onClick={() => window.history.back()}
+                  className="mr-3 p-1.5 rounded-full hover:bg-gray-100 transition-colors group"
+                  title="Önceki sayfaya dön"
+                >
+                  <i className="ri-close-line text-lg text-gray-600 group-hover:text-red-600 transition-colors"></i>
+                </button>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Sipariş Yönetimi</h1>
+                  <p className="text-gray-600 mt-2">Tüm siparişleri görüntüleyin ve yönetin</p>
+                </div>
               </div>
               <Link
                 href="/admin"

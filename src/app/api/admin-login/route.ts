@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+ 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcrypt';
@@ -33,7 +35,7 @@ const DEFAULT_ADMINS = [
   {
     id: '1',
     email: 'bentahasarii@gmail.com',
-    password: 'admin123', // Demo şifre
+    password: '35sandalye', // Demo şifre (ana admin)
     name: 'Benta Hasarı',
     is_main_admin: true,
     is_active: true,
@@ -63,30 +65,54 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Geliştirme ortamı için env kontrollü geçiş
+    const devAdminEmail = process.env.DEV_ADMIN_EMAIL;
+    const devAdminPassword = process.env.DEV_ADMIN_PASSWORD;
+    const devBypassEnabled = process.env.DEV_ADMIN_BYPASS === 'true';
+
+    if (process.env.NODE_ENV !== 'production' && devBypassEnabled && devAdminEmail && devAdminPassword) {
+      if (email === devAdminEmail && password === devAdminPassword) {
+        const safeAdmin = {
+          id: 'dev-override',
+          email: devAdminEmail,
+          name: 'Developer Admin',
+          is_main_admin: true,
+          is_active: true,
+          login_count: 1,
+          last_login_at: new Date().toISOString()
+        };
+        return NextResponse.json({ success: true, admin: safeAdmin, message: 'Geliştirici girişi (env) başarılı' });
+      }
+    }
+
     const supabase = createServerSupabaseClient();
     if (!supabase) {
-      // Offline mode - default admin credentials ile giriş
-      const admin = DEFAULT_ADMINS.find(admin => 
+      // Offline mode - hem default hem de localStorage'dan admin credentials ile giriş
+      
+      // Önce default admin'leri kontrol et
+      const defaultAdmin = DEFAULT_ADMINS.find(admin => 
         admin.email === email && admin.password === password && admin.is_active
       );
 
-      if (admin) {
-        const { password: _, ...safeAdmin } = admin;
+      if (defaultAdmin) {
+        const { password: _, ...safeAdmin } = defaultAdmin;
         return NextResponse.json({ 
           success: true,
           admin: {
             ...safeAdmin,
             last_login_at: new Date().toISOString(),
-            login_count: admin.login_count + 1
+            login_count: defaultAdmin.login_count + 1
           },
-          message: 'Offline mode girişi başarılı'
+          message: 'Default admin girişi başarılı'
         });
-      } else {
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Geçersiz e-posta veya şifre (offline mode)' 
-        }, { status: 401 });
       }
+
+      // Default admin değilse, localStorage'dan admin kullanıcıları kontrol et
+      // Bu kısım client-side'da localStorage'dan alınacak
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Geçersiz e-posta veya şifre. Lütfen admin panelinden kullanıcı eklediğinizden emin olun.' 
+      }, { status: 401 });
     }
 
     // Admin kullanıcısını bul
