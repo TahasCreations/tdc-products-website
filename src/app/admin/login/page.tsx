@@ -37,8 +37,28 @@ export default function AdminLoginPage() {
       try {
         data = await response.json();
       } catch (e) {
+        // JSON olmayan yanıt: geliştirme ortamında dev fallback dene
+        if (process.env.NODE_ENV !== 'production') {
+          const devEmail = 'bentahasarii@gmail.com';
+          const devPass = '35sandalye';
+          if (email.trim() === devEmail && password === devPass) {
+            const safeAdmin = {
+              id: 'dev-local',
+              email: devEmail,
+              name: 'Benta Hasarı',
+              is_main_admin: true,
+              is_active: true,
+              last_login_at: new Date().toISOString(),
+              login_count: 1
+            };
+            localStorage.setItem('admin_user', JSON.stringify(safeAdmin));
+            router.replace('/admin');
+            return;
+          }
+        }
         setError('Sunucudan beklenmeyen yanıt alındı');
-        return;
+        // JSON parse edilemediğinde aşağıdaki offline fallback'a da izin vermek için data başarısız kabul edilecek
+        data = { success: false };
       }
 
       if (data.success) {
