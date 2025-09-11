@@ -72,10 +72,6 @@ export default function AdvancedSecuritySystem() {
   const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false);
   const { addToast } = useToast();
 
-  useEffect(() => {
-    fetchSecurityData();
-  }, []);
-
   const fetchSecurityData = useCallback(async () => {
     setLoading(true);
     try {
@@ -111,6 +107,10 @@ export default function AdvancedSecuritySystem() {
       setLoading(false);
     }
   }, [addToast]);
+
+  useEffect(() => {
+    fetchSecurityData();
+  }, [fetchSecurityData]);
 
   const enableTwoFactor = async (userId: string) => {
     try {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabaseClient } from '../../../../lib/supabase-client';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 300; // Cache for 5 minutes
 
 export async function GET(request: NextRequest) {
   try {
@@ -83,6 +84,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Analytics error:', error);
     // Return mock data on error
+    const { searchParams } = new URL(request.url);
+    const range = searchParams.get('range') || '30days';
     const mockData = generateMockAnalyticsData(range);
     return NextResponse.json(mockData);
   }

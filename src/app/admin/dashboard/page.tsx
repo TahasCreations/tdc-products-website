@@ -1,15 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import AdvancedAISystem from '@/components/AdvancedAISystem';
-import MultiPaymentSystem from '@/components/MultiPaymentSystem';
-import AdvancedAnalyticsDashboard from '@/components/AdvancedAnalyticsDashboard';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import LanguageSelector, { useLanguage } from '@/components/LanguageSelector';
-import AdvancedInventoryManagement from '@/components/AdvancedInventoryManagement';
-import AdvancedCRMSystem from '@/components/AdvancedCRMSystem';
-import AdvancedSecuritySystem from '@/components/AdvancedSecuritySystem';
-import WorkflowAutomationSystem from '@/components/WorkflowAutomationSystem';
-import IntegrationManagementSystem from '@/components/IntegrationManagementSystem';
+import PerformanceMonitor from '@/components/PerformanceMonitor';
+
+// Lazy load heavy components for better performance
+const AdvancedAISystem = lazy(() => import('@/components/AdvancedAISystem'));
+const MultiPaymentSystem = lazy(() => import('@/components/MultiPaymentSystem'));
+const AdvancedAnalyticsDashboard = lazy(() => import('@/components/AdvancedAnalyticsDashboard'));
+const AdvancedInventoryManagement = lazy(() => import('@/components/AdvancedInventoryManagement'));
+const AdvancedCRMSystem = lazy(() => import('@/components/AdvancedCRMSystem'));
+const AdvancedSecuritySystem = lazy(() => import('@/components/AdvancedSecuritySystem'));
+const WorkflowAutomationSystem = lazy(() => import('@/components/WorkflowAutomationSystem'));
+const IntegrationManagementSystem = lazy(() => import('@/components/IntegrationManagementSystem'));
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -28,23 +31,61 @@ export default function AdminDashboard() {
   ];
 
   const renderTabContent = () => {
+    const LoadingSpinner = () => (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+
     switch (activeTab) {
       case 'ai':
-        return <AdvancedAISystem />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdvancedAISystem />
+          </Suspense>
+        );
       case 'payments':
-        return <MultiPaymentSystem />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <MultiPaymentSystem />
+          </Suspense>
+        );
       case 'analytics':
-        return <AdvancedAnalyticsDashboard />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdvancedAnalyticsDashboard />
+          </Suspense>
+        );
       case 'inventory':
-        return <AdvancedInventoryManagement />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdvancedInventoryManagement />
+          </Suspense>
+        );
       case 'crm':
-        return <AdvancedCRMSystem />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdvancedCRMSystem />
+          </Suspense>
+        );
       case 'security':
-        return <AdvancedSecuritySystem />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdvancedSecuritySystem />
+          </Suspense>
+        );
       case 'workflows':
-        return <WorkflowAutomationSystem />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <WorkflowAutomationSystem />
+          </Suspense>
+        );
       case 'integrations':
-        return <IntegrationManagementSystem />;
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <IntegrationManagementSystem />
+          </Suspense>
+        );
       default:
         return <OverviewDashboard />;
     }
@@ -240,6 +281,9 @@ function OverviewDashboard() {
           ))}
         </div>
       </div>
+      
+      {/* Performance Monitor */}
+      <PerformanceMonitor />
     </div>
   );
 }

@@ -69,10 +69,6 @@ export default function AdvancedInventoryManagement() {
   const [viewMode, setViewMode] = useState<'overview' | 'detailed' | 'ai'>('overview');
   const { addToast } = useToast();
 
-  useEffect(() => {
-    fetchInventoryData();
-  }, []);
-
   const fetchInventoryData = useCallback(async () => {
     setLoading(true);
     try {
@@ -105,6 +101,10 @@ export default function AdvancedInventoryManagement() {
       setLoading(false);
     }
   }, [addToast]);
+
+  useEffect(() => {
+    fetchInventoryData();
+  }, [fetchInventoryData]);
 
   const generateAIRecommendations = async () => {
     try {

@@ -60,10 +60,6 @@ export default function AdvancedAnalyticsDashboard() {
     { label: 'Son 1 Yıl', value: '1year', days: 365 }
   ];
 
-  useEffect(() => {
-    fetchAnalyticsData();
-  }, [timeRange]);
-
   const fetchAnalyticsData = useCallback(async () => {
     setLoading(true);
     try {
@@ -81,6 +77,10 @@ export default function AdvancedAnalyticsDashboard() {
       setLoading(false);
     }
   }, [timeRange, addToast]);
+
+  useEffect(() => {
+    fetchAnalyticsData();
+  }, [fetchAnalyticsData]);
 
   const exportReport = async (format: 'pdf' | 'excel') => {
     try {

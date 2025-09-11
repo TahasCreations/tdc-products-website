@@ -52,10 +52,6 @@ export default function IntegrationManagementSystem() {
   const [showIntegrationSetup, setShowIntegrationSetup] = useState(false);
   const { addToast } = useToast();
 
-  useEffect(() => {
-    fetchIntegrationData();
-  }, []);
-
   const fetchIntegrationData = useCallback(async () => {
     setLoading(true);
     try {
@@ -85,6 +81,10 @@ export default function IntegrationManagementSystem() {
       setLoading(false);
     }
   }, [addToast]);
+
+  useEffect(() => {
+    fetchIntegrationData();
+  }, [fetchIntegrationData]);
 
   const testIntegration = async (integrationId: string) => {
     try {

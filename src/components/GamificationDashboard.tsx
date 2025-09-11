@@ -57,9 +57,9 @@ const GamificationDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchGamificationData();
-  }, []);
+  }, [fetchGamificationData]);
 
-  const fetchGamificationData = async () => {
+  const fetchGamificationData = useCallback(async () => {
     try {
       setIsLoading(true);
       
@@ -84,7 +84,7 @@ const GamificationDashboard: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [addToast]);
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {

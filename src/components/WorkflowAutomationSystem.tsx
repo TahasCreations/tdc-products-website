@@ -81,10 +81,6 @@ export default function WorkflowAutomationSystem() {
   const [showWorkflowBuilder, setShowWorkflowBuilder] = useState(false);
   const { addToast } = useToast();
 
-  useEffect(() => {
-    fetchWorkflowData();
-  }, []);
-
   const fetchWorkflowData = useCallback(async () => {
     setLoading(true);
     try {
@@ -111,6 +107,10 @@ export default function WorkflowAutomationSystem() {
       setLoading(false);
     }
   }, [addToast]);
+
+  useEffect(() => {
+    fetchWorkflowData();
+  }, [fetchWorkflowData]);
 
   const createWorkflow = async (workflowData: Partial<Workflow>) => {
     try {

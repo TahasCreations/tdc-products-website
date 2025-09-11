@@ -82,10 +82,6 @@ export default function AdvancedCRMSystem() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const { addToast } = useToast();
 
-  useEffect(() => {
-    fetchCRMData();
-  }, []);
-
   const fetchCRMData = useCallback(async () => {
     setLoading(true);
     try {
@@ -118,6 +114,10 @@ export default function AdvancedCRMSystem() {
       setLoading(false);
     }
   }, [addToast]);
+
+  useEffect(() => {
+    fetchCRMData();
+  }, [fetchCRMData]);
 
   const runCustomerSegmentation = async () => {
     try {
