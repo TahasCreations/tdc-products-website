@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 interface AnalyticsRequest {
   type: 'dashboard' | 'realtime' | 'conversion' | 'user_behavior' | 'performance';
   timeframe?: 'hour' | 'day' | 'week' | 'month' | 'year';
