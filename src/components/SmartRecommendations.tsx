@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -45,11 +45,7 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchRecommendations();
-  }, [userId, userPreferences, currentProduct, context, limit]);
-
-  const fetchRecommendations = async () => {
+  const fetchRecommendations = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -81,7 +77,11 @@ const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userId, userPreferences, currentProduct, context, limit]);
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, [fetchRecommendations]);
 
   const getDefaultTitle = () => {
     switch (context) {

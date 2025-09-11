@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/Toast';
 
 interface User {
@@ -55,10 +55,6 @@ const GamificationDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { addToast } = useToast();
 
-  useEffect(() => {
-    fetchGamificationData();
-  }, [fetchGamificationData]);
-
   const fetchGamificationData = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -85,6 +81,10 @@ const GamificationDashboard: React.FC = () => {
       setIsLoading(false);
     }
   }, [addToast]);
+
+  useEffect(() => {
+    fetchGamificationData();
+  }, [fetchGamificationData]);
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
