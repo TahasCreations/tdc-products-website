@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "../../components/Header";
@@ -19,8 +19,6 @@ export const metadata: Metadata = {
   title: "TDC Products - 3D Baskı Figürler",
   description: "Anime, oyun ve film karakterlerinin yüksek kaliteli 3D baskı figürleri.",
   manifest: "/manifest.json",
-  themeColor: "#3b82f6",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -40,6 +38,14 @@ export const metadata: Metadata = {
     title: "TDC Products - 3D Baskı Figürler",
     description: "Anime, oyun ve film karakterlerinin yüksek kaliteli 3D baskı figürleri.",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#3b82f6",
 };
 
 export default function RootLayout({
