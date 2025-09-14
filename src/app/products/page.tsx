@@ -5,6 +5,7 @@ import SkeletonLoader from '../../components/SkeletonLoader';
 import CategorySidebar from '../../components/CategorySidebar';
 import { ProductCardSkeleton } from '../../components/LoadingSpinner';
 import OptimizedLoader from '../../components/OptimizedLoader';
+import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
 import Link from 'next/link';
 import { getSupabaseClient } from '../../lib/supabase-client';
 
@@ -290,6 +291,28 @@ export default async function ProductsPage({
             </div>
           </div>
         </section>
+
+        {/* AI Önerileri */}
+        {filteredProducts.length > 0 && (
+          <section className="py-16 bg-gray-50 dark:bg-gray-800">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                  🤖 Size Özel Öneriler
+                </h2>
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  AI teknolojisi ile size özel figür önerileri
+                </p>
+              </div>
+              <AIRecommendationEngine 
+                context="products"
+                limit={6}
+                showAlgorithmInfo={false}
+                enablePersonalization={true}
+              />
+            </div>
+          </section>
+        )}
       </div>
     </Suspense>
   );

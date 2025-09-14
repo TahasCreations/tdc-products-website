@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '../../components/Toast';
 import Link from 'next/link';
 import Image from 'next/image';
+import AdvancedPaymentSystem from '../../components/payment/AdvancedPaymentSystem';
+import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
 
 export default function CheckoutPage() {
   const { state: cartState } = useCart();
@@ -32,6 +34,7 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [useAdvancedPayment, setUseAdvancedPayment] = useState(true);
 
   useEffect(() => {
     if (!user) {
@@ -182,6 +185,52 @@ export default function CheckoutPage() {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleAdvancedPaymentSuccess = async (paymentData: any) => {
+    try {
+      const orderData = {
+        shipping_address: formData,
+        payment_method: paymentData.method,
+        payment_details: paymentData,
+        advanced_payment: true
+      };
+
+      const { order, error } = await createOrder(orderData);
+
+      if (error) {
+        addToast({
+          type: 'error',
+          title: 'Sipariş Hatası',
+          message: error.message || 'Sipariş oluşturulurken bir hata oluştu',
+          duration: 5000
+        });
+      } else {
+        addToast({
+          type: 'success',
+          title: 'Ödeme ve Sipariş Başarılı!',
+          message: 'Ödemeniz tamamlandı ve siparişiniz oluşturuldu',
+          duration: 5000
+        });
+        router.push(`/orders/${order?.id}`);
+      }
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'Hata',
+        message: 'Beklenmeyen bir hata oluştu',
+        duration: 5000
+      });
+    }
+  };
+
+  const handleAdvancedPaymentError = (error: any) => {
+    addToast({
+      type: 'error',
+      title: 'Ödeme Hatası',
+      message: error.message || 'Ödeme işlemi başarısız oldu',
+      duration: 5000
+    });
   };
 
   if (!user) {
@@ -361,46 +410,75 @@ export default function CheckoutPage() {
                 Ödeme Yöntemi
               </h2>
               
-              <div className="space-y-4">
+              {/* Gelişmiş Ödeme Sistemi Toggle */}
+              <div className="mb-6">
                 <label className="flex items-center space-x-3 cursor-pointer">
                   <input
-                    type="radio"
-                    name="payment_method"
-                    value="credit_card"
-                    checked={paymentMethod === 'credit_card'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    type="checkbox"
+                    checked={useAdvancedPayment}
+                    onChange={(e) => setUseAdvancedPayment(e.target.checked)}
                     className="text-orange-600 focus:ring-orange-500"
                   />
-                  <i className="ri-bank-card-line text-xl text-gray-600 dark:text-gray-400"></i>
-                  <span className="text-gray-700 dark:text-gray-300">Kredi Kartı</span>
-                </label>
-                
-                <label className="flex items-center space-x-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="payment_method"
-                    value="bank_transfer"
-                    checked={paymentMethod === 'bank_transfer'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="text-orange-600 focus:ring-orange-500"
-                  />
-                  <i className="ri-bank-line text-xl text-gray-600 dark:text-gray-400"></i>
-                  <span className="text-gray-700 dark:text-gray-300">Banka Havalesi</span>
-                </label>
-                
-                <label className="flex items-center space-x-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="payment_method"
-                    value="cash_on_delivery"
-                    checked={paymentMethod === 'cash_on_delivery'}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    className="text-orange-600 focus:ring-orange-500"
-                  />
-                  <i className="ri-money-dollar-circle-line text-xl text-gray-600 dark:text-gray-400"></i>
-                  <span className="text-gray-700 dark:text-gray-300">Kapıda Ödeme</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    Gelişmiş Ödeme Sistemi (Kredi kartı, Kripto, Mobil ödeme, Taksit seçenekleri)
+                  </span>
                 </label>
               </div>
+
+              {useAdvancedPayment ? (
+                <AdvancedPaymentSystem
+                  amount={calculateTotal()}
+                  currency="TRY"
+                  onPaymentSuccess={handleAdvancedPaymentSuccess}
+                  onPaymentError={handleAdvancedPaymentError}
+                  customerInfo={{
+                    name: `${formData.first_name} ${formData.last_name}`,
+                    email: formData.email,
+                    phone: formData.phone
+                  }}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="credit_card"
+                      checked={paymentMethod === 'credit_card'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="text-orange-600 focus:ring-orange-500"
+                    />
+                    <i className="ri-bank-card-line text-xl text-gray-600 dark:text-gray-400"></i>
+                    <span className="text-gray-700 dark:text-gray-300">Kredi Kartı</span>
+                  </label>
+                  
+                  <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="bank_transfer"
+                      checked={paymentMethod === 'bank_transfer'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="text-orange-600 focus:ring-orange-500"
+                    />
+                    <i className="ri-bank-line text-xl text-gray-600 dark:text-gray-400"></i>
+                    <span className="text-gray-700 dark:text-gray-300">Banka Havalesi</span>
+                  </label>
+                  
+                  <label className="flex items-center space-x-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="cash_on_delivery"
+                      checked={paymentMethod === 'cash_on_delivery'}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                      className="text-orange-600 focus:ring-orange-500"
+                    />
+                    <i className="ri-money-dollar-circle-line text-xl text-gray-600 dark:text-gray-400"></i>
+                    <span className="text-gray-700 dark:text-gray-300">Kapıda Ödeme</span>
+                  </label>
+                </div>
+              )}
             </div>
           </div>
 
@@ -546,6 +624,26 @@ export default function CheckoutPage() {
             </div>
           </div>
         </form>
+
+        {/* AI Önerileri */}
+        <section className="py-16 bg-gray-50 dark:bg-gray-800">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                🤖 Son Fırsat Önerileri
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-400">
+                Ödeme yapmadan önce bu özel figürleri de gözden geçirin
+              </p>
+            </div>
+            <AIRecommendationEngine
+              context="checkout"
+              limit={4}
+              showAlgorithmInfo={false}
+              enablePersonalization={true}
+            />
+          </div>
+        </section>
       </div>
     </div>
   );

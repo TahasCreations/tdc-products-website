@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AIChatbot from './AIChatbot';
 import AdvancedAnalyticsDashboard from './AdvancedAnalyticsDashboard';
+import BackButton from './admin/BackButton';
 
 interface AdminProtectionProps {
   children: React.ReactNode;
@@ -188,13 +189,7 @@ export default function AdminProtection({ children, requireMainAdmin = false }: 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <button
-                onClick={handleBackNavigation}
-                className="mr-3 p-1.5 rounded-full hover:bg-gray-100 transition-colors group"
-                title="Önceki sayfaya dön"
-              >
-                <i className="ri-close-line text-lg text-gray-600 group-hover:text-red-600 transition-colors"></i>
-              </button>
+              <BackButton className="mr-3" />
               <h1 className="text-xl font-semibold text-gray-900">Admin Paneli</h1>
               {adminInfo.isMainAdmin && (
                 <span className="ml-3 px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">

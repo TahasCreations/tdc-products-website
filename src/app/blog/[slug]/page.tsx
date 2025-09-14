@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { getSupabaseClient } from '../../../lib/supabase-client';
 import OptimizedLoader from '../../../components/OptimizedLoader';
 import BlogComments from '../../../components/BlogComments';
+import AIRecommendationEngine from '../../../components/ai/AIRecommendationEngine';
 
 interface BlogPost {
   id: string;
@@ -237,6 +238,26 @@ export default function BlogDetailPage() {
 
        {/* Yorumlar Bölümü */}
        <BlogComments blogId={blog.id} blogSlug={blog.slug} />
+
+       {/* AI Önerileri */}
+       <section className="py-16 bg-gray-50 dark:bg-gray-800">
+         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div className="text-center mb-12">
+             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+               🤖 Size Özel Öneriler
+             </h2>
+             <p className="text-lg text-gray-600 dark:text-gray-400">
+               Bu blog yazısına göre kişiselleştirilmiş figür önerileri
+             </p>
+           </div>
+            <AIRecommendationEngine
+              context="blog_detail"
+              limit={6}
+              showAlgorithmInfo={false}
+              enablePersonalization={true}
+            />
+         </div>
+       </section>
      </div>
    );
  }

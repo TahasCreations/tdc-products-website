@@ -1,22 +1,29 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, Suspense, lazy } from 'react';
-import LanguageSelector, { useLanguage } from '@/components/LanguageSelector';
-import PerformanceMonitor from '@/components/PerformanceMonitor';
+// import LanguageSelector, { useLanguage } from '@/components/LanguageSelector';
+// import PerformanceMonitor from '@/components/PerformanceMonitor';
+import AdvancedDashboard from '../../../components/admin/AdvancedDashboard';
+import SmartNotifications from '../../../components/admin/SmartNotifications';
 
 // Lazy load heavy components for better performance
-const AdvancedAISystem = lazy(() => import('@/components/AdvancedAISystem'));
-const MultiPaymentSystem = lazy(() => import('@/components/MultiPaymentSystem'));
-const AdvancedAnalyticsDashboard = lazy(() => import('@/components/AdvancedAnalyticsDashboard'));
-const AdvancedInventoryManagement = lazy(() => import('@/components/AdvancedInventoryManagement'));
-const AdvancedCRMSystem = lazy(() => import('@/components/AdvancedCRMSystem'));
-const AdvancedSecuritySystem = lazy(() => import('@/components/AdvancedSecuritySystem'));
-const WorkflowAutomationSystem = lazy(() => import('@/components/WorkflowAutomationSystem'));
-const IntegrationManagementSystem = lazy(() => import('@/components/IntegrationManagementSystem'));
+const AdvancedAISystem = lazy(() => import('../../../components/AdvancedAISystem'));
+const MultiPaymentSystem = lazy(() => import('../../../components/MultiPaymentSystem'));
+const AdvancedAnalyticsDashboard = lazy(() => import('../../../components/AdvancedAnalyticsDashboard'));
+const AdvancedInventoryManagement = lazy(() => import('../../../components/AdvancedInventoryManagement'));
+const AdvancedCRMSystem = lazy(() => import('../../../components/AdvancedCRMSystem'));
+const AdvancedSecuritySystem = lazy(() => import('../../../components/AdvancedSecuritySystem'));
+const WorkflowAutomationSystem = lazy(() => import('../../../components/WorkflowAutomationSystem'));
+const IntegrationManagementSystem = lazy(() => import('../../../components/IntegrationManagementSystem'));
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
-  const { language, changeLanguage, t } = useLanguage();
+  // const { language, changeLanguage, t } = useLanguage();
+  const language = 'tr';
+  const changeLanguage = () => {};
+  const t = (key: string) => key;
 
   const tabs = [
     { id: 'overview', label: t('navigation.dashboard'), icon: 'ri-dashboard-line' },
@@ -87,7 +94,7 @@ export default function AdminDashboard() {
           </Suspense>
         );
       default:
-        return <OverviewDashboard />;
+        return <AdvancedDashboard />;
     }
   };
 
@@ -111,11 +118,11 @@ export default function AdminDashboard() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <LanguageSelector
+              {/* <LanguageSelector
                 currentLanguage={language}
                 onLanguageChange={changeLanguage}
                 compact={true}
-              />
+              /> */}
               
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -152,12 +159,16 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderTabContent()}
       </div>
+
+      {/* Smart Notifications */}
+      <SmartNotifications />
     </div>
   );
 }
 
 function OverviewDashboard() {
-  const { t } = useLanguage();
+  // const { t } = useLanguage();
+  const t = (key: string) => key;
 
   return (
     <div className="space-y-6">
@@ -290,7 +301,7 @@ function OverviewDashboard() {
       </div>
       
       {/* Performance Monitor */}
-      <PerformanceMonitor />
+      {/* <PerformanceMonitor /> */}
     </div>
   );
 }

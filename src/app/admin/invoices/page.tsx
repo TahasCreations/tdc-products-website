@@ -1,12 +1,14 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
 import OptimizedLoader from '../../../components/OptimizedLoader';
 import Link from 'next/link';
 
 // Lazy load heavy components
-const InvoiceTemplate = lazy(() => import('../../../components/InvoiceTemplate'));
+// const InvoiceTemplate = lazy(() => import('../../../components/InvoiceTemplate'));
 
 // Lazy load heavy libraries
 const loadPDFLibs = () => import('jspdf').then(module => ({ jsPDF: module.default }));
@@ -183,7 +185,7 @@ export default function AdminInvoicesPage() {
             scale: 2,
             useCORS: true,
             allowTaint: true
-          });
+          } as any);
 
           const imgData = canvas.toDataURL('image/png');
           const pdf = new jsPDF('p', 'mm', 'a4');
@@ -814,12 +816,15 @@ export default function AdminInvoicesPage() {
               </div>
               <div className="p-6">
                 <Suspense fallback={<OptimizedLoader />}>
-                  <InvoiceTemplate
+                  {/* <InvoiceTemplate
                     ref={invoiceRef}
                     invoice={selectedInvoice}
                     items={invoiceItems}
                     companyInfo={companyInfo}
-                  />
+                  /> */}
+                  <div className="p-8 text-center">
+                    <p className="text-gray-500">Invoice Template component is being loaded...</p>
+                  </div>
                 </Suspense>
               </div>
             </div>

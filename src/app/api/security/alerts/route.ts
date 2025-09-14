@@ -1,93 +1,108 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSupabaseClient } from '../../../../lib/supabase-client';
+import { getSupabaseClient } from '../../../../lib/supabase-client';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getServerSupabaseClient();
-    
+    const supabase = getSupabaseClient();
     if (!supabase) {
-      return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
+      return NextResponse.json({ error: 'Supabase client could not be created' }, { status: 500 });
     }
 
     // Mock security alerts data
-    const alerts = [
+    const securityAlerts = [
       {
         id: '1',
-        type: 'login_anomaly',
-        severity: 'high',
-        title: 'Anormal Giriş Aktivitesi',
-        description: 'Kullanıcı 5 farklı IP adresinden 10 dakika içinde giriş yapmaya çalıştı',
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-        status: 'new',
-        affectedUsers: ['4'],
-        recommendedAction: 'Kullanıcı hesabını geçici olarak kilitleyin ve şifre sıfırlama talep edin'
+        type: 'brute_force',
+        severity: 'critical',
+        title: 'Brute Force Saldırısı Tespit Edildi',
+        description: 'IP adresi 203.0.113.100\'den sistematik şifre kırma girişimi tespit edildi. 5 dakika içinde 50 başarısız giriş denemesi yapıldı.',
+        isAcknowledged: false,
+        isResolved: false,
+        createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString()
       },
       {
         id: '2',
-        type: 'permission_violation',
-        severity: 'critical',
-        title: 'Yetkisiz Erişim Denemesi',
-        description: 'Düşük seviye kullanıcı admin panel\'e erişim sağlamaya çalıştı',
-        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-        status: 'investigating',
-        affectedUsers: ['5'],
-        recommendedAction: 'Kullanıcı hesabını askıya alın ve güvenlik ekibini bilgilendirin'
+        type: 'unusual_location',
+        severity: 'high',
+        title: 'Olağandışı Konumdan Giriş',
+        description: 'Kullanıcı admin@example.com normal konumundan (Turkey) farklı bir konumdan (Russia) giriş yaptı.',
+        isAcknowledged: true,
+        isResolved: false,
+        createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
       },
       {
         id: '3',
-        type: 'data_breach',
+        type: 'privilege_escalation',
         severity: 'critical',
-        title: 'Şüpheli Veri Erişimi',
-        description: 'Büyük miktarda müşteri verisi kısa sürede dışa aktarıldı',
-        timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-        status: 'investigating',
-        affectedUsers: ['2'],
-        recommendedAction: 'Veri erişimini durdurun ve acil güvenlik incelemesi başlatın'
+        title: 'Yetki Yükseltme Girişimi',
+        description: 'Kullanıcı user@example.com yetkisiz olarak yönetici yetkilerine erişmeye çalıştı.',
+        isAcknowledged: false,
+        isResolved: false,
+        createdAt: new Date(Date.now() - 45 * 60 * 1000).toISOString()
       },
       {
         id: '4',
-        type: 'suspicious_activity',
+        type: 'data_anomaly',
         severity: 'medium',
-        title: 'Şüpheli API Kullanımı',
-        description: 'Normalden fazla API çağrısı yapıldı',
-        timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-        status: 'resolved',
-        affectedUsers: ['2'],
-        recommendedAction: 'API rate limiting uygulayın ve kullanıcıyı uyarın'
+        title: 'Veri Erişim Anomalisi',
+        description: 'Kullanıcı test@example.com normalden 10 kat fazla veri indirdi.',
+        isAcknowledged: true,
+        isResolved: true,
+        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
       },
       {
         id: '5',
-        type: 'login_anomaly',
-        severity: 'low',
-        title: 'Geç Saatlerde Giriş',
-        description: 'Kullanıcı gece 02:00\'da sisteme giriş yaptı',
-        timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-        status: 'false_positive',
-        affectedUsers: ['1'],
-        recommendedAction: 'Normal aktivite olarak işaretlendi'
+        type: 'malware_detection',
+        severity: 'critical',
+        title: 'Kötü Amaçlı Yazılım Tespiti',
+        description: 'Sistemde kötü amaçlı yazılım aktivitesi tespit edildi. Hemen müdahale gerekli.',
+        isAcknowledged: false,
+        isResolved: false,
+        createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
       },
       {
         id: '6',
-        type: 'permission_violation',
+        type: 'session_hijacking',
         severity: 'high',
-        title: 'Yetkisiz Dosya Erişimi',
-        description: 'Kullanıcı yetkisi olmayan dosyalara erişim sağlamaya çalıştı',
-        timestamp: new Date(Date.now() - 16 * 60 * 60 * 1000).toISOString(),
-        status: 'resolved',
-        affectedUsers: ['3'],
-        recommendedAction: 'Kullanıcı izinlerini gözden geçirin ve gerekirse kısıtlayın'
+        title: 'Oturum Çalma Girişimi',
+        description: 'Kullanıcı victim@example.com\'un oturumu çalınmaya çalışıldı.',
+        isAcknowledged: true,
+        isResolved: false,
+        createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: '7',
+        type: 'api_abuse',
+        severity: 'medium',
+        title: 'API Kötüye Kullanımı',
+        description: 'API endpoint\'i aşırı kullanım tespit edildi. Rate limiting uygulanmalı.',
+        isAcknowledged: false,
+        isResolved: false,
+        createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        id: '8',
+        type: 'suspicious_activity',
+        severity: 'high',
+        title: 'Şüpheli Aktivite',
+        description: 'Kullanıcı suspicious@example.com normal dışı veri erişim kalıbı sergiliyor.',
+        isAcknowledged: false,
+        isResolved: false,
+        createdAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString()
       }
     ];
 
-    return NextResponse.json(alerts);
+    // Filter only active alerts (not resolved)
+    const activeAlerts = securityAlerts.filter(alert => !alert.isResolved);
 
+    return NextResponse.json(activeAlerts);
   } catch (error) {
     console.error('Security alerts error:', error);
-    return NextResponse.json(
-      { error: 'Güvenlik uyarıları alınamadı' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

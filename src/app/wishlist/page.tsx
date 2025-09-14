@@ -1,11 +1,14 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useWishlist } from '../../contexts/WishlistContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import OptimizedLoader from '../../components/OptimizedLoader';
 import WishlistButton from '../../components/WishlistButton';
 import AddToCartButton from '../../components/AddToCartButton';
+import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -18,7 +21,7 @@ export default function WishlistPage() {
 
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), 'dd MMMM yyyy', { locale: tr });
+      return format(new Date(dateString), 'dd MMMM yyyy');
     } catch {
       return 'Tarih belirtilmemiş';
     }
@@ -254,6 +257,28 @@ export default function WishlistPage() {
               Ürünleri Keşfet
             </Link>
           </div>
+        )}
+
+        {/* AI Önerileri */}
+        {wishlistItems.length > 0 && (
+          <section className="py-16 bg-gray-50 dark:bg-gray-800">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                  🤖 Size Özel Öneriler
+                </h2>
+                <p className="text-lg text-gray-600 dark:text-gray-400">
+                  İstek listenizdeki ürünlere benzer figürler ve kişiselleştirilmiş öneriler
+                </p>
+              </div>
+              <AIRecommendationEngine
+                context="wishlist"
+                limit={6}
+                showAlgorithmInfo={false}
+                enablePersonalization={true}
+              />
+            </div>
+          </section>
         )}
       </div>
     </div>

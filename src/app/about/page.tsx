@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import AIRecommendationEngine from "../../components/ai/AIRecommendationEngine";
 
 export default function AboutPage() {
   return (
@@ -179,6 +180,26 @@ export default function AboutPage() {
               <i className="ri-arrow-right-line ml-2"></i>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* AI Önerileri */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              🤖 Size Özel Öneriler
+            </h2>
+            <p className="text-lg text-gray-600">
+              TDC Products&apos;ın en popüler figürleri ve kişiselleştirilmiş öneriler
+            </p>
+          </div>
+          <AIRecommendationEngine 
+            context="about"
+            limit={6}
+            showAlgorithmInfo={false}
+            enablePersonalization={true}
+          />
         </div>
       </section>
     </>

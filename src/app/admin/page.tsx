@@ -408,6 +408,139 @@ export default function AdminPage() {
                 </p>
               </Link>
 
+              {/* Advanced Payment Management */}
+              <Link
+                href="/admin/payments"
+                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                    <i className="ri-bank-card-line text-2xl text-green-600"></i>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">Gelişmiş Ödeme Yönetimi</h3>
+                    <p className="text-sm text-gray-600">Çoklu ödeme yöntemleri ve analiz</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Kredi kartı, kripto, mobil ödeme ve taksit seçenekleri yönetimi.
+                </p>
+              </Link>
+
+              {/* PWA Management */}
+              <Link
+                href="/admin/pwa"
+                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                    <i className="ri-smartphone-line text-2xl text-purple-600"></i>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">PWA Yönetimi</h3>
+                    <p className="text-sm text-gray-600">Progressive Web App özellikleri</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Push bildirimleri, offline desteği ve mobil uygulama yönetimi.
+                </p>
+              </Link>
+
+            {/* AI Management */}
+            <Link
+              href="/admin/ai"
+              className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+            >
+              <div className="flex items-center mb-4">
+                <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                  <i className="ri-robot-line text-2xl text-indigo-600"></i>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900">AI Yönetimi</h3>
+                  <p className="text-sm text-gray-600">Yapay zeka sistemleri</p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">
+                Öneri sistemi, chatbot ve makine öğrenmesi yönetimi.
+              </p>
+            </Link>
+
+            {/* Analytics Management */}
+            <Link
+              href="/admin/analytics"
+              className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+            >
+              <div className="flex items-center mb-4">
+                <div className="p-3 bg-cyan-100 rounded-lg group-hover:bg-cyan-200 transition-colors">
+                  <i className="ri-bar-chart-line text-2xl text-cyan-600"></i>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900">Analitik Yönetimi</h3>
+                  <p className="text-sm text-gray-600">Gelişmiş analitik ve raporlama</p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">
+                Real-time dashboard, tahmine dayalı analiz ve iş zekası.
+              </p>
+            </Link>
+
+            {/* Security Management */}
+            <Link
+              href="/admin/security"
+              className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+            >
+              <div className="flex items-center mb-4">
+                <div className="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
+                  <i className="ri-shield-check-line text-2xl text-red-600"></i>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900">Güvenlik Yönetimi</h3>
+                  <p className="text-sm text-gray-600">Enterprise güvenlik sistemleri</p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">
+                MFA, RBAC, güvenlik izleme ve tehdit tespiti.
+              </p>
+            </Link>
+
+            {/* I18n Management */}
+            <Link
+              href="/admin/i18n"
+              className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+            >
+              <div className="flex items-center mb-4">
+                <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
+                  <i className="ri-global-line text-2xl text-purple-600"></i>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900">Çoklu Dil ve Para Birimi</h3>
+                  <p className="text-sm text-gray-600">i18n ve çoklu para birimi yönetimi</p>
+                </div>
+              </div>
+              <p className="text-sm text-gray-500">
+                Diller, para birimleri, çeviriler ve bölgesel ayarlar.
+              </p>
+            </Link>
+
+              {/* Homepage Controls */}
+              <Link
+                href="/admin/homepage-controls"
+                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+              >
+                <div className="flex items-center mb-4">
+                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                    <i className="ri-home-line text-2xl text-indigo-600"></i>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">Ana Sayfa Kontrolleri</h3>
+                    <p className="text-sm text-gray-600">Ana sayfa içerikleri ve kampanyalar</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">
+                  Ana sayfa bölümlerini yönetin, kampanyalar oluşturun ve düzenleyin.
+                </p>
+              </Link>
+
               {/* Period Operations */}
               <Link
                 href="/admin/period-operations"

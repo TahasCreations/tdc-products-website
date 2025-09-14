@@ -1,341 +1,261 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useToast } from './Toast';
-
-interface PaymentMethod {
-  id: string;
-  name: string;
-  type: 'card' | 'bank' | 'crypto' | 'mobile' | 'digital_wallet';
-  icon: string;
-  enabled: boolean;
-  fees: {
-    percentage: number;
-    fixed: number;
-  };
-  processingTime: string;
-  supportedCurrencies: string[];
-}
-
-interface PaymentRequest {
-  amount: number;
-  currency: string;
-  orderId: string;
-  customerInfo: {
-    email: string;
-    phone: string;
-    name: string;
-  };
-  description: string;
-}
+import { 
+  CreditCardIcon, 
+  BanknotesIcon,
+  CurrencyDollarIcon,
+  ChartBarIcon,
+  CogIcon,
+  ShieldCheckIcon
+} from '@heroicons/react/24/outline';
 
 export default function MultiPaymentSystem() {
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [selectedMethod, setSelectedMethod] = useState<string>('');
-  const [paymentRequest, setPaymentRequest] = useState<PaymentRequest>({
-    amount: 0,
-    currency: 'TRY',
-    orderId: '',
-    customerInfo: { email: '', phone: '', name: '' },
-    description: ''
-  });
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
-  const { addToast } = useToast();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadPaymentMethods();
-  }, []);
+  const tabs = [
+    { id: 'overview', name: 'Genel Bakış', icon: ChartBarIcon },
+    { id: 'methods', name: 'Ödeme Yöntemleri', icon: CreditCardIcon },
+    { id: 'transactions', name: 'İşlemler', icon: BanknotesIcon },
+    { id: 'security', name: 'Güvenlik', icon: ShieldCheckIcon },
+    { id: 'settings', name: 'Ayarlar', icon: CogIcon }
+  ];
 
-  const loadPaymentMethods = async () => {
-    try {
-      const response = await fetch('/api/payments/methods');
-      const methods = await response.json();
-      setPaymentMethods(methods);
-    } catch (error) {
-      console.error('Payment methods loading error:', error);
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-blue-100 rounded-lg mr-4">
+                    <CurrencyDollarIcon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Toplam Gelir</p>
+                    <p className="text-2xl font-bold text-gray-900">₺2,345,678</p>
+                    <p className="text-sm text-green-600">+12.5%</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-green-100 rounded-lg mr-4">
+                    <CreditCardIcon className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Başarılı İşlemler</p>
+                    <p className="text-2xl font-bold text-gray-900">1,247</p>
+                    <p className="text-sm text-green-600">+8.3%</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-red-100 rounded-lg mr-4">
+                    <BanknotesIcon className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Başarısız İşlemler</p>
+                    <p className="text-2xl font-bold text-gray-900">23</p>
+                    <p className="text-sm text-red-600">-15.2%</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-100 rounded-lg mr-4">
+                    <ChartBarIcon className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Başarı Oranı</p>
+                    <p className="text-2xl font-bold text-gray-900">98.2%</p>
+                    <p className="text-sm text-green-600">+2.1%</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'methods':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Ödeme Yöntemleri</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900">Kredi Kartı</h4>
+                    <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Visa, Mastercard, American Express</p>
+                </div>
+                <div className="p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900">Banka Transferi</h4>
+                    <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                  </div>
+                  <p className="text-sm text-gray-600">EFT, Havale, IBAN</p>
+                </div>
+                <div className="p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900">Kripto Para</h4>
+                    <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Beta</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Bitcoin, Ethereum, USDT</p>
+                </div>
+                <div className="p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-gray-900">Mobil Ödeme</h4>
+                    <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Geliştiriliyor</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Apple Pay, Google Pay</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'transactions':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Son İşlemler</h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Müşteri</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tutar</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Yöntem</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#12345</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Ahmet Yılmaz</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₺1,250</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Kredi Kartı</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Başarılı</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">#12346</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Ayşe Demir</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₺890</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Banka Transferi</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Beklemede</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+      case 'security':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Güvenlik Ayarları</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h4 className="font-medium text-gray-900">3D Secure</h4>
+                    <p className="text-sm text-gray-600">Kredi kartı güvenliği</p>
+                  </div>
+                  <button className="bg-green-600 text-white px-4 py-2 rounded-lg">Aktif</button>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h4 className="font-medium text-gray-900">SSL Şifreleme</h4>
+                    <p className="text-sm text-gray-600">Veri güvenliği</p>
+                  </div>
+                  <button className="bg-green-600 text-white px-4 py-2 rounded-lg">Aktif</button>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h4 className="font-medium text-gray-900">Fraud Detection</h4>
+                    <p className="text-sm text-gray-600">Dolandırıcılık tespiti</p>
+                  </div>
+                  <button className="bg-green-600 text-white px-4 py-2 rounded-lg">Aktif</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'settings':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Sistem Ayarları</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700">Otomatik İade</span>
+                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg">Aktif</button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700">Taksit Seçenekleri</span>
+                  <button className="bg-green-600 text-white px-4 py-2 rounded-lg">Aktif</button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700">Komisyon Oranı</span>
+                  <span className="text-gray-900 font-medium">2.9%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return null;
     }
-  };
-
-  const processPayment = async () => {
-    if (!selectedMethod || paymentRequest.amount <= 0) {
-      addToast({
-        type: 'error',
-        title: 'Ödeme Hatası',
-        message: 'Lütfen geçerli bir ödeme yöntemi ve tutar seçin'
-      });
-      return;
-    }
-
-    setIsProcessing(true);
-    setPaymentStatus('processing');
-
-    try {
-      const response = await fetch('/api/payments/process', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          method: selectedMethod,
-          request: paymentRequest
-        })
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setPaymentStatus('success');
-        addToast({
-          type: 'success',
-          title: 'Ödeme Başarılı',
-          message: `Ödeme ${result.transactionId} ile tamamlandı`
-        });
-      } else {
-        setPaymentStatus('failed');
-        addToast({
-          type: 'error',
-          title: 'Ödeme Başarısız',
-          message: result.error || 'Ödeme işlemi tamamlanamadı'
-        });
-      }
-    } catch (error) {
-      setPaymentStatus('failed');
-      addToast({
-        type: 'error',
-        title: 'Ödeme Hatası',
-        message: 'Ödeme işlemi sırasında hata oluştu'
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const getPaymentIcon = (type: string) => {
-    const icons = {
-      card: 'ri-bank-card-line',
-      bank: 'ri-bank-line',
-      crypto: 'ri-bit-coin-line',
-      mobile: 'ri-smartphone-line',
-      digital_wallet: 'ri-wallet-3-line'
-    };
-    return icons[type as keyof typeof icons] || 'ri-money-dollar-circle-line';
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors = {
-      idle: 'text-gray-500',
-      processing: 'text-blue-500',
-      success: 'text-green-500',
-      failed: 'text-red-500'
-    };
-    return colors[status as keyof typeof colors] || 'text-gray-500';
   };
 
   return (
     <div className="space-y-6">
-      {/* Payment Methods Selection */}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-          <i className="ri-money-dollar-circle-line text-3xl text-green-600 mr-3"></i>
-          Çoklu Ödeme Sistemi
-        </h2>
-
-        {/* Payment Request Form */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ödeme Tutarı
-            </label>
-            <div className="flex">
-              <input
-                type="number"
-                value={paymentRequest.amount}
-                onChange={(e) => setPaymentRequest(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="0.00"
-              />
-              <select
-                value={paymentRequest.currency}
-                onChange={(e) => setPaymentRequest(prev => ({ ...prev, currency: e.target.value }))}
-                className="px-3 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              >
-                <option value="TRY">TRY</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="BTC">BTC</option>
-                <option value="ETH">ETH</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Sipariş ID
-            </label>
-            <input
-              type="text"
-              value={paymentRequest.orderId}
-              onChange={(e) => setPaymentRequest(prev => ({ ...prev, orderId: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              placeholder="SIP-2024-001"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Müşteri Adı
-            </label>
-            <input
-              type="text"
-              value={paymentRequest.customerInfo.name}
-              onChange={(e) => setPaymentRequest(prev => ({ 
-                ...prev, 
-                customerInfo: { ...prev.customerInfo, name: e.target.value }
-              }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              placeholder="Ad Soyad"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              E-posta
-            </label>
-            <input
-              type="email"
-              value={paymentRequest.customerInfo.email}
-              onChange={(e) => setPaymentRequest(prev => ({ 
-                ...prev, 
-                customerInfo: { ...prev.customerInfo, email: e.target.value }
-              }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              placeholder="ornek@email.com"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Açıklama
-            </label>
-            <input
-              type="text"
-              value={paymentRequest.description}
-              onChange={(e) => setPaymentRequest(prev => ({ ...prev, description: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              placeholder="Ödeme açıklaması"
-            />
-          </div>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Çoklu Ödeme Sistemi</h2>
+          <p className="text-sm text-gray-500 mt-1">Ödeme yöntemlerini ve işlemleri yönetin</p>
         </div>
-
-        {/* Payment Methods Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          {paymentMethods.map((method) => (
-            <div
-              key={method.id}
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                selectedMethod === method.id
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              } ${!method.enabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => method.enabled && setSelectedMethod(method.id)}
-            >
-              <div className="flex items-center mb-3">
-                <i className={`${getPaymentIcon(method.type)} text-2xl mr-3 ${
-                  selectedMethod === method.id ? 'text-green-600' : 'text-gray-600'
-                }`}></i>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{method.name}</h3>
-                  <p className="text-sm text-gray-600">{method.processingTime}</p>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Komisyon:</span>
-                  <span className="font-medium">
-                    %{method.fees.percentage} + {method.fees.fixed} {paymentRequest.currency}
-                  </span>
-                </div>
-                
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Desteklenen:</span>
-                  <span className="font-medium">
-                    {method.supportedCurrencies.join(', ')}
-                  </span>
-                </div>
-                
-                {!method.enabled && (
-                  <div className="text-xs text-red-600 font-medium">
-                    Şu anda kullanılamıyor
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Payment Action */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className={`flex items-center ${getStatusColor(paymentStatus)}`}>
-              <i className={`ri-${paymentStatus === 'idle' ? 'pause-circle' :
-                paymentStatus === 'processing' ? 'loader-4' :
-                paymentStatus === 'success' ? 'check-circle' : 'close-circle'}-line text-xl mr-2`}></i>
-              <span className="font-medium">
-                {paymentStatus === 'idle' ? 'Ödeme Bekleniyor' :
-                 paymentStatus === 'processing' ? 'İşleniyor...' :
-                 paymentStatus === 'success' ? 'Başarılı' : 'Başarısız'}
-              </span>
-            </div>
-          </div>
-          
-          <button
-            onClick={processPayment}
-            disabled={isProcessing || !selectedMethod || paymentRequest.amount <= 0}
-            className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors flex items-center"
-          >
-            {isProcessing ? (
-              <>
-                <i className="ri-loader-4-line animate-spin mr-2"></i>
-                İşleniyor...
-              </>
-            ) : (
-              <>
-                <i className="ri-money-dollar-circle-line mr-2"></i>
-                Ödeme Yap
-              </>
-            )}
-          </button>
+        <div className="flex items-center space-x-2">
+          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+          <span className="text-sm font-medium text-gray-700">Sistem Aktif</span>
         </div>
       </div>
 
-      {/* Payment Analytics */}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Ödeme Analitikleri</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <i className="ri-money-dollar-circle-line text-3xl text-blue-600 mb-2"></i>
-            <div className="text-2xl font-bold text-blue-900">₺125,430</div>
-            <div className="text-sm text-blue-700">Toplam Ödeme</div>
-          </div>
-          
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <i className="ri-check-circle-line text-3xl text-green-600 mb-2"></i>
-            <div className="text-2xl font-bold text-green-900">98.2%</div>
-            <div className="text-sm text-green-700">Başarı Oranı</div>
-          </div>
-          
-          <div className="text-center p-4 bg-orange-50 rounded-lg">
-            <i className="ri-time-line text-3xl text-orange-600 mb-2"></i>
-            <div className="text-2xl font-bold text-orange-900">2.3s</div>
-            <div className="text-sm text-orange-700">Ortalama Süre</div>
-          </div>
-          
-          <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <i className="ri-bar-chart-line text-3xl text-purple-600 mb-2"></i>
-            <div className="text-2xl font-bold text-purple-900">1,247</div>
-            <div className="text-sm text-purple-700">Toplam İşlem</div>
-          </div>
-        </div>
+      {/* Navigation Tabs */}
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8">
+          {tabs.map((tab) => {
+            const IconComponent = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <IconComponent className="w-5 h-5" />
+                <span>{tab.name}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        {renderTabContent()}
       </div>
     </div>
   );

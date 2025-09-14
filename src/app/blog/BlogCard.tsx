@@ -26,7 +26,7 @@ interface BlogCardProps {
 export default function BlogCard({ post }: BlogCardProps) {
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), 'dd MMMM yyyy', { locale: tr });
+      return format(new Date(dateString), 'dd MMMM yyyy');
     } catch {
       return 'Tarih belirtilmemiş';
     }

@@ -1,5 +1,8 @@
 export const runtime = 'nodejs';
- 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -34,7 +37,7 @@ const DEFAULT_ADMINS = [
   {
     id: '1',
     email: 'bentahasarii@gmail.com',
-    password: '35sandalye', // Demo şifre (ana admin)
+    password: '35sandalye',
     name: 'Benta Hasarı',
     is_main_admin: true,
     is_active: true,
@@ -54,34 +57,20 @@ const DEFAULT_ADMINS = [
 ];
 
 export async function POST(request: NextRequest) {
-  let email: string | undefined;
-  let password: string | undefined;
   try {
-    // Gövdeyi güvenli şekilde oku ve parse et
-    const contentType = request.headers.get('content-type') || '';
-    const rawBody = await request.text();
+    // Basit ve güvenli JSON parse
     let body: any = {};
-    if (contentType.includes('application/json')) {
-      try {
-        body = rawBody ? JSON.parse(rawBody) : {};
-      } catch (e) {
-        return NextResponse.json({ success: false, error: 'Geçersiz JSON', detail: rawBody?.slice(0, 200) }, { status: 400 });
-      }
-    } else if (contentType.includes('application/x-www-form-urlencoded')) {
-      const params = new URLSearchParams(rawBody);
-      body = Object.fromEntries(params.entries());
-    } else {
-      // Diğer içerik tipleri için basit anahtar=değer denemesi
-      try {
-        body = rawBody ? JSON.parse(rawBody) : {};
-      } catch {
-        const params = new URLSearchParams(rawBody);
-        body = Object.fromEntries(params.entries());
-      }
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Geçersiz istek formatı' 
+      }, { status: 400 });
     }
 
-    email = (body?.email || '').toString();
-    password = (body?.password || '').toString();
+    const { email, password } = body;
 
     if (!email || !password) {
       return NextResponse.json({ 
@@ -106,15 +95,13 @@ export async function POST(request: NextRequest) {
           login_count: 1,
           last_login_at: new Date().toISOString()
         };
-        return NextResponse.json({ success: true, admin: safeAdmin, message: 'Geliştirici girişi (env) başarılı' });
+        return NextResponse.json({ success: true, admin: safeAdmin, message: 'Geliştirici girişi başarılı' });
       }
     }
 
     const supabase = createServerSupabaseClient();
     if (!supabase) {
-      // Offline mode - hem default hem de localStorage'dan admin credentials ile giriş
-      
-      // Önce default admin'leri kontrol et
+      // Offline mode - default admin credentials ile giriş
       const defaultAdmin = DEFAULT_ADMINS.find(admin => 
         admin.email === email && admin.password === password && admin.is_active
       );
@@ -132,11 +119,9 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Default admin değilse, localStorage'dan admin kullanıcıları kontrol et
-      // Bu kısım client-side'da localStorage'dan alınacak
       return NextResponse.json({ 
         success: false, 
-        error: 'Geçersiz e-posta veya şifre. Lütfen admin panelinden kullanıcı eklediğinizden emin olun.' 
+        error: 'Geçersiz e-posta veya şifre' 
       }, { status: 401 });
     }
 
@@ -149,7 +134,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (fetchError || !adminUser) {
-      // Supabase'de bulunamazsa, default admin fallback dene (dev/test kolaylığı)
+      // Supabase'de bulunamazsa, default admin fallback dene
       const defaultAdmin = DEFAULT_ADMINS.find(a => a.email === email && a.password === password && a.is_active);
       if (defaultAdmin) {
         const { password: _p, ...safeAdmin } = defaultAdmin;
@@ -169,7 +154,7 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
 
-    // Şifre hash'i yoksa (ör. seed edilmemiş DB), development'ta güvenli bypass sağla
+    // Şifre hash'i yoksa development bypass
     if (!adminUser.password_hash) {
       const canBypass = process.env.NODE_ENV !== 'production' && (
         (devBypassEnabled && devAdminEmail === email && devAdminPassword === password) ||
@@ -190,27 +175,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Geçersiz e-posta veya şifre' }, { status: 401 });
     }
 
-    // Şifre kontrolü (dinamik import ile güvenli)
+    // Şifre kontrolü
     let bcryptLib: any;
     try {
-      // Pure JS kütüphane: Vercel derlemelerinde native derlemeye gerek yok
       bcryptLib = await import('bcryptjs');
     } catch (e) {
       console.error('bcrypt import error:', e);
       return NextResponse.json({ success: false, error: 'Şifre doğrulama hatası' }, { status: 500 });
     }
+    
     const isPasswordValid = await bcryptLib.compare(password, adminUser.password_hash);
     if (!isPasswordValid) {
-      // Başarısız giriş denemesini kaydet
-      await supabase
-        .from('admin_users')
-        .update({ 
-          failed_login_attempts: adminUser.failed_login_attempts + 1,
-          locked_until: adminUser.failed_login_attempts >= 4 ? 
-            new Date(Date.now() + 30 * 60 * 1000).toISOString() : null // 30 dakika kilitle
-        })
-        .eq('id', adminUser.id);
-
       return NextResponse.json({ 
         success: false, 
         error: 'Geçersiz e-posta veya şifre' 
@@ -236,8 +211,8 @@ export async function POST(request: NextRequest) {
         last_login_at: new Date().toISOString(),
         last_login_ip: clientIP,
         login_count: adminUser.login_count + 1,
-        failed_login_attempts: 0, // Başarılı girişte sıfırla
-        locked_until: null // Kilidi kaldır
+        failed_login_attempts: 0,
+        locked_until: null
       })
       .eq('id', adminUser.id);
 
@@ -245,21 +220,7 @@ export async function POST(request: NextRequest) {
       console.error('Admin login update error:', updateError);
     }
 
-    // Aktivite logu kaydet
-    await supabase
-      .from('admin_activity_logs')
-      .insert({
-        admin_user_id: adminUser.id,
-        action: 'LOGIN',
-        ip_address: clientIP,
-        user_agent: request.headers.get('user-agent'),
-        details: { 
-          login_method: 'password',
-          success: true 
-        }
-      });
-
-    // Güvenli admin bilgilerini döndür (şifre hash'i hariç)
+    // Güvenli admin bilgilerini döndür
     const { password_hash, ...safeAdminUser } = adminUser;
 
     return NextResponse.json({ 
@@ -273,8 +234,11 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Admin login API error:', error);
-    // Son bir fallback olarak, default admin ile dene
+    
+    // Son fallback - default admin ile dene
     try {
+      const body = await request.json();
+      const { email, password } = body;
       if (email && password) {
         const defaultAdmin = DEFAULT_ADMINS.find(a => a.email === email && a.password === password && a.is_active);
         if (defaultAdmin) {
@@ -291,11 +255,10 @@ export async function POST(request: NextRequest) {
         }
       }
     } catch {}
-    const detail = process.env.NODE_ENV !== 'production' ? String(error?.message || error) : undefined;
+    
     return NextResponse.json({ 
       success: false, 
-      error: 'Sunucu hatası',
-      detail
+      error: 'Sunucu hatası'
     }, { status: 500 });
   }
 }

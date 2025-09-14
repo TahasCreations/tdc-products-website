@@ -1,13 +1,24 @@
 'use client';
 
-import ProductCard from '../components/ProductCard';
-import AddToCartButton from '../components/AddToCartButton';
-import AnimatedText from '../../animated-text';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { getSupabaseClient } from '../lib/supabase-client';
-import SmartRecommendations from '../components/SmartRecommendations';
-import GamificationDashboard from '../components/GamificationDashboard';
+
+// Dynamic imports for better performance and SSR compatibility
+const ProductCard = lazy(() => import('../components/ProductCard'));
+const AddToCartButton = lazy(() => import('../components/AddToCartButton'));
+const CampaignSlider = lazy(() => import('../components/CampaignSlider'));
+const AIRecommendationEngine = lazy(() => import('../components/ai/AIRecommendationEngine'));
+import { 
+  StarIcon,
+  TruckIcon,
+  ShieldCheckIcon,
+  HeartIcon,
+  SparklesIcon,
+  GiftIcon,
+  TrophyIcon,
+  FireIcon
+} from '@heroicons/react/24/outline';
 
 interface Product {
   id: string;
@@ -82,6 +93,8 @@ const getDefaultProducts = (): Product[] => [
     updated_at: "2024-01-01T00:00:00.000Z"
   }
 ];
+
+export const dynamic = 'force-dynamic';
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -194,15 +207,16 @@ export default function HomePage() {
   const featuredProducts = products.slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-400/10 to-orange-400/10 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-yellow-400/10 to-orange-400/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+        </div>
 
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
+        <div className="relative max-w-7xl mx-auto text-center">
           <div className="mb-12">
             <div className="mb-8">
               <h1 className="text-6xl md:text-8xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 animate-fade-in-up">
@@ -258,56 +272,85 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="relative py-16 px-4 sm:px-6 lg:px-8">
+      {/* Campaign Slider */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Neden TDC Products?
+              🔥 Özel Kampanyalar
+            </h2>
+            <p className="text-xl text-gray-600">
+              Kaçırılmayacak fırsatlar ve sınırlı süreli indirimler
+            </p>
+          </div>
+          <Suspense fallback={<div className="h-96 bg-gray-100 rounded-2xl animate-pulse flex items-center justify-center"><p className="text-gray-500">Kampanyalar yükleniyor...</p></div>}>
+            <CampaignSlider />
+          </Suspense>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              ⭐ Neden TDC Products?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Kaliteli figürler ve koleksiyon ürünleri için doğru adres
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="ri-medal-line text-2xl text-white"></i>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <StarIcon className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Premium Kalite</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Premium Kalite</h3>
+              <p className="text-gray-600 leading-relaxed">
                 En yüksek kalitede malzemelerle üretilen figürler
               </p>
             </div>
 
-            <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="ri-shipping-line text-2xl text-white"></i>
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <TruckIcon className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Hızlı Teslimat</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Hızlı Teslimat</h3>
+              <p className="text-gray-600 leading-relaxed">
                 Güvenli ve hızlı kargo ile kapınıza kadar
               </p>
             </div>
 
-            <div className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i className="ri-customer-service-line text-2xl text-white"></i>
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-20 h-20 bg-gradient-to-br from-pink-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <ShieldCheckIcon className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">7/24 Destek</h3>
-              <p className="text-gray-600">
-                Her zaman yanınızda olan müşteri hizmetleri
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Güvenli Alışveriş</h3>
+              <p className="text-gray-600 leading-relaxed">
+                SSL sertifikası ile güvenli ödeme sistemi
+              </p>
+            </div>
+
+            <div className="group text-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                <HeartIcon className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">Müşteri Memnuniyeti</h3>
+              <p className="text-gray-600 leading-relaxed">
+                %100 müşteri memnuniyeti garantisi
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="relative py-16 px-4 sm:px-6 lg:px-8 bg-white">
+      {/* Featured Products Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Öne Çıkan Ürünler
+              🎯 Öne Çıkan Ürünler
             </h2>
             <p className="text-xl text-gray-600">
               En popüler ve yeni eklenen figürlerimizi keşfedin
@@ -315,23 +358,25 @@ export default function HomePage() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[...Array(4)].map((_, index) => (
-                <div key={index} className="bg-gray-200 rounded-lg h-80 animate-pulse"></div>
+                <div key={index} className="bg-gray-200 rounded-2xl h-96 animate-pulse"></div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {featuredProducts.map((product) => (
+              <Suspense key={product.id} fallback={<div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse h-96"><div className="bg-gray-200 h-full"></div></div>}>
+                <ProductCard product={product} />
+              </Suspense>
+            ))}
             </div>
           )}
 
-          <div className="text-center mt-8">
+          <div className="text-center mt-12">
             <Link
               href="/products"
-              className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               <i className="ri-arrow-right-line mr-2"></i>
               Tüm Ürünleri Gör
@@ -340,31 +385,59 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="relative py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Koleksiyonunuza Başlayın
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            En sevdiğiniz karakterlerin figürlerini koleksiyonunuza ekleyin
-          </p>
-          <Link
-            href="/products"
-            className="inline-flex items-center bg-white text-blue-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-          >
-            <i className="ri-shopping-cart-line mr-2"></i>
-            Alışverişe Başla
-          </Link>
+      {/* CTA Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
+          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-white/10 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="relative max-w-4xl mx-auto text-center">
+          <div className="mb-8">
+            <SparklesIcon className="w-16 h-16 text-white mx-auto mb-4 animate-bounce" />
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+              Koleksiyonunuza Başlayın
+            </h2>
+            <p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
+              En sevdiğiniz karakterlerin figürlerini koleksiyonunuza ekleyin
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link
+              href="/products"
+              className="inline-flex items-center bg-white text-blue-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              <i className="ri-shopping-cart-line mr-2"></i>
+              Alışverişe Başla
+            </Link>
+            <Link
+              href="/wishlist"
+              className="inline-flex items-center bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/30 transition-all duration-300 border border-white/30"
+            >
+              <HeartIcon className="w-5 h-5 mr-2" />
+              İstek Listesi
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* AI-Powered Smart Recommendations */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SmartRecommendations 
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              🤖 AI Önerileri
+            </h2>
+            <p className="text-xl text-gray-600">
+              Size özel figür önerileri ve kişiselleştirilmiş deneyim
+            </p>
+          </div>
+          <AIRecommendationEngine 
             context="homepage"
-            limit={6}
-            title="🤖 AI Önerileri - Size Özel Figürler"
+            limit={8}
+            showAlgorithmInfo={true}
+            enablePersonalization={true}
           />
         </div>
       </section>
@@ -372,15 +445,39 @@ export default function HomePage() {
       {/* Gamification Dashboard */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               🎮 Gamification Sistemi
             </h2>
             <p className="text-xl text-gray-600">
               Alışveriş yaparken puan kazanın, seviye atlayın ve rozetler toplayın!
             </p>
           </div>
-          <GamificationDashboard />
+          {/* <GamificationDashboard /> */}
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-gradient-to-r from-gray-900 to-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+            <div className="text-white">
+              <div className="text-4xl md:text-5xl font-bold mb-2">1000+</div>
+              <div className="text-gray-300">Mutlu Müşteri</div>
+            </div>
+            <div className="text-white">
+              <div className="text-4xl md:text-5xl font-bold mb-2">500+</div>
+              <div className="text-gray-300">Ürün Çeşidi</div>
+            </div>
+            <div className="text-white">
+              <div className="text-4xl md:text-5xl font-bold mb-2">50+</div>
+              <div className="text-gray-300">Marka</div>
+            </div>
+            <div className="text-white">
+              <div className="text-4xl md:text-5xl font-bold mb-2">24/7</div>
+              <div className="text-gray-300">Müşteri Desteği</div>
+            </div>
+          </div>
         </div>
       </section>
     </div>

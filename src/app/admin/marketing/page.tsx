@@ -1,503 +1,404 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import AdminProtection from '@/components/AdminProtection';
-import OptimizedLoader from '@/components/OptimizedLoader';
+import { useState, useEffect } from 'react';
+import { 
+  MegaphoneIcon,
+  ChartBarIcon,
+  EyeIcon,
+  CursorArrowRaysIcon,
+  CurrencyDollarIcon,
+  UsersIcon,
+  CalendarIcon,
+  PlusIcon,
+  PencilIcon,
+  TrashIcon
+} from '@heroicons/react/24/outline';
+import AdminProtection from '../../../components/AdminProtection';
 
-interface MarketingDashboardData {
-  totalFollowers: number;
-  targetedKeywords: number;
-  avgRanking: number;
-  avgOpenRate: number;
-}
-
-interface Keyword {
-  id: string;
-  keyword: string;
-  search_volume: number;
-  difficulty_score: number;
-  competition: string;
-  is_targeted: boolean;
-  current_ranking: number;
-  target_ranking: number;
-}
-
-interface SocialAccount {
-  id: string;
-  platform: string;
-  username: string;
-  display_name: string;
-  followers_count: number;
-  engagement_rate: number;
-}
-
-interface EmailCampaign {
+interface MarketingData {
+  totalCampaigns: number;
+  activeCampaigns: number;
+  totalSpent: number;
+  totalRevenue: number;
+  campaigns: Array<{
   id: string;
   name: string;
+    type: 'email' | 'social' | 'google_ads' | 'facebook_ads';
+    status: 'active' | 'paused' | 'completed' | 'draft';
+    budget: number;
+    spent: number;
+    impressions: number;
+    clicks: number;
+    conversions: number;
+    startDate: string;
+    endDate: string;
+    targetAudience: string;
+  }>;
+  emailCampaigns: Array<{
+    id: string;
   subject: string;
-  status: string;
-  total_recipients: number;
-  open_rate: number;
-  click_rate: number;
-  send_date: string;
+    sent: number;
+    opened: number;
+    clicked: number;
+    unsubscribed: number;
+    status: 'sent' | 'scheduled' | 'draft';
+    sendDate: string;
+  }>;
+  socialMediaStats: Array<{
+    platform: string;
+    followers: number;
+    engagement: number;
+    posts: number;
+    reach: number;
+  }>;
+  recentActivities: Array<{
+    id: string;
+    type: string;
+    description: string;
+    timestamp: string;
+  }>;
 }
 
-export default function AdminMarketingPage() {
-  const router = useRouter();
-  const [dashboardData, setDashboardData] = useState<MarketingDashboardData | null>(null);
-  const [keywords, setKeywords] = useState<Keyword[]>([]);
-  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>([]);
-  const [emailCampaigns, setEmailCampaigns] = useState<EmailCampaign[]>([]);
+export default function MarketingPage() {
+  const [marketingData, setMarketingData] = useState<MarketingData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState('');
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success');
-  const [activeTab, setActiveTab] = useState<'overview' | 'seo' | 'social' | 'email' | 'ads'>('overview');
-  const [showAddKeyword, setShowAddKeyword] = useState(false);
-  const [showAddSocialAccount, setShowAddSocialAccount] = useState(false);
-  const [showAddEmailCampaign, setShowAddEmailCampaign] = useState(false);
-
-  const [newKeyword, setNewKeyword] = useState({
-    keyword: '',
-    search_volume: '',
-    difficulty_score: '',
-    competition: 'medium',
-    is_targeted: false,
-    current_ranking: '',
-    target_ranking: '',
-    notes: ''
-  });
-
-  const [newSocialAccount, setNewSocialAccount] = useState({
-    platform: 'facebook',
-    username: '',
-    display_name: '',
-    profile_url: '',
-    followers_count: '',
-    engagement_rate: ''
-  });
-
-  const [newEmailCampaign, setNewEmailCampaign] = useState({
-    name: '',
-    subject: '',
-    from_name: '',
-    from_email: '',
-    content: '',
-    send_date: ''
-  });
+  const [selectedTab, setSelectedTab] = useState('overview');
+  const [showAddCampaign, setShowAddCampaign] = useState(false);
+  const [showAddEmail, setShowAddEmail] = useState(false);
 
   useEffect(() => {
-    fetchMarketingData();
+    // Simüle edilmiş pazarlama verisi
+    const mockData: MarketingData = {
+      totalCampaigns: 24,
+      activeCampaigns: 8,
+      totalSpent: 45680,
+      totalRevenue: 125600,
+      campaigns: [
+        {
+          id: '1',
+          name: 'Yaz İndirimi Kampanyası',
+          type: 'email',
+          status: 'active',
+          budget: 5000,
+          spent: 3200,
+          impressions: 45000,
+          clicks: 1200,
+          conversions: 45,
+          startDate: '2024-01-15',
+          endDate: '2024-02-15',
+          targetAudience: 'Tüm müşteriler'
+        },
+        {
+          id: '2',
+          name: 'Google Ads - Elektronik',
+          type: 'google_ads',
+          status: 'active',
+          budget: 10000,
+          spent: 6800,
+          impressions: 120000,
+          clicks: 3200,
+          conversions: 89,
+          startDate: '2024-01-10',
+          endDate: '2024-03-10',
+          targetAudience: 'Elektronik alıcıları'
+        },
+        {
+          id: '3',
+          name: 'Facebook Ads - Giyim',
+          type: 'facebook_ads',
+          status: 'paused',
+          budget: 8000,
+          spent: 4500,
+          impressions: 85000,
+          clicks: 2100,
+          conversions: 67,
+          startDate: '2024-01-20',
+          endDate: '2024-02-20',
+          targetAudience: '18-35 yaş arası'
+        },
+        {
+          id: '4',
+          name: 'Instagram Story Kampanyası',
+          type: 'social',
+          status: 'completed',
+          budget: 3000,
+          spent: 3000,
+          impressions: 65000,
+          clicks: 1800,
+          conversions: 34,
+          startDate: '2024-01-01',
+          endDate: '2024-01-31',
+          targetAudience: 'Genç yetişkinler'
+        }
+      ],
+      emailCampaigns: [
+        {
+          id: '1',
+          subject: 'Yeni Ürünler Geldi! %20 İndirim',
+          sent: 5000,
+          opened: 2500,
+          clicked: 450,
+          unsubscribed: 25,
+          status: 'sent',
+          sendDate: '2024-01-20'
+        },
+        {
+          id: '2',
+          subject: 'Haftalık Bülten - En Popüler Ürünler',
+          sent: 4800,
+          opened: 1920,
+          clicked: 320,
+          unsubscribed: 15,
+          status: 'sent',
+          sendDate: '2024-01-18'
+        },
+        {
+          id: '3',
+          subject: 'Özel Müşteri İndirimi',
+          sent: 0,
+          opened: 0,
+          clicked: 0,
+          unsubscribed: 0,
+          status: 'scheduled',
+          sendDate: '2024-01-25'
+        }
+      ],
+      socialMediaStats: [
+        { platform: 'Instagram', followers: 12500, engagement: 4.2, posts: 45, reach: 85000 },
+        { platform: 'Facebook', followers: 8900, engagement: 3.8, posts: 32, reach: 65000 },
+        { platform: 'Twitter', followers: 5600, engagement: 2.9, posts: 28, reach: 32000 },
+        { platform: 'LinkedIn', followers: 3400, engagement: 5.1, posts: 15, reach: 18000 }
+      ],
+      recentActivities: [
+        { id: '1', type: 'campaign', description: 'Yeni kampanya oluşturuldu: Yaz İndirimi', timestamp: '2 saat önce' },
+        { id: '2', type: 'email', description: 'E-posta kampanyası gönderildi: 5,000 kişi', timestamp: '4 saat önce' },
+        { id: '3', type: 'social', description: 'Instagram gönderisi yayınlandı', timestamp: '6 saat önce' },
+        { id: '4', type: 'ads', description: 'Google Ads bütçesi güncellendi', timestamp: '8 saat önce' },
+        { id: '5', type: 'analytics', description: 'Haftalık rapor oluşturuldu', timestamp: '1 gün önce' }
+      ]
+    };
+
+    setTimeout(() => {
+      setMarketingData(mockData);
+      setLoading(false);
+    }, 1000);
   }, []);
 
-  const fetchMarketingData = async () => {
-    try {
-      setLoading(true);
-      
-      const [dashboardResponse, keywordsResponse, socialResponse, emailResponse] = await Promise.all([
-        fetch('/api/marketing?type=dashboard'),
-        fetch('/api/marketing?type=keywords'),
-        fetch('/api/marketing?type=social_accounts'),
-        fetch('/api/marketing?type=email_campaigns')
-      ]);
+  if (loading) {
+    return (
+      <AdminProtection>
+        <div className="min-h-screen bg-gray-50 p-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="bg-white p-6 rounded-lg shadow">
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                    <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </AdminProtection>
+    );
+  }
 
-      const [dashboardData, keywordsData, socialData, emailData] = await Promise.all([
-        dashboardResponse.json(),
-        keywordsResponse.json(),
-        socialResponse.json(),
-        emailResponse.json()
-      ]);
-
-      if (dashboardData.success) {
-        setDashboardData(dashboardData.data);
-      }
-
-      if (keywordsData.success) {
-        setKeywords(keywordsData.keywords);
-      }
-
-      if (socialData.success) {
-        setSocialAccounts(socialData.accounts);
-      }
-
-      if (emailData.success) {
-        setEmailCampaigns(emailData.campaigns);
-      }
-
-    } catch (error) {
-      console.error('Fetch marketing data error:', error);
-      setMessage('Veriler yüklenemedi');
-      setMessageType('error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddKeyword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      const response = await fetch('/api/marketing', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'create_keyword',
-          ...newKeyword,
-          search_volume: newKeyword.search_volume ? parseInt(newKeyword.search_volume) : null,
-          difficulty_score: newKeyword.difficulty_score ? parseInt(newKeyword.difficulty_score) : null,
-          current_ranking: newKeyword.current_ranking ? parseInt(newKeyword.current_ranking) : null,
-          target_ranking: newKeyword.target_ranking ? parseInt(newKeyword.target_ranking) : null
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage('Anahtar kelime başarıyla eklendi');
-        setMessageType('success');
-        setNewKeyword({
-          keyword: '',
-          search_volume: '',
-          difficulty_score: '',
-          competition: 'medium',
-          is_targeted: false,
-          current_ranking: '',
-          target_ranking: '',
-          notes: ''
-        });
-        setShowAddKeyword(false);
-        fetchMarketingData();
-      } else {
-        setMessage(data.error || 'Anahtar kelime eklenemedi');
-        setMessageType('error');
-      }
-    } catch (error) {
-      console.error('Add keyword error:', error);
-      setMessage('Bağlantı hatası');
-      setMessageType('error');
-    }
-  };
-
-  const handleAddSocialAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      const response = await fetch('/api/marketing', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'create_social_account',
-          ...newSocialAccount,
-          followers_count: newSocialAccount.followers_count ? parseInt(newSocialAccount.followers_count) : 0,
-          engagement_rate: newSocialAccount.engagement_rate ? parseFloat(newSocialAccount.engagement_rate) : null
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage('Sosyal medya hesabı başarıyla eklendi');
-        setMessageType('success');
-        setNewSocialAccount({
-          platform: 'facebook',
-          username: '',
-          display_name: '',
-          profile_url: '',
-          followers_count: '',
-          engagement_rate: ''
-        });
-        setShowAddSocialAccount(false);
-        fetchMarketingData();
-      } else {
-        setMessage(data.error || 'Sosyal medya hesabı eklenemedi');
-        setMessageType('error');
-      }
-    } catch (error) {
-      console.error('Add social account error:', error);
-      setMessage('Bağlantı hatası');
-      setMessageType('error');
-    }
-  };
-
-  const handleAddEmailCampaign = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      const storedAdmin = localStorage.getItem('admin_user');
-      const currentAdmin = storedAdmin ? JSON.parse(storedAdmin) : null;
-
-      const response = await fetch('/api/marketing', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'create_email_campaign',
-          ...newEmailCampaign,
-          created_by: currentAdmin?.id
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage('E-posta kampanyası başarıyla oluşturuldu');
-        setMessageType('success');
-        setNewEmailCampaign({
-          name: '',
-          subject: '',
-          from_name: '',
-          from_email: '',
-          content: '',
-          send_date: ''
-        });
-        setShowAddEmailCampaign(false);
-        fetchMarketingData();
-      } else {
-        setMessage(data.error || 'E-posta kampanyası oluşturulamadı');
-        setMessageType('error');
-      }
-    } catch (error) {
-      console.error('Add email campaign error:', error);
-      setMessage('Bağlantı hatası');
-      setMessageType('error');
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('tr-TR');
-  };
-
-  const getCompetitionColor = (competition: string) => {
-    const colors: Record<string, string> = {
-      'low': 'bg-green-100 text-green-800',
-      'medium': 'bg-yellow-100 text-yellow-800',
-      'high': 'bg-red-100 text-red-800'
+  const getCampaignTypeText = (type: string) => {
+    const types: Record<string, string> = {
+      'email': 'E-posta',
+      'social': 'Sosyal Medya',
+      'google_ads': 'Google Ads',
+      'facebook_ads': 'Facebook Ads'
     };
-    return colors[competition] || 'bg-gray-100 text-gray-800';
-  };
-
-  const getCompetitionText = (competition: string) => {
-    const texts: Record<string, string> = {
-      'low': 'Düşük',
-      'medium': 'Orta',
-      'high': 'Yüksek'
-    };
-    return texts[competition] || competition;
+    return types[type] || type;
   };
 
   const getCampaignStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      'draft': 'bg-gray-100 text-gray-800',
-      'scheduled': 'bg-blue-100 text-blue-800',
-      'sending': 'bg-yellow-100 text-yellow-800',
-      'sent': 'bg-green-100 text-green-800',
-      'failed': 'bg-red-100 text-red-800'
+      'active': 'bg-green-100 text-green-800',
+      'paused': 'bg-yellow-100 text-yellow-800',
+      'completed': 'bg-blue-100 text-blue-800',
+      'draft': 'bg-gray-100 text-gray-800'
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
   const getCampaignStatusText = (status: string) => {
     const statuses: Record<string, string> = {
-      'draft': 'Taslak',
-      'scheduled': 'Planlandı',
-      'sending': 'Gönderiliyor',
-      'sent': 'Gönderildi',
-      'failed': 'Başarısız'
+      'active': 'Aktif',
+      'paused': 'Duraklatıldı',
+      'completed': 'Tamamlandı',
+      'draft': 'Taslak'
     };
     return statuses[status] || status;
   };
 
-  if (loading) {
-    return <OptimizedLoader message="Pazarlama verileri yükleniyor..." />;
-  }
-
   return (
     <AdminProtection>
-      <div className="space-y-6">
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white shadow">
-          <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
+        <div className="mb-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Pazarlama Yönetimi</h1>
+              <p className="text-gray-600">Kampanyalarınızı yönetin ve pazarlama performansını takip edin</p>
+            </div>
+            <div className="flex space-x-3">
                 <button
-                  onClick={() => router.back()}
-                  className="text-red-600 hover:text-red-700 text-2xl font-bold"
+                onClick={() => setShowAddCampaign(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
                 >
-                  ✕
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Kampanya Oluştur
                 </button>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Pazarlama & SEO</h1>
-                  <p className="text-gray-600">SEO optimizasyonu ve pazarlama kampanyaları</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                  Yeni Kampanya
+              <button
+                onClick={() => setShowAddEmail(true)}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+              >
+                <PlusIcon className="h-4 w-4 mr-2" />
+                E-posta Gönder
                 </button>
-                <Link
-                  href="/admin"
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                >
-                  Admin Paneli
-                </Link>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Message */}
-        {message && (
-          <div className={`p-4 rounded-lg ${
-            messageType === 'success' 
-              ? 'bg-green-50 border border-green-200 text-green-700' 
-              : 'bg-red-50 border border-red-200 text-red-700'
-          }`}>
-            {message}
+        {/* Tab Navigation */}
+        <div className="mb-6">
+          <div className="flex space-x-2">
+            {[
+              { id: 'overview', label: 'Genel Bakış' },
+              { id: 'campaigns', label: 'Kampanyalar' },
+              { id: 'email', label: 'E-posta' },
+              { id: 'social', label: 'Sosyal Medya' },
+              { id: 'analytics', label: 'Analiz' }
+            ].map((tab) => (
             <button
-              onClick={() => setMessage('')}
-              className="float-right text-lg font-bold"
-            >
-              ×
-            </button>
+                key={tab.id}
+                onClick={() => setSelectedTab(tab.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedTab === tab.id
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
-        )}
-
-        {/* Tabs */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'overview'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                📊 Genel Bakış
-              </button>
-              <button
-                onClick={() => setActiveTab('seo')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'seo'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                🔍 SEO
-              </button>
-              <button
-                onClick={() => setActiveTab('social')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'social'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                📱 Sosyal Medya
-              </button>
-              <button
-                onClick={() => setActiveTab('email')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'email'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                📧 E-posta
-              </button>
-              <button
-                onClick={() => setActiveTab('ads')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'ads'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                🎯 Reklamlar
-              </button>
-            </nav>
           </div>
 
-          <div className="p-6">
-            {activeTab === 'overview' && dashboardData && (
-              <div className="space-y-6">
-                {/* Pazarlama Özeti */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className="bg-blue-50 p-6 rounded-lg">
+        {/* Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow">
                     <div className="flex items-center">
                       <div className="p-2 bg-blue-100 rounded-lg">
-                        <i className="ri-user-heart-line text-2xl text-blue-600"></i>
+                <MegaphoneIcon className="h-6 w-6 text-blue-600" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Toplam Takipçi</p>
-                        <p className="text-2xl font-semibold text-gray-900">
-                          {dashboardData.totalFollowers.toLocaleString()}
-                        </p>
+                <p className="text-sm font-medium text-gray-600">Toplam Kampanya</p>
+                <p className="text-2xl font-bold text-gray-900">{marketingData?.totalCampaigns}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-green-50 p-6 rounded-lg">
+          <div className="bg-white p-6 rounded-lg shadow">
                     <div className="flex items-center">
                       <div className="p-2 bg-green-100 rounded-lg">
-                        <i className="ri-search-line text-2xl text-green-600"></i>
+                <ChartBarIcon className="h-6 w-6 text-green-600" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Hedef Anahtar Kelime</p>
-                        <p className="text-2xl font-semibold text-gray-900">
-                          {dashboardData.targetedKeywords}
-                        </p>
+                <p className="text-sm font-medium text-gray-600">Aktif Kampanya</p>
+                <p className="text-2xl font-bold text-gray-900">{marketingData?.activeCampaigns}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-yellow-50 p-6 rounded-lg">
+          <div className="bg-white p-6 rounded-lg shadow">
                     <div className="flex items-center">
-                      <div className="p-2 bg-yellow-100 rounded-lg">
-                        <i className="ri-trophy-line text-2xl text-yellow-600"></i>
+              <div className="p-2 bg-red-100 rounded-lg">
+                <CurrencyDollarIcon className="h-6 w-6 text-red-600" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Ortalama Sıralama</p>
-                        <p className="text-2xl font-semibold text-gray-900">
-                          {dashboardData.avgRanking}
-                        </p>
+                <p className="text-sm font-medium text-gray-600">Toplam Harcama</p>
+                <p className="text-2xl font-bold text-gray-900">₺{marketingData?.totalSpent.toLocaleString()}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-purple-50 p-6 rounded-lg">
+          <div className="bg-white p-6 rounded-lg shadow">
                     <div className="flex items-center">
                       <div className="p-2 bg-purple-100 rounded-lg">
-                        <i className="ri-mail-open-line text-2xl text-purple-600"></i>
+                <CurrencyDollarIcon className="h-6 w-6 text-purple-600" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Açılma Oranı</p>
-                        <p className="text-2xl font-semibold text-gray-900">
-                          %{dashboardData.avgOpenRate}
-                        </p>
+                <p className="text-sm font-medium text-gray-600">Toplam Gelir</p>
+                <p className="text-2xl font-bold text-gray-900">₺{marketingData?.totalRevenue.toLocaleString()}</p>
                       </div>
                     </div>
+          </div>
+        </div>
+
+        {/* Content based on selected tab */}
+        {selectedTab === 'overview' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Son Aktiviteler</h3>
+              <div className="space-y-4">
+                {marketingData?.recentActivities.map((activity) => (
+                  <div key={activity.id} className="flex items-center">
+                    <div className={`w-2 h-2 rounded-full mr-3 ${
+                      activity.type === 'campaign' ? 'bg-blue-500' :
+                      activity.type === 'email' ? 'bg-green-500' :
+                      activity.type === 'social' ? 'bg-purple-500' :
+                      activity.type === 'ads' ? 'bg-yellow-500' : 'bg-gray-500'
+                    }`}></div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-900">{activity.description}</p>
+                      <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Sosyal Medya İstatistikleri</h3>
+              <div className="space-y-4">
+                {marketingData?.socialMediaStats.map((stat) => (
+                  <div key={stat.platform} className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
+                        {stat.platform.charAt(0)}
+                      </div>
+                      <div className="ml-3">
+                        <p className="font-medium text-gray-900">{stat.platform}</p>
+                        <p className="text-sm text-gray-600">{stat.followers.toLocaleString()} takipçi</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-medium text-gray-900">%{stat.engagement}</div>
+                      <div className="text-sm text-gray-600">etkileşim</div>
+                    </div>
+                  </div>
+                ))}
                   </div>
                 </div>
               </div>
             )}
 
-            {activeTab === 'seo' && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-gray-900">Anahtar Kelimeler</h3>
+        {selectedTab === 'campaigns' && (
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Kampanyalar</h3>
                   <button
-                    onClick={() => setShowAddKeyword(true)}
+                onClick={() => setShowAddCampaign(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                   >
-                    Anahtar Kelime Ekle
+                Yeni Kampanya
                   </button>
                 </div>
 
@@ -506,112 +407,61 @@ export default function AdminMarketingPage() {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Anahtar Kelime
+                      Kampanya
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Arama Hacmi
+                      Tür
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Zorluk
+                      Durum
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Rekabet
+                      Bütçe
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Mevcut Sıralama
+                      Harcama
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Hedef Sıralama
+                      Dönüşüm
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Hedeflenen
+                      İşlemler
                         </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {keywords.map((keyword) => (
-                        <tr key={keyword.id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {keyword.keyword}
+                  {marketingData?.campaigns.map((campaign) => (
+                    <tr key={campaign.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{campaign.name}</div>
+                          <div className="text-sm text-gray-500">{campaign.targetAudience}</div>
+                        </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {keyword.search_volume?.toLocaleString() || '-'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {keyword.difficulty_score || '-'}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {getCampaignTypeText(campaign.type)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCompetitionColor(keyword.competition)}`}>
-                              {getCompetitionText(keyword.competition)}
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCampaignStatusColor(campaign.status)}`}>
+                          {getCampaignStatusText(campaign.status)}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {keyword.current_ranking || '-'}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ₺{campaign.budget.toLocaleString()}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {keyword.target_ranking || '-'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              keyword.is_targeted 
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {keyword.is_targeted ? 'Evet' : 'Hayır'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'social' && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-gray-900">Sosyal Medya Hesapları</h3>
-                  <button
-                    onClick={() => setShowAddSocialAccount(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    Hesap Ekle
-                  </button>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Platform
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Kullanıcı Adı
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Takipçi
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Etkileşim Oranı
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {socialAccounts.map((account) => (
-                        <tr key={account.id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 capitalize">
-                            {account.platform}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            @{account.username}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ₺{campaign.spent.toLocaleString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {account.followers_count.toLocaleString()}
+                        {campaign.conversions}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            %{account.engagement_rate || 0}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className="text-blue-600 hover:text-blue-900 mr-3">
+                          <PencilIcon className="h-4 w-4 inline" />
+                        </button>
+                        <button className="text-red-600 hover:text-red-900">
+                          <TrashIcon className="h-4 w-4 inline" />
+                        </button>
                           </td>
                         </tr>
                       ))}
@@ -621,15 +471,15 @@ export default function AdminMarketingPage() {
               </div>
             )}
 
-            {activeTab === 'email' && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
+        {selectedTab === 'email' && (
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold text-gray-900">E-posta Kampanyaları</h3>
                   <button
-                    onClick={() => setShowAddEmailCampaign(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                onClick={() => setShowAddEmail(true)}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                   >
-                    Kampanya Oluştur
+                Yeni E-posta
                   </button>
                 </div>
 
@@ -637,48 +487,53 @@ export default function AdminMarketingPage() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Kampanya Adı
-                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Konu
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Alıcı Sayısı
+                      Gönderilen
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Açılma Oranı
+                      Açılma
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Tıklama Oranı
+                      Tıklama
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Durum
                         </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tarih
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {emailCampaigns.map((campaign) => (
-                        <tr key={campaign.id}>
+                  {marketingData?.emailCampaigns.map((email) => (
+                    <tr key={email.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {campaign.name}
+                        {email.subject}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {campaign.subject}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {email.sent.toLocaleString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {campaign.total_recipients.toLocaleString()}
+                        {email.opened.toLocaleString()} (%{((email.opened / email.sent) * 100).toFixed(1)})
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            %{campaign.open_rate || 0}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            %{campaign.click_rate || 0}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {email.clicked.toLocaleString()} (%{((email.clicked / email.sent) * 100).toFixed(1)})
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCampaignStatusColor(campaign.status)}`}>
-                              {getCampaignStatusText(campaign.status)}
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          email.status === 'sent' ? 'bg-green-100 text-green-800' :
+                          email.status === 'scheduled' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {email.status === 'sent' ? 'Gönderildi' :
+                           email.status === 'scheduled' ? 'Zamanlandı' : 'Taslak'}
                             </span>
+                          </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(email.sendDate).toLocaleDateString('tr-TR')}
                           </td>
                         </tr>
                       ))}
@@ -688,222 +543,175 @@ export default function AdminMarketingPage() {
               </div>
             )}
 
-            {/* Ads Tab */}
-            {activeTab === 'ads' && (
-              <div className="space-y-6">
+        {selectedTab === 'social' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {marketingData?.socialMediaStats.map((stat) => (
+              <div key={stat.platform} className="bg-white p-6 rounded-lg shadow">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">{stat.platform}</h3>
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
+                    {stat.platform.charAt(0)}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-900">{stat.followers.toLocaleString()}</div>
+                    <div className="text-sm text-gray-600">Takipçi</div>
+                      </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-900">%{stat.engagement}</div>
+                    <div className="text-sm text-gray-600">Etkileşim</div>
+                      </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-900">{stat.posts}</div>
+                    <div className="text-sm text-gray-600">Gönderi</div>
+                    </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-900">{stat.reach.toLocaleString()}</div>
+                    <div className="text-sm text-gray-600">Erişim</div>
+                      </div>
+                      </div>
+                    </div>
+            ))}
+                  </div>
+        )}
+
+        {selectedTab === 'analytics' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Kampanya Performansı</h3>
+              <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">Grafik verisi yükleniyor...</p>
+                      </div>
+                    </div>
+                  </div>
+
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">ROI Analizi</h3>
+              <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-gray-900">Reklam Kampanyaları</h3>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                    Yeni Reklam
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                    <div className="flex items-center mb-4">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <i className="ri-google-line text-xl text-blue-600"></i>
+                  <span className="text-gray-600">Toplam Harcama</span>
+                  <span className="font-medium">₺{marketingData?.totalSpent.toLocaleString()}</span>
                       </div>
-                      <div className="ml-4">
-                        <h4 className="font-semibold text-gray-900">Google Ads</h4>
-                        <p className="text-sm text-gray-500">Arama Reklamları</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Toplam Gelir</span>
+                  <span className="font-medium">₺{marketingData?.totalRevenue.toLocaleString()}</span>
                       </div>
-                    </div>
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Günlük Bütçe:</span>
-                        <span className="font-medium">₺500</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Tıklama:</span>
-                        <span className="font-medium">1,250</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Dönüşüm:</span>
-                        <span className="font-medium">45</span>
-                      </div>
-                    </div>
-                    <button className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                      Detaylar
-                    </button>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                    <div className="flex items-center mb-4">
-                      <div className="p-2 bg-purple-100 rounded-lg">
-                        <i className="ri-facebook-line text-xl text-purple-600"></i>
-                      </div>
-                      <div className="ml-4">
-                        <h4 className="font-semibold text-gray-900">Facebook Ads</h4>
-                        <p className="text-sm text-gray-500">Sosyal Medya</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Günlük Bütçe:</span>
-                        <span className="font-medium">₺300</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Erişim:</span>
-                        <span className="font-medium">8,500</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Etkileşim:</span>
-                        <span className="font-medium">425</span>
-                      </div>
-                    </div>
-                    <button className="w-full bg-purple-50 hover:bg-purple-100 text-purple-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                      Detaylar
-                    </button>
-                  </div>
-
-                  <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                    <div className="flex items-center mb-4">
-                      <div className="p-2 bg-pink-100 rounded-lg">
-                        <i className="ri-instagram-line text-xl text-pink-600"></i>
-                      </div>
-                      <div className="ml-4">
-                        <h4 className="font-semibold text-gray-900">Instagram Ads</h4>
-                        <p className="text-sm text-gray-500">Görsel Reklamlar</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Günlük Bütçe:</span>
-                        <span className="font-medium">₺200</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Erişim:</span>
-                        <span className="font-medium">5,200</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Beğeni:</span>
-                        <span className="font-medium">312</span>
-                      </div>
-                    </div>
-                    <button className="w-full bg-pink-50 hover:bg-pink-100 text-pink-700 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                      Detaylar
-                    </button>
-                  </div>
-                </div>
-
-                {/* Reklam Performansı */}
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Reklam Performansı</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-600">₺15,000</div>
-                      <div className="text-sm text-gray-600">Toplam Harcama</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">₺45,000</div>
-                      <div className="text-sm text-gray-600">Toplam Gelir</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-purple-600">3.0x</div>
-                      <div className="text-sm text-gray-600">ROAS</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-orange-600">₺3.33</div>
-                      <div className="text-sm text-gray-600">CPA</div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">ROI</span>
+                  <span className="font-medium text-green-600">
+                    %{((marketingData?.totalRevenue! - marketingData?.totalSpent!) / marketingData?.totalSpent! * 100).toFixed(1)}
+                  </span>
                     </div>
                   </div>
                 </div>
               </div>
             )}
-          </div>
-        </div>
 
-        {/* Add Keyword Modal */}
-        {showAddKeyword && (
+        {/* Add Campaign Modal */}
+        {showAddCampaign && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Anahtar Kelime Ekle</h2>
-              <form onSubmit={handleAddKeyword} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni Kampanya Oluştur</h2>
+              <form className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Anahtar Kelime</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Kampanya Adı</label>
                     <input
                       type="text"
-                      required
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={newKeyword.keyword}
-                      onChange={(e) => setNewKeyword({ ...newKeyword, keyword: e.target.value })}
+                    placeholder="Kampanya adı girin"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Arama Hacmi</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={newKeyword.search_volume}
-                      onChange={(e) => setNewKeyword({ ...newKeyword, search_volume: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Zorluk Skoru</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="100"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={newKeyword.difficulty_score}
-                      onChange={(e) => setNewKeyword({ ...newKeyword, difficulty_score: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Rekabet</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={newKeyword.competition}
-                      onChange={(e) => setNewKeyword({ ...newKeyword, competition: e.target.value })}
-                    >
-                      <option value="low">Düşük</option>
-                      <option value="medium">Orta</option>
-                      <option value="high">Yüksek</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mevcut Sıralama</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={newKeyword.current_ranking}
-                      onChange={(e) => setNewKeyword({ ...newKeyword, current_ranking: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Hedef Sıralama</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      value={newKeyword.target_ranking}
-                      onChange={(e) => setNewKeyword({ ...newKeyword, target_ranking: e.target.value })}
-                    />
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Kampanya Türü</label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Tür seçin</option>
+                    <option value="email">E-posta</option>
+                    <option value="social">Sosyal Medya</option>
+                    <option value="google_ads">Google Ads</option>
+                    <option value="facebook_ads">Facebook Ads</option>
+                  </select>
                 </div>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="is_targeted"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    checked={newKeyword.is_targeted}
-                    onChange={(e) => setNewKeyword({ ...newKeyword, is_targeted: e.target.checked })}
-                  />
-                  <label htmlFor="is_targeted" className="ml-2 block text-sm text-gray-900">
-                    Hedeflenen anahtar kelime
-                  </label>
-                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Bütçe</label>
+                    <input
+                      type="number"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Bütçe girin"
+                    />
+                  </div>
+                  <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Hedef Kitle</label>
+                    <input
+                    type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Hedef kitle girin"
+                    />
+                  </div>
                 <div className="flex space-x-3">
                   <button
                     type="submit"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
                   >
-                    Ekle
+                    Kampanya Oluştur
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowAddKeyword(false)}
+                    onClick={() => setShowAddCampaign(false)}
+                    className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    İptal
+                  </button>
+                </div>
+              </form>
+            </div>
+                  </div>
+        )}
+
+        {/* Add Email Modal */}
+        {showAddEmail && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Yeni E-posta Gönder</h2>
+              <form className="space-y-4">
+                  <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Konu</label>
+                    <input
+                    type="text"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="E-posta konusu"
+                    />
+                  </div>
+                  <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Alıcı Listesi</label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Liste seçin</option>
+                    <option value="all">Tüm müşteriler</option>
+                    <option value="vip">VIP müşteriler</option>
+                    <option value="new">Yeni müşteriler</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">İçerik</label>
+                  <textarea
+                    rows={4}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="E-posta içeriği"
+                  />
+                </div>
+                <div className="flex space-x-3">
+                  <button
+                    type="submit"
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                  >
+                    E-posta Gönder
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddEmail(false)}
                     className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md font-medium transition-colors"
                   >
                     İptal
@@ -913,6 +721,7 @@ export default function AdminMarketingPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </AdminProtection>
   );

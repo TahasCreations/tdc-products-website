@@ -10,6 +10,8 @@ import { useAuth } from '../src/contexts/AuthContext';
 import { useWishlist } from '../src/contexts/WishlistContext';
 import { useToast } from '../src/components/Toast';
 import ThemeToggle from '../src/components/ThemeToggle';
+import LanguageSwitcher from '../src/components/LanguageSwitcher';
+import CurrencySwitcher from '../src/components/CurrencySwitcher';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -245,6 +247,20 @@ export default function Header() {
 
             {/* Theme Toggle */}
             <ThemeToggle />
+
+            {/* Language Switcher */}
+            <LanguageSwitcher 
+              className="hidden md:flex"
+              showLabel={false}
+              variant="dropdown"
+            />
+
+            {/* Currency Switcher */}
+            <CurrencySwitcher 
+              className="hidden md:flex"
+              showLabel={false}
+              variant="dropdown"
+            />
 
             {/* Giriş Yap/Kayıt Ol Butonu - Sadece giriş yapmamış kullanıcılar için */}
             {!user && (
@@ -503,6 +519,24 @@ export default function Header() {
             <Link href="/tdc-bist" className="block bg-gradient-to-r from-blue-500 to-blue-600 text-black font-bold px-4 py-2 rounded-full w-fit">
               TDC BİST
             </Link>
+            
+            {/* Mobil Dil ve Para Birimi Değiştiricileri */}
+            <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Dil:</span>
+                <LanguageSwitcher 
+                  variant="buttons"
+                  showLabel={false}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Para Birimi:</span>
+                <CurrencySwitcher 
+                  variant="buttons"
+                  showLabel={false}
+                />
+              </div>
+            </div>
             
             {/* Mobil Giriş Yap Butonu */}
             {!user && (

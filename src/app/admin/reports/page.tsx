@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, lazy, Suspense } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
 import OptimizedLoader from '../../../components/OptimizedLoader';
@@ -144,7 +146,7 @@ export default function AdminReportsPage() {
         scale: 2,
         useCORS: true,
         allowTaint: true
-      });
+      } as any);
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
