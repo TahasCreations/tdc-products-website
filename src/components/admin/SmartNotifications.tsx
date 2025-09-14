@@ -49,19 +49,31 @@ export default function SmartNotifications({
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
-    // Simulate real-time notifications
-    const interval = setInterval(() => {
-      const shouldShowNotification = Math.random() > 0.7; // 30% chance
-      
-      if (shouldShowNotification) {
-        const newNotification = generateRandomNotification();
-        addNotification(newNotification);
+  const removeNotification = useCallback((id: string) => {
+    setNotifications(prev => {
+      const notification = prev.find(n => n.id === id);
+      if (notification && !notification.read) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
       }
-    }, 10000); // Check every 10 seconds
-
-    return () => clearInterval(interval);
+      return prev.filter(n => n.id !== id);
+    });
   }, []);
+
+  const addNotification = useCallback((notification: Notification) => {
+    setNotifications(prev => {
+      const newNotifications = [notification, ...prev].slice(0, maxNotifications);
+      return newNotifications;
+    });
+    
+    setUnreadCount(prev => prev + 1);
+
+    // Auto close if enabled
+    if (notification.autoClose && autoClose) {
+      setTimeout(() => {
+        removeNotification(notification.id);
+      }, notification.duration || defaultDuration);
+    }
+  }, [autoClose, defaultDuration, maxNotifications, removeNotification]);
 
   const generateRandomNotification = useCallback((): Notification => {
     const types: Notification['type'][] = ['success', 'warning', 'error', 'info'];
@@ -123,33 +135,22 @@ export default function SmartNotifications({
       autoClose: template.priority !== 'high',
       duration: template.priority === 'high' ? 8000 : defaultDuration
     };
-  }, []);
+  }, [defaultDuration]);
 
-  const addNotification = useCallback((notification: Notification) => {
-    setNotifications(prev => {
-      const newNotifications = [notification, ...prev].slice(0, maxNotifications);
-      return newNotifications;
-    });
-    
-    setUnreadCount(prev => prev + 1);
-
-    // Auto close if enabled
-    if (notification.autoClose && autoClose) {
-      setTimeout(() => {
-        removeNotification(notification.id);
-      }, notification.duration || defaultDuration);
-    }
-  }, [autoClose, defaultDuration, maxNotifications]);
-
-  const removeNotification = useCallback((id: string) => {
-    setNotifications(prev => {
-      const notification = prev.find(n => n.id === id);
-      if (notification && !notification.read) {
-        setUnreadCount(prev => Math.max(0, prev - 1));
+  useEffect(() => {
+    // Simulate real-time notifications
+    const interval = setInterval(() => {
+      const shouldShowNotification = Math.random() > 0.7; // 30% chance
+      
+      if (shouldShowNotification) {
+        const newNotification = generateRandomNotification();
+        addNotification(newNotification);
       }
-      return prev.filter(n => n.id !== id);
-    });
-  }, []);
+    }, 10000); // Check every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [addNotification, generateRandomNotification]);
+
 
   const markAsRead = (id: string) => {
     setNotifications(prev => 

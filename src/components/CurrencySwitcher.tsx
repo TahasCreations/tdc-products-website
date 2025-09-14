@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   CurrencyDollarIcon,
@@ -46,7 +46,7 @@ export default function CurrencySwitcher({
     fetchCurrencies();
   }, []);
 
-  const fetchCurrencies = async () => {
+  const fetchCurrencies = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch('/api/i18n/currencies');
@@ -65,7 +65,7 @@ export default function CurrencySwitcher({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const getUserPreferredCurrency = async (): Promise<Currency | null> => {
     try {

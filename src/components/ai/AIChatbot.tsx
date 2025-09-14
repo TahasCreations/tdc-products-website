@@ -62,24 +62,6 @@ export default function AIChatbot({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    // Initialize with welcome message
-    if (messages.length === 0) {
-      const welcomeMessage: Message = {
-        id: 'welcome',
-        type: 'assistant',
-        content: getWelcomeMessage(),
-        timestamp: new Date(),
-        suggestions: getWelcomeSuggestions()
-      };
-      setMessages([welcomeMessage]);
-    }
-  }, [messages.length]);
-
   const getWelcomeMessage = useCallback(() => {
     const greetings = {
       tr: [
@@ -116,6 +98,24 @@ export default function AIChatbot({
     
     return suggestions[language];
   }, [language]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    // Initialize with welcome message
+    if (messages.length === 0) {
+      const welcomeMessage: Message = {
+        id: 'welcome',
+        type: 'assistant',
+        content: getWelcomeMessage(),
+        timestamp: new Date(),
+        suggestions: getWelcomeSuggestions()
+      };
+      setMessages([welcomeMessage]);
+    }
+  }, [messages.length, getWelcomeMessage, getWelcomeSuggestions]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
