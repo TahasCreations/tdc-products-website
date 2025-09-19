@@ -28,6 +28,15 @@ export const getSupabaseClient = (): SupabaseClient | null => {
       headers: {
         'X-Client-Info': 'tdc-products-website'
       }
+    },
+    // Timeout settings
+    db: {
+      schema: 'public'
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10
+      }
     }
   });
   

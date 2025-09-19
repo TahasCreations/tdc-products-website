@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, Suspense, lazy, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamicImport from 'next/dynamic';
 import { getSupabaseClient } from '../lib/supabase-client';
+import { TimeoutWrapper, RetryWrapper } from '../lib/timeout-wrapper';
 
 // Dynamic imports for better performance and SSR compatibility
 const ProductCard = dynamicImport(() => import('../components/ProductCard'), {
@@ -138,12 +139,12 @@ export default function HomePage() {
 
       // Önce API'den dene
       try {
-        const response = await fetch('/api/products', {
+        const response = await TimeoutWrapper.fetchWithTimeout('/api/products', {
           cache: 'no-store',
           headers: {
             'Cache-Control': 'no-cache'
           }
-        });
+        }, 8000);
         
         if (response.ok) {
           const data = await response.json();
@@ -157,6 +158,7 @@ export default function HomePage() {
         }
       } catch (apiError) {
         // API hatası, Supabase'den yükleniyor
+        console.warn('API request failed, falling back to Supabase:', apiError);
       }
 
       // API başarısız olursa doğrudan Supabase'den yükle
@@ -191,13 +193,23 @@ export default function HomePage() {
       fetchProducts();
     }, 30000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      // Cleanup ref
+      isFetchingRef.current = false;
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Defer heavy AI component until after first paint/idle
   useEffect(() => {
     const idle = (cb: () => void) => (window as any).requestIdleCallback ? (window as any).requestIdleCallback(cb) : setTimeout(cb, 300);
-    idle(() => setShowAI(true));
+    const timeoutId = idle(() => setShowAI(true));
+    
+    return () => {
+      if (timeoutId && typeof timeoutId === 'number') {
+        clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   // Sayfa görünür olduğunda yenileme

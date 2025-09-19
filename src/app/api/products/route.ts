@@ -90,6 +90,10 @@ const getDefaultProducts = () => [
 ];
 
 export async function GET(request: NextRequest) {
+  // Timeout kontrolü için AbortController
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 saniye timeout
+  
   try {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
@@ -108,6 +112,7 @@ export async function GET(request: NextRequest) {
           .from('products')
           .select('*')
           .eq('slug', slug)
+          .abortSignal(controller.signal)
           .single();
 
         if (error) {
@@ -150,6 +155,7 @@ export async function GET(request: NextRequest) {
       .from('products')
       .select('id, slug, title, price, category, stock, image, description, status, created_at, updated_at')
       .eq('status', 'active')
+      .abortSignal(controller.signal)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -187,6 +193,8 @@ export async function GET(request: NextRequest) {
         'Expires': '0'
       }
     });
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
