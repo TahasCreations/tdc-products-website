@@ -3,25 +3,11 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamicImport from 'next/dynamic';
 import { getSupabaseClient } from '../lib/supabase-client';
 import { TimeoutWrapper, RetryWrapper } from '../lib/timeout-wrapper';
-
-// Optimized dynamic imports - only load when needed
-const ProductCard = dynamicImport(() => import('../components/ProductCard'), {
-  loading: () => <div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse h-96"><div className="bg-gray-200 h-full"></div></div>
-});
-
-// CampaignSlider'ı sadece gerekli olduğunda yükle
-const CampaignSlider = dynamicImport(() => import('../components/CampaignSlider'), {
-  loading: () => <div className="h-96 bg-gray-100 rounded-2xl animate-pulse flex items-center justify-center"><p className="text-gray-500">Kampanyalar yükleniyor...</p></div>
-});
-
-// AI component'ini sadece showAI true olduğunda yükle
-const AIRecommendationEngine = dynamicImport(() => import('../components/ai/AIRecommendationEngine'), {
-  ssr: false,
-  loading: () => <div className="h-64 bg-gray-100 rounded-2xl animate-pulse" />
-});
+import ProductCard from '../components/ProductCard';
+import CampaignSlider from '../components/CampaignSlider';
+import AIRecommendationEngine from '../components/ai/AIRecommendationEngine';
 import { 
   StarIcon,
   TruckIcon,
