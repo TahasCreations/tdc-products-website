@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, Suspense, lazy } from 'react';
+import { useRouter } from 'next/navigation';
 import { getSupabaseClient } from '../lib/supabase-client';
 
 // Dynamic imports for better performance and SSR compatibility
@@ -100,6 +101,8 @@ export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastFetch, setLastFetch] = useState<number>(0);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const router = useRouter();
 
   // Ürünleri yükle - cache ile
   const fetchProducts = async (forceRefresh = false) => {
@@ -192,14 +195,15 @@ export default function HomePage() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = () => {
-    const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-    if (searchInput && searchInput.value.trim()) {
-      window.location.href = `/products?search=${encodeURIComponent(searchInput.value.trim())}`;
+    const query = searchQuery.trim();
+    if (query) {
+      router.push(`/products?search=${encodeURIComponent(query)}`);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
       handleSearch();
     }
   };
@@ -242,7 +246,9 @@ export default function HomePage() {
                 placeholder="Ürün ara..."
                 className="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-full focus:border-blue-500 focus:outline-none shadow-lg"
                 id="searchInput"
-                onKeyPress={handleKeyPress}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
               <button
                 onClick={handleSearch}
