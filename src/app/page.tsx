@@ -1,19 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamicImport from 'next/dynamic';
 import { getSupabaseClient } from '../lib/supabase-client';
 import { TimeoutWrapper, RetryWrapper } from '../lib/timeout-wrapper';
 
-// Dynamic imports for better performance and SSR compatibility
+// Optimized dynamic imports - only load when needed
 const ProductCard = dynamicImport(() => import('../components/ProductCard'), {
   loading: () => <div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse h-96"><div className="bg-gray-200 h-full"></div></div>
 });
+
+// CampaignSlider'ı sadece gerekli olduğunda yükle
 const CampaignSlider = dynamicImport(() => import('../components/CampaignSlider'), {
   loading: () => <div className="h-96 bg-gray-100 rounded-2xl animate-pulse flex items-center justify-center"><p className="text-gray-500">Kampanyalar yükleniyor...</p></div>
 });
+
+// AI component'ini sadece showAI true olduğunda yükle
 const AIRecommendationEngine = dynamicImport(() => import('../components/ai/AIRecommendationEngine'), {
   ssr: false,
   loading: () => <div className="h-64 bg-gray-100 rounded-2xl animate-pulse" />
@@ -188,32 +192,16 @@ export default function HomePage() {
   useEffect(() => {
     fetchProducts();
     
-    // Her 30 saniyede bir otomatik yenileme
+    // Her 60 saniyede bir otomatik yenileme (30'dan 60'a çıkarıldı)
     const interval = setInterval(() => {
       fetchProducts();
-    }, 30000);
+    }, 60000);
 
-    return () => {
-      clearInterval(interval);
-      // Cleanup ref
-      isFetchingRef.current = false;
-    };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Defer heavy AI component until after first paint/idle
-  useEffect(() => {
-    const idle = (cb: () => void) => (window as any).requestIdleCallback ? (window as any).requestIdleCallback(cb) : setTimeout(cb, 300);
+    // Defer heavy AI component until after first paint/idle
+    const idle = (cb: () => void) => (window as any).requestIdleCallback ? (window as any).requestIdleCallback(cb) : setTimeout(cb, 1000);
     const timeoutId = idle(() => setShowAI(true));
-    
-    return () => {
-      if (timeoutId && typeof timeoutId === 'number') {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, []);
 
-  // Sayfa görünür olduğunda yenileme
-  useEffect(() => {
+    // Sayfa görünür olduğunda yenileme
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         fetchProducts(true);
@@ -221,24 +209,32 @@ export default function HomePage() {
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      if (timeoutId && typeof timeoutId === 'number') {
+        clearTimeout(timeoutId);
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      isFetchingRef.current = false;
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     const query = searchQuery.trim();
     if (query) {
       router.push(`/products?search=${encodeURIComponent(query)}`);
     }
-  };
+  }, [searchQuery, router]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSearch();
     }
-  };
+  }, [handleSearch]);
 
-  const featuredProducts = products.slice(0, 4);
+  const featuredProducts = useMemo(() => products.slice(0, 4), [products]);
 
   return (
     <div className="min-h-screen bg-white">
