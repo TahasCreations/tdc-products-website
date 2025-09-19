@@ -1,15 +1,22 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, Suspense, lazy } from 'react';
+import { useState, useEffect, Suspense, lazy, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamicImport from 'next/dynamic';
 import { getSupabaseClient } from '../lib/supabase-client';
 
 // Dynamic imports for better performance and SSR compatibility
-const ProductCard = lazy(() => import('../components/ProductCard'));
-const AddToCartButton = lazy(() => import('../components/AddToCartButton'));
-const CampaignSlider = lazy(() => import('../components/CampaignSlider'));
-const AIRecommendationEngine = lazy(() => import('../components/ai/AIRecommendationEngine'));
+const ProductCard = dynamicImport(() => import('../components/ProductCard'), {
+  loading: () => <div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse h-96"><div className="bg-gray-200 h-full"></div></div>
+});
+const CampaignSlider = dynamicImport(() => import('../components/CampaignSlider'), {
+  loading: () => <div className="h-96 bg-gray-100 rounded-2xl animate-pulse flex items-center justify-center"><p className="text-gray-500">Kampanyalar yükleniyor...</p></div>
+});
+const AIRecommendationEngine = dynamicImport(() => import('../components/ai/AIRecommendationEngine'), {
+  ssr: false,
+  loading: () => <div className="h-64 bg-gray-100 rounded-2xl animate-pulse" />
+});
 import { 
   StarIcon,
   TruckIcon,
@@ -103,10 +110,14 @@ export default function HomePage() {
   const [lastFetch, setLastFetch] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const router = useRouter();
+  const isFetchingRef = useRef<boolean>(false);
+  const [showAI, setShowAI] = useState<boolean>(false);
 
   // Ürünleri yükle - cache ile
   const fetchProducts = async (forceRefresh = false) => {
     try {
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
       const now = Date.now();
       const cacheTime = 30 * 1000; // 30 saniye cache
       
@@ -168,6 +179,7 @@ export default function HomePage() {
       setProducts(getDefaultProducts());
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   };
 
@@ -181,6 +193,12 @@ export default function HomePage() {
 
     return () => clearInterval(interval);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Defer heavy AI component until after first paint/idle
+  useEffect(() => {
+    const idle = (cb: () => void) => (window as any).requestIdleCallback ? (window as any).requestIdleCallback(cb) : setTimeout(cb, 300);
+    idle(() => setShowAI(true));
+  }, []);
 
   // Sayfa görünür olduğunda yenileme
   useEffect(() => {
@@ -289,9 +307,7 @@ export default function HomePage() {
               Kaçırılmayacak fırsatlar ve sınırlı süreli indirimler
             </p>
           </div>
-          <Suspense fallback={<div className="h-96 bg-gray-100 rounded-2xl animate-pulse flex items-center justify-center"><p className="text-gray-500">Kampanyalar yükleniyor...</p></div>}>
-            <CampaignSlider />
-          </Suspense>
+          <CampaignSlider />
         </div>
       </section>
 
@@ -372,9 +388,7 @@ export default function HomePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product) => (
-              <Suspense key={product.id} fallback={<div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-pulse h-96"><div className="bg-gray-200 h-full"></div></div>}>
-                <ProductCard product={product} />
-              </Suspense>
+              <ProductCard key={product.id} product={product} />
             ))}
             </div>
           )}
@@ -439,12 +453,14 @@ export default function HomePage() {
               Size özel figür önerileri ve kişiselleştirilmiş deneyim
             </p>
           </div>
-          <AIRecommendationEngine 
-            context="homepage"
-            limit={8}
-            showAlgorithmInfo={true}
-            enablePersonalization={true}
-          />
+          {showAI && (
+            <AIRecommendationEngine 
+              context="homepage"
+              limit={8}
+              showAlgorithmInfo={true}
+              enablePersonalization={true}
+            />
+          )}
         </div>
       </section>
 
