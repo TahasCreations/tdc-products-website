@@ -5,9 +5,14 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseClient } from '../lib/supabase-client';
 import { TimeoutWrapper, RetryWrapper } from '../lib/timeout-wrapper';
+import { usePerformanceMonitor } from '../lib/performance-monitor';
+import { useErrorHandler } from '../lib/error-handler';
+import { useAdvancedCache } from '../lib/advanced-cache';
+import { useSecurity } from '../lib/security';
 import ProductCard from '../components/ProductCard';
 import CampaignSlider from '../components/CampaignSlider';
 import AIRecommendationEngine from '../components/ai/AIRecommendationEngine';
+import PerformanceDashboard from '../components/PerformanceDashboard';
 import { 
   StarIcon,
   TruckIcon,
@@ -104,75 +109,95 @@ export default function HomePage() {
   const isFetchingRef = useRef<boolean>(false);
   const [showAI, setShowAI] = useState<boolean>(false);
 
-  // Ürünleri yükle - cache ile
-  const fetchProducts = async (forceRefresh = false) => {
+  // Enterprise-grade hooks
+  const { measureApi, getCoreWebVitals, getMemoryUsage } = usePerformanceMonitor();
+  const { handleError } = useErrorHandler();
+  const { getOrSet, invalidatePattern } = useAdvancedCache();
+  const { sanitizeInput, isRateLimited } = useSecurity();
+
+  // Enterprise-grade product fetching with advanced caching and monitoring
+  const fetchProducts = useCallback(async (forceRefresh = false) => {
     try {
       if (isFetchingRef.current) return;
       isFetchingRef.current = true;
       const now = Date.now();
-      const cacheTime = 30 * 1000; // 30 saniye cache
       
-      // Cache kontrolü
-      if (!forceRefresh && now - lastFetch < cacheTime && products.length > 0) {
+      // Rate limiting check
+      if (isRateLimited('fetch-products')) {
+        console.warn('Rate limited: Too many product fetch requests');
         return;
       }
 
-      // Ürünler yükleniyor
-      
-      const supabase = getSupabaseClient();
-      if (!supabase) {
-        console.error('Supabase client could not be created');
-        setProducts(getDefaultProducts());
-        setLoading(false);
-        return;
-      }
-
-      // Önce API'den dene
-      try {
-        const response = await TimeoutWrapper.fetchWithTimeout('/api/products', {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache'
-          }
-        }, 8000);
+      // Advanced cache control with enterprise caching
+      if (!forceRefresh) {
+        const cachedProducts = getOrSet('products', async () => {
+          return await fetchProductsFromAPI();
+        }, 5 * 60 * 1000); // 5 minutes cache
         
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.length > 0) {
-            // API'den ürünler yüklendi
-            setProducts(data);
-            setLastFetch(now);
-            setLoading(false);
-            return;
-          }
+        if (cachedProducts) {
+          setProducts(cachedProducts);
+          setLoading(false);
+          return;
         }
-      } catch (apiError) {
-        // API hatası, Supabase'den yükleniyor
-        console.warn('API request failed, falling back to Supabase:', apiError);
       }
 
-      // API başarısız olursa doğrudan Supabase'den yükle
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Fetch from API with performance monitoring
+      const data = await measureApi('fetch-products', async () => {
+        return await fetchProductsFromAPI();
+      });
 
-      if (error) {
-        console.error('Supabase error:', error);
-        setProducts(getDefaultProducts());
-      } else {
-        // Supabase'den ürünler yüklendi
-        setProducts(data && data.length > 0 ? data : getDefaultProducts());
-      }
-      
+      setProducts(data);
       setLastFetch(now);
-    } catch (error) {
-      console.error('Ürünler yüklenirken hata:', error);
-      setProducts(getDefaultProducts());
-    } finally {
       setLoading(false);
+      
+    } catch (error) {
+      handleError(error as Error, 'fetchProducts');
+      setProducts(getDefaultProducts());
+      setLoading(false);
+    } finally {
       isFetchingRef.current = false;
     }
+  }, [measureApi, handleError, getOrSet, isRateLimited]);
+
+  // Separate API fetching function for better error handling
+  const fetchProductsFromAPI = async (): Promise<Product[]> => {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      throw new Error('Supabase client could not be created');
+    }
+
+    // Try API first
+    try {
+      const response = await TimeoutWrapper.fetchWithTimeout('/api/products', {
+        cache: 'force-cache',
+        headers: {
+          'Cache-Control': 'max-age=300'
+        }
+      }, 5000);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data && Array.isArray(data) && data.length > 0) {
+          return data;
+        }
+      }
+    } catch (apiError) {
+      console.warn('API request failed, falling back to Supabase:', apiError);
+    }
+
+    // Fallback to Supabase
+    const { data, error } = await supabase
+      .from('products')
+      .select('id, slug, title, price, category, stock, image, description, status, created_at, updated_at')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (error) {
+      throw new Error(`Supabase error: ${error.message}`);
+    }
+
+    return data && data.length > 0 ? data : getDefaultProducts();
   };
 
   useEffect(() => {
@@ -207,11 +232,20 @@ export default function HomePage() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = useCallback(() => {
-    const query = searchQuery.trim();
-    if (query) {
-      router.push(`/products?search=${encodeURIComponent(query)}`);
+    const query = sanitizeInput(searchQuery.trim());
+    if (query && query.length >= 2) {
+      // Rate limiting for search
+      if (isRateLimited('search')) {
+        console.warn('Search rate limited');
+        return;
+      }
+      
+      // Performance monitoring for search
+      measureApi('search', async () => {
+        router.push(`/products?search=${encodeURIComponent(query)}`);
+      });
     }
-  }, [searchQuery, router]);
+  }, [searchQuery, router, sanitizeInput, isRateLimited, measureApi]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -496,6 +530,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Performance Dashboard - Only in development */}
+      {process.env.NODE_ENV === 'development' && <PerformanceDashboard />}
     </div>
   );
 }
