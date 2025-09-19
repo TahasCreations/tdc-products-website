@@ -74,10 +74,6 @@ export default function BusinessIntelligence() {
   const [selectedPeriod, setSelectedPeriod] = useState('30d');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  useEffect(() => {
-    fetchBIData();
-  }, [selectedPeriod, selectedCategory]);
-
   const fetchBIData = useCallback(async () => {
     try {
       setLoading(true);
@@ -93,6 +89,10 @@ export default function BusinessIntelligence() {
       setLoading(false);
     }
   }, [selectedPeriod, selectedCategory]);
+
+  useEffect(() => {
+    fetchBIData();
+  }, [fetchBIData]);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {

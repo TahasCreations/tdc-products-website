@@ -42,10 +42,6 @@ export default function CurrencySwitcher({
   
   const router = useRouter();
 
-  useEffect(() => {
-    fetchCurrencies();
-  }, []);
-
   const fetchCurrencies = useCallback(async () => {
     try {
       setLoading(true);
@@ -66,6 +62,10 @@ export default function CurrencySwitcher({
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchCurrencies();
+  }, [fetchCurrencies]);
 
   const getUserPreferredCurrency = async (): Promise<Currency | null> => {
     try {

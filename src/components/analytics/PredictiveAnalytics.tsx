@@ -58,10 +58,6 @@ export default function PredictiveAnalytics() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d');
   const [selectedModel, setSelectedModel] = useState('all');
 
-  useEffect(() => {
-    fetchPredictiveData();
-  }, [selectedTimeframe, selectedModel]);
-
   const fetchPredictiveData = useCallback(async () => {
     try {
       setLoading(true);
@@ -77,6 +73,10 @@ export default function PredictiveAnalytics() {
       setLoading(false);
     }
   }, [selectedTimeframe, selectedModel]);
+
+  useEffect(() => {
+    fetchPredictiveData();
+  }, [fetchPredictiveData]);
 
   const getPredictionIcon = (type: string) => {
     switch (type) {

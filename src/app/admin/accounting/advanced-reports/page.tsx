@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { ApiWrapper } from '@/lib/api-wrapper';
 
 interface ReportCategory {
@@ -276,6 +276,240 @@ export default function AdvancedReportsPage() {
     }
   };
 
+  // Stable handlers
+  const handleRunTemplate = useCallback((templateId: string) => {
+    setNewExecution(prev => ({ ...prev, template_id: templateId }));
+    setShowExecutionForm(true);
+  }, []);
+
+  // Memoized row lists to avoid unnecessary re-renders
+  const templateRows = useMemo(() => (
+    templates.map((template) => (
+      <tr key={template.id}>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 h-10 w-10">
+              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <i className="ri-file-chart-line text-blue-600"></i>
+              </div>
+            </div>
+            <div className="ml-4">
+              <div className="text-sm font-medium text-gray-900">
+                {template.name}
+              </div>
+              <div className="text-sm text-gray-500">
+                {template.description}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          {template.report_categories && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              {template.report_categories.name}
+            </span>
+          )}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            {template.template_type}
+          </span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+          {template.data_source}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            template.is_public 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-gray-100 text-gray-800'
+          }`}>
+            {template.is_public ? 'Açık' : 'Özel'}
+          </span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleRunTemplate(template.id)}
+              className="text-blue-600 hover:text-blue-900"
+              title="Çalıştır"
+            >
+              <i className="ri-play-line"></i>
+            </button>
+            <button
+              className="text-green-600 hover:text-green-900"
+              title="Düzenle"
+            >
+              <i className="ri-edit-line"></i>
+            </button>
+            <button
+              className="text-red-600 hover:text-red-900"
+              title="Sil"
+            >
+              <i className="ri-delete-bin-line"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))
+  ), [templates, handleRunTemplate]);
+
+  const widgetRows = useMemo(() => (
+    widgets.map((widget) => (
+      <tr key={widget.id}>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 h-10 w-10">
+              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                <i className={`${widget.icon || 'ri-dashboard-line'} text-green-600`}></i>
+              </div>
+            </div>
+            <div className="ml-4">
+              <div className="text-sm font-medium text-gray-900">
+                {widget.name}
+              </div>
+              <div className="text-sm text-gray-500">
+                {widget.description}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            {widget.widget_type}
+          </span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            {widget.category}
+          </span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <div className="flex items-center gap-2">
+            <button
+              className="text-green-600 hover:text-green-900"
+              title="Düzenle"
+            >
+              <i className="ri-edit-line"></i>
+            </button>
+            <button
+              className="text-red-600 hover:text-red-900"
+              title="Sil"
+            >
+              <i className="ri-delete-bin-line"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))
+  ), [widgets]);
+
+  const executionRows = useMemo(() => (
+    executions.map((execution) => (
+      <tr key={execution.id}>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="text-sm font-medium text-gray-900">
+            {execution.execution_name || 'İsimsiz Çalıştırma'}
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="text-sm text-gray-900">
+            {execution.report_templates?.name || 'Bilinmeyen Şablon'}
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(execution.status)}`}>
+            {getStatusText(execution.status)}
+          </span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="flex items-center">
+            <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full" 
+                style={{ width: `${execution.progress}%` }}
+              ></div>
+            </div>
+            <span className="text-sm text-gray-600">{execution.progress}%</span>
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+          {formatDate(execution.started_at)}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <div className="flex items-center gap-2">
+            {execution.status === 'completed' && (
+              <button
+                className="text-green-600 hover:text-green-900"
+                title="İndir"
+              >
+                <i className="ri-download-line"></i>
+              </button>
+            )}
+            <button
+              className="text-blue-600 hover:text-blue-900"
+              title="Detaylar"
+            >
+              <i className="ri-eye-line"></i>
+            </button>
+            <button
+              className="text-red-600 hover:text-red-900"
+              title="Sil"
+            >
+              <i className="ri-delete-bin-line"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))
+  ), [executions]);
+
+  const categoryRows = useMemo(() => (
+    categories.map((category) => (
+      <tr key={category.id}>
+        <td className="px-6 py-4 whitespace-nowrap">
+          <div className="flex items-center">
+            <div className="flex-shrink-0 h-10 w-10">
+              <div 
+                className="h-10 w-10 rounded-full flex items-center justify-center"
+                style={{ backgroundColor: category.color + '20' }}
+              >
+                <i className={`${category.icon || 'ri-folder-line'} text-lg`} style={{ color: category.color }}></i>
+              </div>
+            </div>
+            <div className="ml-4">
+              <div className="text-sm font-medium text-gray-900">
+                {category.name}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td className="px-6 py-4 text-sm text-gray-900">
+          {category.description || '-'}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+          {category.sort_order}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <div className="flex items-center gap-2">
+            <button
+              className="text-green-600 hover:text-green-900"
+              title="Düzenle"
+            >
+              <i className="ri-edit-line"></i>
+            </button>
+            <button
+              className="text-red-600 hover:text-red-900"
+              title="Sil"
+            >
+              <i className="ri-delete-bin-line"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))
+  ), [categories]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -484,77 +718,7 @@ export default function AdvancedReportsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {templates.map((template) => (
-                    <tr key={template.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                              <i className="ri-file-chart-line text-blue-600"></i>
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {template.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {template.description}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {template.report_categories && (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            {template.report_categories.name}
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {template.template_type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {template.data_source}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          template.is_public 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {template.is_public ? 'Açık' : 'Özel'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              setNewExecution({ ...newExecution, template_id: template.id });
-                              setShowExecutionForm(true);
-                            }}
-                            className="text-blue-600 hover:text-blue-900"
-                            title="Çalıştır"
-                          >
-                            <i className="ri-play-line"></i>
-                          </button>
-                          <button
-                            className="text-green-600 hover:text-green-900"
-                            title="Düzenle"
-                          >
-                            <i className="ri-edit-line"></i>
-                          </button>
-                          <button
-                            className="text-red-600 hover:text-red-900"
-                            title="Sil"
-                          >
-                            <i className="ri-delete-bin-line"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {templateRows}
                 </tbody>
               </table>
             </div>
@@ -697,53 +861,7 @@ export default function AdvancedReportsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {widgets.map((widget) => (
-                    <tr key={widget.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                              <i className={`${widget.icon || 'ri-dashboard-line'} text-green-600`}></i>
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {widget.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {widget.description}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {widget.widget_type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          {widget.category}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center gap-2">
-                          <button
-                            className="text-green-600 hover:text-green-900"
-                            title="Düzenle"
-                          >
-                            <i className="ri-edit-line"></i>
-                          </button>
-                          <button
-                            className="text-red-600 hover:text-red-900"
-                            title="Sil"
-                          >
-                            <i className="ri-delete-bin-line"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {widgetRows}
                 </tbody>
               </table>
             </div>
@@ -848,63 +966,7 @@ export default function AdvancedReportsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {executions.map((execution) => (
-                    <tr key={execution.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {execution.execution_name || 'İsimsiz Çalıştırma'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {execution.report_templates?.name || 'Bilinmeyen Şablon'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(execution.status)}`}>
-                          {getStatusText(execution.status)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                            <div 
-                              className="bg-blue-600 h-2 rounded-full" 
-                              style={{ width: `${execution.progress}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm text-gray-600">{execution.progress}%</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatDate(execution.started_at)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center gap-2">
-                          {execution.status === 'completed' && (
-                            <button
-                              className="text-green-600 hover:text-green-900"
-                              title="İndir"
-                            >
-                              <i className="ri-download-line"></i>
-                            </button>
-                          )}
-                          <button
-                            className="text-blue-600 hover:text-blue-900"
-                            title="Detaylar"
-                          >
-                            <i className="ri-eye-line"></i>
-                          </button>
-                          <button
-                            className="text-red-600 hover:text-red-900"
-                            title="Sil"
-                          >
-                            <i className="ri-delete-bin-line"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {executionRows}
                 </tbody>
               </table>
             </div>
@@ -938,49 +1000,7 @@ export default function AdvancedReportsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {categories.map((category) => (
-                    <tr key={category.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div 
-                              className="h-10 w-10 rounded-full flex items-center justify-center"
-                              style={{ backgroundColor: category.color + '20' }}
-                            >
-                              <i className={`${category.icon || 'ri-folder-line'} text-lg`} style={{ color: category.color }}></i>
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {category.name}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {category.description || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {category.sort_order}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center gap-2">
-                          <button
-                            className="text-green-600 hover:text-green-900"
-                            title="Düzenle"
-                          >
-                            <i className="ri-edit-line"></i>
-                          </button>
-                          <button
-                            className="text-red-600 hover:text-red-900"
-                            title="Sil"
-                          >
-                            <i className="ri-delete-bin-line"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {categoryRows}
                 </tbody>
               </table>
             </div>

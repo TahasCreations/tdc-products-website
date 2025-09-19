@@ -72,15 +72,6 @@ export default function SecurityMonitoring() {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  useEffect(() => {
-    fetchSecurityData();
-    
-    if (autoRefresh) {
-      const interval = setInterval(fetchSecurityData, 30000); // 30 seconds
-      return () => clearInterval(interval);
-    }
-  }, [autoRefresh, selectedSeverity, selectedType]);
-
   const fetchSecurityData = useCallback(async () => {
     try {
       setLoading(true);
@@ -110,6 +101,15 @@ export default function SecurityMonitoring() {
       setLoading(false);
     }
   }, [selectedSeverity, selectedType]);
+
+  useEffect(() => {
+    fetchSecurityData();
+    
+    if (autoRefresh) {
+      const interval = setInterval(fetchSecurityData, 30000); // 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [autoRefresh, fetchSecurityData]);
 
   const handleAcknowledgeAlert = async (alertId: string) => {
     try {

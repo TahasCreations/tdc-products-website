@@ -146,10 +146,7 @@ export default function AIRecommendationEngine({
     }
   ], []);
 
-  useEffect(() => {
-    fetchUserBehavior();
-    generateRecommendations();
-  }, [user, selectedAlgorithm, category]);
+  
 
   const fetchUserBehavior = useCallback(async () => {
     try {
@@ -188,52 +185,7 @@ export default function AIRecommendationEngine({
     }
   }, [user]);
 
-  const generateRecommendations = useCallback(async () => {
-    setLoading(true);
-    
-    try {
-      let recommendations: Recommendation[] = [];
-
-      if (selectedAlgorithm === 'auto') {
-        // Use hybrid approach for best results
-        recommendations = await generateHybridRecommendations();
-      } else {
-        switch (selectedAlgorithm) {
-          case 'collaborative':
-            recommendations = await generateCollaborativeRecommendations();
-            break;
-          case 'content-based':
-            recommendations = await generateContentBasedRecommendations();
-            break;
-          case 'hybrid':
-            recommendations = await generateHybridRecommendations();
-            break;
-          case 'trending':
-            recommendations = await generateTrendingRecommendations();
-            break;
-          default:
-            recommendations = await generateHybridRecommendations();
-        }
-      }
-
-      // Filter by category if specified
-      if (category) {
-        recommendations = recommendations.filter(rec => 
-          rec.product.category === category
-        );
-      }
-
-      // Limit results
-      recommendations = recommendations.slice(0, limit);
-
-      setRecommendations(recommendations);
-      generateInsights(recommendations);
-    } catch (error) {
-      console.error('Error generating recommendations:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedAlgorithm, category, limit]);
+  // generateRecommendations is defined after the specific generators
 
   const generateCollaborativeRecommendations = useCallback(async (): Promise<Recommendation[]> => {
     // Collaborative filtering based on similar users
@@ -394,6 +346,48 @@ export default function AIRecommendationEngine({
     return recommendations;
   }, [mockProducts, userBehavior?.purchasedProducts, userBehavior?.viewedProducts]);
 
+  const generateRecommendations = useCallback(async () => {
+    setLoading(true);
+    
+    try {
+      let generated: Recommendation[] = [];
+
+      if (selectedAlgorithm === 'auto') {
+        generated = await generateHybridRecommendations();
+      } else {
+        switch (selectedAlgorithm) {
+          case 'collaborative':
+            generated = await generateCollaborativeRecommendations();
+            break;
+          case 'content-based':
+            generated = await generateContentBasedRecommendations();
+            break;
+          case 'hybrid':
+            generated = await generateHybridRecommendations();
+            break;
+          case 'trending':
+            generated = await generateTrendingRecommendations();
+            break;
+          default:
+            generated = await generateHybridRecommendations();
+        }
+      }
+
+      if (category) {
+        generated = generated.filter(rec => rec.product.category === category);
+      }
+
+      generated = generated.slice(0, limit);
+
+      setRecommendations(generated);
+      generateInsights(generated);
+    } catch (error) {
+      console.error('Error generating recommendations:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedAlgorithm, category, limit, generateCollaborativeRecommendations, generateContentBasedRecommendations, generateHybridRecommendations, generateTrendingRecommendations]);
+
   const findSimilarUsers = async () => {
     // Mock similar users data
     return [
@@ -453,6 +447,12 @@ export default function AIRecommendationEngine({
     };
     return names[algo] || algo;
   };
+
+  // Effects after callbacks to avoid temporal dead zone
+  useEffect(() => {
+    fetchUserBehavior();
+    generateRecommendations();
+  }, [user, selectedAlgorithm, category, fetchUserBehavior, generateRecommendations]);
 
   if (loading) {
     return (
