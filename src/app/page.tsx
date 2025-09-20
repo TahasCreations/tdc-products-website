@@ -130,7 +130,7 @@ export default function HomePage() {
 
       // Advanced cache control with enterprise caching
       if (!forceRefresh) {
-        const cachedProducts = getOrSet('products', async () => {
+        const cachedProducts = await getOrSet('products', async () => {
           return await fetchProductsFromAPI();
         }, 5 * 60 * 1000); // 5 minutes cache
         
@@ -188,7 +188,7 @@ export default function HomePage() {
     // Fallback to Supabase
     const { data, error } = await supabase
       .from('products')
-      .select('id, slug, title, price, category, stock, image, description, status, created_at, updated_at')
+      .select('id, slug, title, price, category, stock, image, images, description, status, created_at, updated_at')
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(20);

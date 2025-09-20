@@ -17,7 +17,7 @@ export const useErrorToast = () => {
     } else if (error instanceof Error) {
       message = error.message;
     } else if (error && typeof error === 'object' && 'error' in error) {
-      message = error.error;
+      message = error.error || 'Bilinmeyen hata';
     } else {
       message = 'Beklenmeyen bir hata oluştu';
     }
@@ -81,7 +81,7 @@ export const useErrorToast = () => {
       );
 
       // Show user-friendly error
-      showError(response.error, 'İşlem Başarısız');
+      showError(response.error || 'Bilinmeyen hata', 'İşlem Başarısız');
     }
   }, [showError]);
 
@@ -97,7 +97,7 @@ export const useErrorToast = () => {
         if (successMessage) {
           showSuccess(successMessage);
         }
-        return response.data;
+        return response.data || null;
       } else {
         handleApiError(response, errorContext);
         return null;
