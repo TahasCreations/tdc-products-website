@@ -1,27 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSupabaseClient } from '../lib/supabase-client';
-import { TimeoutWrapper, RetryWrapper } from '../lib/timeout-wrapper';
-import { usePerformanceMonitor } from '../lib/performance-monitor';
-import { useErrorHandler } from '../lib/error-handler';
-import { useAdvancedCache } from '../lib/advanced-cache';
-import { useSecurity } from '../lib/security';
 import ProductCard from '../components/ProductCard';
 import CampaignSlider from '../components/CampaignSlider';
-import AIRecommendationEngine from '../components/ai/AIRecommendationEngine';
-import PerformanceDashboard from '../components/PerformanceDashboard';
 import { 
   StarIcon,
   TruckIcon,
   ShieldCheckIcon,
   HeartIcon,
-  SparklesIcon,
-  GiftIcon,
-  TrophyIcon,
-  FireIcon
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 
 interface Product {
@@ -98,163 +87,27 @@ const getDefaultProducts = (): Product[] => [
   }
 ];
 
-export const dynamic = 'force-dynamic';
-
 export default function HomePage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [lastFetch, setLastFetch] = useState<number>(0);
+  const [products, setProducts] = useState<Product[]>(getDefaultProducts());
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const router = useRouter();
-  const isFetchingRef = useRef<boolean>(false);
-  const [showAI, setShowAI] = useState<boolean>(false);
 
-  // Enterprise-grade hooks
-  const { measureApi, getCoreWebVitals, getMemoryUsage } = usePerformanceMonitor();
-  const { handleError } = useErrorHandler();
-  const { getOrSet, invalidatePattern } = useAdvancedCache();
-  const { sanitizeInput, isRateLimited } = useSecurity();
-
-  // Enterprise-grade product fetching with advanced caching and monitoring
-  const fetchProducts = useCallback(async (forceRefresh = false) => {
-    try {
-      if (isFetchingRef.current) return;
-      isFetchingRef.current = true;
-      const now = Date.now();
-      
-      // Rate limiting check
-      if (isRateLimited('fetch-products')) {
-        console.warn('Rate limited: Too many product fetch requests');
-        return;
-      }
-
-      // Advanced cache control with enterprise caching
-      if (!forceRefresh) {
-        const cachedProducts = await getOrSet('products', async () => {
-          return await fetchProductsFromAPI();
-        }, 5 * 60 * 1000); // 5 minutes cache
-        
-        if (cachedProducts) {
-          setProducts(cachedProducts);
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Fetch from API with performance monitoring
-      const data = await measureApi('fetch-products', async () => {
-        return await fetchProductsFromAPI();
-      });
-
-      setProducts(data);
-      setLastFetch(now);
-      setLoading(false);
-      
-    } catch (error) {
-      handleError(error as Error, 'fetchProducts');
-      setProducts(getDefaultProducts());
-      setLoading(false);
-    } finally {
-      isFetchingRef.current = false;
+  // Basit arama fonksiyonu
+  const handleSearch = () => {
+    if (searchQuery.trim().length >= 2) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
     }
-  }, [measureApi, handleError, getOrSet, isRateLimited]);
-
-  // Separate API fetching function for better error handling
-  const fetchProductsFromAPI = async (): Promise<Product[]> => {
-    const supabase = getSupabaseClient();
-    if (!supabase) {
-      throw new Error('Supabase client could not be created');
-    }
-
-    // Try API first
-    try {
-      const response = await TimeoutWrapper.fetchWithTimeout('/api/products', {
-        cache: 'force-cache',
-        headers: {
-          'Cache-Control': 'max-age=300'
-        }
-      }, 5000);
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data && Array.isArray(data) && data.length > 0) {
-          return data;
-        }
-      }
-    } catch (apiError) {
-      console.warn('API request failed, falling back to Supabase:', apiError);
-    }
-
-    // Fallback to Supabase
-    const { data, error } = await supabase
-      .from('products')
-      .select('id, slug, title, price, category, stock, image, images, description, status, created_at, updated_at')
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(20);
-
-    if (error) {
-      throw new Error(`Supabase error: ${error.message}`);
-    }
-
-    return data && data.length > 0 ? data : getDefaultProducts();
   };
 
-  useEffect(() => {
-    fetchProducts();
-    
-    // Her 60 saniyede bir otomatik yenileme (30'dan 60'a çıkarıldı)
-    const interval = setInterval(() => {
-      fetchProducts();
-    }, 60000);
-
-    // Defer heavy AI component until after first paint/idle
-    const idle = (cb: () => void) => (window as any).requestIdleCallback ? (window as any).requestIdleCallback(cb) : setTimeout(cb, 1000);
-    const timeoutId = idle(() => setShowAI(true));
-
-    // Sayfa görünür olduğunda yenileme
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchProducts(true);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      clearInterval(interval);
-      if (timeoutId && typeof timeoutId === 'number') {
-        clearTimeout(timeoutId);
-      }
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      isFetchingRef.current = false;
-    };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleSearch = useCallback(() => {
-    const query = sanitizeInput(searchQuery.trim());
-    if (query && query.length >= 2) {
-      // Rate limiting for search
-      if (isRateLimited('search')) {
-        console.warn('Search rate limited');
-        return;
-      }
-      
-      // Performance monitoring for search
-      measureApi('search', async () => {
-        router.push(`/products?search=${encodeURIComponent(query)}`);
-      });
-    }
-  }, [searchQuery, router, sanitizeInput, isRateLimited, measureApi]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSearch();
     }
-  }, [handleSearch]);
+  };
 
-  const featuredProducts = useMemo(() => products.slice(0, 4), [products]);
+  const featuredProducts = products.slice(0, 4);
 
   return (
     <div className="min-h-screen bg-white">
@@ -407,19 +260,11 @@ export default function HomePage() {
             </p>
           </div>
 
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[...Array(4)].map((_, index) => (
-                <div key={index} className="bg-gray-200 rounded-2xl h-96 animate-pulse"></div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
-            </div>
-          )}
+          </div>
 
           <div className="text-center mt-12">
             <Link
@@ -470,42 +315,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* AI-Powered Smart Recommendations */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              🤖 AI Önerileri
-            </h2>
-            <p className="text-xl text-gray-600">
-              Size özel figür önerileri ve kişiselleştirilmiş deneyim
-            </p>
-          </div>
-          {showAI && (
-            <AIRecommendationEngine 
-              context="homepage"
-              limit={8}
-              showAlgorithmInfo={true}
-              enablePersonalization={true}
-            />
-          )}
-        </div>
-      </section>
-
-      {/* Gamification Dashboard */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              🎮 Gamification Sistemi
-            </h2>
-            <p className="text-xl text-gray-600">
-              Alışveriş yaparken puan kazanın, seviye atlayın ve rozetler toplayın!
-            </p>
-          </div>
-          {/* <GamificationDashboard /> */}
-        </div>
-      </section>
 
       {/* Stats Section */}
       <section className="py-16 bg-gradient-to-r from-gray-900 to-gray-800">
@@ -531,8 +340,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Performance Dashboard - Only in development */}
-      {process.env.NODE_ENV === 'development' && <PerformanceDashboard />}
     </div>
   );
 }
