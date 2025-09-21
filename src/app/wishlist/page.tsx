@@ -8,7 +8,7 @@ import { useCart } from '../../contexts/CartContext';
 import OptimizedLoader from '../../components/OptimizedLoader';
 import WishlistButton from '../../components/WishlistButton';
 import AddToCartButton from '../../components/AddToCartButton';
-import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
+import SimpleRecommendationEngine from '../../components/ai/SimpleRecommendationEngine';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
@@ -271,11 +271,11 @@ export default function WishlistPage() {
                   İstek listenizdeki ürünlere benzer figürler ve kişiselleştirilmiş öneriler
                 </p>
               </div>
-              <AIRecommendationEngine
+              <SimpleRecommendationEngine
                 context="wishlist"
                 limit={6}
-                showAlgorithmInfo={false}
-                enablePersonalization={true}
+                
+                
               />
             </div>
           </section>

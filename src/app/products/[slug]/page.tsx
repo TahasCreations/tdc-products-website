@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ProductGallery from "../../../components/ProductGallery";
 import AddToCartButton from "../../../components/AddToCartButton";
-import AIRecommendationEngine from "../../../components/ai/AIRecommendationEngine";
+import SimpleRecommendationEngine from "../../../components/ai/SimpleRecommendationEngine";
 import { notFound, useParams } from 'next/navigation';
 import { getSupabaseClient } from '../../../lib/supabase-client';
 import OptimizedLoader from '../../../components/OptimizedLoader';
@@ -494,11 +494,11 @@ export default function ProductDetailPage() {
                 Bu ürüne benzer figürler ve kişiselleştirilmiş öneriler
               </p>
             </div>
-            <AIRecommendationEngine
+            <SimpleRecommendationEngine
               context="product_detail"
               limit={6}
-              showAlgorithmInfo={true}
-              enablePersonalization={true}
+              
+              
             />
           </div>
         </section>

@@ -5,7 +5,7 @@ import SkeletonLoader from '../../components/SkeletonLoader';
 import CategorySidebar from '../../components/CategorySidebar';
 import { ProductCardSkeleton } from '../../components/LoadingSpinner';
 import OptimizedLoader from '../../components/OptimizedLoader';
-import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
+import SimpleRecommendationEngine from '../../components/ai/SimpleRecommendationEngine';
 import Link from 'next/link';
 import { getSupabaseClient } from '../../lib/supabase-client';
 
@@ -169,8 +169,7 @@ function ProductsLoading() {
 }
 
 export default async function ProductsPage({
-  searchParams,
-}: {
+  searchParams}: {
   searchParams: Promise<{ 
     category?: string; 
     search?: string; 
@@ -304,11 +303,11 @@ export default async function ProductsPage({
                   AI teknolojisi ile size özel figür önerileri
                 </p>
               </div>
-              <AIRecommendationEngine 
+              <SimpleRecommendationEngine 
                 context="products"
                 limit={6}
-                showAlgorithmInfo={false}
-                enablePersonalization={true}
+                
+                
               />
             </div>
           </section>

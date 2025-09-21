@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useAuth } from '../../contexts/AuthContext';
 import { getSupabaseClient } from '../../lib/supabase-client';
 import OptimizedLoader from '../../components/OptimizedLoader';
-import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
+import SimpleRecommendationEngine from '../../components/ai/SimpleRecommendationEngine';
 import Link from 'next/link';
 
 interface BlogPost {
@@ -442,11 +442,11 @@ export default function BlogPage() {
                 Blog yazılarımıza göre kişiselleştirilmiş figür önerileri
               </p>
             </div>
-            <AIRecommendationEngine 
+            <SimpleRecommendationEngine 
               context="blog"
               limit={6}
-              showAlgorithmInfo={false}
-              enablePersonalization={true}
+              
+              
             />
           </div>
         </section>

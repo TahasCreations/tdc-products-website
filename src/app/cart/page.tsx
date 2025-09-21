@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
+import SimpleRecommendationEngine from '../../components/ai/SimpleRecommendationEngine';
 
 export default function CartPage() {
   const { state, removeItem, updateQuantity, clearCart } = useCart();
@@ -191,11 +191,11 @@ export default function CartPage() {
                 Sepetinizdeki ürünlere benzer figürler ve kişiselleştirilmiş öneriler
               </p>
             </div>
-            <AIRecommendationEngine
+            <SimpleRecommendationEngine
               context="cart"
               limit={6}
-              showAlgorithmInfo={false}
-              enablePersonalization={true}
+              
+              
             />
           </div>
         </section>

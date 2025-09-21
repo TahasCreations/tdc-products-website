@@ -1,5 +1,3 @@
-import AIRecommendationEngine from "../../components/ai/AIRecommendationEngine";
-
 export default function ContactPage() {
   return (
     <>
@@ -239,23 +237,55 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* AI Önerileri */}
+      {/* FAQ Section */}
       <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              🤖 Size Özel Öneriler
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              Sıkça Sorulan Sorular
             </h2>
             <p className="text-lg text-gray-600">
-              İletişime geçmeden önce bu özel figürleri de gözden geçirin
+              Merak ettiğiniz soruların cevapları burada
             </p>
           </div>
-          <AIRecommendationEngine 
-            context="contact"
-            limit={6}
-            showAlgorithmInfo={false}
-            enablePersonalization={true}
-          />
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-white p-6 rounded-xl shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Siparişlerim nasıl takip edilir?
+              </h3>
+              <p className="text-gray-600">
+                Siparişlerinizi &quot;Siparişlerim&quot; bölümünden takip edebilir, kargo durumunu anlık olarak görebilirsiniz.
+              </p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                İade ve değişim nasıl yapılır?
+              </h3>
+              <p className="text-gray-600">
+                14 gün içinde ücretsiz iade ve değişim hakkınız bulunmaktadır. Detaylar için iletişime geçin.
+              </p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Ödeme seçenekleri nelerdir?
+              </h3>
+              <p className="text-gray-600">
+                Kredi kartı, banka kartı, havale ve kapıda ödeme seçenekleri mevcuttur.
+              </p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                Kargo süresi ne kadar?
+              </h3>
+              <p className="text-gray-600">
+                Siparişleriniz 1-3 iş günü içinde kargoya verilir ve 2-5 gün içinde elinize ulaşır.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     </>

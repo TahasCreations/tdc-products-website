@@ -5,7 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useToast } from '../../components/Toast';
 import Link from 'next/link';
-import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
+import SimpleRecommendationEngine from '../../components/ai/SimpleRecommendationEngine';
 
 export default function ProfilePage() {
   const { user, updateProfile, signOut } = useAuth();
@@ -332,11 +332,11 @@ export default function ProfilePage() {
                 Profil bilgilerinize göre kişiselleştirilmiş figür önerileri
               </p>
             </div>
-            <AIRecommendationEngine
+            <SimpleRecommendationEngine
               context="profile"
               limit={6}
-              showAlgorithmInfo={false}
-              enablePersonalization={true}
+              
+              
             />
           </div>
         </section>

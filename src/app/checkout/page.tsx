@@ -9,7 +9,7 @@ import { useToast } from '../../components/Toast';
 import Link from 'next/link';
 import Image from 'next/image';
 import AdvancedPaymentSystem from '../../components/payment/AdvancedPaymentSystem';
-import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
+import SimpleRecommendationEngine from '../../components/ai/SimpleRecommendationEngine';
 
 export default function CheckoutPage() {
   const { state: cartState } = useCart();
@@ -90,13 +90,11 @@ export default function CheckoutPage() {
       const response = await fetch('/api/coupons', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'},
         body: JSON.stringify({
           code: couponCode.trim(),
           total_amount: cartState.total
-        }),
-      });
+        })});
 
       const data = await response.json();
 
@@ -636,11 +634,11 @@ export default function CheckoutPage() {
                 Ödeme yapmadan önce bu özel figürleri de gözden geçirin
               </p>
             </div>
-            <AIRecommendationEngine
+            <SimpleRecommendationEngine
               context="checkout"
               limit={4}
-              showAlgorithmInfo={false}
-              enablePersonalization={true}
+              
+              
             />
           </div>
         </section>

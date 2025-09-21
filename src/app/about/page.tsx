@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import AIRecommendationEngine from "../../components/ai/AIRecommendationEngine";
+import SimpleRecommendationEngine from "../../components/ai/SimpleRecommendationEngine";
 
 export default function AboutPage() {
   return (
@@ -194,11 +194,9 @@ export default function AboutPage() {
               TDC Products&apos;ın en popüler figürleri ve kişiselleştirilmiş öneriler
             </p>
           </div>
-          <AIRecommendationEngine 
+          <SimpleRecommendationEngine 
             context="about"
             limit={6}
-            showAlgorithmInfo={false}
-            enablePersonalization={true}
           />
         </div>
       </section>

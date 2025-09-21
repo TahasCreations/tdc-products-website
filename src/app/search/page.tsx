@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProductCard from '../../components/ProductCard';
-import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
+import SimpleRecommendationEngine from '../../components/ai/SimpleRecommendationEngine';
 import { getSupabaseClient } from '../../lib/supabase-client';
 import Link from 'next/link';
 
@@ -161,11 +161,11 @@ function SearchContent() {
                   Arama sonuçlarınıza göre kişiselleştirilmiş figür önerileri
                 </p>
               </div>
-              <AIRecommendationEngine
+              <SimpleRecommendationEngine
                 context="search"
                 limit={6}
-                showAlgorithmInfo={false}
-                enablePersonalization={true}
+                
+                
               />
             </div>
           </section>

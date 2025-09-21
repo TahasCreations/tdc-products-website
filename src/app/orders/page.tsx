@@ -6,7 +6,7 @@ import { useOrder } from '../../contexts/OrderContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import AIRecommendationEngine from '../../components/ai/AIRecommendationEngine';
+import SimpleRecommendationEngine from '../../components/ai/SimpleRecommendationEngine';
 
 export default function OrdersPage() {
   const { user } = useAuth();
@@ -275,11 +275,11 @@ export default function OrdersPage() {
                   Geçmiş siparişlerinize göre kişiselleştirilmiş figür önerileri
                 </p>
               </div>
-              <AIRecommendationEngine
+              <SimpleRecommendationEngine
                 context="orders"
                 limit={6}
-                showAlgorithmInfo={false}
-                enablePersonalization={true}
+                
+                
               />
             </div>
           </section>
