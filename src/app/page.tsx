@@ -28,76 +28,7 @@ interface Product {
   updated_at: string;
 }
 
-const getDefaultProducts = (): Product[] => [
-  {
-    id: "1",
-    slug: "naruto-uzumaki-figuru",
-    title: "Naruto Uzumaki Figürü",
-    price: 299.99,
-    category: "Anime",
-    stock: 15,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center",
-    images: [
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center"
-    ],
-    description: "Naruto anime serisinin baş karakteri olan Naruto Uzumaki'nin detaylı 3D baskı figürü.",
-    status: "active",
-    created_at: "2024-01-01T00:00:00.000Z",
-    updated_at: "2024-01-01T00:00:00.000Z"
-  },
-  {
-    id: "2",
-    slug: "goku-super-saiyan-figuru",
-    title: "Goku Super Saiyan Figürü",
-    price: 349.99,
-    category: "Anime",
-    stock: 8,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center",
-    images: [
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center"
-    ],
-    description: "Dragon Ball serisinin efsanevi karakteri Goku'nun Super Saiyan formundaki detaylı figürü.",
-    status: "active",
-    created_at: "2024-01-01T00:00:00.000Z",
-    updated_at: "2024-01-01T00:00:00.000Z"
-  },
-  {
-    id: "3",
-    slug: "mario-bros-figuru",
-    title: "Mario Bros Figürü",
-    price: 199.99,
-    category: "Gaming",
-    stock: 25,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center",
-    images: [
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center"
-    ],
-    description: "Nintendo'nun efsanevi karakteri Mario'nun 3D baskı figürü.",
-    status: "active",
-    created_at: "2024-01-01T00:00:00.000Z",
-    updated_at: "2024-01-01T00:00:00.000Z"
-  },
-  {
-    id: "4",
-    slug: "iron-man-mark-85-figuru",
-    title: "Iron Man Mark 85 Figürü",
-    price: 449.99,
-    category: "Film",
-    stock: 5,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center",
-    images: [
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=center"
-    ],
-    description: "Marvel Cinematic Universe'den Iron Man'in Mark 85 zırhının detaylı figürü.",
-    status: "active",
-    created_at: "2024-01-01T00:00:00.000Z",
-    updated_at: "2024-01-01T00:00:00.000Z"
-  }
-];
+const getDefaultProducts = (): Product[] => [];
 
 export default function HomePage() {
   const [products, setProducts] = useState<Product[]>(getDefaultProducts());

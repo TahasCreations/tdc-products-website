@@ -1,695 +1,410 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import AdminProtection from '../../../components/AdminProtection';
-import OptimizedLoader from '../../../components/OptimizedLoader';
+import { 
+  CurrencyDollarIcon,
+  DocumentTextIcon,
+  ChartBarIcon,
+  BanknotesIcon,
+  ReceiptPercentIcon,
+  DocumentDuplicateIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon,
+  PlusIcon,
+  EyeIcon,
+  PencilIcon,
+  TrashIcon,
+  ArrowDownTrayIcon,
+  PrinterIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  XCircleIcon
+} from '@heroicons/react/24/outline';
 
-interface DashboardData {
-  totalAccounts: number;
-  totalJournalEntries: number;
-  totalInvoices: number;
-  totalContacts: number;
-  recentJournalEntries: any[];
-  kdvSummary: {
-    totalKdv: number;
-    kdvRates: { [key: string]: number };
-  };
+interface Invoice {
+  id: string;
+  number: string;
+  customer: string;
+  amount: number;
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  dueDate: string;
+  createdDate: string;
+  type: 'invoice' | 'receipt' | 'credit_note';
+}
+
+interface FinancialSummary {
+  totalRevenue: number;
+  totalExpenses: number;
+  netProfit: number;
+  pendingInvoices: number;
+  overdueInvoices: number;
+  monthlyGrowth: number;
+  quarterlyGrowth: number;
+}
+
+interface EtaIntegration {
+  isConnected: boolean;
+  lastSync: string;
+  syncStatus: 'success' | 'error' | 'pending';
+  invoicesSynced: number;
+  customersSynced: number;
 }
 
 export default function AccountingPage() {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [summary, setSummary] = useState<FinancialSummary | null>(null);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [etaIntegration, setEtaIntegration] = useState<EtaIntegration | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [showExcelImport, setShowExcelImport] = useState(false);
-  const [excelFile, setExcelFile] = useState<File | null>(null);
-  const [importType, setImportType] = useState('accounts');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState('this_month');
 
   useEffect(() => {
-    fetchDashboardData();
+    // Mock data - Gerçek API'den gelecek
+    const mockSummary: FinancialSummary = {
+      totalRevenue: 0,
+      totalExpenses: 0,
+      netProfit: 0,
+      pendingInvoices: 0,
+      overdueInvoices: 0,
+      monthlyGrowth: 0,
+      quarterlyGrowth: 0
+    };
+
+    const mockInvoices: Invoice[] = [];
+
+    const mockEtaIntegration: EtaIntegration = {
+      isConnected: false,
+      lastSync: '',
+      syncStatus: 'pending',
+      invoicesSynced: 0,
+      customersSynced: 0
+    };
+
+    setTimeout(() => {
+      setSummary(mockSummary);
+      setInvoices(mockInvoices);
+      setEtaIntegration(mockEtaIntegration);
+      setLoading(false);
+    }, 1000);
   }, []);
 
-  const fetchDashboardData = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/accounting/dashboard');
-      if (!response.ok) {
-        throw new Error('Dashboard verileri alınamadı');
-      }
-      const data = await response.json();
-      setDashboardData(data);
-    } catch (error) {
-      console.error('Dashboard error:', error);
-      setError('Veriler yüklenirken hata oluştu');
-    } finally {
-      setLoading(false);
-    }
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY'
+    }).format(amount);
   };
 
-  const handleExcelImport = async () => {
-    if (!excelFile) return;
+  const getStatusColor = (status: string) => {
+    const colors = {
+      draft: 'bg-gray-100 text-gray-800',
+      sent: 'bg-blue-100 text-blue-800',
+      paid: 'bg-green-100 text-green-800',
+      overdue: 'bg-red-100 text-red-800',
+      cancelled: 'bg-gray-100 text-gray-800'
+    };
+    return colors[status as keyof typeof colors] || colors.draft;
+  };
 
-    const formData = new FormData();
-    formData.append('file', excelFile);
-    formData.append('type', importType);
+  const getStatusText = (status: string) => {
+    const texts = {
+      draft: 'Taslak',
+      sent: 'Gönderildi',
+      paid: 'Ödendi',
+      overdue: 'Vadesi Geçmiş',
+      cancelled: 'İptal Edildi'
+    };
+    return texts[status as keyof typeof texts] || status;
+  };
 
-    try {
-      const response = await fetch('/api/accounting/excel-import', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        alert('Excel dosyası başarıyla içe aktarıldı!');
-        setShowExcelImport(false);
-        setExcelFile(null);
-        fetchDashboardData();
-      } else {
-        alert('Excel dosyası içe aktarılırken hata oluştu!');
-      }
-    } catch (error) {
-      console.error('Excel import error:', error);
-      alert('Excel dosyası içe aktarılırken hata oluştu!');
-    }
+  const getTypeText = (type: string) => {
+    const texts = {
+      invoice: 'Fatura',
+      receipt: 'Makbuz',
+      credit_note: 'İade Faturası'
+    };
+    return texts[type as keyof typeof texts] || type;
   };
 
   if (loading) {
-    return <OptimizedLoader message="Muhasebe verileri yükleniyor..." />;
-  }
-
-  if (error) {
     return (
-      <AdminProtection>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="bg-red-50 border border-red-200 text-red-600 px-6 py-4 rounded-lg">
-              <h2 className="text-lg font-semibold mb-2">Hata</h2>
-              <p>{error}</p>
-              <button
-                onClick={fetchDashboardData}
-                className="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
-              >
-                Tekrar Dene
-              </button>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-white p-6 rounded-xl shadow">
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      </AdminProtection>
+      </div>
     );
   }
 
   return (
-    <AdminProtection>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg mx-4 mt-4 p-6">
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <button
-                onClick={() => window.history.back()}
-                className="mr-3 p-1.5 rounded-full hover:bg-gray-100 transition-colors group"
-                title="Önceki sayfaya dön"
-              >
-                <i className="ri-close-line text-lg text-gray-600 group-hover:text-red-600 transition-colors"></i>
-              </button>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">ETA Muhasebe Sistemi</h1>
-                <p className="mt-2 text-gray-600">Profesyonel muhasebe yönetimi ve raporlama</p>
-              </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Muhasebe Modülü</h1>
+              <p className="text-gray-600 mt-1">Eta Paraşüt entegrasyonu ile profesyonel muhasebe yönetimi</p>
             </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setShowExcelImport(true)}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-              >
-                <i className="ri-file-excel-line mr-2"></i>
-                Excel İçe Aktar
+            <div className="flex items-center space-x-3">
+              <button className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                <ArrowDownTrayIcon className="w-4 h-4 mr-2 inline" />
+                Rapor İndir
               </button>
-              <span className="text-sm text-gray-500">
-                Son güncelleme: {new Date().toLocaleDateString('tr-TR')}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Tab Navigation */}
-        <div className="mx-4 mt-6">
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
-              <button
-                onClick={() => setActiveTab('dashboard')}
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                  activeTab === 'dashboard'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <i className="ri-dashboard-line mr-2"></i>
-                Dashboard
-              </button>
-              <button
-                onClick={() => setActiveTab('modules')}
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                  activeTab === 'modules'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <i className="ri-apps-line mr-2"></i>
-                Modüller
-              </button>
-              <button
-                onClick={() => setActiveTab('reports')}
-                className={`px-4 py-2 rounded-md font-medium transition-colors ${
-                  activeTab === 'reports'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <i className="ri-bar-chart-line mr-2"></i>
-                Raporlar
+              <button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                <PlusIcon className="w-4 h-4 mr-2 inline" />
+                Yeni Fatura
               </button>
             </div>
           </div>
         </div>
-
-        {/* Tab Content */}
-        <div className="mx-4 mt-6">
-          {activeTab === 'dashboard' && (
-            <div className="space-y-6">
-              {/* Özet Kartları */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <div className="flex items-center">
-                    <div className="p-3 bg-blue-100 rounded-lg">
-                      <i className="ri-account-book-line text-2xl text-blue-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Hesap Sayısı</h3>
-                      <p className="text-3xl font-bold text-blue-600">
-                        {dashboardData?.totalAccounts || 0}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <div className="flex items-center">
-                    <div className="p-3 bg-green-100 rounded-lg">
-                      <i className="ri-file-list-line text-2xl text-green-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Yevmiye Fişleri</h3>
-                      <p className="text-3xl font-bold text-green-600">
-                        {dashboardData?.totalJournalEntries || 0}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <div className="flex items-center">
-                    <div className="p-3 bg-purple-100 rounded-lg">
-                      <i className="ri-file-text-line text-2xl text-purple-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Faturalar</h3>
-                      <p className="text-3xl font-bold text-purple-600">
-                        {dashboardData?.totalInvoices || 0}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <div className="flex items-center">
-                    <div className="p-3 bg-orange-100 rounded-lg">
-                      <i className="ri-contacts-line text-2xl text-orange-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Cari Hesaplar</h3>
-                      <p className="text-3xl font-bold text-orange-600">
-                        {dashboardData?.totalContacts || 0}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Son Yevmiye Fişleri ve KDV Özeti */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white rounded-2xl shadow-lg">
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-lg font-semibold text-gray-900">Son Yevmiye Fişleri</h2>
-                  </div>
-                  <div className="p-6">
-                    {dashboardData?.recentJournalEntries && dashboardData.recentJournalEntries.length > 0 ? (
-                      <div className="space-y-4">
-                        {dashboardData.recentJournalEntries.map((entry: any) => (
-                          <div key={entry.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                            <div>
-                              <p className="font-medium text-gray-900">{entry.no}</p>
-                              <p className="text-sm text-gray-600">{entry.description}</p>
-                              <p className="text-xs text-gray-500">{entry.date}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm font-medium text-gray-900">
-                                {entry.total_debit?.toLocaleString('tr-TR')} TL
-                              </p>
-                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                                entry.status === 'POSTED' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : 'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {entry.status === 'POSTED' ? 'Kayıtlı' : 'Taslak'}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 text-center py-8">Henüz yevmiye fişi bulunmuyor</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-2xl shadow-lg">
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-lg font-semibold text-gray-900">KDV Özeti</h2>
-                  </div>
-                  <div className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Toplam KDV</span>
-                        <span className="font-semibold text-gray-900">
-                          {dashboardData?.kdvSummary?.totalKdv?.toLocaleString('tr-TR') || 0} TL
-                        </span>
-                      </div>
-                      {dashboardData?.kdvSummary?.kdvRates && Object.entries(dashboardData.kdvSummary.kdvRates).map(([rate, amount]) => (
-                        <div key={rate} className="flex items-center justify-between">
-                          <span className="text-gray-600">%{rate} KDV</span>
-                          <span className="font-medium text-gray-900">
-                            {amount?.toLocaleString('tr-TR') || 0} TL
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'modules' && (
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Muhasebe Modülleri</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Link
-                  href="/admin/accounting/chart-of-accounts"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                      <i className="ri-account-book-line text-2xl text-blue-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Hesap Planı</h3>
-                      <p className="text-sm text-gray-600">TDHP hesap ağacı yönetimi</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Hesap ekleme, düzenleme ve CSV içe aktarma.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/journal"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                      <i className="ri-file-list-line text-2xl text-green-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Fişler (Yevmiye)</h3>
-                      <p className="text-sm text-gray-600">Yevmiye fişi yönetimi</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Fiş oluşturma, kaydetme ve ters kayıt işlemleri.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/invoices"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                      <i className="ri-file-text-line text-2xl text-purple-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Faturalar</h3>
-                      <p className="text-sm text-gray-600">Fatura yönetimi</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Satış, alış ve iade faturaları, otomatik fiş.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/contacts"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                      <i className="ri-contacts-line text-2xl text-orange-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Cari</h3>
-                      <p className="text-sm text-gray-600">Müşteri ve tedarikçi yönetimi</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Cari hesap kartları, ekstre ve vade takibi.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/cash-bank"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-yellow-100 rounded-lg group-hover:bg-yellow-200 transition-colors">
-                      <i className="ri-bank-line text-2xl text-yellow-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Kasa & Banka</h3>
-                      <p className="text-sm text-gray-600">Kasa ve banka işlemleri</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Tahsilat, ödeme ve banka CSV içe aktarma.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/stock"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                      <i className="ri-stack-line text-2xl text-indigo-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Stok</h3>
-                      <p className="text-sm text-gray-600">Stok ve envanter yönetimi</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Stok giriş/çıkış, ortalama maliyet ve sayım.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/reports"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
-                      <i className="ri-bar-chart-line text-2xl text-red-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Raporlar</h3>
-                      <p className="text-sm text-gray-600">Muhasebe raporları</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Mizan, kebir, yevmiye ve hesap ekstresi.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/period-operations"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-teal-100 rounded-lg group-hover:bg-teal-200 transition-colors">
-                      <i className="ri-calendar-line text-2xl text-teal-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Dönem İşlemleri</h3>
-                      <p className="text-sm text-gray-600">Dönem kilitleme ve kapanış</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Dönem kilitleme ve açılış/kapanış şablonları.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/efatura"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors">
-                      <i className="ri-file-text-line text-2xl text-emerald-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">E-Fatura</h3>
-                      <p className="text-sm text-gray-600">GİB E-Fatura entegrasyonu</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    E-Fatura gönderimi, durum takibi ve PDF indirme.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/earsiv"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-teal-100 rounded-lg group-hover:bg-teal-200 transition-colors">
-                      <i className="ri-archive-line text-2xl text-teal-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">E-Arşiv</h3>
-                      <p className="text-sm text-gray-600">GİB E-Arşiv entegrasyonu</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    E-Arşiv gönderimi, toplu işlemler ve arşivleme.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/currency"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-yellow-100 rounded-lg group-hover:bg-yellow-200 transition-colors">
-                      <i className="ri-exchange-line text-2xl text-yellow-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Döviz Kurları</h3>
-                      <p className="text-sm text-gray-600">TCMB döviz kuru yönetimi</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Otomatik kur güncelleme, çevirici ve alarm sistemi.
-                  </p>
-                </Link>
-
-                <Link
-                  href="/admin/accounting/settings"
-                  className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow group"
-                >
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-gray-100 rounded-lg group-hover:bg-gray-200 transition-colors">
-                      <i className="ri-settings-line text-2xl text-gray-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Ayarlar</h3>
-                      <p className="text-sm text-gray-600">Sistem ayarları</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    KDV oranları, tevkifat ve sistem ayarları.
-                  </p>
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'reports' && (
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Hızlı Raporlar</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Link href="/admin/accounting/reports?report=trial-balance" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-blue-100 rounded-lg">
-                      <i className="ri-file-list-line text-2xl text-blue-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Mizan</h3>
-                      <p className="text-sm text-gray-600">Genel mizan raporu</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Tüm hesapların borç/alacak bakiyeleri.
-                  </p>
-                </Link>
-
-                <Link href="/admin/accounting/reports?report=ledger" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-green-100 rounded-lg">
-                      <i className="ri-bar-chart-line text-2xl text-green-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Kebir Defteri</h3>
-                      <p className="text-sm text-gray-600">Detaylı hesap hareketleri</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Hesap bazında detaylı hareket listesi.
-                  </p>
-                </Link>
-
-                <Link href="/admin/accounting/reports?report=journal" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-purple-100 rounded-lg">
-                      <i className="ri-file-text-line text-2xl text-purple-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Yevmiye Defteri</h3>
-                      <p className="text-sm text-gray-600">Günlük kayıtlar</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Tarih sırasına göre fiş listesi.
-                  </p>
-                </Link>
-
-                <Link href="/admin/accounting/reports?report=account-statement" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-orange-100 rounded-lg">
-                      <i className="ri-contacts-line text-2xl text-orange-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Cari Ekstre</h3>
-                      <p className="text-sm text-gray-600">Müşteri/tedarikçi ekstreleri</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Cari hesap detayları ve bakiyeler.
-                  </p>
-                </Link>
-
-                <Link href="/admin/accounting/reports?report=kdv-summary" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-red-100 rounded-lg">
-                      <i className="ri-calculator-line text-2xl text-red-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">KDV Raporu</h3>
-                      <p className="text-sm text-gray-600">KDV hesaplama raporu</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    KDV oranlarına göre detaylı rapor.
-                  </p>
-                </Link>
-
-                <Link href="/admin/accounting/reports?report=period-summary" className="p-6 border border-gray-200 rounded-xl hover:shadow-md transition-shadow text-left block">
-                  <div className="flex items-center mb-4">
-                    <div className="p-3 bg-teal-100 rounded-lg">
-                      <i className="ri-calendar-line text-2xl text-teal-600"></i>
-                    </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">Dönem Raporu</h3>
-                      <p className="text-sm text-gray-600">Dönemsel özet rapor</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    Belirli dönem için özet bilgiler.
-                  </p>
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Excel Import Modal */}
-        {showExcelImport && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-8 w-full max-w-md">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Excel İçe Aktar</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    İçe Aktarılacak Veri Türü
-                  </label>
-                  <select
-                    value={importType}
-                    onChange={(e) => setImportType(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="accounts">Hesap Planı</option>
-                    <option value="contacts">Cari Hesaplar</option>
-                    <option value="journal">Yevmiye Fişleri</option>
-                    <option value="invoices">Faturalar</option>
-                    <option value="stock">Stok Kartları</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Excel Dosyası
-                  </label>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".xlsx,.xls"
-                    onChange={(e) => setExcelFile(e.target.files?.[0] || null)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-blue-800 mb-2">Önemli Notlar:</h3>
-                  <ul className="text-sm text-blue-700 space-y-1">
-                    <li>• Excel dosyası .xlsx veya .xls formatında olmalıdır</li>
-                    <li>• İlk satır başlık satırı olarak kullanılacaktır</li>
-                    <li>• Veri formatları doğru olmalıdır</li>
-                    <li>• Büyük dosyalar işlem süresi uzatabilir</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  onClick={() => setShowExcelImport(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                  İptal
-                </button>
-                <button
-                  onClick={handleExcelImport}
-                  disabled={!excelFile}
-                  className="px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded-lg font-medium transition-colors"
-                >
-                  İçe Aktar
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
-    </AdminProtection>
+
+      <div className="max-w-7xl mx-auto p-6">
+        {/* Eta Integration Status */}
+        <div className="mb-8">
+          <div className="bg-white rounded-xl shadow-sm border p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-purple-100 rounded-full">
+                  <DocumentTextIcon className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Eta Paraşüt Entegrasyonu</h3>
+                  <p className="text-gray-600">
+                    {etaIntegration?.isConnected 
+                      ? 'Eta Paraşüt ile bağlantı kuruldu' 
+                      : 'Eta Paraşüt entegrasyonu kurulmadı'
+                    }
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                {etaIntegration?.isConnected ? (
+                  <div className="flex items-center space-x-2 text-green-600">
+                    <CheckCircleIcon className="w-5 h-5" />
+                    <span className="text-sm font-medium">Bağlı</span>
+                  </div>
+                ) : (
+                  <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                    Entegrasyon Kur
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Financial Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Toplam Gelir</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(summary?.totalRevenue || 0)}</p>
+                <p className="text-sm text-gray-500">Bu dönem</p>
+              </div>
+              <div className="p-3 bg-green-100 rounded-full">
+                <ArrowTrendingUpIcon className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Toplam Gider</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(summary?.totalExpenses || 0)}</p>
+                <p className="text-sm text-gray-500">Bu dönem</p>
+              </div>
+              <div className="p-3 bg-red-100 rounded-full">
+                <ArrowTrendingDownIcon className="w-6 h-6 text-red-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Net Kar</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(summary?.netProfit || 0)}</p>
+                <p className="text-sm text-gray-500">Bu dönem</p>
+              </div>
+              <div className="p-3 bg-blue-100 rounded-full">
+                <ChartBarIcon className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Bekleyen Faturalar</p>
+                <p className="text-2xl font-bold text-gray-900">{summary?.pendingInvoices || 0}</p>
+                <p className="text-sm text-gray-500">Ödeme bekliyor</p>
+              </div>
+              <div className="p-3 bg-yellow-100 rounded-full">
+                <ClockIcon className="w-6 h-6 text-yellow-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Hızlı Eylemler</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link href="/admin/accounting/invoices" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <DocumentTextIcon className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Fatura Yönetimi</h3>
+                  <p className="text-sm text-gray-600">Faturaları oluştur ve yönet</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/admin/accounting/reports" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <ChartBarIcon className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Mali Raporlar</h3>
+                  <p className="text-sm text-gray-600">Detaylı finansal analizler</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/admin/accounting/earnings" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <ReceiptPercentIcon className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">E-Arşiv</h3>
+                  <p className="text-sm text-gray-600">E-fatura ve e-arşiv</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/admin/accounting/bank-integration" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <BanknotesIcon className="w-6 h-6 text-orange-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Banka Entegrasyonu</h3>
+                  <p className="text-sm text-gray-600">Otomatik mutabakat</p>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Recent Invoices */}
+        <div className="bg-white rounded-xl shadow-sm border">
+          <div className="p-6 border-b">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Son Faturalar</h3>
+              <Link href="/admin/accounting/invoices" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                Tümünü Gör
+              </Link>
+            </div>
+          </div>
+          
+          <div className="p-6">
+            {invoices.length === 0 ? (
+              <div className="text-center py-12">
+                <DocumentTextIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Henüz fatura yok</h3>
+                <p className="text-gray-600 mb-6">İlk faturanızı oluşturmak için aşağıdaki butona tıklayın</p>
+                <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <PlusIcon className="w-5 h-5 mr-2 inline" />
+                  İlk Faturayı Oluştur
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Fatura No
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Müşteri
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tutar
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Durum
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Vade Tarihi
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        İşlemler
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {invoices.map((invoice) => (
+                      <tr key={invoice.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{invoice.number}</div>
+                          <div className="text-sm text-gray-500">{getTypeText(invoice.type)}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {invoice.customer}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {formatCurrency(invoice.amount)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
+                            {getStatusText(invoice.status)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {new Date(invoice.dueDate).toLocaleDateString('tr-TR')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <button className="text-blue-600 hover:text-blue-900">
+                              <EyeIcon className="w-4 h-4" />
+                            </button>
+                            <button className="text-gray-600 hover:text-gray-900">
+                              <PencilIcon className="w-4 h-4" />
+                            </button>
+                            <button className="text-gray-600 hover:text-gray-900">
+                              <PrinterIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
