@@ -262,6 +262,13 @@ export default function MarketingPage() {
                 <PlusIcon className="h-4 w-4 mr-2" />
                 E-posta Gönder
                 </button>
+              <a
+                href="/admin/campaign-templates"
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center"
+              >
+                <i className="ri-palette-line mr-2"></i>
+                Template Sistemi
+              </a>
             </div>
           </div>
         </div>

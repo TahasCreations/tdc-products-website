@@ -1,696 +1,215 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import AdminProtection from '../../components/AdminProtection';
 import Link from 'next/link';
+import { 
+  ChartBarIcon,
+  ShoppingBagIcon,
+  UserGroupIcon,
+  CogIcon,
+  DocumentTextIcon,
+  MegaphoneIcon,
+  ShieldCheckIcon,
+  CloudIcon,
+  GlobeAltIcon,
+  CurrencyDollarIcon,
+  BuildingOfficeIcon,
+  ChartPieIcon
+} from '@heroicons/react/24/outline';
 
-export default function AdminPage() {
-  const router = useRouter();
+const adminModules = [
+  {
+    category: 'Genel Yönetim',
+    icon: ChartBarIcon,
+    color: 'from-blue-500 to-blue-600',
+    modules: [
+      { name: 'Dashboard', href: '/admin/dashboard', description: 'Genel bakış ve istatistikler' },
+      { name: 'Kullanıcılar', href: '/admin/users', description: 'Kullanıcı yönetimi' },
+      { name: 'Güvenlik', href: '/admin/security', description: 'Güvenlik ayarları' },
+      { name: 'Yedekleme', href: '/admin/backup', description: 'Veri yedekleme' }
+    ]
+  },
+  {
+    category: 'E-Ticaret',
+    icon: ShoppingBagIcon,
+    color: 'from-green-500 to-green-600',
+    modules: [
+      { name: 'Ürünler', href: '/admin/products', description: 'Ürün yönetimi' },
+      { name: 'Siparişler', href: '/admin/orders', description: 'Sipariş takibi' },
+      { name: 'Ödemeler', href: '/admin/payments', description: 'Ödeme yönetimi' },
+      { name: 'Envanter', href: '/admin/inventory', description: 'Stok yönetimi' },
+      { name: 'E-ticaret Ayarları', href: '/admin/ecommerce', description: 'E-ticaret konfigürasyonu' }
+    ]
+  },
+  {
+    category: 'Muhasebe',
+    icon: CurrencyDollarIcon,
+    color: 'from-purple-500 to-purple-600',
+    modules: [
+      { name: 'Muhasebe Ana', href: '/admin/accounting', description: 'Muhasebe ana sayfası' },
+      { name: 'Faturalar', href: '/admin/invoices', description: 'Fatura yönetimi' },
+      { name: 'Finans', href: '/admin/finance', description: 'Finansal raporlar' },
+      { name: 'Dönem İşlemleri', href: '/admin/period-operations', description: 'Dönemsel işlemler' }
+    ]
+  },
+  {
+    category: 'İnsan Kaynakları',
+    icon: UserGroupIcon,
+    color: 'from-orange-500 to-orange-600',
+    modules: [
+      { name: 'İK Yönetimi', href: '/admin/hr', description: 'İnsan kaynakları' },
+      { name: 'Maaş Bordrosu', href: '/admin/accounting/payroll', description: 'Maaş yönetimi' }
+    ]
+  },
+  {
+    category: 'Pazarlama & İletişim',
+    icon: MegaphoneIcon,
+    color: 'from-pink-500 to-pink-600',
+    modules: [
+      { name: 'Pazarlama', href: '/admin/marketing', description: 'Pazarlama kampanyaları' },
+      { name: 'Blog Yönetimi', href: '/admin/blogs', description: 'Blog ve içerik' },
+      { name: 'Yorumlar', href: '/admin/comments', description: 'Kullanıcı yorumları' },
+      { name: 'CRM', href: '/admin/crm', description: 'Müşteri ilişkileri' }
+    ]
+  },
+  {
+    category: 'Teknik & Sistem',
+    icon: CogIcon,
+    color: 'from-gray-500 to-gray-600',
+    modules: [
+      { name: 'PWA Ayarları', href: '/admin/pwa', description: 'Progressive Web App' },
+      { name: 'Çoklu Dil', href: '/admin/i18n', description: 'Dil yönetimi' },
+      { name: 'Ana Sayfa Kontrolü', href: '/admin/homepage-controls', description: 'Ana sayfa düzenleme' },
+      { name: 'Raporlar', href: '/admin/reports', description: 'Sistem raporları' }
+    ]
+  },
+  {
+    category: 'Analitik & AI',
+    icon: ChartPieIcon,
+    color: 'from-indigo-500 to-indigo-600',
+    modules: [
+      { name: 'Analitik', href: '/admin/analytics', description: 'Veri analizi' },
+      { name: 'AI Yönetimi', href: '/admin/ai', description: 'Yapay zeka araçları' }
+    ]
+  }
+];
 
-  useEffect(() => {
-    // Optimized admin check
-    const storedAdmin = localStorage.getItem('admin_user');
-    if (!storedAdmin) {
-      router.replace('/admin/login');
-    }
-  }, [router]);
-
+export default function AdminDashboard() {
   return (
-    <AdminProtection>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">TDC Admin Panel</h1>
-          <p className="text-gray-600">Yönetim ve kontrol merkezi</p>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <i className="ri-shopping-cart-line text-2xl text-blue-600"></i>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Toplam Sipariş</p>
-                <p className="text-2xl font-semibold text-gray-900">-</p>
-              </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Paneli</h1>
+              <p className="text-gray-600 mt-1">Sistem yönetimi ve konfigürasyon</p>
             </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <i className="ri-money-dollar-circle-line text-2xl text-green-600"></i>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Toplam Satış</p>
-                <p className="text-2xl font-semibold text-gray-900">-</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <i className="ri-user-line text-2xl text-purple-600"></i>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Toplam Müşteri</p>
-                <p className="text-2xl font-semibold text-gray-900">-</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow">
-            <div className="flex items-center">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <i className="ri-box-line text-2xl text-orange-600"></i>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Toplam Ürün</p>
-                <p className="text-2xl font-semibold text-gray-900">-</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Admin Menu */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Admin Menüsü</h2>
-            <p className="text-gray-600">Yönetim işlemlerinizi buradan gerçekleştirebilirsiniz</p>
-          </div>
-          
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Admin Users Management */}
+            <div className="flex items-center space-x-4">
               <Link
-                href="/admin/admin-users"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+                href="/"
+                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                    <i className="ri-user-settings-line text-2xl text-blue-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Admin Kullanıcıları</h3>
-                    <p className="text-sm text-gray-600">Admin kullanıcılarını yönetin</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Yeni admin kullanıcıları ekleyin, mevcut adminleri düzenleyin veya silin.
-                </p>
+                <i className="ri-home-line mr-2"></i>
+                Ana Sayfa
               </Link>
-
-              {/* Blog Management */}
-              <Link
-                href="/admin/blogs"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                    <i className="ri-article-line text-2xl text-green-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Blog Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Blog yazılarını yönetin</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Blog yazıları oluşturun, düzenleyin ve yayınlayın.
-                </p>
-              </Link>
-
-              {/* Comments & Customers Management */}
-              <Link
-                href="/admin/comments"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <i className="ri-chat-3-line text-2xl text-purple-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Yorum & Müşteri Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Blog yorumları ve müşteri bilgileri</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Blog yorumlarını onaylayın ve müşteri bilgilerini görüntüleyin.
-                </p>
-              </Link>
-
-              {/* Orders Management */}
-              <Link
-                href="/admin/orders"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                    <i className="ri-shopping-cart-line text-2xl text-orange-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Sipariş Yönetimi</h3>
-                    <p className="text-sm text-gray-600">E-ticaret siparişleri</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Siparişleri görüntüleyin, durumlarını güncelleyin ve takip edin.
-                </p>
-              </Link>
-
-              {/* Products Management */}
-              <Link
-                href="/admin/products"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                    <i className="ri-box-line text-2xl text-orange-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Ürün Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Ürünleri yönetin</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Ürün ekleyin, düzenleyin ve stok durumlarını kontrol edin.
-                </p>
-              </Link>
-
-              {/* Orders Management */}
-              <Link
-                href="/admin/orders"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
-                    <i className="ri-shopping-cart-line text-2xl text-red-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Sipariş Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Siparişleri yönetin</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Siparişleri görüntüleyin, durumlarını güncelleyin.
-                </p>
-              </Link>
-
-              {/* Finance Management */}
-              <Link
-                href="/admin/finance"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                    <i className="ri-money-dollar-circle-line text-2xl text-green-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Finans Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Gelir, gider ve kar analizi</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Fatura kesme, gider takibi ve kar analizi yapın.
-                </p>
-              </Link>
-
-              {/* Muhasebe */}
-              <Link
-                href="/admin/accounting"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors">
-                    <i className="ri-calculator-line text-2xl text-emerald-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Muhasebe</h3>
-                    <p className="text-sm text-gray-600">Gelişmiş muhasebe sistemi</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  TDHP hesap planı, yevmiye fişleri, faturalar, raporlar ve dönem işlemleri.
-                </p>
-              </Link>
-
-              {/* Reports */}
-              <Link
-                href="/admin/reports"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <i className="ri-bar-chart-box-line text-2xl text-purple-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Raporlar</h3>
-                    <p className="text-sm text-gray-600">Detaylı finansal raporlar</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Grafik, PDF ve Excel raporları oluşturun.
-                </p>
-              </Link>
-
-              {/* Invoice Management */}
-              <Link
-                href="/admin/invoices"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                    <i className="ri-file-text-line text-2xl text-orange-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Fatura Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Fatura oluşturma ve yönetimi</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Fatura şablonları, PDF oluşturma ve e-posta gönderimi.
-                </p>
-              </Link>
-
-              {/* Inventory Management */}
-              <Link
-                href="/admin/inventory"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-teal-100 rounded-lg group-hover:bg-teal-200 transition-colors">
-                    <i className="ri-box-line text-2xl text-teal-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Stok Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Envanter takibi ve stok hareketleri</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Stok takibi, satın alma siparişleri ve envanter yönetimi.
-                </p>
-              </Link>
-
-              {/* CRM Management */}
-              <Link
-                href="/admin/crm"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-pink-100 rounded-lg group-hover:bg-pink-200 transition-colors">
-                    <i className="ri-user-heart-line text-2xl text-pink-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">CRM Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Müşteri ilişkileri ve satış süreçleri</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Müşteri takibi, iletişim geçmişi ve satış fırsatları.
-                </p>
-              </Link>
-
-              {/* E-commerce Management */}
-              <Link
-                href="/admin/ecommerce"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <i className="ri-shopping-cart-line text-2xl text-indigo-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">E-ticaret Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Kargo, ödeme ve kupon sistemleri</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Kargo firmaları, ödeme yöntemleri ve kupon yönetimi.
-                </p>
-              </Link>
-
-              {/* HR Management */}
-              <Link
-                href="/admin/hr"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-cyan-100 rounded-lg group-hover:bg-cyan-200 transition-colors">
-                    <i className="ri-team-line text-2xl text-cyan-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">İnsan Kaynakları</h3>
-                    <p className="text-sm text-gray-600">Çalışan yönetimi ve HR süreçleri</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Çalışan takibi, maaş bordroları ve izin yönetimi.
-                </p>
-              </Link>
-
-              {/* Analytics */}
-              <Link
-                href="/admin/analytics"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <i className="ri-bar-chart-line text-2xl text-indigo-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Analitik</h3>
-                    <p className="text-sm text-gray-600">Site istatistikleri</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Site performansı ve kullanıcı istatistiklerini görüntüleyin.
-                </p>
-              </Link>
-
-              {/* User Management */}
-              <Link
-                href="/admin/users"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors">
-                    <i className="ri-user-line text-2xl text-emerald-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Kullanıcı Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Site kullanıcılarını yönetin</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Kayıtlı kullanıcıları görüntüleyin, düzenleyin ve yönetin.
-                </p>
-              </Link>
-
-              {/* Marketing Management */}
-              <Link
-                href="/admin/marketing"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-pink-100 rounded-lg group-hover:bg-pink-200 transition-colors">
-                    <i className="ri-marketing-line text-2xl text-pink-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Pazarlama</h3>
-                    <p className="text-sm text-gray-600">SEO ve pazarlama araçları</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  SEO optimizasyonu, meta taglar ve pazarlama kampanyaları.
-                </p>
-              </Link>
-
-              {/* Advanced Payment Management */}
-              <Link
-                href="/admin/payments"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                    <i className="ri-bank-card-line text-2xl text-green-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Gelişmiş Ödeme Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Çoklu ödeme yöntemleri ve analiz</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Kredi kartı, kripto, mobil ödeme ve taksit seçenekleri yönetimi.
-                </p>
-              </Link>
-
-              {/* PWA Management */}
-              <Link
-                href="/admin/pwa"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <i className="ri-smartphone-line text-2xl text-purple-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">PWA Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Progressive Web App özellikleri</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Push bildirimleri, offline desteği ve mobil uygulama yönetimi.
-                </p>
-              </Link>
-
-            {/* AI Management */}
-            <Link
-              href="/admin/ai"
-              className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-            >
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                  <i className="ri-robot-line text-2xl text-indigo-600"></i>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">AI Yönetimi</h3>
-                  <p className="text-sm text-gray-600">Yapay zeka sistemleri</p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500">
-                Öneri sistemi, chatbot ve makine öğrenmesi yönetimi.
-              </p>
-            </Link>
-
-            {/* Analytics Management */}
-            <Link
-              href="/admin/analytics"
-              className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-            >
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-cyan-100 rounded-lg group-hover:bg-cyan-200 transition-colors">
-                  <i className="ri-bar-chart-line text-2xl text-cyan-600"></i>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Analitik Yönetimi</h3>
-                  <p className="text-sm text-gray-600">Gelişmiş analitik ve raporlama</p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500">
-                Real-time dashboard, tahmine dayalı analiz ve iş zekası.
-              </p>
-            </Link>
-
-            {/* Security Management */}
-            <Link
-              href="/admin/security"
-              className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-            >
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
-                  <i className="ri-shield-check-line text-2xl text-red-600"></i>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Güvenlik Yönetimi</h3>
-                  <p className="text-sm text-gray-600">Enterprise güvenlik sistemleri</p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500">
-                MFA, RBAC, güvenlik izleme ve tehdit tespiti.
-              </p>
-            </Link>
-
-            {/* I18n Management */}
-            <Link
-              href="/admin/i18n"
-              className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-            >
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                  <i className="ri-global-line text-2xl text-purple-600"></i>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Çoklu Dil ve Para Birimi</h3>
-                  <p className="text-sm text-gray-600">i18n ve çoklu para birimi yönetimi</p>
-                </div>
-              </div>
-              <p className="text-sm text-gray-500">
-                Diller, para birimleri, çeviriler ve bölgesel ayarlar.
-              </p>
-            </Link>
-
-              {/* Homepage Controls */}
-              <Link
-                href="/admin/homepage-controls"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <i className="ri-home-line text-2xl text-indigo-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Ana Sayfa Kontrolleri</h3>
-                    <p className="text-sm text-gray-600">Ana sayfa içerikleri ve kampanyalar</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Ana sayfa bölümlerini yönetin, kampanyalar oluşturun ve düzenleyin.
-                </p>
-              </Link>
-
-              {/* Period Operations */}
-              <Link
-                href="/admin/period-operations"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                    <i className="ri-calendar-check-line text-2xl text-orange-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Dönem İşlemleri</h3>
-                    <p className="text-sm text-gray-600">Muhasebe dönemleri</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Muhasebe dönemlerini açın, kapatın ve düzeltme işlemleri yapın.
-                </p>
-              </Link>
-
-              {/* Security Management */}
-              <Link
-                href="/admin/accounting/security"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
-                    <i className="ri-shield-check-line text-2xl text-red-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Güvenlik</h3>
-                    <p className="text-sm text-gray-600">Sistem güvenliği ve yetkilendirme</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  RBAC, audit log ve güvenlik ayarları.
-                </p>
-              </Link>
-
-              {/* Period Operations */}
-              <Link
-                href="/admin/accounting/period-operations"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-teal-100 rounded-lg group-hover:bg-teal-200 transition-colors">
-                    <i className="ri-calendar-check-line text-2xl text-teal-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Dönem İşlemleri</h3>
-                    <p className="text-sm text-gray-600">Muhasebe dönem yönetimi</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Dönem kilitleme, kapanış ve açılış işlemleri.
-                </p>
-              </Link>
-
-              {/* Banka Entegrasyonları */}
-              <Link
-                href="/admin/accounting/bank-integration"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                    <i className="ri-bank-line text-2xl text-blue-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Banka Entegrasyonları</h3>
-                    <p className="text-sm text-gray-600">Halkbank, İş Bankası entegrasyonu</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Banka hesapları, transferler ve işlem geçmişi yönetimi.
-                </p>
-              </Link>
-
-              {/* Gelişmiş Rapor Tasarımcısı */}
-              <Link
-                href="/admin/accounting/advanced-reports"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <i className="ri-file-chart-line text-2xl text-purple-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Gelişmiş Rapor Tasarımcısı</h3>
-                    <p className="text-sm text-gray-600">Drag & drop rapor tasarımcısı</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Özel raporlar, dashboard&apos;lar ve widget&apos;lar.
-                </p>
-              </Link>
-
-              {/* Bordro ve Maaş Yönetimi */}
-              <Link
-                href="/admin/accounting/payroll"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                    <i className="ri-team-line text-2xl text-orange-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">Bordro ve Maaş Yönetimi</h3>
-                    <p className="text-sm text-gray-600">Çalışan bordroları ve HR süreçleri</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  Çalışan yönetimi, bordro hesaplamaları ve izin takibi.
-                </p>
-              </Link>
-
-              {/* E-İrsaliye Sistemi */}
-              <Link
-                href="/admin/accounting/eirsaliye"
-                className="p-6 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-teal-100 rounded-lg group-hover:bg-teal-200 transition-colors">
-                    <i className="ri-file-list-line text-2xl text-teal-600"></i>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">E-İrsaliye Sistemi</h3>
-                    <p className="text-sm text-gray-600">GİB E-İrsaliye entegrasyonu</p>
-                  </div>
-                </div>
-                <p className="text-sm text-gray-500">
-                  İrsaliye oluşturma, gönderimi ve durum takibi.
-                </p>
-              </Link>
-
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Son Aktiviteler</h2>
-          </div>
-          <div className="p-6">
-            <div className="text-center text-gray-500 py-8">
-              <i className="ri-time-line text-4xl mb-4"></i>
-              <p>Henüz aktivite bulunmuyor</p>
             </div>
           </div>
         </div>
       </div>
-    </AdminProtection>
+
+      {/* Modules Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
+          {adminModules.map((category, categoryIndex) => (
+            <div key={categoryIndex} className="bg-white rounded-xl shadow-sm border">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center">
+                  <div className={`w-12 h-12 bg-gradient-to-r ${category.color} rounded-lg flex items-center justify-center mr-4`}>
+                    <category.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">{category.category}</h2>
+                    <p className="text-gray-600 text-sm">İlgili modüller ve araçlar</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {category.modules.map((module, moduleIndex) => (
+                    <Link
+                      key={moduleIndex}
+                      href={module.href}
+                      className="group p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 hover:shadow-md border border-transparent hover:border-gray-200"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                          {module.name}
+                        </h3>
+                        <i className="ri-arrow-right-s-line text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all"></i>
+                      </div>
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {module.description}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Quick Stats */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="bg-white p-6 rounded-xl shadow-sm border">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i className="ri-user-line text-blue-600 text-xl"></i>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Toplam Kullanıcı</p>
+                <p className="text-2xl font-bold text-gray-900">1,234</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i className="ri-shopping-bag-line text-green-600 text-xl"></i>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Toplam Sipariş</p>
+                <p className="text-2xl font-bold text-gray-900">5,678</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i className="ri-money-dollar-circle-line text-purple-600 text-xl"></i>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Toplam Gelir</p>
+                <p className="text-2xl font-bold text-gray-900">₺123,456</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm border">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <i className="ri-package-line text-orange-600 text-xl"></i>
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Aktif Ürün</p>
+                <p className="text-2xl font-bold text-gray-900">890</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

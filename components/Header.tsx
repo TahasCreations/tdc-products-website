@@ -62,6 +62,9 @@ export default function Header() {
             <Link href="/products" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               Ürünler
             </Link>
+            <Link href="/campaigns" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
+              Kampanyalar
+            </Link>
             <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               Hakkımızda
             </Link>
@@ -506,6 +509,9 @@ export default function Header() {
           <div className="md:hidden py-4 space-y-4 border-t border-orange-100 dark:border-gray-700 animate-slide-down">
             <Link href="/products" className="block text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200 font-medium hover:translate-x-2 transform">
               Ürünler
+            </Link>
+            <Link href="/campaigns" className="block text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200 font-medium hover:translate-x-2 transform">
+              Kampanyalar
             </Link>
             <Link href="/about" className="block text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200 font-medium hover:translate-x-2 transform">
               Hakkımızda
