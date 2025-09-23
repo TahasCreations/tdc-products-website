@@ -232,10 +232,10 @@ const mockBankAccounts: BankAccount[] = [
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const module = searchParams.get('module');
+    const moduleType = searchParams.get('module');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    switch (module) {
+    switch (moduleType) {
       case 'invoices':
         return NextResponse.json({
           success: true,

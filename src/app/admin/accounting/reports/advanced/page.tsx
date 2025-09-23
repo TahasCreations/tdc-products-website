@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../../../contexts/AuthContext';
-import AdminProtection from '../../../../components/AdminProtection';
+import { useAuth } from '../../../../../contexts/AuthContext';
+import AdminProtection from '../../../../../components/AdminProtection';
 import { 
   ChartBarIcon,
   DocumentTextIcon,
@@ -190,7 +190,7 @@ export default function AdvancedReports() {
   });
 
   if (!user) {
-    return <AdminProtection />;
+    return <AdminProtection><div>Loading...</div></AdminProtection>;
   }
 
   return (

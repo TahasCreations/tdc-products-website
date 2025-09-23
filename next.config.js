@@ -2,7 +2,6 @@
 const nextConfig = {
   // Basic configuration
   reactStrictMode: true,
-  swcMinify: true,
   
   // Image optimization
   images: {
