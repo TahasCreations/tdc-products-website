@@ -6,7 +6,7 @@ import {
   CheckIcon,
   ChevronDownIcon
 } from '@heroicons/react/24/outline';
-import { useRouter, usePathname } from 'next/navigation';
+import { useI18n } from '../../hooks/useI18n';
 
 interface Language {
   code: string;
@@ -38,40 +38,25 @@ interface LanguageSwitcherProps {
 }
 
 export default function LanguageSwitcher({
-  currentLanguage = 'tr',
+  currentLanguage,
   onLanguageChange,
   showFlags = true,
   showNativeNames = true,
   className = ''
 }: LanguageSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState(currentLanguage);
-  const router = useRouter();
-  const pathname = usePathname();
-
-  useEffect(() => {
-    setSelectedLanguage(currentLanguage);
-  }, [currentLanguage]);
+  const { locale, changeLanguage } = useI18n();
+  const selectedLanguage = currentLanguage || locale;
 
   const handleLanguageChange = (languageCode: string) => {
-    setSelectedLanguage(languageCode);
     setIsOpen(false);
 
     if (onLanguageChange) {
       onLanguageChange(languageCode);
     } else {
-      // Varsayılan davranış: URL'yi güncelle
-      const newPath = pathname.replace(/^\/[a-z]{2}/, `/${languageCode}`);
-      router.push(newPath);
+      // i18n hook'unu kullan
+      changeLanguage(languageCode);
     }
-
-    // Dil değişikliğini localStorage'a kaydet
-    localStorage.setItem('preferred-language', languageCode);
-    
-    // Sayfayı yenile (i18n yüklenmesi için)
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
   };
 
   const currentLang = languages.find(lang => lang.code === selectedLanguage) || languages[0];

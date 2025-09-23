@@ -94,16 +94,85 @@ export default function AdminOrdersPage() {
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
-      const statusParam = activeTab === 'all' ? '' : activeTab;
-      const response = await fetch(`/api/orders?status=${statusParam}&limit=100`);
-      const data = await response.json();
+      
+      // Mock data for testing
+      const mockOrders: Order[] = [
+        {
+          id: '1',
+          order_number: 'ORD-2024-001',
+          customer_name: 'Ahmet Yılmaz',
+          customer_email: 'ahmet@example.com',
+          customer_phone: '+90 555 123 4567',
+          status: 'processing',
+          payment_status: 'paid',
+          payment_method: 'credit_card',
+          shipping_method: 'standard',
+          subtotal: 299.00,
+          shipping_cost: 25.00,
+          tax_amount: 64.80,
+          discount_amount: 0,
+          total_amount: 388.80,
+          currency_code: 'TRY',
+          notes: 'Hızlı teslimat istiyor',
+          tracking_number: 'TRK123456789',
+          created_at: '2024-01-15T10:30:00Z',
+          updated_at: '2024-01-15T10:30:00Z',
+          order_items: [
+            {
+              id: '1',
+              product_name: 'Naruto Uzumaki Figürü',
+              product_sku: 'NAR-001',
+              quantity: 1,
+              unit_price: 299.00,
+              total_price: 299.00
+            }
+          ],
+          order_status_history: [],
+          order_payments: [],
+          order_shipping: []
+        },
+        {
+          id: '2',
+          order_number: 'ORD-2024-002',
+          customer_name: 'Ayşe Demir',
+          customer_email: 'ayse@example.com',
+          customer_phone: '+90 555 987 6543',
+          status: 'shipped',
+          payment_status: 'paid',
+          payment_method: 'bank_transfer',
+          shipping_method: 'express',
+          subtotal: 598.00,
+          shipping_cost: 0,
+          tax_amount: 119.60,
+          discount_amount: 50.00,
+          total_amount: 667.60,
+          currency_code: 'TRY',
+          tracking_number: 'TRK987654321',
+          shipped_at: '2024-01-16T14:20:00Z',
+          created_at: '2024-01-14T16:45:00Z',
+          updated_at: '2024-01-16T14:20:00Z',
+          order_items: [
+            {
+              id: '2',
+              product_name: 'Goku Super Saiyan Figürü',
+              product_sku: 'GOK-001',
+              quantity: 2,
+              unit_price: 299.00,
+              total_price: 598.00
+            }
+          ],
+          order_status_history: [],
+          order_payments: [],
+          order_shipping: []
+        }
+      ];
 
-      if (data.success) {
-        setOrders(data.orders);
-      } else {
-        setMessage(data.error || 'Siparişler yüklenemedi');
-        setMessageType('error');
-      }
+      // Filter by status
+      const filteredOrders = activeTab === 'all' 
+        ? mockOrders 
+        : mockOrders.filter(order => order.status === activeTab);
+      
+      setOrders(filteredOrders);
     } catch (error) {
       console.error('Fetch orders error:', error);
       setMessage('Bağlantı hatası');

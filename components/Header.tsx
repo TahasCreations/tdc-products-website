@@ -9,6 +9,7 @@ import { useTheme } from '../src/contexts/ThemeContext';
 import { useAuth } from '../src/contexts/AuthContext';
 import { useWishlist } from '../src/contexts/WishlistContext';
 import { useToast } from '../src/components/Toast';
+import { useI18n } from '../src/hooks/useI18n';
 import ThemeToggle from '../src/components/ThemeToggle';
 import LanguageSwitcher from '../src/components/i18n/LanguageSwitcher';
 import CurrencyConverter from '../src/components/i18n/CurrencyConverter';
@@ -26,6 +27,7 @@ export default function Header() {
   const { user, signOut } = useAuth();
   const { wishlistCount } = useWishlist();
   const { addToast } = useToast();
+  const { t } = useI18n();
   const router = useRouter();
 
   const formatPrice = (price: number) => {
@@ -61,19 +63,19 @@ export default function Header() {
 
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="/products" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
-              Ürünler
+              {t('nav.products')}
             </Link>
             <Link href="/campaigns" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
-              Kampanyalar
+              {t('nav.campaigns')}
             </Link>
             <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
-              Hakkımızda
+              {t('nav.about')}
             </Link>
             <Link href="/blog" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
-              Blog
+              {t('nav.blog')}
             </Link>
             <Link href="/contact" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
-              İletişim
+              {t('nav.contact')}
             </Link>
             <Link href="/tdc-bist" className="relative bg-gradient-to-r from-blue-500 to-blue-600 text-black font-bold px-6 py-3 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 overflow-hidden group whitespace-nowrap">
               <span className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
@@ -260,14 +262,11 @@ export default function Header() {
             />
 
             {/* Currency Converter */}
-            <div className="hidden md:flex">
-              <CurrencyConverter 
-                amount={100}
-                fromCurrency="TRY"
-                toCurrency="USD"
-                showSelector={false}
-                className="text-sm"
-              />
+            <div className="hidden md:flex items-center">
+              <div className="text-xs text-gray-600 mr-2">100₺ =</div>
+              <div className="bg-white border border-gray-300 rounded px-2 py-1 text-sm">
+                <span className="text-green-600 font-medium">$3.30</span>
+              </div>
             </div>
 
             {/* Giriş Yap/Kayıt Ol Butonu - Sadece giriş yapmamış kullanıcılar için */}
@@ -542,13 +541,12 @@ export default function Header() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Para Birimi:</span>
-                <CurrencyConverter 
-                  amount={100}
-                  fromCurrency="TRY"
-                  toCurrency="USD"
-                  showSelector={true}
-                  className="text-sm"
-                />
+                <div className="flex items-center space-x-2">
+                  <div className="text-xs text-gray-600">100₺ =</div>
+                  <div className="bg-white border border-gray-300 rounded px-2 py-1 text-sm">
+                    <span className="text-green-600 font-medium">$3.30</span>
+                  </div>
+                </div>
               </div>
             </div>
             

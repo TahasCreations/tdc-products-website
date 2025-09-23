@@ -164,6 +164,8 @@
   },
   "active": "3819121c83f3ce11",
   "lastOpenFiles": [
+    "src/app/admin/customers/page.tsx",
+    "src/app/admin/customers",
     "node_modules/@webassemblyjs/wasm-parser/lib/index.js",
     "node_modules/@webassemblyjs/ast/lib/index.js",
     "node_modules/react-dom/index.js",
@@ -173,8 +175,6 @@
     "src/app/api/currency/exchange-rates/route.ts",
     "src/app/api/currency/exchange-rates",
     "src/app/api/currency",
-    "src/components/i18n/RegionalPricing.tsx",
-    "src/components/i18n/CurrencyConverter.tsx",
     "node_modules/@rtsao/scc/README.md",
     "node_modules/strip-bom/readme.md",
     "node_modules/yocto-queue/readme.md",

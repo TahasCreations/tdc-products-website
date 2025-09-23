@@ -273,6 +273,22 @@ export default function EcommercePage() {
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Form validasyonu
+    if (!productForm.name || !productForm.price || !productForm.category) {
+      alert('Lütfen tüm zorunlu alanları doldurun.');
+      return;
+    }
+
+    if (parseFloat(productForm.price) <= 0) {
+      alert('Fiyat 0\'dan büyük olmalıdır.');
+      return;
+    }
+
+    if (parseInt(productForm.stock) < 0) {
+      alert('Stok miktarı negatif olamaz.');
+      return;
+    }
+    
     try {
       const productData = {
         title: productForm.name,
@@ -825,9 +841,18 @@ export default function EcommercePage() {
                     placeholder="Müşteri ara..."
                     className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <button 
+                    onClick={() => window.location.href = '/admin/orders'}
+                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors mr-2"
+                  >
+                    Sipariş Yönetimi
+                  </button>
+                  <button 
+                    onClick={() => window.location.href = '/admin/customers'}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
                     <PlusIcon className="w-4 h-4 mr-2 inline" />
-                    Yeni Müşteri
+                    Müşteri Yönetimi
                   </button>
                 </div>
               </div>
