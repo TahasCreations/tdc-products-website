@@ -318,81 +318,137 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Advanced Modules */}
+        {/* Advanced Business Modules */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
             <SparklesIcon className="w-6 h-6 text-purple-600 mr-2" />
-            Gelişmiş Modüller
+            Gelişmiş İş Modülleri
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Link href="/admin/ai/advanced" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* AI & Business Intelligence */}
+            <Link href="/admin/ai/business-intelligence" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-purple-100 rounded-lg">
+                <div className="p-3 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg group-hover:scale-110 transition-transform">
                   <CpuChipIcon className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">AI Modülü</h3>
-                  <p className="text-sm text-gray-600">Makine öğrenmesi ile akıllı iş zekası</p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">AI İş Zekası</h3>
+                  <p className="text-sm text-gray-600">Makine öğrenmesi ile akıllı analiz</p>
+                  <div className="flex items-center mt-2 text-xs text-purple-600">
+                    <span className="bg-purple-100 px-2 py-1 rounded-full">Yeni</span>
+                  </div>
                 </div>
               </div>
             </Link>
 
-            <Link href="/admin/mobile-app" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+            {/* Customer Segmentation */}
+            <Link href="/admin/analytics/customer-segmentation" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <DevicePhoneMobileIcon className="w-6 h-6 text-blue-600" />
+                <div className="p-3 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-lg group-hover:scale-110 transition-transform">
+                  <UsersIcon className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Mobil Uygulama</h3>
-                  <p className="text-sm text-gray-600">iOS ve Android uygulama yönetimi</p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">Müşteri Segmentasyonu</h3>
+                  <p className="text-sm text-gray-600">Gelişmiş müşteri analizi ve gruplandırma</p>
+                  <div className="flex items-center mt-2 text-xs text-blue-600">
+                    <span className="bg-blue-100 px-2 py-1 rounded-full">Pro</span>
+                  </div>
                 </div>
               </div>
             </Link>
 
-            <Link href="/admin/api-docs" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+            {/* Automation & Workflows */}
+            <Link href="/admin/automation/workflows" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-green-100 rounded-lg">
-                  <CodeBracketIcon className="w-6 h-6 text-green-600" />
+                <div className="p-3 bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg group-hover:scale-110 transition-transform">
+                  <CogIcon className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">API Dokümantasyonu</h3>
-                  <p className="text-sm text-gray-600">Geliştiriciler için API rehberi</p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-green-600 transition-colors">Otomasyon Sistemi</h3>
+                  <p className="text-sm text-gray-600">İş akışları ve süreç otomasyonu</p>
+                  <div className="flex items-center mt-2 text-xs text-green-600">
+                    <span className="bg-green-100 px-2 py-1 rounded-full">Güçlü</span>
+                  </div>
                 </div>
               </div>
             </Link>
 
-            <Link href="/admin/security/advanced" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+            {/* Multi-Currency System */}
+            <Link href="/admin/settings/multi-currency" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-red-100 rounded-lg">
+                <div className="p-3 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg group-hover:scale-110 transition-transform">
+                  <CurrencyDollarIcon className="w-6 h-6 text-yellow-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-yellow-600 transition-colors">Çoklu Para Birimi</h3>
+                  <p className="text-sm text-gray-600">Uluslararası işlemler ve döviz yönetimi</p>
+                  <div className="flex items-center mt-2 text-xs text-yellow-600">
+                    <span className="bg-yellow-100 px-2 py-1 rounded-full">Global</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Advanced Security */}
+            <Link href="/admin/security/advanced" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-gradient-to-r from-red-100 to-pink-100 rounded-lg group-hover:scale-110 transition-transform">
                   <ShieldCheckIcon className="w-6 h-6 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Gelişmiş Güvenlik</h3>
-                  <p className="text-sm text-gray-600">Kapsamlı güvenlik yönetimi</p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-red-600 transition-colors">Gelişmiş Güvenlik</h3>
+                  <p className="text-sm text-gray-600">Tehdit tespiti ve güvenlik yönetimi</p>
+                  <div className="flex items-center mt-2 text-xs text-red-600">
+                    <span className="bg-red-100 px-2 py-1 rounded-full">Kritik</span>
+                  </div>
                 </div>
               </div>
             </Link>
 
-            <Link href="/admin/automation" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+            {/* Real-Time Dashboard */}
+            <Link href="/admin/dashboard/live" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
               <div className="flex items-center space-x-4">
-                <div className="p-3 bg-orange-100 rounded-lg">
-                  <CogIcon className="w-6 h-6 text-orange-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Otomasyon</h3>
-                  <p className="text-sm text-gray-600">Workflow ve iş süreci otomasyonu</p>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/admin/analytics" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-indigo-100 rounded-lg">
+                <div className="p-3 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-lg group-hover:scale-110 transition-transform">
                   <ChartBarIcon className="w-6 h-6 text-indigo-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Gelişmiş Analizler</h3>
-                  <p className="text-sm text-gray-600">Detaylı veri analizi ve raporlama</p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">Canlı Dashboard</h3>
+                  <p className="text-sm text-gray-600">Gerçek zamanlı veri ve metrikler</p>
+                  <div className="flex items-center mt-2 text-xs text-indigo-600">
+                    <span className="bg-indigo-100 px-2 py-1 rounded-full">Live</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* API Integration */}
+            <Link href="/admin/integrations/api-management" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-gradient-to-r from-teal-100 to-cyan-100 rounded-lg group-hover:scale-110 transition-transform">
+                  <CodeBracketIcon className="w-6 h-6 text-teal-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">API Entegrasyonu</h3>
+                  <p className="text-sm text-gray-600">Harici servisler ve entegrasyonlar</p>
+                  <div className="flex items-center mt-2 text-xs text-teal-600">
+                    <span className="bg-teal-100 px-2 py-1 rounded-full">API</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* PWA Management */}
+            <Link href="/admin/mobile/pwa-management" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-gradient-to-r from-pink-100 to-rose-100 rounded-lg group-hover:scale-110 transition-transform">
+                  <DevicePhoneMobileIcon className="w-6 h-6 text-pink-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-pink-600 transition-colors">PWA Yönetimi</h3>
+                  <p className="text-sm text-gray-600">Progressive Web App özellikleri</p>
+                  <div className="flex items-center mt-2 text-xs text-pink-600">
+                    <span className="bg-pink-100 px-2 py-1 rounded-full">Mobile</span>
+                  </div>
                 </div>
               </div>
             </Link>
@@ -409,7 +465,7 @@ export default function AdminDashboard() {
                 E-Ticaret Modülü
               </h3>
               <span className="px-3 py-1 bg-orange-100 text-orange-600 text-sm font-medium rounded-full">
-                İkas Tarzı
+                Profesyonel
               </span>
             </div>
             <p className="text-gray-600 mb-4">
@@ -439,11 +495,11 @@ export default function AdminDashboard() {
                 Muhasebe Modülü
               </h3>
               <span className="px-3 py-1 bg-purple-100 text-purple-600 text-sm font-medium rounded-full">
-                Eta Paraşüt
+                Gelişmiş
               </span>
             </div>
             <p className="text-gray-600 mb-4">
-              Eta Paraşüt entegrasyonu ile profesyonel muhasebe yönetimi. Faturalar, raporlar ve finansal analizler.
+              Kapsamlı muhasebe yönetimi ile faturalarınızı oluşturun, raporlarınızı hazırlayın ve mali durumunuzu takip edin.
             </p>
             <div className="space-y-3">
               <Link href="/admin/accounting/invoices" className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
