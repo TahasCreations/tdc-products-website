@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import AIChatbot from './AIChatbot';
+import AIChatbot from './ai/AIChatbot';
 import AdvancedAnalyticsDashboard from './AdvancedAnalyticsDashboard';
 import BackButton from './admin/BackButton';
 

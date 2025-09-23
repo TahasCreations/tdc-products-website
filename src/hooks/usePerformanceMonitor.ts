@@ -12,7 +12,7 @@ interface PerformanceMetrics {
 }
 
 interface PerformanceObserver {
-  observe: (entry: PerformanceEntry) => void;
+  observe: (entry: PerformanceObserverInit) => void;
   disconnect: () => void;
 }
 
@@ -89,12 +89,12 @@ export function usePerformanceMonitor() {
 
     // Start observing
     try {
-      navigationObserver.observe({ entryTypes: ['navigation'] });
-      paintObserver.observe({ entryTypes: ['paint'] });
-      lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
-      fidObserver.observe({ entryTypes: ['first-input'] });
-      clsObserver.observe({ entryTypes: ['layout-shift'] });
-      longTaskObserver.observe({ entryTypes: ['longtask'] });
+      navigationObserver.observe({ type: 'navigation', buffered: true });
+      paintObserver.observe({ type: 'paint', buffered: true });
+      lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+      fidObserver.observe({ type: 'first-input', buffered: true });
+      clsObserver.observe({ type: 'layout-shift', buffered: true });
+      longTaskObserver.observe({ type: 'longtask', buffered: true });
 
       // Calculate Speed Index (simplified)
       setTimeout(() => {
