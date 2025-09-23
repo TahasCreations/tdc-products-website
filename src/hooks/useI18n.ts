@@ -1,33 +1,38 @@
 'use client';
 
-import { useRouter, usePathname } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 
 const locales = ['tr', 'en', 'de', 'fr', 'es', 'ar'];
 const defaultLocale = 'tr';
 
 export function useI18n() {
-  const router = useRouter();
-  const pathname = usePathname();
+  const [locale, setLocale] = useState(defaultLocale);
 
-  const getCurrentLocale = useCallback(() => {
-    const segments = pathname.split('/');
-    const locale = segments[1];
-    return locales.includes(locale) ? locale : defaultLocale;
-  }, [pathname]);
+  useEffect(() => {
+    // Load saved language preference
+    if (typeof window !== 'undefined') {
+      const savedLocale = localStorage.getItem('preferred-language');
+      if (savedLocale && locales.includes(savedLocale)) {
+        setLocale(savedLocale);
+      }
+    }
+  }, []);
 
   const changeLanguage = useCallback((newLocale: string) => {
     if (!locales.includes(newLocale)) return;
     
-    const currentLocale = getCurrentLocale();
-    const newPath = pathname.replace(`/${currentLocale}`, `/${newLocale}`);
+    setLocale(newLocale);
     
     // Save preference to localStorage
-    localStorage.setItem('preferred-language', newLocale);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('preferred-language', newLocale);
+    }
     
-    // Navigate to new locale
-    router.push(newPath);
-  }, [router, pathname, getCurrentLocale]);
+    // Reload page to apply language change
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
+  }, []);
 
   const t = useCallback((key: string, params?: Record<string, string | number>) => {
     // Simple translation function - in a real app, you'd use a proper i18n library
@@ -404,8 +409,7 @@ export function useI18n() {
       }
     };
 
-    const currentLocale = getCurrentLocale();
-    const localeTranslations = translations[currentLocale] || translations[defaultLocale];
+    const localeTranslations = translations[locale] || translations[defaultLocale];
     let translation = localeTranslations[key] || key;
 
     // Simple parameter replacement
@@ -416,10 +420,10 @@ export function useI18n() {
     }
 
     return translation;
-  }, [getCurrentLocale]);
+  }, [locale]);
 
   return {
-    locale: getCurrentLocale(),
+    locale,
     changeLanguage,
     t,
     locales

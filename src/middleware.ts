@@ -1,57 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const locales = ['tr', 'en', 'de', 'fr', 'es', 'ar'];
-const defaultLocale = 'tr';
-
-function getLocale(request: NextRequest): string {
-  // Check if there is any supported locale in the pathname
-  const pathname = request.nextUrl.pathname;
-  const pathnameIsMissingLocale = locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  );
-
-  // Redirect if there is no locale
-  if (pathnameIsMissingLocale) {
-    // Get locale from Accept-Language header
-    const acceptLanguage = request.headers.get('accept-language');
-    let locale = defaultLocale;
-    
-    if (acceptLanguage) {
-      const preferredLocale = acceptLanguage
-        .split(',')[0]
-        .split('-')[0]
-        .toLowerCase();
-      
-      if (locales.includes(preferredLocale)) {
-        locale = preferredLocale;
-      }
-    }
-    
-    return locale;
-  }
-
-  // Extract locale from pathname
-  const segments = pathname.split('/');
-  return segments[1];
-}
-
 export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
-  
-  // Check if there is any supported locale in the pathname
-  const pathnameIsMissingLocale = locales.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  );
-
-  // Redirect if there is no locale
-  if (pathnameIsMissingLocale) {
-    const locale = getLocale(request);
-    return NextResponse.redirect(
-      new URL(`/${locale}${pathname}`, request.url)
-    );
-  }
-
   const response = NextResponse.next();
 
   // Security headers
