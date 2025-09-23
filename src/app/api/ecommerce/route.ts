@@ -286,6 +286,116 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    if (type === 'stats') {
+      // E-ticaret istatistiklerini hesapla
+      const [
+        { data: orders, error: ordersError },
+        { data: products, error: productsError },
+        { data: customers, error: customersError }
+      ] = await Promise.all([
+        supabase.from('orders').select('total_amount, created_at'),
+        supabase.from('products').select('id, category'),
+        supabase.from('customer_profiles').select('id')
+      ]);
+
+      if (ordersError || productsError || customersError) {
+        console.error('Stats fetch error:', { ordersError, productsError, customersError });
+        return NextResponse.json({ 
+          success: false, 
+          error: 'İstatistikler alınamadı' 
+        }, { status: 500 });
+      }
+
+      // Bu ayın siparişleri
+      const currentMonth = new Date();
+      currentMonth.setDate(1);
+      const currentMonthOrders = orders?.filter(order => 
+        new Date(order.created_at) >= currentMonth
+      ) || [];
+
+      const totalRevenue = currentMonthOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+      const totalOrders = currentMonthOrders.length;
+      const totalProducts = products?.length || 0;
+      const totalCustomers = customers?.length || 0;
+      const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+      // En çok satan kategori
+      const categoryCounts = products?.reduce((acc, product) => {
+        acc[product.category] = (acc[product.category] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
+
+      const topSellingCategory = Object.keys(categoryCounts).reduce((a, b) => 
+        categoryCounts[a] > categoryCounts[b] ? a : b, 'Henüz kategori yok'
+      );
+
+      return NextResponse.json({
+        success: true,
+        stats: {
+          totalRevenue,
+          totalOrders,
+          totalProducts,
+          totalCustomers,
+          conversionRate: 0, // Bu daha sonra hesaplanacak
+          averageOrderValue,
+          monthlyGrowth: 0, // Bu daha sonra hesaplanacak
+          topSellingCategory
+        }
+      });
+    }
+
+    if (type === 'products') {
+      // Ürünleri getir
+      const { data: products, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Products fetch error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Ürünler alınamadı' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        products: products || []
+      });
+    }
+
+    if (type === 'orders') {
+      // Siparişleri getir
+      const { data: orders, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          order_items (
+            id,
+            product_name,
+            quantity,
+            unit_price
+          )
+        `)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('Orders fetch error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Siparişler alınamadı' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        orders: orders || []
+      });
+    }
+
     return NextResponse.json({ 
       success: false, 
       error: 'Geçersiz tip parametresi' 
@@ -554,6 +664,190 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         method
+      });
+    }
+
+    if (action === 'create_product') {
+      const {
+        title,
+        slug,
+        price,
+        category,
+        stock,
+        image,
+        description,
+        status
+      } = data;
+
+      const { data: product, error } = await supabase
+        .from('products')
+        .insert({
+          title,
+          slug,
+          price,
+          category,
+          stock,
+          image,
+          description,
+          status
+        })
+        .select()
+        .single();
+
+      if (error) {
+        if (error.code === '23505') { // Unique constraint violation
+          return NextResponse.json({ 
+            success: false, 
+            error: 'Bu slug zaten kullanılıyor' 
+          }, { status: 400 });
+        }
+        console.error('Create product error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Ürün oluşturulamadı' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        product
+      });
+    }
+
+    if (action === 'update_product') {
+      const {
+        id,
+        title,
+        slug,
+        price,
+        category,
+        stock,
+        image,
+        description,
+        status
+      } = data;
+
+      const { data: product, error } = await supabase
+        .from('products')
+        .update({
+          title,
+          slug,
+          price,
+          category,
+          stock,
+          image,
+          description,
+          status,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Update product error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Ürün güncellenemedi' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        product
+      });
+    }
+
+    if (action === 'delete_product') {
+      const { id } = data;
+
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Delete product error:', error);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Ürün silinemedi' 
+        }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true
+      });
+    }
+
+    if (action === 'create_test_order') {
+      const {
+        customer_name,
+        customer_email,
+        total_amount,
+        items
+      } = data;
+
+      // Test siparişi oluştur
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          customer_name,
+          customer_email,
+          customer_phone: '555-0123',
+          customer_address: 'Test Adresi, Test Mahallesi, Test Şehri',
+          customer_city: 'İstanbul',
+          customer_postal_code: '34000',
+          status: 'pending',
+          payment_status: 'pending',
+          payment_method: 'credit_card',
+          shipping_method: 'standard',
+          shipping_cost: 0,
+          tax_amount: 0,
+          discount_amount: 0,
+          subtotal: total_amount,
+          total_amount,
+          currency_code: 'TRY',
+          notes: 'Test siparişi'
+        })
+        .select()
+        .single();
+
+      if (orderError) {
+        console.error('Create test order error:', orderError);
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Test siparişi oluşturulamadı' 
+        }, { status: 500 });
+      }
+
+      // Sipariş öğelerini ekle
+      if (items && items.length > 0) {
+        const orderItems = items.map((item: any) => ({
+          order_id: order.id,
+          product_name: item.product_name,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          total_price: item.quantity * item.unit_price
+        }));
+
+        const { error: itemsError } = await supabase
+          .from('order_items')
+          .insert(orderItems);
+
+        if (itemsError) {
+          console.error('Create order items error:', itemsError);
+          // Sipariş oluşturuldu ama öğeler eklenemedi - siparişi sil
+          await supabase.from('orders').delete().eq('id', order.id);
+          return NextResponse.json({ 
+            success: false, 
+            error: 'Sipariş öğeleri eklenemedi' 
+          }, { status: 500 });
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        order
       });
     }
 

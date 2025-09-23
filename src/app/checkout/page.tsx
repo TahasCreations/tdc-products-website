@@ -21,6 +21,11 @@ const SimpleRecommendationEngine = dynamic(() => import('../../components/ai/Sim
   ssr: false
 });
 
+const ShippingCalculator = dynamic(() => import('../../components/shipping/ShippingCalculator'), {
+  loading: () => <div className="animate-pulse bg-gray-200 h-64 rounded-lg" />,
+  ssr: false
+});
+
 export default function CheckoutPage() {
   const { state: cartState } = useCart();
   const { user } = useAuth();
@@ -45,6 +50,15 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [useAdvancedPayment, setUseAdvancedPayment] = useState(true);
+  const [shippingMethod, setShippingMethod] = useState('standard');
+  const [shippingCost, setShippingCost] = useState(0);
+  const [taxRate, setTaxRate] = useState(0.18); // %18 KDV
+  const [isQuickCheckout, setIsQuickCheckout] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [useSavedAddress, setUseSavedAddress] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<any>(null);
+  const [selectedShippingOption, setSelectedShippingOption] = useState<any>(null);
+  const [showShippingCalculator, setShowShippingCalculator] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -66,7 +80,41 @@ export default function CheckoutPage() {
         email: user.email || ''
       }));
     }
+
+    // URL'den quick checkout parametresini kontrol et
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('quick') === 'true') {
+      setIsQuickCheckout(true);
+    }
+
+    // Kargo ücreti hesapla
+    calculateShippingCost();
   }, [user, cartState.items.length, router]);
+
+  const calculateShippingCost = () => {
+    const subtotal = cartState.total;
+    if (subtotal >= 500) {
+      setShippingCost(0); // 500 TL üzeri ücretsiz kargo
+    } else if (selectedShippingOption) {
+      setShippingCost(selectedShippingOption.price);
+    } else {
+      // Kargo yöntemine göre fiyat
+      switch (shippingMethod) {
+        case 'express':
+          setShippingCost(50);
+          break;
+        case 'standard':
+        default:
+          setShippingCost(25);
+          break;
+      }
+    }
+  };
+
+  // Kargo yöntemi değiştiğinde fiyatı güncelle
+  useEffect(() => {
+    calculateShippingCost();
+  }, [shippingMethod, cartState.total, selectedShippingOption]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('tr-TR', {
@@ -148,11 +196,15 @@ export default function CheckoutPage() {
   };
 
   const calculateTotal = () => {
-    let total = cartState.total;
+    const subtotal = cartState.total;
+    const taxAmount = subtotal * taxRate;
+    const total = subtotal + taxAmount + shippingCost;
+    
     if (appliedCoupon) {
-      total -= appliedCoupon.discount_amount;
+      return Math.max(0, total - appliedCoupon.discount_amount);
     }
-    return Math.max(0, total);
+    
+    return total;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -412,6 +464,125 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* Kargo Seçenekleri */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Kargo Seçenekleri
+                </h2>
+                <button
+                  onClick={() => setShowShippingCalculator(!showShippingCalculator)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                >
+                  {showShippingCalculator ? 'Gizle' : 'Detaylı Hesapla'}
+                </button>
+              </div>
+              
+              {showShippingCalculator ? (
+                <ShippingCalculator
+                  weight={cartState.items.reduce((total, item) => total + (item.quantity * 0.5), 0)} // Her ürün 0.5kg
+                  dimensions={{
+                    length: 30,
+                    width: 20,
+                    height: 15
+                  }}
+                  destination={{
+                    city: formData.city,
+                    district: formData.city,
+                    postalCode: formData.postal_code
+                  }}
+                  onSelect={setSelectedShippingOption}
+                  selectedOption={selectedShippingOption}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <label className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="radio"
+                        name="shipping_method"
+                        value="standard"
+                        checked={shippingMethod === 'standard'}
+                        onChange={(e) => setShippingMethod(e.target.value)}
+                        className="text-orange-600 focus:ring-orange-500"
+                      />
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <i className="ri-truck-line text-xl text-gray-600 dark:text-gray-400"></i>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">Standart Kargo</span>
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">3-5 iş günü</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {shippingCost === 0 ? 'Ücretsiz' : formatPrice(shippingCost)}
+                      </span>
+                      {cartState.total < 500 && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          500 TL üzeri ücretsiz
+                        </p>
+                      )}
+                    </div>
+                  </label>
+
+                  <label className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="radio"
+                        name="shipping_method"
+                        value="express"
+                        checked={shippingMethod === 'express'}
+                        onChange={(e) => setShippingMethod(e.target.value)}
+                        className="text-orange-600 focus:ring-orange-500"
+                      />
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <i className="ri-flashlight-line text-xl text-orange-600"></i>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">Hızlı Kargo</span>
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">1-2 iş günü</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {formatPrice(50)}
+                      </span>
+                    </div>
+                  </label>
+
+                  {selectedShippingOption && (
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="font-medium text-blue-800 dark:text-blue-200">
+                            Seçilen: {selectedShippingOption.name}
+                          </span>
+                          <p className="text-sm text-blue-600 dark:text-blue-300">
+                            {selectedShippingOption.estimatedDays}
+                          </p>
+                        </div>
+                        <span className="text-lg font-semibold text-blue-800 dark:text-blue-200">
+                          {formatPrice(selectedShippingOption.price)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {cartState.total >= 500 && (
+                    <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        <i className="ri-gift-line text-green-600"></i>
+                        <span className="text-sm font-medium text-green-800 dark:text-green-200">
+                          Tebrikler! 500 TL üzeri alışveriş yaptığınız için kargo ücretsiz!
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Ödeme Yöntemi */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6">
@@ -580,18 +751,34 @@ export default function CheckoutPage() {
                     {formatPrice(cartState.total)}
                   </span>
                 </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Kargo:</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {shippingCost === 0 ? (
+                      <span className="text-green-600">Ücretsiz</span>
+                    ) : (
+                      formatPrice(shippingCost)
+                    )}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">KDV (%18):</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {formatPrice(cartState.total * taxRate)}
+                  </span>
+                </div>
+                
                 {appliedCoupon && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">İndirim:</span>
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>İndirim ({appliedCoupon.code}):</span>
                     <span className="font-medium text-green-600 dark:text-green-400">
                       -{formatPrice(appliedCoupon.discount_amount)}
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Kargo:</span>
-                  <span className="font-medium text-green-600 dark:text-green-400">Ücretsiz</span>
-                </div>
+                
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
                   <div className="flex justify-between text-lg font-semibold">
                     <span className="text-gray-900 dark:text-gray-100">Toplam:</span>

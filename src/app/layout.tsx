@@ -17,6 +17,8 @@ const AIChatbot = dynamic(() => import("../components/AIChatbot"), { ssr: false 
 const AccessibilityProvider = dynamic(() => import("../components/AccessibilityProvider"), { ssr: false });
 const ErrorBoundary = dynamic(() => import("../components/ErrorBoundary"), { ssr: false });
 const GlobalErrorBoundary = dynamic(() => import("../components/GlobalErrorBoundary"), { ssr: false });
+const GoogleAnalytics = dynamic(() => import("../components/analytics/GoogleAnalytics"), { ssr: false });
+const HeatmapTracker = dynamic(() => import("../components/analytics/HeatmapTracker"), { ssr: false });
 
 import { ToastProvider } from "../components/Toast";
 
@@ -93,6 +95,15 @@ export default function RootLayout({
                             <Footer />
                             <WhatsAppButton />
                             <AIChatbot context={{ userType: 'customer' }} />
+                            
+                            {/* Analytics */}
+                            <GoogleAnalytics 
+                              measurementId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''} 
+                              enabled={process.env.NODE_ENV === 'production'} 
+                            />
+                            <HeatmapTracker 
+                              enabled={process.env.NODE_ENV === 'production'} 
+                            />
                           </div>
                         </OrderProvider>
                       </CartProvider>

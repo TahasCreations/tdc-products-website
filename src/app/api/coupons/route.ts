@@ -16,6 +16,43 @@ const createServerSupabaseClient = () => {
   return createClient(supabaseUrl, supabaseAnonKey);
 };
 
+// Kupon listesi getir
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
+    }
+
+    const { data: coupons, error } = await supabase
+      .from('coupons')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Kuponlar yüklenemedi' 
+      }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      coupons: coupons || []
+    });
+
+  } catch (error) {
+    console.error('Kupon listesi hatası:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Kuponlar yüklenemedi' 
+    }, { status: 500 });
+  }
+}
+
 // Kupon doğrulama
 export async function POST(request: NextRequest) {
   try {
@@ -110,7 +147,111 @@ export async function POST(request: NextRequest) {
 }
 
 // Kupon kullanım sayısını artır
+// Kupon oluştur/güncelle
 export async function PUT(request: NextRequest) {
+  try {
+    const couponData = await request.json();
+
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
+    }
+
+    // Kupon oluştur veya güncelle
+    const { data, error } = await supabase
+      .from('coupons')
+      .upsert([{
+        id: couponData.id,
+        code: couponData.code.toUpperCase(),
+        name: couponData.name,
+        type: couponData.type,
+        value: couponData.value,
+        min_amount: couponData.minAmount,
+        max_discount: couponData.maxDiscount,
+        usage_limit: couponData.usageLimit,
+        valid_from: couponData.validFrom,
+        valid_until: couponData.validUntil,
+        is_active: true,
+        created_at: couponData.createdAt || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Kupon kaydedilemedi' 
+      }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      coupon: data
+    });
+
+  } catch (error) {
+    console.error('Kupon kaydetme hatası:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Kupon kaydedilemedi' 
+    }, { status: 500 });
+  }
+}
+
+// Kupon sil
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Kupon ID gerekli' 
+      }, { status: 400 });
+    }
+
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
+    }
+
+    // Kuponu sil
+    const { error } = await supabase
+      .from('coupons')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Kupon silinemedi' 
+      }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Kupon başarıyla silindi'
+    });
+
+  } catch (error) {
+    console.error('Kupon silme hatası:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Kupon silinemedi' 
+    }, { status: 500 });
+  }
+}
+
+// Kupon kullanım sayısını artır
+export async function PATCH(request: NextRequest) {
   try {
     const { coupon_id } = await request.json();
 

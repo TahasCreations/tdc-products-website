@@ -17,6 +17,7 @@ import RealTimeDashboard from '../../../components/analytics/RealTimeDashboard';
 import PredictiveAnalytics from '../../../components/analytics/PredictiveAnalytics';
 import BusinessIntelligence from '../../../components/analytics/BusinessIntelligence';
 import CustomReports from '../../../components/analytics/CustomReports';
+import ABTestManager from '../../../components/analytics/ABTestManager';
 import AdminProtection from '../../../components/AdminProtection';
 
 export default function AnalyticsAdminPage() {
@@ -46,6 +47,12 @@ export default function AnalyticsAdminPage() {
       name: 'Özel Raporlar',
       icon: EyeIcon,
       description: 'Özelleştirilmiş raporlar'
+    },
+    {
+      id: 'ab-tests',
+      name: 'A/B Testler',
+      icon: ChartBarIcon,
+      description: 'A/B test yönetimi ve analizi'
     }
   ];
 
@@ -59,6 +66,12 @@ export default function AnalyticsAdminPage() {
         return <BusinessIntelligence />;
       case 'reports':
         return <CustomReports />;
+      case 'ab-tests':
+        return <ABTestManager 
+          onTestStart={(test) => console.log('Test başlatıldı:', test)}
+          onTestStop={(testId) => console.log('Test durduruldu:', testId)}
+          onTestUpdate={(test) => console.log('Test güncellendi:', test)}
+        />;
       default:
         return <RealTimeDashboard />;
     }

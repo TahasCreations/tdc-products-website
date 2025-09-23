@@ -10,8 +10,9 @@ import { useAuth } from '../src/contexts/AuthContext';
 import { useWishlist } from '../src/contexts/WishlistContext';
 import { useToast } from '../src/components/Toast';
 import ThemeToggle from '../src/components/ThemeToggle';
-import LanguageSwitcher from '../src/components/LanguageSwitcher';
-import CurrencySwitcher from '../src/components/CurrencySwitcher';
+import LanguageSwitcher from '../src/components/i18n/LanguageSwitcher';
+import CurrencyConverter from '../src/components/i18n/CurrencyConverter';
+import CartSidebar from '../src/components/CartSidebar';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -254,16 +255,20 @@ export default function Header() {
             {/* Language Switcher */}
             <LanguageSwitcher 
               className="hidden md:flex"
-              showLabel={false}
-              variant="dropdown"
+              showFlags={true}
+              showNativeNames={false}
             />
 
-            {/* Currency Switcher */}
-            <CurrencySwitcher 
-              className="hidden md:flex"
-              showLabel={false}
-              variant="dropdown"
-            />
+            {/* Currency Converter */}
+            <div className="hidden md:flex">
+              <CurrencyConverter 
+                amount={100}
+                fromCurrency="TRY"
+                toCurrency="USD"
+                showSelector={false}
+                className="text-sm"
+              />
+            </div>
 
             {/* Giriş Yap/Kayıt Ol Butonu - Sadece giriş yapmamış kullanıcılar için */}
             {!user && (
@@ -557,6 +562,12 @@ export default function Header() {
           </div>
         )}
       </div>
+
+      {/* Cart Sidebar */}
+      <CartSidebar 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+      />
     </header>
   );
 }

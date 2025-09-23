@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useToast } from '../Toast';
+import IyzicoPayment from './IyzicoPayment';
+import PayPalPayment from './PayPalPayment';
+import StripePayment from './StripePayment';
 import { 
   CreditCardIcon, 
   BanknotesIcon, 
@@ -69,10 +72,30 @@ export default function AdvancedPaymentSystem({
 
   const paymentMethods: PaymentMethod[] = [
     {
-      id: 'credit_card',
-      name: 'Kredi Kartı',
+      id: 'iyzico',
+      name: 'iyzico',
       icon: <CreditCardIcon className="w-6 h-6" />,
-      description: 'Visa, MasterCard, American Express',
+      description: 'Türkiye\'nin en güvenilir ödeme sistemi',
+      enabled: true,
+      fees: 0,
+      processingTime: 'Anında',
+      securityLevel: 'high'
+    },
+    {
+      id: 'paypal',
+      name: 'PayPal',
+      icon: <CreditCardIcon className="w-6 h-6" />,
+      description: 'Dünya çapında güvenilir ödeme',
+      enabled: true,
+      fees: 0,
+      processingTime: 'Anında',
+      securityLevel: 'high'
+    },
+    {
+      id: 'stripe',
+      name: 'Stripe',
+      icon: <CreditCardIcon className="w-6 h-6" />,
+      description: 'Gelişmiş güvenlik ve 135+ para birimi',
       enabled: true,
       fees: 0,
       processingTime: 'Anında',
@@ -96,16 +119,6 @@ export default function AdvancedPaymentSystem({
       enabled: true,
       fees: 0.5,
       processingTime: '10-30 dakika',
-      securityLevel: 'high'
-    },
-    {
-      id: 'mobile_payment',
-      name: 'Mobil Ödeme',
-      icon: <DevicePhoneMobileIcon className="w-6 h-6" />,
-      description: 'PayPal, Apple Pay, Google Pay',
-      enabled: true,
-      fees: 0,
-      processingTime: 'Anında',
       securityLevel: 'high'
     }
   ];
@@ -336,69 +349,34 @@ export default function AdvancedPaymentSystem({
     <div className="space-y-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Ödeme Detayları</h3>
       
-      {selectedMethod === 'credit_card' && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Kart Numarası
-              </label>
-              <input
-                type="text"
-                placeholder="1234 5678 9012 3456"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                maxLength={19}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Kart Sahibi
-              </label>
-              <input
-                type="text"
-                placeholder="Ad Soyad"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Son Kullanma Tarihi
-              </label>
-              <input
-                type="text"
-                placeholder="MM/YY"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                maxLength={5}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                CVV
-              </label>
-              <input
-                type="text"
-                placeholder="123"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                maxLength={4}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Taksit
-              </label>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="1">Tek Çekim</option>
-                <option value="2">2 Taksit</option>
-                <option value="3">3 Taksit</option>
-                <option value="6">6 Taksit</option>
-                <option value="9">9 Taksit</option>
-                <option value="12">12 Taksit</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      {selectedMethod === 'iyzico' && (
+        <IyzicoPayment
+          amount={amount}
+          currency={currency}
+          onSuccess={onPaymentSuccess}
+          onError={onPaymentError}
+          customerInfo={customerInfo}
+        />
+      )}
+
+      {selectedMethod === 'paypal' && (
+        <PayPalPayment
+          amount={amount}
+          currency={currency}
+          onSuccess={onPaymentSuccess}
+          onError={onPaymentError}
+          customerInfo={customerInfo}
+        />
+      )}
+
+      {selectedMethod === 'stripe' && (
+        <StripePayment
+          amount={amount}
+          currency={currency}
+          onSuccess={onPaymentSuccess}
+          onError={onPaymentError}
+          customerInfo={customerInfo}
+        />
       )}
 
       {selectedMethod === 'bank_transfer' && (

@@ -14,6 +14,8 @@ import {
   TrashIcon
 } from '@heroicons/react/24/outline';
 import AdminProtection from '../../../components/AdminProtection';
+import EmailCampaignBuilder from '../../../components/marketing/EmailCampaignBuilder';
+import CouponManager from '../../../components/marketing/CouponManager';
 
 interface MarketingData {
   totalCampaigns: number;
@@ -280,6 +282,7 @@ export default function MarketingPage() {
               { id: 'overview', label: 'Genel Bakış' },
               { id: 'campaigns', label: 'Kampanyalar' },
               { id: 'email', label: 'E-posta' },
+              { id: 'coupons', label: 'Kuponlar' },
               { id: 'social', label: 'Sosyal Medya' },
               { id: 'analytics', label: 'Analiz' }
             ].map((tab) => (
@@ -479,6 +482,40 @@ export default function MarketingPage() {
             )}
 
         {selectedTab === 'email' && (
+          <div className="space-y-6">
+            <EmailCampaignBuilder
+              onSave={(campaign) => {
+                console.log('E-posta kampanyası kaydedildi:', campaign);
+                // Toast notification göster
+              }}
+              onSend={(campaign) => {
+                console.log('E-posta kampanyası gönderildi:', campaign);
+                // Toast notification göster
+              }}
+            />
+          </div>
+        )}
+
+        {selectedTab === 'coupons' && (
+          <div className="space-y-6">
+            <CouponManager
+              onSave={(coupon) => {
+                console.log('Kupon kaydedildi:', coupon);
+                // Toast notification göster
+              }}
+              onUpdate={(coupon) => {
+                console.log('Kupon güncellendi:', coupon);
+                // Toast notification göster
+              }}
+              onDelete={(id) => {
+                console.log('Kupon silindi:', id);
+                // Toast notification göster
+              }}
+            />
+          </div>
+        )}
+
+        {selectedTab === 'email_old' && (
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold text-gray-900">E-posta Kampanyaları</h3>

@@ -22,6 +22,9 @@ const AdvancedMarketingSystem = lazy(() => import('../../../components/AdvancedM
 const AdvancedFinanceSystem = lazy(() => import('../../../components/AdvancedFinanceSystem'));
 const AdvancedEcommerceSystem = lazy(() => import('../../../components/AdvancedEcommerceSystem'));
 const AdvancedAccountingSystem = lazy(() => import('../../../components/AdvancedAccountingSystem'));
+const ProductRecommendationEngine = lazy(() => import('../../../components/ai/ProductRecommendationEngine'));
+const PriceOptimizer = lazy(() => import('../../../components/ai/PriceOptimizer'));
+const SmartChatbot = lazy(() => import('../../../components/ai/SmartChatbot'));
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -32,7 +35,7 @@ export default function AdminDashboard() {
 
   const tabs = [
     { id: 'overview', label: t('navigation.dashboard'), icon: 'ri-dashboard-line' },
-    { id: 'ai', label: t('ai.chatbot'), icon: 'ri-brain-line' },
+    { id: 'ai', label: 'AI & Otomasyon', icon: 'ri-brain-line' },
     { id: 'payments', label: t('payment.paymentMethod'), icon: 'ri-money-dollar-circle-line' },
     { id: 'analytics', label: t('business.analytics'), icon: 'ri-bar-chart-line' },
     { id: 'inventory', label: t('business.inventory'), icon: 'ri-box-3-line' },
@@ -57,9 +60,38 @@ export default function AdminDashboard() {
     switch (activeTab) {
       case 'ai':
         return (
-          <Suspense fallback={<LoadingSpinner />}>
-            <AdvancedAISystem />
-          </Suspense>
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">AI & Otomasyon Sistemi</h2>
+                  <p className="text-gray-600 mt-1">Yapay zeka destekli özellikler ve otomasyon araçları</p>
+                </div>
+                <button
+                  onClick={() => window.history.back()}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                >
+                  <span>←</span>
+                  <span>Geri</span>
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ProductRecommendationEngine />
+                </Suspense>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <PriceOptimizer />
+                </Suspense>
+              </div>
+              
+              <div className="mt-6">
+                <Suspense fallback={<LoadingSpinner />}>
+                  <SmartChatbot context={{ userType: 'admin' }} />
+                </Suspense>
+              </div>
+            </div>
+          </div>
         );
       case 'payments':
         return (

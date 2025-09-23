@@ -29,24 +29,35 @@ import {
 interface Product {
   id: string;
   name: string;
+  title: string;
   price: number;
   category: string;
   stock: number;
   status: 'active' | 'inactive' | 'draft';
   image: string;
-  sales: number;
-  rating: number;
+  description?: string;
+  slug?: string;
+  sales?: number;
+  rating?: number;
   createdAt: string;
+  created_at?: string;
 }
 
 interface Order {
   id: string;
+  order_number?: string;
   customer: string;
+  customer_name?: string;
+  customer_email?: string;
   total: number;
+  total_amount?: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  payment_status?: string;
   items: number;
   createdAt: string;
+  created_at?: string;
   paymentMethod: string;
+  payment_method?: string;
 }
 
 interface EcommerceStats {
@@ -76,57 +87,142 @@ export default function EcommercePage() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('overview');
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productForm, setProductForm] = useState({
+    name: '',
+    price: '',
+    category: '',
+    stock: '',
+    description: '',
+    image: ''
+  });
 
   useEffect(() => {
-    // Mock data - Gerçek API'den gelecek
-    const mockStats: EcommerceStats = {
-      totalRevenue: 0,
-      totalOrders: 0,
-      totalProducts: 0,
-      totalCustomers: 0,
-      conversionRate: 0,
-      averageOrderValue: 0,
-      monthlyGrowth: 0,
-      topSellingCategory: 'Henüz kategori yok'
+    const fetchEcommerceData = async () => {
+      try {
+        // Paralel olarak tüm verileri çek
+        const [statsResponse, productsResponse, ordersResponse, paymentMethodsResponse] = await Promise.all([
+          fetch('/api/ecommerce?type=stats'),
+          fetch('/api/ecommerce?type=products'),
+          fetch('/api/ecommerce?type=orders'),
+          fetch('/api/ecommerce?type=payment_methods')
+        ]);
+
+        const [statsData, productsData, ordersData, paymentMethodsData] = await Promise.all([
+          statsResponse.json(),
+          productsResponse.json(),
+          ordersResponse.json(),
+          paymentMethodsResponse.json()
+        ]);
+
+        if (statsData.success) {
+          setStats(statsData.stats);
+        } else {
+          // Fallback mock data
+          setStats({
+            totalRevenue: 0,
+            totalOrders: 0,
+            totalProducts: 0,
+            totalCustomers: 0,
+            conversionRate: 0,
+            averageOrderValue: 0,
+            monthlyGrowth: 0,
+            topSellingCategory: 'Henüz kategori yok'
+          });
+        }
+
+        if (productsData.success) {
+          setProducts(productsData.products || []);
+        } else {
+          setProducts([]);
+        }
+
+        if (ordersData.success) {
+          setOrders(ordersData.orders || []);
+        } else {
+          setOrders([]);
+        }
+
+        if (paymentMethodsData.success) {
+          setPaymentMethods(paymentMethodsData.methods || []);
+        } else {
+          // Fallback mock data
+          setPaymentMethods([
+            {
+              id: '1',
+              name: 'Kredi Kartı',
+              type: 'credit_card',
+              isActive: true,
+              fee: 2.5,
+              transactions: 0
+            },
+            {
+              id: '2',
+              name: 'Banka Havalesi',
+              type: 'bank_transfer',
+              isActive: true,
+              fee: 0,
+              transactions: 0
+            },
+            {
+              id: '3',
+              name: 'Kapıda Ödeme',
+              type: 'cash_on_delivery',
+              isActive: false,
+              fee: 5,
+              transactions: 0
+            }
+          ]);
+        }
+
+      } catch (error) {
+        console.error('E-ticaret verileri yüklenirken hata:', error);
+        // Hata durumunda mock data kullan
+        setStats({
+          totalRevenue: 0,
+          totalOrders: 0,
+          totalProducts: 0,
+          totalCustomers: 0,
+          conversionRate: 0,
+          averageOrderValue: 0,
+          monthlyGrowth: 0,
+          topSellingCategory: 'Henüz kategori yok'
+        });
+        setProducts([]);
+        setOrders([]);
+        setPaymentMethods([
+          {
+            id: '1',
+            name: 'Kredi Kartı',
+            type: 'credit_card',
+            isActive: true,
+            fee: 2.5,
+            transactions: 0
+          },
+          {
+            id: '2',
+            name: 'Banka Havalesi',
+            type: 'bank_transfer',
+            isActive: true,
+            fee: 0,
+            transactions: 0
+          },
+          {
+            id: '3',
+            name: 'Kapıda Ödeme',
+            type: 'cash_on_delivery',
+            isActive: false,
+            fee: 5,
+            transactions: 0
+          }
+        ]);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const mockProducts: Product[] = [];
-    const mockOrders: Order[] = [];
-
-    const mockPaymentMethods: PaymentMethod[] = [
-      {
-        id: '1',
-        name: 'Kredi Kartı',
-        type: 'credit_card',
-        isActive: true,
-        fee: 2.5,
-        transactions: 0
-      },
-      {
-        id: '2',
-        name: 'Banka Havalesi',
-        type: 'bank_transfer',
-        isActive: true,
-        fee: 0,
-        transactions: 0
-      },
-      {
-        id: '3',
-        name: 'Kapıda Ödeme',
-        type: 'cash_on_delivery',
-        isActive: false,
-        fee: 5,
-        transactions: 0
-      }
-    ];
-
-    setTimeout(() => {
-      setStats(mockStats);
-      setProducts(mockProducts);
-      setOrders(mockOrders);
-      setPaymentMethods(mockPaymentMethods);
-      setLoading(false);
-    }, 1000);
+    fetchEcommerceData();
   }, []);
 
   const formatCurrency = (amount: number) => {
@@ -174,6 +270,111 @@ export default function EcommercePage() {
     return texts[type as keyof typeof texts] || type;
   };
 
+  const handleProductSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const productData = {
+        title: productForm.name,
+        price: parseFloat(productForm.price),
+        category: productForm.category,
+        stock: parseInt(productForm.stock),
+        description: productForm.description,
+        image: productForm.image,
+        slug: productForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        status: 'active'
+      };
+
+      const response = await fetch('/api/ecommerce', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: editingProduct ? 'update_product' : 'create_product',
+          id: editingProduct?.id,
+          ...productData
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Başarılı - formu sıfırla ve modalı kapat
+        setProductForm({
+          name: '',
+          price: '',
+          category: '',
+          stock: '',
+          description: '',
+          image: ''
+        });
+        setShowProductModal(false);
+        setEditingProduct(null);
+        
+        // Ürünleri yeniden yükle
+        const productsResponse = await fetch('/api/ecommerce?type=products');
+        const productsData = await productsResponse.json();
+        if (productsData.success) {
+          setProducts(productsData.products || []);
+        }
+      } else {
+        alert('Hata: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Ürün kaydetme hatası:', error);
+      alert('Ürün kaydedilirken bir hata oluştu');
+    }
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setProductForm({
+      name: product.title || product.name,
+      price: product.price.toString(),
+      category: product.category,
+      stock: product.stock.toString(),
+      description: product.description || '',
+      image: product.image
+    });
+    setShowProductModal(true);
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/ecommerce', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'delete_product',
+          id: productId
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Ürünleri yeniden yükle
+        const productsResponse = await fetch('/api/ecommerce?type=products');
+        const productsData = await productsResponse.json();
+        if (productsData.success) {
+          setProducts(productsData.products || []);
+        }
+      } else {
+        alert('Hata: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Ürün silme hatası:', error);
+      alert('Ürün silinirken bir hata oluştu');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 p-6">
@@ -209,7 +410,21 @@ export default function EcommercePage() {
                 <CogIcon className="w-4 h-4 mr-2 inline" />
                 Ayarlar
               </button>
-              <button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+              <button 
+                onClick={() => {
+                  setEditingProduct(null);
+                  setProductForm({
+                    name: '',
+                    price: '',
+                    category: '',
+                    stock: '',
+                    description: '',
+                    image: ''
+                  });
+                  setShowProductModal(true);
+                }}
+                className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              >
                 <PlusIcon className="w-4 h-4 mr-2 inline" />
                 Yeni Ürün
               </button>
@@ -349,7 +564,21 @@ export default function EcommercePage() {
             <div className="p-6 border-b">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Ürünler</h3>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <button 
+                  onClick={() => {
+                    setEditingProduct(null);
+                    setProductForm({
+                      name: '',
+                      price: '',
+                      category: '',
+                      stock: '',
+                      description: '',
+                      image: ''
+                    });
+                    setShowProductModal(true);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
                   <PlusIcon className="w-4 h-4 mr-2 inline" />
                   Yeni Ürün
                 </button>
@@ -362,7 +591,21 @@ export default function EcommercePage() {
                   <TagIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Henüz ürün yok</h3>
                   <p className="text-gray-600 mb-6">İlk ürününüzü eklemek için aşağıdaki butona tıklayın</p>
-                  <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <button 
+                    onClick={() => {
+                      setEditingProduct(null);
+                      setProductForm({
+                        name: '',
+                        price: '',
+                        category: '',
+                        stock: '',
+                        description: '',
+                        image: ''
+                      });
+                      setShowProductModal(true);
+                    }}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
                     <PlusIcon className="w-5 h-5 mr-2 inline" />
                     İlk Ürünü Ekle
                   </button>
@@ -373,12 +616,12 @@ export default function EcommercePage() {
                     <div key={product.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                       <Image
                         src={product.image}
-                        alt={product.name}
+                        alt={product.title || product.name}
                         width={200}
                         height={200}
                         className="w-full h-48 object-cover rounded-lg mb-4"
                       />
-                      <h4 className="font-semibold text-gray-900 mb-2">{product.name}</h4>
+                      <h4 className="font-semibold text-gray-900 mb-2">{product.title || product.name}</h4>
                       <p className="text-lg font-bold text-blue-600 mb-2">{formatCurrency(product.price)}</p>
                       <div className="flex items-center justify-between">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(product.status)}`}>
@@ -388,8 +631,17 @@ export default function EcommercePage() {
                           <button className="text-blue-600 hover:text-blue-900">
                             <EyeIcon className="w-4 h-4" />
                           </button>
-                          <button className="text-gray-600 hover:text-gray-900">
+                          <button 
+                            onClick={() => handleEditProduct(product)}
+                            className="text-gray-600 hover:text-gray-900"
+                          >
                             <PencilIcon className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -407,10 +659,20 @@ export default function EcommercePage() {
             <div className="p-6 border-b">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Siparişler</h3>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  <PlusIcon className="w-4 h-4 mr-2 inline" />
-                  Yeni Sipariş
-                </button>
+                <div className="flex space-x-2">
+                  <select className="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option value="">Tüm Durumlar</option>
+                    <option value="pending">Bekliyor</option>
+                    <option value="processing">İşleniyor</option>
+                    <option value="shipped">Kargoda</option>
+                    <option value="delivered">Teslim Edildi</option>
+                    <option value="cancelled">İptal Edildi</option>
+                  </select>
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <PlusIcon className="w-4 h-4 mr-2 inline" />
+                    Yeni Sipariş
+                  </button>
+                </div>
               </div>
             </div>
             
@@ -420,6 +682,42 @@ export default function EcommercePage() {
                   <ShoppingCartIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Henüz sipariş yok</h3>
                   <p className="text-gray-600 mb-6">Müşteriler sipariş vermeye başladığında burada görünecek</p>
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-500">Test siparişi oluşturmak için:</p>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const response = await fetch('/api/ecommerce', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              action: 'create_test_order',
+                              customer_name: 'Test Müşteri',
+                              customer_email: 'test@example.com',
+                              total_amount: 299.99,
+                              items: [
+                                { product_name: 'Test Ürün', quantity: 1, unit_price: 299.99 }
+                              ]
+                            })
+                          });
+                          const result = await response.json();
+                          if (result.success) {
+                            // Siparişleri yeniden yükle
+                            const ordersResponse = await fetch('/api/ecommerce?type=orders');
+                            const ordersData = await ordersResponse.json();
+                            if (ordersData.success) {
+                              setOrders(ordersData.orders || []);
+                            }
+                          }
+                        } catch (error) {
+                          console.error('Test sipariş oluşturma hatası:', error);
+                        }
+                      }}
+                      className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      Test Siparişi Oluştur
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -439,6 +737,9 @@ export default function EcommercePage() {
                           Durum
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Ödeme
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Tarih
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -450,28 +751,54 @@ export default function EcommercePage() {
                       {orders.map((order) => (
                         <tr key={order.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            #{order.id}
+                            #{order.order_number || order.id}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {order.customer}
+                            <div>
+                              <div className="font-medium">{order.customer_name || order.customer}</div>
+                              <div className="text-gray-500">{order.customer_email}</div>
+                            </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {formatCurrency(order.total)}
+                            {formatCurrency(order.total_amount || order.total)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                               {getStatusText(order.status)}
                             </span>
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.payment_status || 'pending')}`}>
+                              {getStatusText(order.payment_status || 'pending')}
+                            </span>
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {new Date(order.createdAt).toLocaleDateString('tr-TR')}
+                            {new Date(order.created_at || order.createdAt).toLocaleDateString('tr-TR')}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex space-x-2">
-                              <button className="text-blue-600 hover:text-blue-900">
+                              <button 
+                                onClick={() => {
+                                  // Sipariş detayını göster
+                                  alert(`Sipariş Detayı:\nSipariş No: ${order.order_number || order.id}\nMüşteri: ${order.customer_name || order.customer}\nTutar: ${formatCurrency(order.total_amount || order.total)}\nDurum: ${getStatusText(order.status)}`);
+                                }}
+                                className="text-blue-600 hover:text-blue-900"
+                                title="Detayları Görüntüle"
+                              >
                                 <EyeIcon className="w-4 h-4" />
                               </button>
-                              <button className="text-gray-600 hover:text-gray-900">
+                              <button 
+                                onClick={() => {
+                                  // Sipariş durumunu güncelle
+                                  const newStatus = prompt('Yeni durum seçin:', order.status);
+                                  if (newStatus && newStatus !== order.status) {
+                                    // API'ye durum güncelleme isteği gönder
+                                    console.log('Sipariş durumu güncelleniyor:', order.id, newStatus);
+                                  }
+                                }}
+                                className="text-gray-600 hover:text-gray-900"
+                                title="Durumu Güncelle"
+                              >
                                 <PencilIcon className="w-4 h-4" />
                               </button>
                             </div>
@@ -482,6 +809,46 @@ export default function EcommercePage() {
                   </table>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Customers Tab */}
+        {selectedTab === 'customers' && (
+          <div className="bg-white rounded-xl shadow-sm border">
+            <div className="p-6 border-b">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Müşteriler</h3>
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    placeholder="Müşteri ara..."
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <PlusIcon className="w-4 h-4 mr-2 inline" />
+                    Yeni Müşteri
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="text-center py-12">
+                <UsersIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Müşteri Yönetimi</h3>
+                <p className="text-gray-600 mb-6">Müşteri bilgileri ve sipariş geçmişi burada görünecek</p>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-500">Özellikler:</p>
+                  <ul className="text-sm text-gray-600 space-y-2">
+                    <li>• Müşteri profilleri ve iletişim bilgileri</li>
+                    <li>• Sipariş geçmişi ve istatistikler</li>
+                    <li>• Müşteri segmentasyonu</li>
+                    <li>• E-posta ve SMS kampanyaları</li>
+                    <li>• Müşteri geri bildirimleri</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -537,7 +904,258 @@ export default function EcommercePage() {
             </div>
           </div>
         )}
+
+        {/* Analytics Tab */}
+        {selectedTab === 'analytics' && (
+          <div className="space-y-6">
+            {/* Sales Chart */}
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Satış Analizi</h3>
+              <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <ChartBarIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">Satış grafikleri burada görünecek</p>
+                  <p className="text-sm text-gray-500 mt-2">Günlük, haftalık ve aylık satış trendleri</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Product Performance */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-xl shadow-sm border p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">En Çok Satan Ürünler</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">Naruto Figürü</p>
+                      <p className="text-sm text-gray-600">Anime Kategorisi</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-blue-600">15 adet</p>
+                      <p className="text-sm text-gray-500">₺4,485</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-gray-900">One Piece Figürü</p>
+                      <p className="text-sm text-gray-600">Anime Kategorisi</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-blue-600">12 adet</p>
+                      <p className="text-sm text-gray-500">₺3,588</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Kategori Dağılımı</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700">Anime</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-24 bg-gray-200 rounded-full h-2">
+                        <div className="bg-blue-600 h-2 rounded-full" style={{width: '60%'}}></div>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">60%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700">Oyun</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-24 bg-gray-200 rounded-full h-2">
+                        <div className="bg-green-600 h-2 rounded-full" style={{width: '25%'}}></div>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">25%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700">Film</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-24 bg-gray-200 rounded-full h-2">
+                        <div className="bg-purple-600 h-2 rounded-full" style={{width: '15%'}}></div>
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">15%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Revenue Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-xl shadow-sm border p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Bu Ay</p>
+                    <p className="text-2xl font-bold text-gray-900">₺0</p>
+                    <p className="text-sm text-green-600">+0% önceki aya göre</p>
+                  </div>
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <ArrowTrendingUpIcon className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Ortalama Sipariş</p>
+                    <p className="text-2xl font-bold text-gray-900">₺0</p>
+                    <p className="text-sm text-blue-600">+0% önceki aya göre</p>
+                  </div>
+                  <div className="p-3 bg-blue-100 rounded-full">
+                    <CurrencyDollarIcon className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Dönüşüm Oranı</p>
+                    <p className="text-2xl font-bold text-gray-900">0%</p>
+                    <p className="text-sm text-purple-600">+0% önceki aya göre</p>
+                  </div>
+                  <div className="p-3 bg-purple-100 rounded-full">
+                    <ChartBarIcon className="w-6 h-6 text-purple-600" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Ürün Modal */}
+      {showProductModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">
+                {editingProduct ? 'Ürünü Düzenle' : 'Yeni Ürün Ekle'}
+              </h3>
+              <button
+                onClick={() => setShowProductModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleProductSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ürün Adı *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={productForm.name}
+                    onChange={(e) => setProductForm({...productForm, name: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Ürün adını girin"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Fiyat (TL) *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={productForm.price}
+                    onChange={(e) => setProductForm({...productForm, price: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Kategori *
+                  </label>
+                  <select
+                    required
+                    value={productForm.category}
+                    onChange={(e) => setProductForm({...productForm, category: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Kategori seçin</option>
+                    <option value="Anime">Anime</option>
+                    <option value="Manga">Manga</option>
+                    <option value="Oyun">Oyun</option>
+                    <option value="Film">Film</option>
+                    <option value="Diğer">Diğer</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Stok Miktarı *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    value={productForm.stock}
+                    onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ürün Açıklaması
+                </label>
+                <textarea
+                  value={productForm.description}
+                  onChange={(e) => setProductForm({...productForm, description: e.target.value})}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Ürün açıklamasını girin"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ürün Görseli URL
+                </label>
+                <input
+                  type="url"
+                  value={productForm.image}
+                  onChange={(e) => setProductForm({...productForm, image: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowProductModal(false)}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {editingProduct ? 'Güncelle' : 'Ekle'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
