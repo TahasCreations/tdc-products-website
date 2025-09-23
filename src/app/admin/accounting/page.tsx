@@ -161,7 +161,7 @@ export default function AccountingPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Muhasebe Modülü</h1>
-              <p className="text-gray-600 mt-1">Eta Paraşüt entegrasyonu ile profesyonel muhasebe yönetimi</p>
+              <p className="text-gray-600 mt-1">Profesyonel muhasebe yönetimi</p>
             </div>
             <div className="flex items-center space-x-3">
               <button className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
@@ -187,11 +187,11 @@ export default function AccountingPage() {
                   <DocumentTextIcon className="w-6 h-6 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Eta Paraşüt Entegrasyonu</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Muhasebe Entegrasyonu</h3>
                   <p className="text-gray-600">
                     {etaIntegration?.isConnected 
-                      ? 'Eta Paraşüt ile bağlantı kuruldu' 
-                      : 'Eta Paraşüt entegrasyonu kurulmadı'
+                      ? 'Muhasebe sistemi ile bağlantı kuruldu' 
+                      : 'Muhasebe entegrasyonu kurulmadı'
                     }
                   </p>
                 </div>

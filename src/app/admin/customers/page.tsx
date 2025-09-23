@@ -41,57 +41,8 @@ export default function CustomersPage() {
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // Mock data
-  const mockCustomers: Customer[] = [
-    {
-      id: '1',
-      name: 'Ahmet Yılmaz',
-      email: 'ahmet@example.com',
-      phone: '+90 555 123 4567',
-      address: 'Atatürk Caddesi No:123',
-      city: 'İstanbul',
-      country: 'Türkiye',
-      registrationDate: '2024-01-15',
-      lastOrderDate: '2024-01-20',
-      totalOrders: 5,
-      totalSpent: 1250.50,
-      status: 'active',
-      tags: ['VIP', 'Frequent Buyer'],
-      notes: 'Hızlı teslimat tercih ediyor'
-    },
-    {
-      id: '2',
-      name: 'Ayşe Demir',
-      email: 'ayse@example.com',
-      phone: '+90 555 987 6543',
-      address: 'Cumhuriyet Mahallesi No:45',
-      city: 'Ankara',
-      country: 'Türkiye',
-      registrationDate: '2024-01-10',
-      lastOrderDate: '2024-01-18',
-      totalOrders: 3,
-      totalSpent: 750.25,
-      status: 'active',
-      tags: ['New Customer'],
-      notes: 'Anime figürleri koleksiyonu yapıyor'
-    },
-    {
-      id: '3',
-      name: 'Mehmet Kaya',
-      email: 'mehmet@example.com',
-      phone: '+90 555 456 7890',
-      address: 'Gazi Bulvarı No:67',
-      city: 'İzmir',
-      country: 'Türkiye',
-      registrationDate: '2023-12-20',
-      lastOrderDate: '2024-01-05',
-      totalOrders: 8,
-      totalSpent: 2100.75,
-      status: 'inactive',
-      tags: ['Premium', 'Wholesale'],
-      notes: 'Toplu alım yapıyor, indirim verilebilir'
-    }
-  ];
+  // No customers available
+  const mockCustomers: Customer[] = [];
 
   useEffect(() => {
     // Simulate loading

@@ -119,7 +119,7 @@ export default function EcommercePage() {
         if (statsData.success) {
           setStats(statsData.stats);
         } else {
-          // Fallback mock data
+          // No data available
           setStats({
             totalRevenue: 0,
             totalOrders: 0,
@@ -147,7 +147,7 @@ export default function EcommercePage() {
         if (paymentMethodsData.success) {
           setPaymentMethods(paymentMethodsData.methods || []);
         } else {
-          // Fallback mock data
+          // No data available
           setPaymentMethods([
             {
               id: '1',
@@ -178,7 +178,7 @@ export default function EcommercePage() {
 
       } catch (error) {
         console.error('E-ticaret verileri yüklenirken hata:', error);
-        // Hata durumunda mock data kullan
+        // Hata durumunda boş data kullan
         setStats({
           totalRevenue: 0,
           totalOrders: 0,
@@ -699,40 +699,7 @@ export default function EcommercePage() {
                   <h3 className="text-lg font-medium text-gray-900 mb-2">Henüz sipariş yok</h3>
                   <p className="text-gray-600 mb-6">Müşteriler sipariş vermeye başladığında burada görünecek</p>
                   <div className="space-y-4">
-                    <p className="text-sm text-gray-500">Test siparişi oluşturmak için:</p>
-                    <button 
-                      onClick={async () => {
-                        try {
-                          const response = await fetch('/api/ecommerce', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                              action: 'create_test_order',
-                              customer_name: 'Test Müşteri',
-                              customer_email: 'test@example.com',
-                              total_amount: 299.99,
-                              items: [
-                                { product_name: 'Test Ürün', quantity: 1, unit_price: 299.99 }
-                              ]
-                            })
-                          });
-                          const result = await response.json();
-                          if (result.success) {
-                            // Siparişleri yeniden yükle
-                            const ordersResponse = await fetch('/api/ecommerce?type=orders');
-                            const ordersData = await ordersResponse.json();
-                            if (ordersData.success) {
-                              setOrders(ordersData.orders || []);
-                            }
-                          }
-                        } catch (error) {
-                          console.error('Test sipariş oluşturma hatası:', error);
-                        }
-                      }}
-                      className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                      Test Siparişi Oluştur
-                    </button>
+                    <p className="text-sm text-gray-500">Henüz sipariş bulunmuyor.</p>
                   </div>
                 </div>
               ) : (
