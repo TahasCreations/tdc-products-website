@@ -40,10 +40,10 @@ try {
   // 3. Install dependencies
   console.log('📦 Installing dependencies...');
   try {
-    execSync('npm install', { stdio: 'inherit' });
+    execSync('npm ci --production=false', { stdio: 'inherit' });
   } catch (error) {
-    console.warn('⚠️ npm install failed:', error.message);
-    throw error;
+    console.warn('⚠️ npm ci failed, trying npm install:', error.message);
+    execSync('npm install', { stdio: 'inherit' });
   }
 
   // 4. Type check (skip for faster builds)

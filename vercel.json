@@ -2,7 +2,7 @@
   "version": 2,
   "buildCommand": "node vercel-build.js",
   "outputDirectory": ".next",
-  "installCommand": "npm install",
+  "installCommand": "npm install --production=false",
   "framework": "nextjs",
   "functions": {
     "src/app/api/**/*.ts": {

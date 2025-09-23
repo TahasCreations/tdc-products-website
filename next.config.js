@@ -61,6 +61,8 @@ const nextConfig = {
           optimizeCss: false, // Disable to avoid critters dependency
           // Memory optimization
           memoryBasedWorkersCount: true,
+          // Additional optimizations
+          // serverComponentsExternalPackages: ['@supabase/supabase-js'], // Removed to avoid conflict
         },
   
   // Output configuration for Vercel

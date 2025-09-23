@@ -17,7 +17,9 @@
     "prebuild": "echo 'Skipping type check'",
     "postbuild": "echo 'Build completed'",
     "vercel-build": "node vercel-build.js",
-    "build:vercel": "node vercel-build.js"
+    "build:vercel": "node vercel-build.js",
+    "build:production": "NODE_ENV=production npm run build",
+    "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
