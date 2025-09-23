@@ -149,15 +149,6 @@ export async function GET(request: NextRequest) {
       'KES': 4.2,
       'UGX': 120.0,
       'TZS': 80.0,
-      'ETB': 1.8,
-      'MAD': 0.33,
-      'EGP': 1.6,
-      'ZAR': 0.60,
-      'NGN': 13.0,
-      'GHS': 0.40,
-      'KES': 4.2,
-      'UGX': 120.0,
-      'TZS': 80.0,
       'ETB': 1.8
     };
 

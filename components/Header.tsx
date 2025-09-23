@@ -536,15 +536,18 @@ export default function Header() {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Dil:</span>
                 <LanguageSwitcher 
-                  variant="buttons"
-                  showLabel={false}
+                  showFlags={true}
+                  showNativeNames={false}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Para Birimi:</span>
-                <CurrencySwitcher 
-                  variant="buttons"
-                  showLabel={false}
+                <CurrencyConverter 
+                  amount={100}
+                  fromCurrency="TRY"
+                  toCurrency="USD"
+                  showSelector={true}
+                  className="text-sm"
                 />
               </div>
             </div>

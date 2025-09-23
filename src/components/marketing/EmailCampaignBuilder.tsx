@@ -34,8 +34,8 @@ export default function EmailCampaignBuilder({ onSave, onSend }: EmailCampaignBu
     name: '',
     subject: '',
     content: '',
-    type: 'promotion' as const,
-    recipientType: 'all' as const,
+    type: 'promotion' as 'welcome' | 'newsletter' | 'order_confirmation' | 'promotion' | 'abandoned_cart',
+    recipientType: 'all' as 'all' | 'segment' | 'custom',
     recipientSegment: '',
     scheduledDate: '',
     template: ''
@@ -271,7 +271,7 @@ export default function EmailCampaignBuilder({ onSave, onSend }: EmailCampaignBu
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <p className="text-sm text-gray-500 mt-1">
-              Değişkenler: {{name}}, {{email}}, {{order_total}}
+              Değişkenler: {`{{name}}, {{email}}, {{order_total}}`}
             </p>
           </div>
 

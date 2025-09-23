@@ -44,7 +44,7 @@ export default function CouponManager({ onSave, onUpdate, onDelete }: CouponMana
   const [formData, setFormData] = useState({
     code: '',
     name: '',
-    type: 'percentage' as const,
+    type: 'percentage' as 'percentage' | 'fixed',
     value: 0,
     minAmount: 0,
     maxDiscount: 0,

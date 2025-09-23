@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { 
   CurrencyDollarIcon, 
-  TrendingUpIcon, 
-  TrendingDownIcon,
+  ArrowTrendingUpIcon, 
+  ArrowTrendingDownIcon,
   ChartBarIcon,
   LightBulbIcon,
   ExclamationTriangleIcon
@@ -172,8 +172,8 @@ export default function PriceOptimizer({
   };
 
   const getPriceChangeIcon = (change: number) => {
-    if (change > 0) return <TrendingUpIcon className="w-4 h-4" />;
-    if (change < 0) return <TrendingDownIcon className="w-4 h-4" />;
+    if (change > 0) return <ArrowTrendingUpIcon className="w-4 h-4" />;
+    if (change < 0) return <ArrowTrendingDownIcon className="w-4 h-4" />;
     return <ChartBarIcon className="w-4 h-4" />;
   };
 
