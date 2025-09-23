@@ -9,7 +9,8 @@ import {
   CogIcon,
   DocumentTextIcon,
   CalendarIcon,
-  CurrencyDollarIcon
+  CurrencyDollarIcon,
+  ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 
 export default function AdvancedHRSystem() {
@@ -349,9 +350,18 @@ export default function AdvancedHRSystem() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">İnsan Kaynakları Sistemi</h2>
-          <p className="text-sm text-gray-500 mt-1">Çalışan yönetimi ve HR süreçleri</p>
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={() => window.history.back()}
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors duration-200"
+          >
+            <ArrowLeftIcon className="w-5 h-5" />
+            <span className="text-sm font-medium">Geri</span>
+          </button>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">İnsan Kaynakları Sistemi</h2>
+            <p className="text-sm text-gray-500 mt-1">Çalışan yönetimi ve HR süreçleri</p>
+          </div>
         </div>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-500 rounded-full"></div>
