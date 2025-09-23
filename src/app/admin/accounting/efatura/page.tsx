@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminProtection from '../../../../components/AdminProtection';
 import { useErrorToast } from '../../../../hooks/useErrorToast';
-import { ApiWrapper } from '../../../../lib/api-wrapper';
+import { apiWrapper } from '../../../../lib/api-wrapper';
 
 interface EfaturaSettings {
   id?: string;
@@ -55,7 +55,7 @@ export default function EfaturaPage() {
 
   const fetchEfaturaData = useCallback(async () => {
     const result = await handleAsyncOperation(
-      () => ApiWrapper.get('/api/accounting/efatura?companyId=550e8400-e29b-41d4-a716-446655440000'),
+      () => apiWrapper.get('/api/accounting/efatura?companyId=550e8400-e29b-41d4-a716-446655440000'),
       undefined,
       'E-Fatura verileri yüklenirken'
     );
@@ -76,7 +76,7 @@ export default function EfaturaPage() {
     setSaving(true);
 
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/efatura', {
+      () => apiWrapper.post('/api/accounting/efatura', {
         action: 'save_settings',
         ...settings
       }),
@@ -93,7 +93,7 @@ export default function EfaturaPage() {
 
   const handleSendInvoice = async (invoiceId: string) => {
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/efatura', {
+      () => apiWrapper.post('/api/accounting/efatura', {
         action: 'send_invoice',
         invoiceId,
         companyId: settings.company_id
@@ -109,7 +109,7 @@ export default function EfaturaPage() {
 
   const handleCheckStatus = async (efaturaInvoiceId: string) => {
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/efatura', {
+      () => apiWrapper.post('/api/accounting/efatura', {
         action: 'get_invoice_status',
         efaturaInvoiceId
       }),
@@ -124,7 +124,7 @@ export default function EfaturaPage() {
 
   const handleDownloadPDF = async (efaturaInvoiceId: string) => {
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/efatura', {
+      () => apiWrapper.post('/api/accounting/efatura', {
         action: 'download_pdf',
         efaturaInvoiceId
       }),
@@ -151,7 +151,7 @@ export default function EfaturaPage() {
     if (!reason) return;
 
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/efatura', {
+      () => apiWrapper.post('/api/accounting/efatura', {
         action: 'cancel_invoice',
         efaturaInvoiceId,
         reason

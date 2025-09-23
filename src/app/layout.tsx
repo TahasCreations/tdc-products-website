@@ -72,7 +72,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} transition-colors duration-300`}>
         <GlobalErrorBoundary>
-          <ErrorBoundary level="critical">
+          <ErrorBoundary>
             <AccessibilityProvider>
               <ThemeProvider>
                 <ToastProvider>
@@ -86,7 +86,7 @@ export default function RootLayout({
                             </a>
                             <Header />
                             <main id="main-content" className="flex-grow">
-                              <ErrorBoundary level="page">
+                              <ErrorBoundary>
                                 {children}
                               </ErrorBoundary>
                             </main>

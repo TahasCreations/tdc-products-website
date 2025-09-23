@@ -11,9 +11,13 @@
     "type-check": "tsc --noEmit",
     "clean": "rm -rf .next out",
     "deploy": "npm run build",
-    "analyze": "ANALYZE=true npm run build",
+    "analyze": "set ANALYZE=true && npm run build",
     "analyze:server": "BUNDLE_ANALYZE=server npm run build",
-    "analyze:browser": "BUNDLE_ANALYZE=browser npm run build"
+    "analyze:browser": "BUNDLE_ANALYZE=browser npm run build",
+    "prebuild": "echo 'Skipping type check'",
+    "postbuild": "npm run lint",
+    "vercel-build": "node build-vercel.js",
+    "build:vercel": "node build-vercel.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

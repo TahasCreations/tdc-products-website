@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ApiWrapper } from '@/lib/api-wrapper';
+import { apiWrapper } from '@/lib/api-wrapper';
 
 interface Employee {
   id: string;
@@ -112,7 +112,7 @@ export default function PayrollPage() {
 
   const fetchEmployees = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/payroll?action=employees');
+      const result = await apiWrapper.get('/api/accounting/payroll?action=employees');
       if (result && (result as any).data) {
         setEmployees((result as any).data);
       }
@@ -123,7 +123,7 @@ export default function PayrollPage() {
 
   const fetchDepartments = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/payroll?action=departments');
+      const result = await apiWrapper.get('/api/accounting/payroll?action=departments');
       if (result && (result as any).data) {
         setDepartments((result as any).data);
       }
@@ -134,7 +134,7 @@ export default function PayrollPage() {
 
   const fetchPositions = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/payroll?action=positions');
+      const result = await apiWrapper.get('/api/accounting/payroll?action=positions');
       if (result && (result as any).data) {
         setPositions((result as any).data);
       }
@@ -145,7 +145,7 @@ export default function PayrollPage() {
 
   const fetchPayrollPeriods = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/payroll?action=payroll-periods');
+      const result = await apiWrapper.get('/api/accounting/payroll?action=payroll-periods');
       if (result && (result as any).data) {
         setPayrollPeriods((result as any).data);
       }
@@ -156,7 +156,7 @@ export default function PayrollPage() {
 
   const fetchPayrollRecords = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/payroll?action=payroll-records');
+      const result = await apiWrapper.get('/api/accounting/payroll?action=payroll-records');
       if (result && (result as any).data) {
         setPayrollRecords((result as any).data);
       }
@@ -189,7 +189,7 @@ export default function PayrollPage() {
     setApiLoading(true);
 
     try {
-      const result = await ApiWrapper.post('/api/accounting/payroll', {
+      const result = await apiWrapper.post('/api/accounting/payroll', {
         action: 'create_employee',
         ...newEmployee
       });
@@ -225,7 +225,7 @@ export default function PayrollPage() {
     setApiLoading(true);
 
     try {
-      const result = await ApiWrapper.post('/api/accounting/payroll', {
+      const result = await apiWrapper.post('/api/accounting/payroll', {
         action: 'create_department',
         ...newDepartment,
         budget: newDepartment.budget ? parseFloat(newDepartment.budget) : null
@@ -253,7 +253,7 @@ export default function PayrollPage() {
     setApiLoading(true);
 
     try {
-      const result = await ApiWrapper.post('/api/accounting/payroll', {
+      const result = await apiWrapper.post('/api/accounting/payroll', {
         action: 'create_payroll_period',
         ...newPayrollPeriod
       });
@@ -279,7 +279,7 @@ export default function PayrollPage() {
   const handleProcessPayroll = async (periodId: string) => {
     setApiLoading(true);
     try {
-      const result = await ApiWrapper.post('/api/accounting/payroll', {
+      const result = await apiWrapper.post('/api/accounting/payroll', {
         action: 'process_payroll',
         period_id: periodId
       });

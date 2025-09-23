@@ -1,156 +1,88 @@
-import { AppErrorHandler, ApiResponse, ErrorCodes } from './error-handler';
-
-// API wrapper with error handling
+// API Wrapper for external API calls
 export class ApiWrapper {
-  static async request<T,>(
-    url: string,
-    options: RequestInit = {},
-    context?: string
-  ): Promise<ApiResponse<T>> {
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-      });
+  private baseUrl: string;
+  private apiKey: string;
 
-      const data = await response.json();
+  constructor(baseUrl: string, apiKey: string) {
+    this.baseUrl = baseUrl;
+    this.apiKey = apiKey;
+  }
 
-      if (!response.ok) {
-        // Handle HTTP errors
-        if (response.status === 401) {
-          return AppErrorHandler.createApiErrorResponse(
-            ErrorCodes.AUTH_UNAUTHORIZED,
-            'Oturum süresi dolmuş, lütfen tekrar giriş yapın'
-          );
-        }
-
-        if (response.status === 403) {
-          return AppErrorHandler.createApiErrorResponse(
-            ErrorCodes.AUTH_FORBIDDEN,
-            'Bu işlem için yetkiniz bulunmuyor'
-          );
-        }
-
-        if (response.status === 404) {
-          return AppErrorHandler.createApiErrorResponse(
-            ErrorCodes.RESOURCE_NOT_FOUND,
-            'Kaynak bulunamadı'
-          );
-        }
-
-        if (response.status === 429) {
-          return AppErrorHandler.createApiErrorResponse(
-            ErrorCodes.RATE_LIMIT_EXCEEDED,
-            'Çok fazla istek gönderildi, lütfen bekleyin'
-          );
-        }
-
-        if (response.status >= 500) {
-          return AppErrorHandler.createApiErrorResponse(
-            ErrorCodes.INTERNAL_SERVER_ERROR,
-            'Sunucu hatası, lütfen daha sonra tekrar deneyin'
-          );
-        }
-
-        // Handle API error response
-        if (data.error) {
-          return AppErrorHandler.createApiErrorResponse(
-            data.code || ErrorCodes.INTERNAL_SERVER_ERROR,
-            data.error,
-            data.details
-          );
-        }
-
-        return AppErrorHandler.createApiErrorResponse(
-          ErrorCodes.INTERNAL_SERVER_ERROR,
-          `HTTP ${response.status}: ${response.statusText}`
-        );
-      }
-
-      // Success response
-      return AppErrorHandler.createApiSuccessResponse(data.data || data);
-
-    } catch (error) {
-      AppErrorHandler.logError(error as Error, context);
-      
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        return AppErrorHandler.createApiErrorResponse(
-          ErrorCodes.INTERNAL_SERVER_ERROR,
-          'Bağlantı hatası, internet bağlantınızı kontrol edin'
-        );
-      }
-
-      return AppErrorHandler.createApiErrorResponse(
-        ErrorCodes.INTERNAL_SERVER_ERROR,
-        'Beklenmeyen bir hata oluştu'
+  async get(endpoint: string, params?: Record<string, any>) {
+    const url = new URL(`${this.baseUrl}${endpoint}`);
+    if (params) {
+      Object.keys(params).forEach(key => 
+        url.searchParams.append(key, params[key])
       );
     }
-  }
 
-  static async get<T,>(
-    url: string,
-    context?: string
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(url, { method: 'GET' }, context);
-  }
-
-  static async post<T,>(
-    url: string,
-    data?: any,
-    context?: string
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(
-      url,
-      {
-        method: 'POST',
-        body: data ? JSON.stringify(data) : undefined,
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
       },
-      context
-    );
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    return response.json();
   }
 
-  static async put<T,>(
-    url: string,
-    data?: any,
-    context?: string
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(
-      url,
-      {
-        method: 'PUT',
-        body: data ? JSON.stringify(data) : undefined,
+  async post(endpoint: string, data: any) {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
       },
-      context
-    );
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    return response.json();
   }
 
-  static async delete<T,>(
-    url: string,
-    context?: string
-  ): Promise<ApiResponse<T>> {
-    return this.request<T>(url, { method: 'DELETE' }, context);
+  async put(endpoint: string, data: any) {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async delete(endpoint: string) {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    return response.json();
   }
 }
 
-// React hook for API calls
-export const useApi = () => {
-  const callApi = async <T,>(
-    operation: () => Promise<ApiResponse<T>>,
-    context?: string
-  ): Promise<ApiResponse<T>> => {
-    try {
-      return await operation();
-    } catch (error) {
-      AppErrorHandler.logError(error as Error, context);
-      return AppErrorHandler.createApiErrorResponse(
-        ErrorCodes.INTERNAL_SERVER_ERROR,
-        'Beklenmeyen bir hata oluştu'
-      );
-    }
-  };
-
-  return { callApi };
-};
+// Default API wrapper instance
+export const apiWrapper = new ApiWrapper(
+  process.env.NEXT_PUBLIC_API_URL || 'https://api.example.com',
+  process.env.NEXT_PUBLIC_API_KEY || ''
+);

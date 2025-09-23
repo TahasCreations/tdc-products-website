@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { 
   SparklesIcon,
@@ -34,8 +34,8 @@ export default function SimpleRecommendationEngine({
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Basit mock ürünler
-  const mockProducts: Product[] = [
+  // Basit mock ürünler - useMemo ile optimize edildi
+  const mockProducts: Product[] = useMemo(() => [
     {
       id: '1',
       title: 'Akıllı Telefon',
@@ -92,7 +92,7 @@ export default function SimpleRecommendationEngine({
       rating: 4.4,
       reviewCount: 156
     }
-  ];
+  ], []);
 
   useEffect(() => {
     // Simüle edilmiş yükleme süresi

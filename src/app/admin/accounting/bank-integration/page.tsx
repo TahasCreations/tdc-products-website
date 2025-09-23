@@ -1,326 +1,93 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../../../../contexts/AuthContext';
 import AdminProtection from '../../../../components/AdminProtection';
-import { ApiWrapper } from '@/lib/api-wrapper';
-
-interface Bank {
-  id: string;
-  name: string;
-  code: string;
-  logo_url?: string;
-  website_url?: string;
-  support_phone?: string;
-  support_email?: string;
-}
-
-interface BankIntegration {
-  id: string;
-  bank_id: string;
-  integration_type: string;
-  api_endpoint?: string;
-  is_test_mode: boolean;
-  is_active: boolean;
-  last_sync_at?: string;
-  banks: Bank;
-}
+import { 
+  BuildingLibraryIcon,
+  ArrowPathIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  XCircleIcon,
+  EyeIcon,
+  PencilIcon,
+  PlusIcon,
+  CurrencyDollarIcon,
+  ClockIcon,
+  DocumentTextIcon,
+  ChartBarIcon,
+  BanknotesIcon,
+  ArrowTrendingUpIcon,
+  ArrowTrendingDownIcon
+} from '@heroicons/react/24/outline';
 
 interface BankAccount {
   id: string;
-  bank_id: string;
-  account_name: string;
-  account_number: string;
-  iban: string;
-  currency_code: string;
-  account_type: string;
+  bankName: string;
+  accountNumber: string;
+  accountType: 'checking' | 'savings' | 'business';
+  currency: string;
   balance: number;
-  available_balance: number;
-  is_active: boolean;
-  banks: Bank;
+  isConnected: boolean;
+  lastSync: string;
+  syncStatus: 'success' | 'error' | 'pending';
+  transactionsCount: number;
+  pendingTransactions: number;
 }
 
-interface BankTransaction {
-  id: string;
-  bank_account_id: string;
-  transaction_date: string;
-  amount: number;
-  currency_code: string;
-  transaction_type: string;
-  description?: string;
-  balance_after: number;
-  bank_accounts: BankAccount;
-}
+export default function BankIntegration() {
+  const { user } = useAuth();
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'accounts' | 'transactions' | 'reconciliation' | 'settings'>('accounts');
 
-interface BankTransfer {
-  id: string;
-  from_account_id: string;
-  to_name: string;
-  to_iban: string;
-  amount: number;
-  currency_code: string;
-  description?: string;
-  transfer_type: string;
-  status: string;
-  created_at: string;
-  bank_accounts: BankAccount;
-}
-
-export default function BankIntegrationPage() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [banks, setBanks] = useState<Bank[]>([]);
-  const [integrations, setIntegrations] = useState<BankIntegration[]>([]);
-  const [accounts, setAccounts] = useState<BankAccount[]>([]);
-  const [transactions, setTransactions] = useState<BankTransaction[]>([]);
-  const [transfers, setTransfers] = useState<BankTransfer[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [apiLoading, setApiLoading] = useState(false);
-
-  // Form states
-  const [showIntegrationForm, setShowIntegrationForm] = useState(false);
-  const [showAccountForm, setShowAccountForm] = useState(false);
-  const [showTransferForm, setShowTransferForm] = useState(false);
-  const [editingIntegration, setEditingIntegration] = useState<BankIntegration | null>(null);
-  const [editingAccount, setEditingAccount] = useState<BankAccount | null>(null);
-
-  const [newIntegration, setNewIntegration] = useState({
-    bank_id: '',
-    integration_type: 'api',
-    api_endpoint: '',
-    api_key: '',
-    api_secret: '',
-    username: '',
-    password: '',
-    is_test_mode: true
-  });
-
-  const [newAccount, setNewAccount] = useState({
-    bank_id: '',
-    account_name: '',
-    account_number: '',
-    iban: '',
-    currency_code: 'TRY',
-    account_type: 'checking'
-  });
-
-  const [newTransfer, setNewTransfer] = useState({
-    from_account_id: '',
-    to_bank_code: '',
-    to_account_number: '',
-    to_iban: '',
-    to_name: '',
-    amount: '',
-    currency_code: 'TRY',
-    description: '',
-    transfer_type: 'eft'
-  });
-
-  const fetchBanks = useCallback(async () => {
-    try {
-      const result = await ApiWrapper.get('/api/accounting/bank-integration?action=banks');
-      if (result && (result as any).data) {
-        setBanks((result as any).data);
-      }
-    } catch (error) {
-      console.error('Banka listesi yüklenemedi:', error);
-    }
-  }, []);
-
-  const fetchIntegrations = useCallback(async () => {
-    try {
-      const result = await ApiWrapper.get('/api/accounting/bank-integration?action=integrations');
-      if (result && (result as any).data) {
-        setIntegrations((result as any).data);
-      }
-    } catch (error) {
-      console.error('Entegrasyon listesi yüklenemedi:', error);
-    }
-  }, []);
-
-  const fetchAccounts = useCallback(async () => {
-    try {
-      const result = await ApiWrapper.get('/api/accounting/bank-integration?action=accounts');
-      if (result && (result as any).data) {
-        setAccounts((result as any).data);
-      }
-    } catch (error) {
-      console.error('Hesap listesi yüklenemedi:', error);
-    }
-  }, []);
-
-  const fetchTransactions = useCallback(async () => {
-    try {
-      const result = await ApiWrapper.get('/api/accounting/bank-integration?action=transactions&limit=50');
-      if (result && (result as any).data) {
-        setTransactions((result as any).data);
-      }
-    } catch (error) {
-      console.error('İşlem listesi yüklenemedi:', error);
-    }
-  }, []);
-
-  const fetchTransfers = useCallback(async () => {
-    try {
-      const result = await ApiWrapper.get('/api/accounting/bank-integration?action=transfers&limit=50');
-      if (result && (result as any).data) {
-        setTransfers((result as any).data);
-      }
-    } catch (error) {
-      console.error('Transfer listesi yüklenemedi:', error);
-    }
-  }, []);
-
-  const fetchAllData = useCallback(async () => {
-    setLoading(true);
-    try {
-      await Promise.all([
-        fetchBanks(),
-        fetchIntegrations(),
-        fetchAccounts(),
-        fetchTransactions(),
-        fetchTransfers()
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchBanks, fetchIntegrations, fetchAccounts, fetchTransactions, fetchTransfers]);
-
+  // Mock data
   useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
-
-  const handleCreateIntegration = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setApiLoading(true);
-
-    try {
-      const result = await ApiWrapper.post('/api/accounting/bank-integration', {
-        action: 'create_integration',
-        ...newIntegration
-      });
-
-      if (result && (result as any).data) {
-        await fetchIntegrations();
-        setShowIntegrationForm(false);
-        setNewIntegration({
-          bank_id: '',
-          integration_type: 'api',
-          api_endpoint: '',
-          api_key: '',
-          api_secret: '',
-          username: '',
-          password: '',
-          is_test_mode: true
-        });
+    const mockBankAccounts: BankAccount[] = [
+      {
+        id: '1',
+        bankName: 'Türkiye İş Bankası',
+        accountNumber: '****1234',
+        accountType: 'business',
+        currency: 'TRY',
+        balance: 125000,
+        isConnected: true,
+        lastSync: '2024-01-15T10:30:00Z',
+        syncStatus: 'success',
+        transactionsCount: 45,
+        pendingTransactions: 3
+      },
+      {
+        id: '2',
+        bankName: 'Garanti BBVA',
+        accountNumber: '****5678',
+        accountType: 'checking',
+        currency: 'TRY',
+        balance: 75000,
+        isConnected: true,
+        lastSync: '2024-01-15T09:15:00Z',
+        syncStatus: 'success',
+        transactionsCount: 32,
+        pendingTransactions: 1
+      },
+      {
+        id: '3',
+        bankName: 'Akbank',
+        accountNumber: '****9012',
+        accountType: 'savings',
+        currency: 'USD',
+        balance: 25000,
+        isConnected: false,
+        lastSync: '2024-01-10T14:20:00Z',
+        syncStatus: 'error',
+        transactionsCount: 0,
+        pendingTransactions: 0
       }
-    } catch (error) {
-      console.error('Entegrasyon oluşturulamadı:', error);
-    } finally {
-      setApiLoading(false);
-    }
-  };
+    ];
 
-  const handleCreateAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setApiLoading(true);
-
-    try {
-      const result = await ApiWrapper.post('/api/accounting/bank-integration', {
-        action: 'create_account',
-        ...newAccount
-      });
-
-      if (result && (result as any).data) {
-        await fetchAccounts();
-        setShowAccountForm(false);
-        setNewAccount({
-          bank_id: '',
-          account_name: '',
-          account_number: '',
-          iban: '',
-          currency_code: 'TRY',
-          account_type: 'checking'
-        });
-      }
-    } catch (error) {
-      console.error('Hesap oluşturulamadı:', error);
-    } finally {
-      setApiLoading(false);
-    }
-  };
-
-  const handleCreateTransfer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setApiLoading(true);
-
-    try {
-      const result = await ApiWrapper.post('/api/accounting/bank-integration', {
-        action: 'create_transfer',
-        ...newTransfer,
-        amount: parseFloat(newTransfer.amount)
-      });
-
-      if (result && (result as any).data) {
-        await fetchTransfers();
-        setShowTransferForm(false);
-        setNewTransfer({
-          from_account_id: '',
-          to_bank_code: '',
-          to_account_number: '',
-          to_iban: '',
-          to_name: '',
-          amount: '',
-          currency_code: 'TRY',
-          description: '',
-          transfer_type: 'eft'
-        });
-      }
-    } catch (error) {
-      console.error('Transfer oluşturulamadı:', error);
-    } finally {
-      setApiLoading(false);
-    }
-  };
-
-  const handleTestConnection = async (integrationId: string) => {
-    setApiLoading(true);
-    try {
-      const result = await ApiWrapper.post('/api/accounting/bank-integration', {
-        action: 'test_connection',
-        integration_id: integrationId
-      });
-
-      if (result && (result as any).data) {
-        alert((result as any).data.message);
-        await fetchIntegrations();
-      }
-    } catch (error) {
-      console.error('Bağlantı testi başarısız:', error);
-    } finally {
-      setApiLoading(false);
-    }
-  };
-
-  const handleSyncAccount = async (accountId: string) => {
-    setApiLoading(true);
-    try {
-      const result = await ApiWrapper.post('/api/accounting/bank-integration', {
-        action: 'sync_account',
-        account_id: accountId
-      });
-
-      if (result && (result as any).data) {
-        await fetchAccounts();
-        await fetchTransactions();
-      }
-    } catch (error) {
-      console.error('Hesap senkronizasyonu başarısız:', error);
-    } finally {
-      setApiLoading(false);
-    }
-  };
+    setBankAccounts(mockBankAccounts);
+    setLoading(false);
+  }, []);
 
   const formatCurrency = (amount: number, currency: string = 'TRY') => {
     return new Intl.NumberFormat('tr-TR', {
@@ -329,62 +96,83 @@ export default function BankIntegrationPage() {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('tr-TR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const getAccountTypeName = (type: string) => {
+    switch (type) {
+      case 'checking': return 'Vadesiz';
+      case 'savings': return 'Vadeli';
+      case 'business': return 'Ticari';
+      default: return 'Bilinmiyor';
+    }
   };
 
-  // Statistics calculations
-  const statistics = useMemo(() => {
-    const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0);
-    const activeIntegrations = integrations.filter(i => i.is_active).length;
-    const activeAccounts = accounts.filter(a => a.is_active).length;
-    const totalTransactions = transactions.length;
-    const totalTransfers = transfers.length;
-    const pendingTransfers = transfers.filter(t => t.status === 'processing').length;
-    const completedTransfers = transfers.filter(t => t.status === 'completed').length;
-    
-    const monthlyTransactions = transactions.filter(t => {
-      const transactionDate = new Date(t.transaction_date);
-      const now = new Date();
-      return transactionDate.getMonth() === now.getMonth() && 
-             transactionDate.getFullYear() === now.getFullYear();
-    });
+  const getSyncStatusColor = (status: string) => {
+    switch (status) {
+      case 'success': return 'text-green-600 bg-green-100';
+      case 'error': return 'text-red-600 bg-red-100';
+      case 'pending': return 'text-yellow-600 bg-yellow-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
 
-    const monthlyIncome = monthlyTransactions
-      .filter(t => t.transaction_type === 'credit')
-      .reduce((sum, t) => sum + t.amount, 0);
-    
-    const monthlyExpense = monthlyTransactions
-      .filter(t => t.transaction_type === 'debit')
-      .reduce((sum, t) => sum + t.amount, 0);
+  const getSyncStatusText = (status: string) => {
+    switch (status) {
+      case 'success': return 'Başarılı';
+      case 'error': return 'Hata';
+      case 'pending': return 'Bekliyor';
+      default: return 'Bilinmiyor';
+    }
+  };
 
-    return {
-      totalBalance,
-      activeIntegrations,
-      activeAccounts,
-      totalTransactions,
-      totalTransfers,
-      pendingTransfers,
-      completedTransfers,
-      monthlyIncome,
-      monthlyExpense,
-      monthlyTransactions: monthlyTransactions.length
-    };
-  }, [accounts, integrations, transactions, transfers]);
+  const getSyncStatusIcon = (status: string) => {
+    switch (status) {
+      case 'success': return CheckCircleIcon;
+      case 'error': return XCircleIcon;
+      case 'pending': return ClockIcon;
+      default: return ClockIcon;
+    }
+  };
+
+  const syncAccount = (accountId: string) => {
+    setBankAccounts(accounts => 
+      accounts.map(account => 
+        account.id === accountId 
+          ? { ...account, syncStatus: 'pending' }
+          : account
+      )
+    );
+
+    // Simulate sync
+    setTimeout(() => {
+      setBankAccounts(accounts => 
+        accounts.map(account => 
+          account.id === accountId 
+            ? { 
+                ...account, 
+                syncStatus: 'success', 
+                lastSync: new Date().toISOString(),
+                transactionsCount: account.transactionsCount + Math.floor(Math.random() * 5)
+              }
+            : account
+        )
+      );
+    }, 2000);
+  };
 
   if (loading) {
     return (
       <AdminProtection>
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Yükleniyor...</p>
+        <div className="min-h-screen bg-gray-50 p-6">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-white p-6 rounded-lg shadow">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="h-8 bg-gray-200 rounded w-full"></div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </AdminProtection>
@@ -393,263 +181,148 @@ export default function BankIntegrationPage() {
 
   return (
     <AdminProtection>
-      <div className="space-y-6">
-        {/* Enhanced Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-6 text-white">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Banka Entegrasyonları</h1>
-              <p className="text-blue-100 text-lg">Halkbank, İş Bankası ve diğer bankalarla entegrasyon yönetimi</p>
-            </div>
-            <div className="flex gap-3">
-              <Link 
-                href="/admin/accounting"
-                className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-              >
-                <i className="ri-arrow-left-line"></i>
-                Muhasebe
-              </Link>
-              <button
-                onClick={() => setShowIntegrationForm(true)}
-                className="bg-white hover:bg-gray-100 text-blue-600 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-              >
-                <i className="ri-add-line"></i>
-                Entegrasyon Ekle
-              </button>
-              <button
-                onClick={() => setShowAccountForm(true)}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-              >
-                <i className="ri-bank-line"></i>
-                Hesap Ekle
-              </button>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Banka Entegrasyonu</h1>
+                <p className="mt-2 text-gray-600">Otomatik mutabakat ve banka işlemleri</p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center">
+                  <ArrowPathIcon className="w-5 h-5 mr-2" />
+                  Tümünü Senkronize Et
+                </button>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                  <PlusIcon className="w-5 h-5 mr-2" />
+                  Banka Hesabı Ekle
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Enhanced Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8 px-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Tabs */}
+          <div className="mb-8">
+            <nav className="flex space-x-8">
               {[
-                { id: 'dashboard', label: 'Dashboard', icon: 'ri-dashboard-line' },
-                { id: 'integrations', label: 'Entegrasyonlar', icon: 'ri-plug-line' },
-                { id: 'accounts', label: 'Hesaplar', icon: 'ri-bank-line' },
-                { id: 'transactions', label: 'İşlemler', icon: 'ri-exchange-line' },
-                { id: 'transfers', label: 'Transferler', icon: 'ri-send-plane-line' }
+                { id: 'accounts', name: 'Banka Hesapları', icon: BuildingLibraryIcon },
+                { id: 'transactions', name: 'İşlemler', icon: DocumentTextIcon },
+                { id: 'reconciliation', name: 'Mutabakat', icon: ChartBarIcon },
+                { id: 'settings', name: 'Ayarlar', icon: BanknotesIcon }
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  <i className={tab.icon}></i>
-                  {tab.label}
+                  <tab.icon className="w-5 h-5 mr-2" />
+                  {tab.name}
                 </button>
               ))}
             </nav>
           </div>
 
-          {/* Dashboard Tab */}
-          {activeTab === 'dashboard' && (
-            <div className="p-6 space-y-6">
-              {/* Statistics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-blue-100 text-sm font-medium">Toplam Bakiye</p>
-                      <p className="text-2xl font-bold">{formatCurrency(statistics.totalBalance)}</p>
-                    </div>
-                    <div className="bg-white/20 rounded-full p-3">
-                      <i className="ri-wallet-3-line text-2xl"></i>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-green-100 text-sm font-medium">Aktif Entegrasyonlar</p>
-                      <p className="text-2xl font-bold">{statistics.activeIntegrations}</p>
-                    </div>
-                    <div className="bg-white/20 rounded-full p-3">
-                      <i className="ri-plug-line text-2xl"></i>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-purple-100 text-sm font-medium">Aktif Hesaplar</p>
-                      <p className="text-2xl font-bold">{statistics.activeAccounts}</p>
-                    </div>
-                    <div className="bg-white/20 rounded-full p-3">
-                      <i className="ri-bank-line text-2xl"></i>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg p-6 text-white">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-orange-100 text-sm font-medium">Bu Ay İşlem</p>
-                      <p className="text-2xl font-bold">{statistics.monthlyTransactions}</p>
-                    </div>
-                    <div className="bg-white/20 rounded-full p-3">
-                      <i className="ri-exchange-line text-2xl"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Monthly Summary */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <i className="ri-line-chart-line text-blue-600"></i>
-                    Bu Ay Gelir-Gider Özeti
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-green-500 rounded-full p-2">
-                          <i className="ri-arrow-up-line text-white"></i>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Toplam Gelir</p>
-                          <p className="text-lg font-semibold text-green-600">{formatCurrency(statistics.monthlyIncome)}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-red-500 rounded-full p-2">
-                          <i className="ri-arrow-down-line text-white"></i>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Toplam Gider</p>
-                          <p className="text-lg font-semibold text-red-600">{formatCurrency(statistics.monthlyExpense)}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-blue-500 rounded-full p-2">
-                          <i className="ri-calculator-line text-white"></i>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Net Kar/Zarar</p>
-                          <p className={`text-lg font-semibold ${statistics.monthlyIncome - statistics.monthlyExpense >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {formatCurrency(statistics.monthlyIncome - statistics.monthlyExpense)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <i className="ri-send-plane-line text-blue-600"></i>
-                    Transfer Durumu
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-green-500 rounded-full p-2">
-                          <i className="ri-check-line text-white"></i>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Tamamlanan Transferler</p>
-                          <p className="text-lg font-semibold text-green-600">{statistics.completedTransfers}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-yellow-500 rounded-full p-2">
-                          <i className="ri-time-line text-white"></i>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Bekleyen Transferler</p>
-                          <p className="text-lg font-semibold text-yellow-600">{statistics.pendingTransfers}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-blue-500 rounded-full p-2">
-                          <i className="ri-file-list-line text-white"></i>
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-600">Toplam Transfer</p>
-                          <p className="text-lg font-semibold text-blue-600">{statistics.totalTransfers}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recent Activity */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <i className="ri-history-line text-blue-600"></i>
-                  Son Aktiviteler
-                </h3>
-                <div className="space-y-3">
-                  {transactions.slice(0, 5).map((transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className={`rounded-full p-2 ${transaction.transaction_type === 'credit' ? 'bg-green-100' : 'bg-red-100'}`}>
-                          <i className={`ri-${transaction.transaction_type === 'credit' ? 'arrow-up' : 'arrow-down'}-line ${transaction.transaction_type === 'credit' ? 'text-green-600' : 'text-red-600'}`}></i>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">{transaction.description || 'İşlem'}</p>
-                          <p className="text-xs text-gray-500">{transaction.bank_accounts.account_name}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-sm font-semibold ${transaction.transaction_type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
-                          {transaction.transaction_type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount, transaction.currency_code)}
-                        </p>
-                        <p className="text-xs text-gray-500">{formatDate(transaction.transaction_date)}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Other tabs content can be implemented similarly */}
-          {activeTab === 'integrations' && (
-            <div className="p-6">
-              <p className="text-gray-600">Entegrasyonlar sekmesi içeriği yakında eklenecek.</p>
-            </div>
-          )}
-
+          {/* Accounts Tab */}
           {activeTab === 'accounts' && (
-            <div className="p-6">
-              <p className="text-gray-600">Hesaplar sekmesi içeriği yakında eklenecek.</p>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {bankAccounts.map((account) => {
+                  const SyncStatusIcon = getSyncStatusIcon(account.syncStatus);
+                  
+                  return (
+                    <div key={account.id} className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+                      <div className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center">
+                            <div className="p-3 bg-blue-100 rounded-lg mr-4">
+                              <BuildingLibraryIcon className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-gray-900">{account.bankName}</h3>
+                              <p className="text-sm text-gray-600">{account.accountNumber}</p>
+                              <p className="text-xs text-gray-500">{getAccountTypeName(account.accountType)}</p>
+                            </div>
+                          </div>
+                          <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getSyncStatusColor(account.syncStatus)}`}>
+                            <SyncStatusIcon className="w-3 h-3 mr-1" />
+                            {getSyncStatusText(account.syncStatus)}
+                          </span>
+                        </div>
+
+                        <div className="space-y-3 mb-4">
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600">Bakiye:</span>
+                            <span className="text-lg font-semibold text-gray-900">
+                              {formatCurrency(account.balance, account.currency)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600">İşlem Sayısı:</span>
+                            <span className="text-sm text-gray-900">{account.transactionsCount}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600">Bekleyen İşlem:</span>
+                            <span className="text-sm text-gray-900">{account.pendingTransactions}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600">Son Senkronizasyon:</span>
+                            <span className="text-sm text-gray-900">
+                              {new Date(account.lastSync).toLocaleString('tr-TR')}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => syncAccount(account.id)}
+                            disabled={account.syncStatus === 'pending'}
+                            className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                          >
+                            {account.syncStatus === 'pending' ? (
+                              <>
+                                <ArrowPathIcon className="w-4 h-4 mr-2 animate-spin" />
+                                Senkronize Ediliyor...
+                              </>
+                            ) : (
+                              <>
+                                <ArrowPathIcon className="w-4 h-4 mr-2" />
+                                Senkronize Et
+                              </>
+                            )}
+                          </button>
+                          <button className="px-3 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                            <EyeIcon className="w-4 h-4" />
+                          </button>
+                          <button className="px-3 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                            <PencilIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          {activeTab === 'transactions' && (
-            <div className="p-6">
-              <p className="text-gray-600">İşlemler sekmesi içeriği yakında eklenecek.</p>
-            </div>
-          )}
-
-          {activeTab === 'transfers' && (
-            <div className="p-6">
-              <p className="text-gray-600">Transferler sekmesi içeriği yakında eklenecek.</p>
+          {/* Other tabs placeholder */}
+          {activeTab !== 'accounts' && (
+            <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
+              <BanknotesIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {activeTab === 'transactions' && 'İşlemler'}
+                {activeTab === 'reconciliation' && 'Mutabakat'}
+                {activeTab === 'settings' && 'Ayarlar'}
+              </h3>
+              <p className="text-gray-600">Bu bölüm geliştiriliyor...</p>
             </div>
           )}
         </div>

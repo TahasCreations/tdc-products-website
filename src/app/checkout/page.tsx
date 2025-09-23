@@ -8,8 +8,18 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '../../components/Toast';
 import Link from 'next/link';
 import Image from 'next/image';
-import AdvancedPaymentSystem from '../../components/payment/AdvancedPaymentSystem';
-import SimpleRecommendationEngine from '../../components/ai/SimpleRecommendationEngine';
+import dynamic from 'next/dynamic';
+
+// Lazy load heavy components
+const AdvancedPaymentSystem = dynamic(() => import('../../components/payment/AdvancedPaymentSystem'), {
+  loading: () => <div className="animate-pulse bg-gray-200 h-96 rounded-lg" />,
+  ssr: false
+});
+
+const SimpleRecommendationEngine = dynamic(() => import('../../components/ai/SimpleRecommendationEngine'), {
+  loading: () => <div className="animate-pulse bg-gray-200 h-64 rounded-lg" />,
+  ssr: false
+});
 
 export default function CheckoutPage() {
   const { state: cartState } = useCart();

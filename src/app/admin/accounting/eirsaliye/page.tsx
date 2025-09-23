@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ApiWrapper } from '@/lib/api-wrapper';
+import { apiWrapper } from '@/lib/api-wrapper';
 
 interface EirsaliyeSettings {
   id: string;
@@ -119,7 +119,7 @@ export default function EirsaliyePage() {
 
   const fetchSettings = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/eirsaliye?action=settings');
+      const result = await apiWrapper.get('/api/accounting/eirsaliye?action=settings');
       if (result && (result as any).data) {
         setSettings((result as any).data);
         setNewSettings({
@@ -144,7 +144,7 @@ export default function EirsaliyePage() {
 
   const fetchIrsaliyes = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/eirsaliye?action=irsaliyes');
+      const result = await apiWrapper.get('/api/accounting/eirsaliye?action=irsaliyes');
       if (result && (result as any).data) {
         setIrsaliyes((result as any).data);
       }
@@ -155,7 +155,7 @@ export default function EirsaliyePage() {
 
   const fetchTemplates = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/eirsaliye?action=templates');
+      const result = await apiWrapper.get('/api/accounting/eirsaliye?action=templates');
       if (result && (result as any).data) {
         setTemplates((result as any).data);
       }
@@ -186,7 +186,7 @@ export default function EirsaliyePage() {
     setApiLoading(true);
 
     try {
-      const result = await ApiWrapper.post('/api/accounting/eirsaliye', {
+      const result = await apiWrapper.post('/api/accounting/eirsaliye', {
         action: 'save_settings',
         ...newSettings
       });
@@ -207,7 +207,7 @@ export default function EirsaliyePage() {
     setApiLoading(true);
 
     try {
-      const result = await ApiWrapper.post('/api/accounting/eirsaliye', {
+      const result = await apiWrapper.post('/api/accounting/eirsaliye', {
         action: 'create_irsaliye',
         ...newIrsaliye,
         total_amount: parseFloat(newIrsaliye.total_amount),
@@ -251,7 +251,7 @@ export default function EirsaliyePage() {
     setApiLoading(true);
 
     try {
-      const result = await ApiWrapper.post('/api/accounting/eirsaliye', {
+      const result = await apiWrapper.post('/api/accounting/eirsaliye', {
         action: 'create_template',
         ...newTemplate
       });
@@ -276,7 +276,7 @@ export default function EirsaliyePage() {
   const handleSendIrsaliye = async (irsaliyeId: string) => {
     setApiLoading(true);
     try {
-      const result = await ApiWrapper.post('/api/accounting/eirsaliye', {
+      const result = await apiWrapper.post('/api/accounting/eirsaliye', {
         action: 'send_irsaliye',
         irsaliye_id: irsaliyeId
       });
@@ -294,7 +294,7 @@ export default function EirsaliyePage() {
   const handleCheckStatus = async (irsaliyeId: string) => {
     setApiLoading(true);
     try {
-      const result = await ApiWrapper.post('/api/accounting/eirsaliye', {
+      const result = await apiWrapper.post('/api/accounting/eirsaliye', {
         action: 'check_status',
         irsaliye_id: irsaliyeId
       });

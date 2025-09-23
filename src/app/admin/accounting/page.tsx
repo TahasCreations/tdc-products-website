@@ -22,7 +22,11 @@ import {
   ExclamationTriangleIcon,
   XCircleIcon,
   UserGroupIcon,
-  UsersIcon
+  UsersIcon,
+  BuildingOfficeIcon,
+  TableCellsIcon,
+  CogIcon,
+  DocumentChartBarIcon
 } from '@heroicons/react/24/outline';
 
 interface Invoice {
@@ -267,50 +271,50 @@ export default function AccountingPage() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Hızlı Eylemler</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link href="/admin/accounting/customers" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+            <Link href="/admin/accounting/advanced-dashboard" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
-                  <UserGroupIcon className="w-6 h-6 text-blue-600" />
+                  <ChartBarIcon className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Gelişmiş Dashboard</h3>
+                  <p className="text-sm text-gray-600">Kapsamlı mali yönetim</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/admin/accounting/companies" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <BuildingOfficeIcon className="w-6 h-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Çoklu Şirket</h3>
+                  <p className="text-sm text-gray-600">Şirket yönetimi</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/admin/accounting/chart-of-accounts" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <TableCellsIcon className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Hesap Planı</h3>
+                  <p className="text-sm text-gray-600">Muhasebe hesap planı</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/admin/accounting/customers" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <UserGroupIcon className="w-6 h-6 text-orange-600" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">Cari Hesaplar</h3>
-                  <p className="text-sm text-gray-600">Müşteri ve tedarikçi yönetimi</p>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/admin/accounting/invoices/advanced" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <DocumentTextIcon className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Fatura Yönetimi</h3>
-                  <p className="text-sm text-gray-600">Gelişmiş fatura sistemi</p>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/admin/accounting/reports/advanced" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <ChartBarIcon className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Mali Raporlar</h3>
-                  <p className="text-sm text-gray-600">Kapsamlı finansal analizler</p>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/admin/accounting/bank-integration/advanced" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <BanknotesIcon className="w-6 h-6 text-orange-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Banka Entegrasyonu</h3>
-                  <p className="text-sm text-gray-600">Otomatik mutabakat sistemi</p>
+                  <p className="text-sm text-gray-600">Müşteri ve tedarikçi</p>
                 </div>
               </div>
             </Link>
@@ -321,10 +325,34 @@ export default function AccountingPage() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Ek Muhasebe Modülleri</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Link href="/admin/accounting/earnings" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+            <Link href="/admin/accounting/financial-reports" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-indigo-100 rounded-lg">
-                  <ReceiptPercentIcon className="w-6 h-6 text-indigo-600" />
+                  <DocumentChartBarIcon className="w-6 h-6 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Finansal Raporlar</h3>
+                  <p className="text-sm text-gray-600">Gelir tablosu, bilanço, nakit akış</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/admin/accounting/tax-management" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <DocumentTextIcon className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Vergi Yönetimi</h3>
+                  <p className="text-sm text-gray-600">KDV, stopaj ve vergi beyannameleri</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/admin/accounting/invoices/advanced" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <ReceiptPercentIcon className="w-6 h-6 text-green-600" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">E-Arşiv & E-Fatura</h3>
@@ -345,14 +373,26 @@ export default function AccountingPage() {
               </div>
             </Link>
 
-            <Link href="/admin/accounting/tax-management" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+            <Link href="/admin/accounting/bank-integration/advanced" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <DocumentTextIcon className="w-6 h-6 text-red-600" />
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <BanknotesIcon className="w-6 h-6 text-orange-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Vergi Yönetimi</h3>
-                  <p className="text-sm text-gray-600">KDV, stopaj ve vergi beyannameleri</p>
+                  <h3 className="font-semibold text-gray-900">Banka Entegrasyonu</h3>
+                  <p className="text-sm text-gray-600">Otomatik mutabakat sistemi</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link href="/admin/accounting/reports/advanced" className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <ChartBarIcon className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Mali Raporlar</h3>
+                  <p className="text-sm text-gray-600">Kapsamlı finansal analizler</p>
                 </div>
               </div>
             </Link>

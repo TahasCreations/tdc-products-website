@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminProtection from '../../../../components/AdminProtection';
 import { useErrorToast } from '../../../../hooks/useErrorToast';
-import { ApiWrapper } from '../../../../lib/api-wrapper';
+import { apiWrapper } from '../../../../lib/api-wrapper';
 
 interface EarsivSettings {
   id?: string;
@@ -85,22 +85,22 @@ export default function EarsivPage() {
   const fetchEarsivData = useCallback(async () => {
     const [invoicesResult, settingsResult, templatesResult, batchResult] = await Promise.all([
       handleAsyncOperation(
-        () => ApiWrapper.get('/api/accounting/earsiv?companyId=550e8400-e29b-41d4-a716-446655440000&action=list'),
+        () => apiWrapper.get('/api/accounting/earsiv?companyId=550e8400-e29b-41d4-a716-446655440000&action=list'),
         undefined,
         'E-Arşiv faturaları yüklenirken'
       ),
       handleAsyncOperation(
-        () => ApiWrapper.get('/api/accounting/earsiv?companyId=550e8400-e29b-41d4-a716-446655440000&action=settings'),
+        () => apiWrapper.get('/api/accounting/earsiv?companyId=550e8400-e29b-41d4-a716-446655440000&action=settings'),
         undefined,
         'E-Arşiv ayarları yüklenirken'
       ),
       handleAsyncOperation(
-        () => ApiWrapper.get('/api/accounting/earsiv?companyId=550e8400-e29b-41d4-a716-446655440000&action=templates'),
+        () => apiWrapper.get('/api/accounting/earsiv?companyId=550e8400-e29b-41d4-a716-446655440000&action=templates'),
         undefined,
         'E-Arşiv şablonları yüklenirken'
       ),
       handleAsyncOperation(
-        () => ApiWrapper.get('/api/accounting/earsiv?companyId=550e8400-e29b-41d4-a716-446655440000&action=batch_operations'),
+        () => apiWrapper.get('/api/accounting/earsiv?companyId=550e8400-e29b-41d4-a716-446655440000&action=batch_operations'),
         undefined,
         'Toplu işlemler yüklenirken'
       )
@@ -130,7 +130,7 @@ export default function EarsivPage() {
     setSaving(true);
 
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/earsiv', {
+      () => apiWrapper.post('/api/accounting/earsiv', {
         action: 'save_settings',
         ...settings
       }),
@@ -147,7 +147,7 @@ export default function EarsivPage() {
 
   const handleSendInvoice = async (invoiceId: string) => {
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/earsiv', {
+      () => apiWrapper.post('/api/accounting/earsiv', {
         action: 'send_invoice',
         invoiceId,
         companyId: settings.company_id
@@ -163,7 +163,7 @@ export default function EarsivPage() {
 
   const handleCheckStatus = async (earsivInvoiceId: string) => {
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/earsiv', {
+      () => apiWrapper.post('/api/accounting/earsiv', {
         action: 'get_invoice_status',
         earsivInvoiceId
       }),
@@ -178,7 +178,7 @@ export default function EarsivPage() {
 
   const handleDownloadPDF = async (earsivInvoiceId: string) => {
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/earsiv', {
+      () => apiWrapper.post('/api/accounting/earsiv', {
         action: 'download_pdf',
         earsivInvoiceId
       }),
@@ -205,7 +205,7 @@ export default function EarsivPage() {
     if (!reason) return;
 
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/earsiv', {
+      () => apiWrapper.post('/api/accounting/earsiv', {
         action: 'cancel_invoice',
         earsivInvoiceId,
         reason
@@ -221,7 +221,7 @@ export default function EarsivPage() {
 
   const handleArchiveInvoice = async (earsivInvoiceId: string) => {
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/earsiv', {
+      () => apiWrapper.post('/api/accounting/earsiv', {
         action: 'archive_invoice',
         earsivInvoiceId
       }),
@@ -243,7 +243,7 @@ export default function EarsivPage() {
     const batchName = prompt('Toplu işlem adı:') || `Toplu İşlem ${new Date().toLocaleString('tr-TR')}`;
 
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/earsiv', {
+      () => apiWrapper.post('/api/accounting/earsiv', {
         action: 'batch_send',
         companyId: settings.company_id,
         invoiceIds: selectedInvoices,

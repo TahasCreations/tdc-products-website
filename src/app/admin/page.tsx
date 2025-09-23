@@ -21,7 +21,8 @@ import {
   StarIcon,
   CpuChipIcon,
   DevicePhoneMobileIcon,
-  CodeBracketIcon
+  CodeBracketIcon,
+  ChartBarIcon as PerformanceIcon
 } from '@heroicons/react/24/outline';
 
 interface DashboardStats {
@@ -121,6 +122,14 @@ export default function AdminDashboard() {
       href: '/admin/accounting',
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'
+    },
+    {
+      title: 'Performans',
+      description: 'Sistem performansı izleme ve optimizasyon',
+      icon: PerformanceIcon,
+      href: '/admin/performance',
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-100'
     },
     {
       title: 'E-Ticaret',

@@ -3,8 +3,18 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import AIRecommendationEngine from '../../../components/ai/AIRecommendationEngine';
-import AIChatbot from '../../../components/ai/AIChatbot';
+import dynamic from 'next/dynamic';
+
+// Lazy load heavy AI components
+const AIRecommendationEngine = dynamic(() => import('../../../components/ai/AIRecommendationEngine'), {
+  loading: () => <div className="animate-pulse bg-gray-200 h-64 rounded-lg" />,
+  ssr: false
+});
+
+const AIChatbot = dynamic(() => import('../../../components/ai/AIChatbot'), {
+  loading: () => <div className="animate-pulse bg-gray-200 h-32 rounded-lg" />,
+  ssr: false
+});
 import AdminProtection from '../../../components/AdminProtection';
 import { 
   SparklesIcon,

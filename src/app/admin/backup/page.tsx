@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
 import { useErrorToast } from '../../../hooks/useErrorToast';
-import { ApiWrapper } from '../../../lib/api-wrapper';
+import { apiWrapper } from '../../../lib/api-wrapper';
 
 interface Backup {
   id: string;
@@ -25,7 +25,7 @@ export default function BackupPage() {
 
   const fetchBackups = useCallback(async () => {
     const result = await handleAsyncOperation(
-      () => ApiWrapper.get('/api/backup?action=list'),
+      () => apiWrapper.get('/api/backup?action=list'),
       undefined,
       'Yedeklemeler yüklenirken'
     );
@@ -51,7 +51,7 @@ export default function BackupPage() {
     try {
       // Önce yedekleme oluştur
       const createResult = await handleAsyncOperation(
-        () => ApiWrapper.get('/api/backup?action=create'),
+        () => apiWrapper.get('/api/backup?action=create'),
         undefined,
         'Yedekleme oluşturulurken'
       );
@@ -61,7 +61,7 @@ export default function BackupPage() {
         
         // Yedeklemeyi kaydet
         const saveResult = await handleAsyncOperation(
-          () => ApiWrapper.post('/api/backup', {
+          () => apiWrapper.post('/api/backup', {
             action: 'save',
             backupData: backupData
           }),
@@ -91,7 +91,7 @@ export default function BackupPage() {
     setRestoring(backupId);
     
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/backup', {
+      () => apiWrapper.post('/api/backup', {
         action: 'restore',
         backupId: backupId
       }),
@@ -112,7 +112,7 @@ export default function BackupPage() {
     }
 
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/backup', {
+      () => apiWrapper.post('/api/backup', {
         action: 'delete',
         backupId: backupId
       }),

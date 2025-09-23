@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import AdminProtection from '../../../../components/AdminProtection';
 import { useErrorToast } from '../../../../hooks/useErrorToast';
-import { ApiWrapper } from '../../../../lib/api-wrapper';
+import { apiWrapper } from '../../../../lib/api-wrapper';
 
 interface CurrencyRate {
   id: string;
@@ -70,22 +70,22 @@ export default function CurrencyPage() {
   const fetchCurrencyData = useCallback(async () => {
     const [ratesResult, settingsResult, alertsResult, holdingsResult] = await Promise.all([
       handleAsyncOperation(
-        () => ApiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=list'),
+        () => apiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=list'),
         undefined,
         'Döviz kurları yüklenirken'
       ),
       handleAsyncOperation(
-        () => ApiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=settings'),
+        () => apiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=settings'),
         undefined,
         'Döviz ayarları yüklenirken'
       ),
       handleAsyncOperation(
-        () => ApiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=alerts'),
+        () => apiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=alerts'),
         undefined,
         'Döviz alarmları yüklenirken'
       ),
       handleAsyncOperation(
-        () => ApiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=holdings'),
+        () => apiWrapper.get('/api/accounting/currency?companyId=550e8400-e29b-41d4-a716-446655440000&action=holdings'),
         undefined,
         'Döviz varlıkları yüklenirken'
       )
@@ -113,7 +113,7 @@ export default function CurrencyPage() {
   const handleUpdateRates = async () => {
     setUpdating(true);
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/currency', {
+      () => apiWrapper.post('/api/accounting/currency', {
         action: 'update_rates',
         companyId: settings.company_id
       }),
@@ -130,7 +130,7 @@ export default function CurrencyPage() {
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/currency', {
+      () => apiWrapper.post('/api/accounting/currency', {
         action: 'save_settings',
         companyId: settings.company_id,
         autoUpdateEnabled: settings.auto_update_enabled,
@@ -148,7 +148,7 @@ export default function CurrencyPage() {
 
   const handleConvertCurrency = async () => {
     const result = await handleAsyncOperation(
-      () => ApiWrapper.post('/api/accounting/currency', {
+      () => apiWrapper.post('/api/accounting/currency', {
         action: 'convert',
         companyId: settings.company_id,
         fromCurrency: converterData.fromCurrency,

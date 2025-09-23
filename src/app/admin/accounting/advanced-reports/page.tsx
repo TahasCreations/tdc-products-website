@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { ApiWrapper } from '@/lib/api-wrapper';
+import { apiWrapper } from '@/lib/api-wrapper';
 
 interface ReportCategory {
   id: string;
@@ -99,7 +99,7 @@ export default function AdvancedReportsPage() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/advanced-reports?action=categories');
+      const result = await apiWrapper.get('/api/accounting/advanced-reports?action=categories');
       if (result && (result as any).data) {
         setCategories((result as any).data);
       }
@@ -110,7 +110,7 @@ export default function AdvancedReportsPage() {
 
   const fetchTemplates = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/advanced-reports?action=templates');
+      const result = await apiWrapper.get('/api/accounting/advanced-reports?action=templates');
       if (result && (result as any).data) {
         setTemplates((result as any).data);
       }
@@ -121,7 +121,7 @@ export default function AdvancedReportsPage() {
 
   const fetchWidgets = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/advanced-reports?action=widgets');
+      const result = await apiWrapper.get('/api/accounting/advanced-reports?action=widgets');
       if (result && (result as any).data) {
         setWidgets((result as any).data);
       }
@@ -132,7 +132,7 @@ export default function AdvancedReportsPage() {
 
   const fetchExecutions = useCallback(async () => {
     try {
-      const result = await ApiWrapper.get('/api/accounting/advanced-reports?action=executions');
+      const result = await apiWrapper.get('/api/accounting/advanced-reports?action=executions');
       if (result && (result as any).data) {
         setExecutions((result as any).data);
       }
@@ -164,7 +164,7 @@ export default function AdvancedReportsPage() {
     setApiLoading(true);
 
     try {
-      const result = await ApiWrapper.post('/api/accounting/advanced-reports', {
+      const result = await apiWrapper.post('/api/accounting/advanced-reports', {
         action: 'create_template',
         ...newTemplate
       });
@@ -196,7 +196,7 @@ export default function AdvancedReportsPage() {
     setApiLoading(true);
 
     try {
-      const result = await ApiWrapper.post('/api/accounting/advanced-reports', {
+      const result = await apiWrapper.post('/api/accounting/advanced-reports', {
         action: 'create_widget',
         ...newWidget
       });
@@ -226,7 +226,7 @@ export default function AdvancedReportsPage() {
     setApiLoading(true);
 
     try {
-      const result = await ApiWrapper.post('/api/accounting/advanced-reports', {
+      const result = await apiWrapper.post('/api/accounting/advanced-reports', {
         action: 'execute_report',
         ...newExecution
       });
