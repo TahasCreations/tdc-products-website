@@ -347,7 +347,203 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* Gelişmiş İş Modülleri */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+            <CpuChipIcon className="w-6 h-6 text-purple-600 mr-2" />
+            Gelişmiş İş Modülleri
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* AI & Makine Öğrenmesi */}
+            <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200">
+              <Link href="/admin/ai" className="block p-6 group">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-lg bg-purple-100 group-hover:scale-110 transition-transform duration-200">
+                    <CpuChipIcon className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+                      AI & Makine Öğrenmesi
+                    </h3>
+                    <p className="text-gray-600 text-sm mt-1">Yapay zeka destekli iş zekası ve otomasyon</p>
+                    <div className="flex items-center mt-3 text-purple-600 text-sm font-medium group-hover:text-purple-700">
+                      <span>Modüle Git</span>
+                      <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
 
+            {/* Güvenlik & Uyumluluk */}
+            <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200">
+              <Link href="/admin/security" className="block p-6 group">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-lg bg-red-100 group-hover:scale-110 transition-transform duration-200">
+                    <ShieldCheckIcon className="w-6 h-6 text-red-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-red-600 transition-colors">
+                      Güvenlik & Uyumluluk
+                    </h3>
+                    <p className="text-gray-600 text-sm mt-1">Gelişmiş güvenlik kontrolleri ve denetim</p>
+                    <div className="flex items-center mt-3 text-red-600 text-sm font-medium group-hover:text-red-700">
+                      <span>Modüle Git</span>
+                      <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Performans & Optimizasyon */}
+            <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200">
+              <Link href="/admin/performance" className="block p-6 group">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-lg bg-green-100 group-hover:scale-110 transition-transform duration-200">
+                    <PerformanceIcon className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
+                      Performans & Optimizasyon
+                    </h3>
+                    <p className="text-gray-600 text-sm mt-1">Sistem performansı ve hız optimizasyonu</p>
+                    <div className="flex items-center mt-3 text-green-600 text-sm font-medium group-hover:text-green-700">
+                      <span>Modüle Git</span>
+                      <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Analitik & Raporlama */}
+            <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200">
+              <Link href="/admin/analytics" className="block p-6 group">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-lg bg-blue-100 group-hover:scale-110 transition-transform duration-200">
+                    <ChartBarIcon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      Analitik & Raporlama
+                    </h3>
+                    <p className="text-gray-600 text-sm mt-1">Detaylı analiz ve raporlama sistemi</p>
+                    <div className="flex items-center mt-3 text-blue-600 text-sm font-medium group-hover:text-blue-700">
+                      <span>Modüle Git</span>
+                      <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Otomasyon & İş Akışı */}
+            <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200">
+              <Link href="/admin/automation" className="block p-6 group">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-lg bg-orange-100 group-hover:scale-110 transition-transform duration-200">
+                    <CogIcon className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">
+                      Otomasyon & İş Akışı
+                    </h3>
+                    <p className="text-gray-600 text-sm mt-1">Gelişmiş otomasyon ve iş akışı yönetimi</p>
+                    <div className="flex items-center mt-3 text-orange-600 text-sm font-medium group-hover:text-orange-700">
+                      <span>Modüle Git</span>
+                      <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Mobil & PWA */}
+            <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200">
+              <Link href="/admin/mobile" className="block p-6 group">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-lg bg-indigo-100 group-hover:scale-110 transition-transform duration-200">
+                    <DevicePhoneMobileIcon className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                      Mobil & PWA
+                    </h3>
+                    <p className="text-gray-600 text-sm mt-1">Mobil optimizasyon ve PWA özellikleri</p>
+                    <div className="flex items-center mt-3 text-indigo-600 text-sm font-medium group-hover:text-indigo-700">
+                      <span>Modüle Git</span>
+                      <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Entegrasyonlar */}
+            <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200">
+              <Link href="/admin/integrations" className="block p-6 group">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-lg bg-teal-100 group-hover:scale-110 transition-transform duration-200">
+                    <CodeBracketIcon className="w-6 h-6 text-teal-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-teal-600 transition-colors">
+                      Entegrasyonlar
+                    </h3>
+                    <p className="text-gray-600 text-sm mt-1">API entegrasyonları ve harici servisler</p>
+                    <div className="flex items-center mt-3 text-teal-600 text-sm font-medium group-hover:text-teal-700">
+                      <span>Modüle Git</span>
+                      <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Yedekleme & Kurtarma */}
+            <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200">
+              <Link href="/admin/backup" className="block p-6 group">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-lg bg-gray-100 group-hover:scale-110 transition-transform duration-200">
+                    <CloudIcon className="w-6 h-6 text-gray-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-gray-600 transition-colors">
+                      Yedekleme & Kurtarma
+                    </h3>
+                    <p className="text-gray-600 text-sm mt-1">Veri yedekleme ve kurtarma sistemi</p>
+                    <div className="flex items-center mt-3 text-gray-600 text-sm font-medium group-hover:text-gray-700">
+                      <span>Modüle Git</span>
+                      <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Canlı Dashboard */}
+            <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200">
+              <Link href="/admin/dashboard/live" className="block p-6 group">
+                <div className="flex items-start space-x-4">
+                  <div className="p-3 rounded-lg bg-pink-100 group-hover:scale-110 transition-transform duration-200">
+                    <EyeIcon className="w-6 h-6 text-pink-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-pink-600 transition-colors">
+                      Canlı Dashboard
+                    </h3>
+                    <p className="text-gray-600 text-sm mt-1">Gerçek zamanlı sistem izleme</p>
+                    <div className="flex items-center mt-3 text-pink-600 text-sm font-medium group-hover:text-pink-700">
+                      <span>Modüle Git</span>
+                      <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
 
         {/* Recent Activities */}
         <div className="mt-8">

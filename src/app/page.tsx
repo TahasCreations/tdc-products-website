@@ -99,32 +99,99 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Sağ Taraf - 3D Yazıcı Animasyonu */}
+            {/* Sağ Taraf - 3D Yazıcı Figür Dönüşüm Animasyonu */}
             <div className="relative flex justify-center items-center">
-              <div className="relative w-80 h-80">
+              <div className="relative w-96 h-96">
                 {/* 3D Yazıcı Ana Gövde */}
                 <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl transform rotate-3 animate-float">
                   {/* 3D Yazıcı Ekran */}
-                  <div className="absolute top-4 left-4 w-16 h-12 bg-blue-500 rounded-lg shadow-lg animate-pulse">
+                  <div className="absolute top-4 left-4 w-20 h-16 bg-blue-500 rounded-lg shadow-lg animate-pulse">
                     <div className="absolute inset-1 bg-blue-300 rounded animate-ping"></div>
+                    <div className="absolute top-1 left-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <div className="absolute top-1 right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse delay-500"></div>
+                    <div className="absolute bottom-1 left-1 w-2 h-2 bg-green-400 rounded-full animate-pulse delay-1000"></div>
+                    <div className="absolute bottom-1 right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse delay-1500"></div>
                   </div>
                   
                   {/* 3D Yazıcı Nozul */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-orange-500 rounded-full shadow-lg animate-bounce">
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-orange-500 rounded-full shadow-lg animate-bounce">
                     <div className="absolute inset-1 bg-orange-300 rounded-full animate-ping"></div>
+                    {/* Nozul'dan çıkan filament */}
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-1 h-8 bg-gradient-to-b from-orange-400 to-transparent animate-filament-flow"></div>
                   </div>
                   
                   {/* 3D Yazıcı Işık */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-blue-400/30 rounded-full blur-lg animate-pulse"></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-blue-400/30 rounded-full blur-lg animate-pulse"></div>
                 </div>
                 
                 {/* 3D Yazıcı Platform */}
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-72 h-4 bg-gray-700 rounded-lg shadow-lg"></div>
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-80 h-6 bg-gray-700 rounded-lg shadow-lg">
+                  {/* Platform üzerindeki figür oluşum alanı */}
+                  <div className="absolute inset-2 bg-gray-600 rounded-lg overflow-hidden">
+                    {/* Figür oluşum katmanları */}
+                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-blue-400/60 rounded animate-layer-build delay-2000"></div>
+                    <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-blue-400/60 rounded animate-layer-build delay-3000"></div>
+                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-blue-400/60 rounded animate-layer-build delay-4000"></div>
+                    <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-blue-400/60 rounded animate-layer-build delay-5000"></div>
+                  </div>
+                </div>
                 
-                {/* 3D Yazıcı Parçacıkları */}
+                {/* 3D Yazıcı Parçacıkları ve Işık Efektleri */}
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-400 rounded-full animate-bounce delay-1000"></div>
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-purple-400 rounded-full animate-bounce delay-2000"></div>
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-pink-400 rounded-full animate-bounce delay-3000"></div>
+                
+                {/* Figür Dönüşüm Animasyonu */}
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+                  {/* Figür 1 - Küp */}
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-lg animate-figure-glow delay-6000 transform rotate-12 hover:scale-110 transition-transform duration-500">
+                    <div className="absolute inset-1 bg-white/20 rounded"></div>
+                  </div>
+                </div>
+                
+                {/* Figür 2 - Silindir */}
+                <div className="absolute bottom-12 right-8 w-6 h-10 bg-gradient-to-br from-green-400 to-blue-400 rounded-full animate-figure-rotate delay-7000 transform -rotate-12 hover:scale-110 transition-transform duration-500">
+                  <div className="absolute inset-1 bg-white/20 rounded-full"></div>
+                </div>
+                
+                {/* Figür 3 - Piramit */}
+                <div className="absolute bottom-16 left-8 w-0 h-0 border-l-4 border-r-4 border-b-8 border-l-transparent border-r-transparent border-b-gradient-to-br from-pink-400 to-orange-400 animate-figure-glow delay-8000 transform rotate-45 hover:scale-110 transition-transform duration-500"></div>
+                
+                {/* Figür 4 - Küre */}
+                <div className="absolute bottom-20 right-12 w-7 h-7 bg-gradient-to-br from-yellow-400 to-red-400 rounded-full animate-figure-rotate delay-9000 transform hover:scale-110 transition-transform duration-500">
+                  <div className="absolute inset-1 bg-white/20 rounded-full"></div>
+                </div>
+                
+                {/* Figür 5 - Kalp */}
+                <div className="absolute bottom-24 left-12 w-6 h-6 bg-gradient-to-br from-red-400 to-pink-400 transform rotate-45 animate-figure-glow delay-10000 hover:scale-110 transition-transform duration-500">
+                  <div className="absolute inset-1 bg-white/20 transform -rotate-45"></div>
+                </div>
+                
+                {/* Figür 6 - Yıldız */}
+                <div className="absolute bottom-28 right-16 w-8 h-8 bg-gradient-to-br from-purple-400 to-indigo-400 transform rotate-12 animate-figure-rotate delay-11000 hover:scale-110 transition-transform duration-500">
+                  <div className="absolute inset-1 bg-white/20 transform -rotate-12"></div>
+                </div>
+                
+                {/* Işık Efektleri */}
+                <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-blue-400/20 rounded-full blur-2xl animate-ping delay-1000"></div>
+                <div className="absolute top-3/4 right-1/4 w-24 h-24 bg-purple-400/20 rounded-full blur-2xl animate-ping delay-2000"></div>
+                <div className="absolute bottom-1/4 left-1/3 w-20 h-20 bg-pink-400/20 rounded-full blur-2xl animate-ping delay-3000"></div>
+                
+                {/* Parçacık Efektleri */}
+                <div className="absolute top-20 left-10 w-2 h-2 bg-blue-400/60 rounded-full animate-particle-float delay-1000"></div>
+                <div className="absolute top-40 right-20 w-1 h-1 bg-purple-400/60 rounded-full animate-particle-float delay-2000"></div>
+                <div className="absolute bottom-32 left-20 w-3 h-3 bg-cyan-400/60 rounded-full animate-particle-float delay-3000"></div>
+                <div className="absolute bottom-20 right-10 w-1 h-1 bg-pink-400/60 rounded-full animate-particle-float delay-1000"></div>
+                <div className="absolute top-32 right-8 w-2 h-2 bg-yellow-400/60 rounded-full animate-particle-float delay-4000"></div>
+                <div className="absolute bottom-40 left-12 w-1 h-1 bg-green-400/60 rounded-full animate-particle-float delay-5000"></div>
+                
+                {/* Figür Dönüşüm Işık Efektleri */}
+                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-blue-400/10 rounded-full blur-lg animate-pulse delay-6000"></div>
+                <div className="absolute bottom-12 right-8 w-12 h-12 bg-green-400/10 rounded-full blur-lg animate-pulse delay-7000"></div>
+                <div className="absolute bottom-16 left-8 w-10 h-10 bg-pink-400/10 rounded-full blur-lg animate-pulse delay-8000"></div>
+                <div className="absolute bottom-20 right-12 w-14 h-14 bg-yellow-400/10 rounded-full blur-lg animate-pulse delay-9000"></div>
+                <div className="absolute bottom-24 left-12 w-12 h-12 bg-red-400/10 rounded-full blur-lg animate-pulse delay-10000"></div>
+                <div className="absolute bottom-28 right-16 w-16 h-16 bg-purple-400/10 rounded-full blur-lg animate-pulse delay-11000"></div>
               </div>
             </div>
           </div>

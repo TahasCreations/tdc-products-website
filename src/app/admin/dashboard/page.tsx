@@ -17,6 +17,11 @@ const AdvancedCRMSystem = lazy(() => import('../../../components/AdvancedCRMSyst
 const AdvancedSecuritySystem = lazy(() => import('../../../components/AdvancedSecuritySystem'));
 const WorkflowAutomationSystem = lazy(() => import('../../../components/WorkflowAutomationSystem'));
 const IntegrationManagementSystem = lazy(() => import('../../../components/IntegrationManagementSystem'));
+const AdvancedHRSystem = lazy(() => import('../../../components/AdvancedHRSystem'));
+const AdvancedMarketingSystem = lazy(() => import('../../../components/AdvancedMarketingSystem'));
+const AdvancedFinanceSystem = lazy(() => import('../../../components/AdvancedFinanceSystem'));
+const AdvancedEcommerceSystem = lazy(() => import('../../../components/AdvancedEcommerceSystem'));
+const AdvancedAccountingSystem = lazy(() => import('../../../components/AdvancedAccountingSystem'));
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -34,7 +39,12 @@ export default function AdminDashboard() {
     { id: 'crm', label: t('business.crm'), icon: 'ri-user-heart-line' },
     { id: 'security', label: t('business.security'), icon: 'ri-shield-check-line' },
     { id: 'workflows', label: 'İş Akışları', icon: 'ri-flow-chart' },
-    { id: 'integrations', label: 'Entegrasyonlar', icon: 'ri-plug-line' }
+    { id: 'integrations', label: 'Entegrasyonlar', icon: 'ri-plug-line' },
+    { id: 'hr', label: 'İnsan Kaynakları', icon: 'ri-team-line' },
+    { id: 'marketing', label: 'Pazarlama', icon: 'ri-marketing-line' },
+    { id: 'finance', label: 'Finans', icon: 'ri-bank-line' },
+    { id: 'ecommerce', label: 'E-ticaret', icon: 'ri-shopping-cart-line' },
+    { id: 'accounting', label: 'Muhasebe', icon: 'ri-calculator-line' }
   ];
 
   const renderTabContent = () => {
@@ -91,6 +101,36 @@ export default function AdminDashboard() {
         return (
           <Suspense fallback={<LoadingSpinner />}>
             <IntegrationManagementSystem />
+          </Suspense>
+        );
+      case 'hr':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdvancedHRSystem />
+          </Suspense>
+        );
+      case 'marketing':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdvancedMarketingSystem />
+          </Suspense>
+        );
+      case 'finance':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdvancedFinanceSystem />
+          </Suspense>
+        );
+      case 'ecommerce':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdvancedEcommerceSystem />
+          </Suspense>
+        );
+      case 'accounting':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <AdvancedAccountingSystem />
           </Suspense>
         );
       default:
