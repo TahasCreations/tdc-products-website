@@ -69,9 +69,30 @@ export default function BusinessIntelligence() {
   const [activeTab, setActiveTab] = useState<'insights' | 'predictions' | 'segments' | 'recommendations'>('insights');
   const [selectedTimeframe, setSelectedTimeframe] = useState('30d');
 
-  // Mock data
+  // Real-time data fetching
   useEffect(() => {
-    const mockInsights: AIInsight[] = [
+    const fetchAIData = async () => {
+      try {
+        setLoading(true);
+        
+        const response = await fetch('/api/ai/business-intelligence', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            timeframe: selectedTimeframe,
+            metrics: ['sales', 'customers', 'revenue', 'conversion'],
+            includePredictions: true
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setInsights(data.data.insights || []);
+          setPredictions(data.data.predictions || []);
+          setSegments(data.data.segments || []);
+        } else {
+          // Fallback to mock data
+          const mockInsights: AIInsight[] = [
       {
         id: '1',
         type: 'opportunity',
@@ -187,11 +208,40 @@ export default function BusinessIntelligence() {
       }
     ];
 
-    setInsights(mockInsights);
-    setPredictions(mockPredictions);
-    setSegments(mockSegments);
-    setLoading(false);
-  }, []);
+          setInsights(mockInsights);
+          setPredictions(mockPredictions);
+          setSegments(mockSegments);
+        }
+      } catch (error) {
+        console.error('AI Data fetch error:', error);
+        // Use mock data as fallback
+        const mockInsights: AIInsight[] = [
+          {
+            id: '1',
+            type: 'opportunity',
+            title: 'Yeni Müşteri Segmenti Keşfedildi',
+            description: '25-35 yaş arası teknoloji meraklısı müşterilerin satın alma oranı %40 daha yüksek',
+            impact: 'high',
+            confidence: 92,
+            value: 250000,
+            category: 'Müşteri Analizi',
+            createdAt: '2024-01-15',
+            actionRequired: true,
+            suggestedActions: [
+              'Bu segment için özel kampanya oluştur',
+              'Hedefli reklam stratejisi geliştir',
+              'Ürün önerilerini optimize et'
+            ]
+          }
+        ];
+        setInsights(mockInsights);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAIData();
+  }, [selectedTimeframe]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('tr-TR', {

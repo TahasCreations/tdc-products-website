@@ -1,38 +1,44 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../../../contexts/AuthContext';
+import AdminProtection from '../../../../components/AdminProtection';
 import { 
-  BuildingOfficeIcon,
+  PlusIcon,
+  MagnifyingGlassIcon,
+  FunnelIcon,
+  BuildingLibraryIcon,
+  CurrencyDollarIcon,
   ArrowPathIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   XCircleIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
-  DocumentTextIcon,
   EyeIcon,
+  PencilIcon,
+  TrashIcon,
   ArrowDownTrayIcon,
-  PlusIcon,
-  CogIcon,
-  ShieldCheckIcon,
-  CreditCardIcon,
-  BanknotesIcon,
+  ArrowUpTrayIcon,
+  ClockIcon,
   ChartBarIcon,
+  BanknotesIcon,
+  CreditCardIcon,
+  DocumentTextIcon,
   CalendarIcon
 } from '@heroicons/react/24/outline';
 
 interface BankAccount {
   id: string;
+  name: string;
   bankName: string;
   accountNumber: string;
-  accountName: string;
-  accountType: 'checking' | 'savings' | 'business';
+  iban: string;
   currency: string;
   balance: number;
   availableBalance: number;
   isActive: boolean;
-  lastSync: string;
-  syncStatus: 'success' | 'error' | 'pending' | 'disabled';
+  lastSyncDate?: string;
+  syncStatus: 'success' | 'error' | 'pending' | 'never';
+  createdAt: string;
 }
 
 interface BankTransaction {
@@ -41,228 +47,164 @@ interface BankTransaction {
   date: string;
   description: string;
   amount: number;
-  type: 'credit' | 'debit';
-  reference: string;
   balance: number;
-  isMatched: boolean;
-  matchedInvoiceId: string | null;
+  type: 'credit' | 'debit';
   category: string;
+  reference: string;
+  isReconciled: boolean;
+  matchedInvoiceId?: string;
+  createdAt: string;
 }
 
-interface ReconciliationData {
-  bankBalance: number;
+interface Reconciliation {
+  id: string;
+  accountId: string;
+  statementDate: string;
+  statementBalance: number;
   bookBalance: number;
   difference: number;
-  pendingDeposits: number;
-  pendingWithdrawals: number;
-  outstandingChecks: number;
-  lastReconciliation: string;
-  status: 'balanced' | 'unbalanced' | 'pending';
+  status: 'pending' | 'completed' | 'discrepancy';
+  transactions: BankTransaction[];
+  createdAt: string;
 }
 
-export default function AdvancedBankIntegrationPage() {
+interface BankSummary {
+  totalAccounts: number;
+  totalBalance: number;
+  totalAvailableBalance: number;
+  pendingTransactions: number;
+  unreconciledTransactions: number;
+  lastSyncDate: string;
+  syncErrors: number;
+}
+
+export default function AdvancedBankIntegration() {
+  const { user } = useAuth();
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
   const [transactions, setTransactions] = useState<BankTransaction[]>([]);
-  const [reconciliationData, setReconciliationData] = useState<ReconciliationData | null>(null);
+  const [reconciliations, setReconciliations] = useState<Reconciliation[]>([]);
+  const [summary, setSummary] = useState<BankSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedAccount, setSelectedAccount] = useState<string>('all');
-  const [showReconciliation, setShowReconciliation] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [accountFilter, setAccountFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showReconciliationModal, setShowReconciliationModal] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<BankAccount | null>(null);
 
   useEffect(() => {
-    // Mock bank data
-    const mockBankAccounts: BankAccount[] = [
-      {
-        id: '1',
-        bankName: 'Türkiye İş Bankası',
-        accountNumber: '1234567890',
-        accountName: 'TDC Products A.Ş.',
-        accountType: 'business',
-        currency: 'TRY',
-        balance: 125000,
-        availableBalance: 120000,
-        isActive: true,
-        lastSync: '2024-01-20T10:30:00Z',
-        syncStatus: 'success'
-      },
-      {
-        id: '2',
-        bankName: 'Garanti BBVA',
-        accountNumber: '9876543210',
-        accountName: 'TDC Products A.Ş.',
-        accountType: 'checking',
-        currency: 'TRY',
-        balance: 75000,
-        availableBalance: 75000,
-        isActive: true,
-        lastSync: '2024-01-20T09:15:00Z',
-        syncStatus: 'success'
-      },
-      {
-        id: '3',
-        bankName: 'Akbank',
-        accountNumber: '5555666677',
-        accountName: 'TDC Products A.Ş.',
-        accountType: 'savings',
-        currency: 'USD',
-        balance: 15000,
-        availableBalance: 15000,
-        isActive: false,
-        lastSync: '2024-01-15T14:20:00Z',
-        syncStatus: 'error'
-      }
-    ];
-
-    const mockTransactions: BankTransaction[] = [
-      {
-        id: '1',
-        accountId: '1',
-        date: '2024-01-20',
-        description: 'Müşteri Ödemesi - ABC Teknoloji',
-        amount: 11800,
-        type: 'credit',
-        reference: 'REF001',
-        balance: 125000,
-        isMatched: true,
-        matchedInvoiceId: 'INV-001',
-        category: 'Müşteri Ödemesi'
-      },
-      {
-        id: '2',
-        accountId: '1',
-        date: '2024-01-19',
-        description: 'Tedarikçi Ödemesi - XYZ Ltd.',
-        amount: 5000,
-        type: 'debit',
-        reference: 'REF002',
-        balance: 113200,
-        isMatched: true,
-        matchedInvoiceId: 'INV-002',
-        category: 'Tedarikçi Ödemesi'
-      },
-      {
-        id: '3',
-        accountId: '1',
-        date: '2024-01-18',
-        description: 'Banka Komisyonu',
-        amount: 25,
-        type: 'debit',
-        reference: 'REF003',
-        balance: 118200,
-        isMatched: false,
-        matchedInvoiceId: null,
-        category: 'Banka Masrafı'
-      },
-      {
-        id: '4',
-        accountId: '2',
-        date: '2024-01-17',
-        description: 'Müşteri Ödemesi - Mehmet Demir',
-        amount: 5900,
-        type: 'credit',
-        reference: 'REF004',
-        balance: 75000,
-        isMatched: false,
-        matchedInvoiceId: null,
-        category: 'Müşteri Ödemesi'
-      }
-    ];
-
-    const mockReconciliationData: ReconciliationData = {
-      bankBalance: 125000,
-      bookBalance: 124975,
-      difference: 25,
-      pendingDeposits: 0,
-      pendingWithdrawals: 0,
-      outstandingChecks: 0,
-      lastReconciliation: '2024-01-15T16:00:00Z',
-      status: 'unbalanced'
-    };
-
-    setTimeout(() => {
-      setBankAccounts(mockBankAccounts);
-      setTransactions(mockTransactions);
-      setReconciliationData(mockReconciliationData);
-      setLoading(false);
-    }, 1000);
+    fetchBankData();
   }, []);
 
-  const formatCurrency = (amount: number, currency: string = 'TRY') => {
-    return new Intl.NumberFormat('tr-TR', {
-      style: 'currency',
-      currency: currency
-    }).format(amount);
+  const fetchBankData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/accounting/advanced?module=bank-accounts');
+      
+      if (response.ok) {
+        const data = await response.json();
+        setBankAccounts(data.data.accounts);
+        setSummary(data.data.summary);
+      }
+    } catch (error) {
+      console.error('Error fetching bank data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSyncAccount = async (accountId: string) => {
+    try {
+      const response = await fetch('/api/accounting/advanced', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'sync_bank_account',
+          data: { accountId }
+        })
+      });
+
+      if (response.ok) {
+        await fetchBankData();
+      }
+    } catch (error) {
+      console.error('Error syncing account:', error);
+    }
+  };
+
+  const handleReconcileTransaction = async (transactionId: string, invoiceId: string) => {
+    try {
+      const response = await fetch('/api/accounting/advanced', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reconcile_transaction',
+          data: { transactionId, invoiceId }
+        })
+      });
+
+      if (response.ok) {
+        await fetchBankData();
+      }
+    } catch (error) {
+      console.error('Error reconciling transaction:', error);
+    }
   };
 
   const getSyncStatusColor = (status: string) => {
-    const colors = {
-      success: 'bg-green-100 text-green-800',
-      error: 'bg-red-100 text-red-800',
-      pending: 'bg-yellow-100 text-yellow-800',
-      disabled: 'bg-gray-100 text-gray-800'
-    };
-    return colors[status as keyof typeof colors] || colors.disabled;
-  };
-
-  const getSyncStatusText = (status: string) => {
-    const texts = {
-      success: 'Başarılı',
-      error: 'Hata',
-      pending: 'Bekliyor',
-      disabled: 'Devre Dışı'
-    };
-    return texts[status as keyof typeof texts] || status;
+    switch (status) {
+      case 'success': return 'bg-green-100 text-green-800';
+      case 'error': return 'bg-red-100 text-red-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'never': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
   const getSyncStatusIcon = (status: string) => {
-    const icons = {
-      success: CheckCircleIcon,
-      error: XCircleIcon,
-      pending: ClockIcon,
-      disabled: XCircleIcon
-    };
-    return icons[status as keyof typeof icons] || XCircleIcon;
+    switch (status) {
+      case 'success': return CheckCircleIcon;
+      case 'error': return XCircleIcon;
+      case 'pending': return ClockIcon;
+      case 'never': return ExclamationTriangleIcon;
+      default: return ExclamationTriangleIcon;
+    }
   };
 
-  const getReconciliationStatusColor = (status: string) => {
-    const colors = {
-      balanced: 'bg-green-100 text-green-800',
-      unbalanced: 'bg-red-100 text-red-800',
-      pending: 'bg-yellow-100 text-yellow-800'
-    };
-    return colors[status as keyof typeof colors] || colors.pending;
+  const getTransactionTypeColor = (type: string) => {
+    return type === 'credit' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
   };
 
-  const getReconciliationStatusText = (status: string) => {
-    const texts = {
-      balanced: 'Dengeli',
-      unbalanced: 'Dengesiz',
-      pending: 'Bekliyor'
-    };
-    return texts[status as keyof typeof texts] || status;
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY'
+    }).format(amount);
   };
 
-  const filteredTransactions = selectedAccount === 'all' 
-    ? transactions 
-    : transactions.filter(t => t.accountId === selectedAccount);
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('tr-TR');
+  };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white p-6 rounded-xl shadow">
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString('tr-TR');
+  };
+
+  const filteredTransactions = transactions.filter(transaction => {
+    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         transaction.reference.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesAccount = accountFilter === 'all' || transaction.accountId === accountFilter;
+    const matchesType = typeFilter === 'all' || transaction.type === typeFilter;
+    const matchesStatus = statusFilter === 'all' || 
+                         (statusFilter === 'reconciled' && transaction.isReconciled) ||
+                         (statusFilter === 'unreconciled' && !transaction.isReconciled);
+    
+    return matchesSearch && matchesAccount && matchesType && matchesStatus;
+  });
+
+  if (!user) {
+    return <AdminProtection />;
   }
 
   return (
@@ -272,17 +214,23 @@ export default function AdvancedBankIntegrationPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Banka Entegrasyonu ve Mutabakat</h1>
-              <p className="text-gray-600 mt-1">Otomatik banka veri senkronizasyonu ve mutabakat işlemleri</p>
+              <h1 className="text-3xl font-bold text-gray-900">Gelişmiş Banka Entegrasyonu</h1>
+              <p className="text-gray-600 mt-1">Banka hesaplarınızı senkronize edin ve mutabakat yapın</p>
             </div>
-            <div className="flex items-center space-x-3">
-              <button className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                <CogIcon className="w-4 h-4 mr-2 inline" />
-                Ayarlar
-              </button>
-              <button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-                <PlusIcon className="w-4 h-4 mr-2 inline" />
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              >
+                <PlusIcon className="w-4 h-4 mr-2" />
                 Yeni Hesap
+              </button>
+              <button
+                onClick={() => setShowReconciliationModal(true)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
+              >
+                <ChartBarIcon className="w-4 h-4 mr-2" />
+                Mutabakat
               </button>
             </div>
           </div>
@@ -290,135 +238,204 @@ export default function AdvancedBankIntegrationPage() {
       </div>
 
       <div className="max-w-7xl mx-auto p-6">
+        {/* Summary Cards */}
+        {summary && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white p-6 rounded-xl shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Toplam Bakiye</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(summary.totalBalance)}</p>
+                  <p className="text-sm text-gray-500">Tüm hesaplar</p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <CurrencyDollarIcon className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Kullanılabilir Bakiye</p>
+                  <p className="text-2xl font-bold text-green-600">{formatCurrency(summary.totalAvailableBalance)}</p>
+                  <p className="text-sm text-gray-500">Harcanabilir tutar</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-full">
+                  <CheckCircleIcon className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Bekleyen İşlemler</p>
+                  <p className="text-2xl font-bold text-yellow-600">{summary.pendingTransactions}</p>
+                  <p className="text-sm text-gray-500">Mutabakat bekleyen</p>
+                </div>
+                <div className="p-3 bg-yellow-100 rounded-full">
+                  <ClockIcon className="w-6 h-6 text-yellow-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Senkronizasyon</p>
+                  <p className="text-2xl font-bold text-blue-600">{summary.totalAccounts - summary.syncErrors}</p>
+                  <p className="text-sm text-gray-500">/{summary.totalAccounts} başarılı</p>
+                </div>
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <ArrowPathIcon className="w-6 h-6 text-blue-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Bank Accounts */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Banka Hesapları</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {bankAccounts.map((account) => {
-              const StatusIcon = getSyncStatusIcon(account.syncStatus);
-              return (
-                <div key={account.id} className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <BuildingOfficeIcon className="w-6 h-6 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{account.bankName}</h3>
-                        <p className="text-sm text-gray-600">{account.accountNumber}</p>
-                        <p className="text-xs text-gray-500">{account.accountName}</p>
-                      </div>
-                    </div>
-                    <div className={`w-3 h-3 rounded-full ${account.isActive ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-                  </div>
-
-                  <div className="space-y-3 mb-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Bakiye:</span>
-                      <span className="font-medium">{formatCurrency(account.balance, account.currency)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Kullanılabilir:</span>
-                      <span className="font-medium">{formatCurrency(account.availableBalance, account.currency)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Son Senkronizasyon:</span>
-                      <span className="text-xs text-gray-500">
-                        {new Date(account.lastSync).toLocaleDateString('tr-TR')}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSyncStatusColor(account.syncStatus)}`}>
-                      <StatusIcon className="w-3 h-3 mr-1" />
-                      {getSyncStatusText(account.syncStatus)}
-                    </span>
-                    <div className="flex space-x-1">
-                      <button className="text-blue-600 hover:text-blue-700" title="Senkronize Et">
-                        <ArrowPathIcon className="w-4 h-4" />
-                      </button>
-                      <button className="text-gray-600 hover:text-gray-700" title="Ayarlar">
-                        <CogIcon className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+        <div className="bg-white rounded-xl shadow-sm border mb-6">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Banka Hesapları</h3>
           </div>
-        </div>
-
-        {/* Reconciliation Status */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Mutabakat Durumu</h2>
-          <div className="bg-white rounded-xl shadow-sm border p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 mb-2">
-                  {formatCurrency(reconciliationData?.bankBalance || 0)}
-                </div>
-                <div className="text-sm text-gray-600">Banka Bakiyesi</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 mb-2">
-                  {formatCurrency(reconciliationData?.bookBalance || 0)}
-                </div>
-                <div className="text-sm text-gray-600">Defter Bakiyesi</div>
-              </div>
-              <div className="text-center">
-                <div className={`text-2xl font-bold mb-2 ${
-                  (reconciliationData?.difference || 0) === 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {formatCurrency(reconciliationData?.difference || 0)}
-                </div>
-                <div className="text-sm text-gray-600">Fark</div>
-              </div>
-              <div className="text-center">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getReconciliationStatusColor(reconciliationData?.status || 'pending')}`}>
-                  {getReconciliationStatusText(reconciliationData?.status || 'pending')}
-                </span>
-                <div className="text-sm text-gray-600 mt-2">Durum</div>
-              </div>
-            </div>
-            
-            <div className="mt-6 flex justify-center">
-              <button 
-                onClick={() => setShowReconciliation(true)}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <ShieldCheckIcon className="w-5 h-5 mr-2 inline" />
-                Mutabakat Yap
-              </button>
+          
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {bankAccounts.map((account) => {
+                const SyncIcon = getSyncStatusIcon(account.syncStatus);
+                return (
+                  <div key={account.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center">
+                        <div className="p-2 bg-blue-100 rounded-lg mr-3">
+                          <BuildingLibraryIcon className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{account.name}</h4>
+                          <p className="text-sm text-gray-500">{account.bankName}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleSyncAccount(account.id)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <ArrowPathIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Hesap No:</span>
+                        <span className="text-sm font-medium">{account.accountNumber}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">IBAN:</span>
+                        <span className="text-sm font-medium">{account.iban}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Bakiye:</span>
+                        <span className="text-sm font-bold text-gray-900">{formatCurrency(account.balance)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Kullanılabilir:</span>
+                        <span className="text-sm font-bold text-green-600">{formatCurrency(account.availableBalance)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Senkronizasyon:</span>
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSyncStatusColor(account.syncStatus)}`}>
+                          <SyncIcon className="w-3 h-3 mr-1" />
+                          {account.syncStatus === 'success' ? 'Başarılı' :
+                           account.syncStatus === 'error' ? 'Hata' :
+                           account.syncStatus === 'pending' ? 'Bekliyor' : 'Hiç'}
+                        </span>
+                      </div>
+                      {account.lastSyncDate && (
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600">Son Senkronizasyon:</span>
+                          <span className="text-sm text-gray-500">{formatDateTime(account.lastSyncDate)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Transactions */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Banka İşlemleri</h2>
-            <div className="flex items-center space-x-4">
+        {/* Filters */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Arama</label>
+              <div className="relative">
+                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="İşlem ara..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Hesap</label>
               <select
-                value={selectedAccount}
-                onChange={(e) => setSelectedAccount(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                value={accountFilter}
+                onChange={(e) => setAccountFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">Tüm Hesaplar</option>
                 {bankAccounts.map(account => (
-                  <option key={account.id} value={account.id}>
-                    {account.bankName} - {account.accountNumber}
-                  </option>
+                  <option key={account.id} value={account.id}>{account.name}</option>
                 ))}
               </select>
-              <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                <ArrowPathIcon className="w-4 h-4 mr-2 inline" />
-                Yenile
-              </button>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tip</label>
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Tüm Tipler</option>
+                <option value="credit">Alacak</option>
+                <option value="debit">Borç</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Durum</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Tüm Durumlar</option>
+                <option value="reconciled">Mutabakat Yapılmış</option>
+                <option value="unreconciled">Mutabakat Bekleyen</option>
+              </select>
             </div>
           </div>
+        </div>
+
+        {/* Transactions Table */}
+        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Banka İşlemleri</h3>
+          </div>
           
-          <div className="bg-white rounded-xl shadow-sm border">
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="text-gray-500 mt-2">İşlemler yükleniyor...</p>
+            </div>
+          ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -430,19 +447,16 @@ export default function AdvancedBankIntegrationPage() {
                       Açıklama
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Referans
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Tutar
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Bakiye
+                      Tip
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Kategori
+                      Referans
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Eşleşme
+                      Mutabakat
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       İşlemler
@@ -453,51 +467,46 @@ export default function AdvancedBankIntegrationPage() {
                   {filteredTransactions.map((transaction) => (
                     <tr key={transaction.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(transaction.date).toLocaleDateString('tr-TR')}
+                        {formatDate(transaction.date)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {transaction.description}
+                      <td className="px-6 py-4">
+                        <div className="text-sm font-medium text-gray-900">{transaction.description}</div>
+                        <div className="text-sm text-gray-500">{transaction.category}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className={`text-sm font-medium ${transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
+                          {transaction.type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                        </div>
+                        <div className="text-sm text-gray-500">Bakiye: {formatCurrency(transaction.balance)}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTransactionTypeColor(transaction.type)}`}>
+                          {transaction.type === 'credit' ? 'Alacak' : 'Borç'}
+                        </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {transaction.reference}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <span className={`font-medium ${
-                          transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          transaction.isReconciled ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {transaction.type === 'credit' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                          {transaction.isReconciled ? 'Yapılmış' : 'Bekliyor'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {formatCurrency(transaction.balance)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {transaction.category}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {transaction.isMatched ? (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <CheckCircleIcon className="w-3 h-3 mr-1" />
-                            Eşleşti
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                            <ClockIcon className="w-3 h-3 mr-1" />
-                            Bekliyor
-                          </span>
-                        )}
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900" title="Görüntüle">
+                        <div className="flex items-center space-x-2">
+                          <button className="text-blue-600 hover:text-blue-900">
                             <EyeIcon className="w-4 h-4" />
                           </button>
-                          <button className="text-gray-600 hover:text-gray-700" title="Eşleştir">
-                            <CreditCardIcon className="w-4 h-4" />
-                          </button>
-                          <button className="text-gray-600 hover:text-gray-700" title="Kategori Değiştir">
-                            <CogIcon className="w-4 h-4" />
-                          </button>
+                          {!transaction.isReconciled && (
+                            <button
+                              onClick={() => handleReconcileTransaction(transaction.id, 'INV-001')}
+                              className="text-green-600 hover:text-green-900"
+                            >
+                              <CheckCircleIcon className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -505,7 +514,7 @@ export default function AdvancedBankIntegrationPage() {
                 </tbody>
               </table>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

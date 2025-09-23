@@ -1,161 +1,169 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../../../contexts/AuthContext';
+import AdminProtection from '../../../../components/AdminProtection';
 import { 
   ChartBarIcon,
   DocumentTextIcon,
   ArrowDownTrayIcon,
+  PrinterIcon,
   CalendarIcon,
   FunnelIcon,
+  MagnifyingGlassIcon,
   EyeIcon,
-  PrinterIcon,
+  DocumentChartBarIcon,
   CurrencyDollarIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
-  UserGroupIcon,
-  ShoppingCartIcon,
   ClockIcon,
-  ExclamationTriangleIcon,
   CheckCircleIcon,
-  XCircleIcon
+  ExclamationTriangleIcon,
+  BanknotesIcon,
+  UserGroupIcon,
+  BuildingOfficeIcon,
+  ChartPieIcon,
+  TableCellsIcon
 } from '@heroicons/react/24/outline';
 
 interface FinancialReport {
   id: string;
   name: string;
-  type: 'income_statement' | 'balance_sheet' | 'cash_flow' | 'aged_receivables' | 'profit_loss' | 'tax_report';
+  type: 'income_statement' | 'balance_sheet' | 'cash_flow' | 'aged_receivables' | 'tax_report' | 'custom';
   period: string;
-  status: 'generated' | 'generating' | 'error';
-  generatedAt: string;
-  fileSize: number;
-  downloadCount: number;
+  status: 'draft' | 'generated' | 'approved' | 'archived';
+  generatedDate: string;
+  generatedBy: string;
+  data: any;
+  summary: {
+    totalRevenue: number;
+    totalExpenses: number;
+    netProfit: number;
+    totalAssets: number;
+    totalLiabilities: number;
+    equity: number;
+  };
 }
 
-interface ReportData {
+interface ReportTemplate {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  isDefault: boolean;
+  createdAt: string;
+}
+
+interface ReportSummary {
+  totalReports: number;
+  generatedThisMonth: number;
+  pendingApproval: number;
   totalRevenue: number;
   totalExpenses: number;
   netProfit: number;
-  grossProfit: number;
-  operatingProfit: number;
-  ebitda: number;
-  currentAssets: number;
-  fixedAssets: number;
-  currentLiabilities: number;
-  longTermLiabilities: number;
-  equity: number;
-  cashFlow: number;
-  receivables: {
-    current: number;
-    overdue30: number;
-    overdue60: number;
-    overdue90: number;
-    overdue90Plus: number;
-  };
-  payables: {
-    current: number;
-    overdue30: number;
-    overdue60: number;
-    overdue90: number;
-    overdue90Plus: number;
-  };
+  profitMargin: number;
 }
 
-interface ChartData {
-  labels: string[];
-  datasets: Array<{
-    label: string;
-    data: number[];
-    backgroundColor: string[];
-    borderColor: string[];
-  }>;
-}
-
-export default function AdvancedReportsPage() {
+export default function AdvancedReports() {
+  const { user } = useAuth();
   const [reports, setReports] = useState<FinancialReport[]>([]);
-  const [reportData, setReportData] = useState<ReportData | null>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState('this_month');
+  const [templates, setTemplates] = useState<ReportTemplate[]>([]);
+  const [summary, setSummary] = useState<ReportSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [periodFilter, setPeriodFilter] = useState('current_month');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<FinancialReport | null>(null);
+  const [reportData, setReportData] = useState<any>(null);
 
   useEffect(() => {
-    // Mock report data
-    const mockReports: FinancialReport[] = [
-      {
-        id: '1',
-        name: 'Gelir Tablosu - Ocak 2024',
-        type: 'income_statement',
-        period: '2024-01',
-        status: 'generated',
-        generatedAt: '2024-01-31T23:59:59Z',
-        fileSize: 245760,
-        downloadCount: 5
-      },
-      {
-        id: '2',
-        name: 'Bilanço - Aralık 2023',
-        type: 'balance_sheet',
-        period: '2023-12',
-        status: 'generated',
-        generatedAt: '2024-01-01T00:00:00Z',
-        fileSize: 189440,
-        downloadCount: 3
-      },
-      {
-        id: '3',
-        name: 'Nakit Akış Tablosu - Q4 2023',
-        type: 'cash_flow',
-        period: '2023-Q4',
-        status: 'generated',
-        generatedAt: '2024-01-15T10:30:00Z',
-        fileSize: 156672,
-        downloadCount: 2
-      },
-      {
-        id: '4',
-        name: 'Yaşlandırılmış Alacaklar - Ocak 2024',
-        type: 'aged_receivables',
-        period: '2024-01',
-        status: 'generating',
-        generatedAt: '',
-        fileSize: 0,
-        downloadCount: 0
-      }
-    ];
-
-    const mockReportData: ReportData = {
-      totalRevenue: 250000,
-      totalExpenses: 180000,
-      netProfit: 70000,
-      grossProfit: 120000,
-      operatingProfit: 85000,
-      ebitda: 95000,
-      currentAssets: 150000,
-      fixedAssets: 200000,
-      currentLiabilities: 80000,
-      longTermLiabilities: 120000,
-      equity: 150000,
-      cashFlow: 45000,
-      receivables: {
-        current: 35000,
-        overdue30: 15000,
-        overdue60: 8000,
-        overdue90: 5000,
-        overdue90Plus: 2000
-      },
-      payables: {
-        current: 25000,
-        overdue30: 10000,
-        overdue60: 5000,
-        overdue90: 3000,
-        overdue90Plus: 1000
-      }
-    };
-
-    setTimeout(() => {
-      setReports(mockReports);
-      setReportData(mockReportData);
-      setLoading(false);
-    }, 1000);
+    fetchReports();
   }, []);
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/accounting/advanced?module=reports');
+      
+      if (response.ok) {
+        const data = await response.json();
+        setReports(data.data.reports);
+        setTemplates(data.data.templates);
+        setSummary(data.data.summary);
+      }
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateReport = async (templateId: string, period: string) => {
+    try {
+      const response = await fetch('/api/accounting/advanced', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'generate_report',
+          data: { templateId, period }
+        })
+      });
+
+      if (response.ok) {
+        await fetchReports();
+      }
+    } catch (error) {
+      console.error('Error generating report:', error);
+    }
+  };
+
+  const handleViewReport = async (reportId: string) => {
+    try {
+      const response = await fetch(`/api/accounting/advanced?module=reports&reportId=${reportId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setReportData(data.data);
+        setSelectedReport(reports.find(r => r.id === reportId) || null);
+      }
+    } catch (error) {
+      console.error('Error viewing report:', error);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'draft': return 'bg-gray-100 text-gray-800';
+      case 'generated': return 'bg-blue-100 text-blue-800';
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'archived': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'income_statement': return ChartBarIcon;
+      case 'balance_sheet': return DocumentChartBarIcon;
+      case 'cash_flow': return BanknotesIcon;
+      case 'aged_receivables': return UserGroupIcon;
+      case 'tax_report': return BuildingOfficeIcon;
+      default: return DocumentTextIcon;
+    }
+  };
+
+  const getTypeName = (type: string) => {
+    switch (type) {
+      case 'income_statement': return 'Gelir Tablosu';
+      case 'balance_sheet': return 'Bilanço';
+      case 'cash_flow': return 'Nakit Akışı';
+      case 'aged_receivables': return 'Yaşlandırılmış Alacaklar';
+      case 'tax_report': return 'Vergi Raporu';
+      default: return 'Özel Rapor';
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('tr-TR', {
@@ -164,74 +172,25 @@ export default function AdvancedReportsPage() {
     }).format(amount);
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('tr-TR');
   };
 
-  const getStatusColor = (status: string) => {
-    const colors = {
-      generated: 'bg-green-100 text-green-800',
-      generating: 'bg-yellow-100 text-yellow-800',
-      error: 'bg-red-100 text-red-800'
-    };
-    return colors[status as keyof typeof colors] || colors.generated;
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString('tr-TR');
   };
 
-  const getStatusText = (status: string) => {
-    const texts = {
-      generated: 'Hazır',
-      generating: 'Hazırlanıyor',
-      error: 'Hata'
-    };
-    return texts[status as keyof typeof texts] || status;
-  };
+  const filteredReports = reports.filter(report => {
+    const matchesSearch = report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         getTypeName(report.type).toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = typeFilter === 'all' || report.type === typeFilter;
+    const matchesStatus = statusFilter === 'all' || report.status === statusFilter;
+    
+    return matchesSearch && matchesType && matchesStatus;
+  });
 
-  const getTypeText = (type: string) => {
-    const texts = {
-      income_statement: 'Gelir Tablosu',
-      balance_sheet: 'Bilanço',
-      cash_flow: 'Nakit Akış Tablosu',
-      aged_receivables: 'Yaşlandırılmış Alacaklar',
-      profit_loss: 'Kar/Zarar Tablosu',
-      tax_report: 'Vergi Raporu'
-    };
-    return texts[type as keyof typeof texts] || type;
-  };
-
-  const getTypeIcon = (type: string) => {
-    const icons = {
-      income_statement: ArrowTrendingUpIcon,
-      balance_sheet: ChartBarIcon,
-      cash_flow: CurrencyDollarIcon,
-      aged_receivables: UserGroupIcon,
-      profit_loss: ChartBarIcon,
-      tax_report: DocumentTextIcon
-    };
-    return icons[type as keyof typeof icons] || DocumentTextIcon;
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="bg-white p-6 rounded-xl shadow">
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                  <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  if (!user) {
+    return <AdminProtection />;
   }
 
   return (
@@ -241,16 +200,15 @@ export default function AdvancedReportsPage() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Mali Raporlar ve Analiz</h1>
-              <p className="text-gray-600 mt-1">Kapsamlı finansal raporlar ve analiz araçları</p>
+              <h1 className="text-3xl font-bold text-gray-900">Gelişmiş Mali Raporlar</h1>
+              <p className="text-gray-600 mt-1">Detaylı finansal analiz ve raporlama</p>
             </div>
-            <div className="flex items-center space-x-3">
-              <button className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                <CalendarIcon className="w-4 h-4 mr-2 inline" />
-                Dönem Seç
-              </button>
-              <button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-                <DocumentTextIcon className="w-4 h-4 mr-2 inline" />
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              >
+                <DocumentTextIcon className="w-4 h-4 mr-2" />
                 Yeni Rapor
               </button>
             </div>
@@ -259,279 +217,270 @@ export default function AdvancedReportsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto p-6">
-        {/* Financial Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Toplam Gelir</p>
-                <p className="text-2xl font-bold text-gray-900">{formatCurrency(reportData?.totalRevenue || 0)}</p>
-                <p className="text-sm text-gray-500">Bu dönem</p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-full">
-                <ArrowTrendingUpIcon className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Toplam Gider</p>
-                <p className="text-2xl font-bold text-gray-900">{formatCurrency(reportData?.totalExpenses || 0)}</p>
-                <p className="text-sm text-gray-500">Bu dönem</p>
-              </div>
-              <div className="p-3 bg-red-100 rounded-full">
-                <ArrowTrendingDownIcon className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Net Kar</p>
-                <p className="text-2xl font-bold text-gray-900">{formatCurrency(reportData?.netProfit || 0)}</p>
-                <p className="text-sm text-gray-500">Bu dönem</p>
-              </div>
-              <div className="p-3 bg-blue-100 rounded-full">
-                <ChartBarIcon className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Nakit Akış</p>
-                <p className="text-2xl font-bold text-gray-900">{formatCurrency(reportData?.cashFlow || 0)}</p>
-                <p className="text-sm text-gray-500">Bu dönem</p>
-              </div>
-              <div className="p-3 bg-purple-100 rounded-full">
-                <CurrencyDollarIcon className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Reports */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Hızlı Raporlar</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-green-100 rounded-lg">
+        {/* Summary Cards */}
+        {summary && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white p-6 rounded-xl shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Toplam Gelir</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(summary.totalRevenue)}</p>
+                  <p className="text-sm text-green-600">Bu dönem</p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-full">
                   <ArrowTrendingUpIcon className="w-6 h-6 text-green-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Gelir Tablosu</h3>
               </div>
-              <p className="text-gray-600 mb-4">
-                Gelir, gider ve kar/zarar analizi
-              </p>
-              <button className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                Rapor Oluştur
-              </button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <ChartBarIcon className="w-6 h-6 text-blue-600" />
+            <div className="bg-white p-6 rounded-xl shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Toplam Gider</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(summary.totalExpenses)}</p>
+                  <p className="text-sm text-red-600">Bu dönem</p>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Bilanço</h3>
+                <div className="p-3 bg-red-100 rounded-full">
+                  <ArrowTrendingDownIcon className="w-6 h-6 text-red-600" />
+                </div>
               </div>
-              <p className="text-gray-600 mb-4">
-                Varlık, borç ve özkaynak analizi
-              </p>
-              <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                Rapor Oluştur
-              </button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <CurrencyDollarIcon className="w-6 h-6 text-purple-600" />
+            <div className="bg-white p-6 rounded-xl shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Net Kar</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(summary.netProfit)}</p>
+                  <p className="text-sm text-blue-600">%{summary.profitMargin.toFixed(1)} kar marjı</p>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Nakit Akış</h3>
+                <div className="p-3 bg-blue-100 rounded-full">
+                  <CurrencyDollarIcon className="w-6 h-6 text-blue-600" />
+                </div>
               </div>
-              <p className="text-gray-600 mb-4">
-                Nakit giriş ve çıkış analizi
-              </p>
-              <button className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                Rapor Oluştur
-              </button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <UserGroupIcon className="w-6 h-6 text-orange-600" />
+            <div className="bg-white p-6 rounded-xl shadow-sm border">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Raporlar</p>
+                  <p className="text-2xl font-bold text-gray-900">{summary.totalReports}</p>
+                  <p className="text-sm text-gray-500">+{summary.generatedThisMonth} bu ay</p>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Yaşlandırılmış Alacaklar</h3>
+                <div className="p-3 bg-purple-100 rounded-full">
+                  <DocumentChartBarIcon className="w-6 h-6 text-purple-600" />
+                </div>
               </div>
-              <p className="text-gray-600 mb-4">
-                Müşteri alacaklarının yaş analizi
-              </p>
-              <button className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors">
-                Rapor Oluştur
-              </button>
             </div>
+          </div>
+        )}
 
-            <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-red-100 rounded-lg">
-                  <ExclamationTriangleIcon className="w-6 h-6 text-red-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">Vergi Raporu</h3>
-              </div>
-              <p className="text-gray-600 mb-4">
-                KDV, stopaj ve diğer vergi raporları
-              </p>
-              <button className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                Rapor Oluştur
-              </button>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="p-2 bg-indigo-100 rounded-lg">
-                  <ShoppingCartIcon className="w-6 h-6 text-indigo-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">Satış Analizi</h3>
-              </div>
-              <p className="text-gray-600 mb-4">
-                Ürün ve müşteri bazlı satış analizi
-              </p>
-              <button className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                Rapor Oluştur
-              </button>
+        {/* Quick Report Templates */}
+        <div className="bg-white rounded-xl shadow-sm border mb-6">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Hızlı Rapor Şablonları</h3>
+          </div>
+          
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {templates.map((template) => {
+                const TypeIcon = getTypeIcon(template.type);
+                return (
+                  <div key={template.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-center mb-3">
+                      <div className="p-2 bg-blue-100 rounded-lg mr-3">
+                        <TypeIcon className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">{template.name}</h4>
+                        <p className="text-sm text-gray-500">{template.description}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">{getTypeName(template.type)}</span>
+                      <button
+                        onClick={() => handleGenerateReport(template.id, periodFilter)}
+                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+                      >
+                        Oluştur
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Generated Reports */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Oluşturulan Raporlar</h2>
-          <div className="bg-white rounded-xl shadow-sm border">
-            <div className="p-6">
-              <div className="space-y-4">
-                {reports.map((report) => {
-                  const Icon = getTypeIcon(report.type);
-                  return (
-                    <div key={report.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-4">
-                          <div className="p-2 bg-gray-100 rounded-lg">
-                            <Icon className="w-6 h-6 text-gray-600" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900">{report.name}</h4>
-                            <p className="text-sm text-gray-600">{getTypeText(report.type)}</p>
-                            <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                              <span>Dönem: {report.period}</span>
-                              <span>Boyut: {formatFileSize(report.fileSize)}</span>
-                              <span>İndirme: {report.downloadCount}</span>
-                              <span>Oluşturulma: {new Date(report.generatedAt).toLocaleDateString('tr-TR')}</span>
+        {/* Filters */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Arama</label>
+              <div className="relative">
+                <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Rapor ara..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tip</label>
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Tüm Tipler</option>
+                <option value="income_statement">Gelir Tablosu</option>
+                <option value="balance_sheet">Bilanço</option>
+                <option value="cash_flow">Nakit Akışı</option>
+                <option value="aged_receivables">Yaşlandırılmış Alacaklar</option>
+                <option value="tax_report">Vergi Raporu</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Durum</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">Tüm Durumlar</option>
+                <option value="draft">Taslak</option>
+                <option value="generated">Oluşturuldu</option>
+                <option value="approved">Onaylandı</option>
+                <option value="archived">Arşivlendi</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Dönem</label>
+              <select
+                value={periodFilter}
+                onChange={(e) => setPeriodFilter(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="current_month">Bu Ay</option>
+                <option value="last_month">Geçen Ay</option>
+                <option value="current_quarter">Bu Çeyrek</option>
+                <option value="last_quarter">Geçen Çeyrek</option>
+                <option value="current_year">Bu Yıl</option>
+                <option value="last_year">Geçen Yıl</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Reports Table */}
+        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">Mali Raporlar</h3>
+          </div>
+          
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="text-gray-500 mt-2">Raporlar yükleniyor...</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Rapor
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tip
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Dönem
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Durum
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Oluşturulma
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Özet
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      İşlemler
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredReports.map((report) => {
+                    const TypeIcon = getTypeIcon(report.type);
+                    return (
+                      <tr key={report.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <TypeIcon className="h-5 w-5 text-blue-600" />
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">{report.name}</div>
+                              <div className="text-sm text-gray-500">{report.generatedBy}</div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(report.status)}`}>
-                            {getStatusText(report.status)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="text-sm text-gray-900">{getTypeName(report.type)}</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {report.period}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(report.status)}`}>
+                            {report.status === 'draft' ? 'Taslak' :
+                             report.status === 'generated' ? 'Oluşturuldu' :
+                             report.status === 'approved' ? 'Onaylandı' : 'Arşivlendi'}
                           </span>
-                          <div className="flex space-x-1">
-                            <button className="text-blue-600 hover:text-blue-700" title="Görüntüle">
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {formatDateTime(report.generatedDate)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            <div>Gelir: {formatCurrency(report.summary.totalRevenue)}</div>
+                            <div>Gider: {formatCurrency(report.summary.totalExpenses)}</div>
+                            <div className="font-medium">Net: {formatCurrency(report.summary.netProfit)}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleViewReport(report.id)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
                               <EyeIcon className="w-4 h-4" />
                             </button>
-                            <button className="text-gray-600 hover:text-gray-700" title="İndir">
+                            <button className="text-gray-600 hover:text-gray-900">
                               <ArrowDownTrayIcon className="w-4 h-4" />
                             </button>
-                            <button className="text-gray-600 hover:text-gray-700" title="Yazdır">
+                            <button className="text-gray-600 hover:text-gray-900">
                               <PrinterIcon className="w-4 h-4" />
                             </button>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-          </div>
-        </div>
-
-        {/* Financial Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white rounded-xl shadow-sm border p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Alacaklar Yaş Analizi</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Güncel</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '70%' }}></div>
-                  </div>
-                  <span className="text-sm font-medium">{formatCurrency(reportData?.receivables.current || 0)}</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">30 Gün Gecikmiş</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '30%' }}></div>
-                  </div>
-                  <span className="text-sm font-medium">{formatCurrency(reportData?.receivables.overdue30 || 0)}</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">60 Gün Gecikmiş</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div className="bg-orange-500 h-2 rounded-full" style={{ width: '15%' }}></div>
-                  </div>
-                  <span className="text-sm font-medium">{formatCurrency(reportData?.receivables.overdue60 || 0)}</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">90+ Gün Gecikmiş</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div className="bg-red-500 h-2 rounded-full" style={{ width: '10%' }}></div>
-                  </div>
-                  <span className="text-sm font-medium">{formatCurrency(reportData?.receivables.overdue90Plus || 0)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Finansal Durum</h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Dönen Varlıklar</span>
-                <span className="text-sm font-medium">{formatCurrency(reportData?.currentAssets || 0)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Duran Varlıklar</span>
-                <span className="text-sm font-medium">{formatCurrency(reportData?.fixedAssets || 0)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Kısa Vadeli Borçlar</span>
-                <span className="text-sm font-medium">{formatCurrency(reportData?.currentLiabilities || 0)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Uzun Vadeli Borçlar</span>
-                <span className="text-sm font-medium">{formatCurrency(reportData?.longTermLiabilities || 0)}</span>
-              </div>
-              <div className="border-t pt-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-semibold text-gray-900">Özkaynaklar</span>
-                  <span className="text-sm font-bold text-green-600">{formatCurrency(reportData?.equity || 0)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
