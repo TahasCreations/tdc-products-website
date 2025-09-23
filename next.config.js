@@ -57,6 +57,10 @@ const nextConfig = {
           ],
           // Performance optimizations
           scrollRestoration: true,
+          // Bundle optimization
+          optimizeCss: false, // Disable to avoid critters dependency
+          // Memory optimization
+          memoryBasedWorkersCount: true,
         },
   
   // Output configuration for Vercel

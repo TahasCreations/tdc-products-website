@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useAuth } from '../../../../contexts/AuthContext';
 import AdminProtection from '../../../../components/AdminProtection';
 import { 
@@ -347,13 +348,12 @@ export default function PWAManagement() {
                   {pwaConfig.icons.map((icon, index) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-center justify-center mb-4">
-                        <img
+                        <Image
                           src={icon.src}
                           alt={`Icon ${icon.sizes}`}
+                          width={64}
+                          height={64}
                           className="w-16 h-16 object-contain"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
                         />
                       </div>
                       <div className="text-center">

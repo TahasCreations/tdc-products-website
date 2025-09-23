@@ -345,7 +345,7 @@ export default function LiveDashboard() {
       const interval = setInterval(generateMockData, refreshInterval);
       return () => clearInterval(interval);
     }
-  }, [isLive, refreshInterval]);
+  }, [isLive, refreshInterval, notifications]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

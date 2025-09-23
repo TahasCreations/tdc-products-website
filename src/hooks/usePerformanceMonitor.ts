@@ -117,8 +117,9 @@ export function usePerformanceMonitor() {
     }
 
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
+      const currentObserver = observerRef.current;
+      if (currentObserver) {
+        currentObserver.disconnect();
       }
     };
   }, [startMonitoring]);
