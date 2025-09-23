@@ -22,7 +22,12 @@ import {
   CpuChipIcon,
   DevicePhoneMobileIcon,
   CodeBracketIcon,
-  ChartBarIcon as PerformanceIcon
+  ChartBarIcon as PerformanceIcon,
+  ArrowRightOnRectangleIcon,
+  HomeIcon,
+  BuildingOfficeIcon,
+  PencilSquareIcon,
+  CreditCardIcon
 } from '@heroicons/react/24/outline';
 
 interface DashboardStats {
@@ -98,62 +103,63 @@ export default function AdminDashboard() {
     }, 1000);
   }, []);
 
-  const quickActions: QuickAction[] = [
+  // Ana Modüller - Hızlı Eylemler yerine
+  const mainModules = [
     {
-      title: 'Ürün Ekle',
-      description: 'Yeni ürün ekle ve katalogunu genişlet',
-      icon: PlusIcon,
-      href: '/admin/products',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100'
-    },
-    {
-      title: 'Sipariş Yönetimi',
-      description: 'Siparişleri takip et ve yönet',
-      icon: ShoppingCartIcon,
-      href: '/admin/orders',
-      color: 'text-green-600',
-      bgColor: 'bg-green-100'
-    },
-    {
-      title: 'Muhasebe',
-      description: 'Eta Paraşüt entegrasyonu ile muhasebe',
-      icon: CurrencyDollarIcon,
-      href: '/admin/accounting',
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100'
-    },
-    {
-      title: 'Performans',
-      description: 'Sistem performansı izleme ve optimizasyon',
-      icon: PerformanceIcon,
-      href: '/admin/performance',
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100'
-    },
-    {
-      title: 'E-Ticaret',
-      description: 'İkas tarzı e-ticaret modülü',
+      title: 'E-Ticaret Modülü',
+      description: 'Ürün yönetimi, sipariş takibi, stok kontrolü',
       icon: ShoppingCartIcon,
       href: '/admin/ecommerce',
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100'
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-100',
+      subModules: [
+        { title: 'Ürün Yönetimi', href: '/admin/products' },
+        { title: 'Sipariş Yönetimi', href: '/admin/orders' },
+        { title: 'Stok Yönetimi', href: '/admin/inventory' },
+        { title: 'Kampanya Yönetimi', href: '/admin/campaigns' }
+      ]
+    },
+    {
+      title: 'Muhasebe Modülü',
+      description: 'Fatura yönetimi, mali raporlar, vergi takibi',
+      icon: CurrencyDollarIcon,
+      href: '/admin/accounting',
+      color: 'text-green-600',
+      bgColor: 'bg-green-100',
+      subModules: [
+        { title: 'Fatura Yönetimi', href: '/admin/accounting/invoices' },
+        { title: 'Mali Raporlar', href: '/admin/accounting/reports' },
+        { title: 'Banka Entegrasyonu', href: '/admin/accounting/bank-integration' },
+        { title: 'Vergi Yönetimi', href: '/admin/accounting/tax-management' }
+      ]
     },
     {
       title: 'Blog Editörü',
-      description: 'Sürükle-bırak blog editörü',
-      icon: DocumentTextIcon,
+      description: 'İçerik yönetimi, SEO optimizasyonu, medya kütüphanesi',
+      icon: PencilSquareIcon,
       href: '/admin/blogs',
-      color: 'text-pink-600',
-      bgColor: 'bg-pink-100'
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-100',
+      subModules: [
+        { title: 'Blog Yazıları', href: '/admin/blogs' },
+        { title: 'Yeni Yazı Ekle', href: '/admin/blogs/write' },
+        { title: 'Kategoriler', href: '/admin/blogs/categories' },
+        { title: 'Yorumlar', href: '/admin/comments' }
+      ]
     },
     {
       title: 'Ödeme Sistemi',
-      description: 'Gelişmiş ödeme yönetimi',
-      icon: CurrencyDollarIcon,
+      description: 'Ödeme yöntemleri, işlem takibi, güvenlik',
+      icon: CreditCardIcon,
       href: '/admin/payments',
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-100'
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-100',
+      subModules: [
+        { title: 'Ödeme Yöntemleri', href: '/admin/payments' },
+        { title: 'İşlem Geçmişi', href: '/admin/payments/history' },
+        { title: 'Güvenlik Ayarları', href: '/admin/payments/security' },
+        { title: 'Raporlar', href: '/admin/payments/reports' }
+      ]
     }
   ];
 
@@ -216,13 +222,23 @@ export default function AdminDashboard() {
               <p className="text-gray-600 mt-1">Sisteminizi yönetin ve kontrol edin</p>
             </div>
             <div className="flex items-center space-x-4">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
-                <PlusIcon className="w-4 h-4 mr-2" />
-                Hızlı Eylem
-              </button>
+              <Link href="/" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center">
+                <HomeIcon className="w-4 h-4 mr-2" />
+                Ana Sayfa
+              </Link>
               <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center">
                 <CogIcon className="w-4 h-4 mr-2" />
                 Ayarlar
+              </button>
+              <button 
+                onClick={() => {
+                  localStorage.removeItem('admin_user');
+                  window.location.href = '/admin/login';
+                }}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center"
+              >
+                <ArrowRightOnRectangleIcon className="w-4 h-4 mr-2" />
+                Çıkış Yap
               </button>
             </div>
           </div>
@@ -285,35 +301,48 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Quick Actions */}
+        {/* Ana Modüller */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-            <SparklesIcon className="w-6 h-6 text-blue-600 mr-2" />
-            Hızlı Eylemler
+            <BuildingOfficeIcon className="w-6 h-6 text-blue-600 mr-2" />
+            Ana Modüller
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {quickActions.map((action, index) => (
-              <Link
-                key={index}
-                href={action.href}
-                className="group bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className={`p-3 rounded-lg ${action.bgColor} group-hover:scale-110 transition-transform duration-300`}>
-                    <action.icon className={`w-6 h-6 ${action.color}`} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                      {action.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm mt-1">{action.description}</p>
-                    <div className="flex items-center mt-3 text-blue-600 text-sm font-medium">
-                      <span>Başla</span>
-                      <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {mainModules.map((module, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200">
+                <Link href={module.href} className="block p-6 group">
+                  <div className="flex items-start space-x-4">
+                    <div className={`p-3 rounded-lg ${module.bgColor} group-hover:scale-110 transition-transform duration-200`}>
+                      <module.icon className={`w-6 h-6 ${module.color}`} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {module.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm mt-1">{module.description}</p>
+                      <div className="flex items-center mt-3 text-blue-600 text-sm font-medium group-hover:text-blue-700">
+                        <span>Modüle Git</span>
+                        <ArrowRightIcon className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                      </div>
                     </div>
                   </div>
+                </Link>
+                
+                {/* Alt Modüller */}
+                <div className="px-6 pb-4 border-t border-gray-100">
+                  <div className="grid grid-cols-2 gap-2 mt-4">
+                    {module.subModules.map((subModule, subIndex) => (
+                      <Link
+                        key={subIndex}
+                        href={subModule.href}
+                        className="text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors"
+                      >
+                        {subModule.title}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
