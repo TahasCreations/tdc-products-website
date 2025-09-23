@@ -1,11 +1,9 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
+  "buildCommand": "node vercel-build.js",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 30
