@@ -79,7 +79,7 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-12">
+          <nav className="hidden md:flex items-center space-x-16">
             <Link href="/products" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               {t('nav.products')}
             </Link>
@@ -284,7 +284,7 @@ export default function Header() {
 
           {/* Currency Selector */}
           <div className="hidden md:flex items-center">
-            <select className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors">
+            <select className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 rounded-lg px-3 py-1.5 text-sm font-medium text-blue-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-400 hover:from-blue-100 hover:to-purple-100 transition-all duration-300 shadow-sm hover:shadow-md">
               <option value="TRY">₺ TRY</option>
               <option value="USD">$ USD</option>
               <option value="EUR">€ EUR</option>
@@ -568,10 +568,12 @@ export default function Header() {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Para Birimi:</span>
                 <div className="flex items-center space-x-2">
-                  <div className="text-xs text-gray-600">100₺ =</div>
-                  <div className="bg-white border border-gray-300 rounded px-2 py-1 text-sm">
-                    <span className="text-green-600 font-medium">$3.30</span>
-                  </div>
+                  <select className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 rounded-lg px-3 py-1.5 text-sm font-medium text-blue-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-400 hover:from-blue-100 hover:to-purple-100 transition-all duration-300 shadow-sm hover:shadow-md">
+                    <option value="TRY">₺ TRY</option>
+                    <option value="USD">$ USD</option>
+                    <option value="EUR">€ EUR</option>
+                    <option value="GBP">£ GBP</option>
+                  </select>
                 </div>
               </div>
             </div>
