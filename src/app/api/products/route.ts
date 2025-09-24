@@ -1,409 +1,312 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-export const dynamic = 'force-dynamic';
-
-// Server-side Supabase client
 const createServerSupabaseClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
-  if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('Supabase environment variables are missing');
+  if (!supabaseUrl || !supabaseServiceKey) {
     return null;
   }
   
-  // URL formatını kontrol et
-  if (supabaseUrl.includes('your_supabase_project_url') || 
-      supabaseUrl === 'your_supabase_project_url/' ||
-      supabaseUrl === 'your_supabase_project_url' ||
-      !supabaseUrl.startsWith('https://')) {
-    console.error('Supabase URL is not configured properly:', supabaseUrl);
-    return null;
-  }
-  
-  try {
-    return createClient(supabaseUrl, supabaseAnonKey);
-  } catch (error) {
-    console.error('Failed to create Supabase client:', error);
-    return null;
-  }
+  return createClient(supabaseUrl, supabaseServiceKey);
 };
 
-const getDefaultProducts = () => [
-  {
-    id: "1",
-    slug: "naruto-uzumaki-figuru",
-    title: "Naruto Uzumaki Figürü",
-    price: 299.99,
-    category: "Anime",
-    stock: 15,
-    image: "",
-    images: [],
-    description: "Naruto anime serisinin baş karakteri olan Naruto Uzumaki'nin detaylı 3D baskı figürü. Yüksek kaliteli malzemelerle üretilmiştir.",
-    status: "active",
-    created_at: "2024-01-01T00:00:00.000Z",
-    updated_at: "2024-01-01T00:00:00.000Z"
-  },
-  {
-    id: "2",
-    slug: "goku-super-saiyan-figuru",
-    title: "Goku Super Saiyan Figürü",
-    price: 349.99,
-    category: "Anime",
-    stock: 8,
-    image: "",
-    images: [],
-    description: "Dragon Ball serisinin efsanevi karakteri Goku'nun Super Saiyan formundaki detaylı figürü. Koleksiyon değeri yüksek.",
-    status: "active",
-    created_at: "2024-01-01T00:00:00.000Z",
-    updated_at: "2024-01-01T00:00:00.000Z"
-  },
-  {
-    id: "3",
-    slug: "mario-bros-figuru",
-    title: "Mario Bros Figürü",
-    price: 199.99,
-    category: "Gaming",
-    stock: 25,
-    image: "",
-    images: [],
-    description: "Nintendo'nun efsanevi karakteri Mario'nun 3D baskı figürü. Oyun dünyasının en sevilen karakteri.",
-    status: "active",
-    created_at: "2024-01-01T00:00:00.000Z",
-    updated_at: "2024-01-01T00:00:00.000Z"
-  },
-  {
-    id: "4",
-    slug: "iron-man-mark-85-figuru",
-    title: "Iron Man Mark 85 Figürü",
-    price: 449.99,
-    category: "Film",
-    stock: 5,
-    image: "",
-    images: [],
-    description: "Marvel Cinematic Universe'den Iron Man'in Mark 85 zırhının detaylı figürü. LED aydınlatmalı.",
-    status: "active",
-    created_at: "2024-01-01T00:00:00.000Z",
-    updated_at: "2024-01-01T00:00:00.000Z"
-  }
-];
-
+// Ürünleri getir
 export async function GET(request: NextRequest) {
-  // Timeout kontrolü için AbortController
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 saniye timeout
-  
   try {
     const { searchParams } = new URL(request.url);
-    const slug = searchParams.get('slug');
-    
-    // API: Ürünler isteniyor
-    
-    // Eğer slug parametresi varsa, tek ürün getir
-    if (slug) {
-      try {
-        const supabase = createServerSupabaseClient();
-        if (!supabase) {
-          return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
-        }
+    const category = searchParams.get('category');
+    const search = searchParams.get('search');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const sort = searchParams.get('sort') || 'created_at';
+    const order = searchParams.get('order') || 'desc';
 
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('slug', slug)
-          .abortSignal(controller.signal)
-          .single();
-
-        if (error) {
-          console.error('Single product fetch error:', error);
-          // Default ürünlerden slug'a uygun olanı bul
-          const defaultProduct = getDefaultProducts().find(p => p.slug === slug);
-          if (defaultProduct) {
-            return NextResponse.json(defaultProduct, {
-              headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'
-              }
-            });
-          }
-          return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
-        }
-
-        // API: Tek ürün bulundu
-        return NextResponse.json(data, {
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        });
-      } catch (error) {
-        console.error('Single product error:', error);
-        return NextResponse.json({ error: 'Ürün bulunamadı' }, { status: 404 });
-      }
-    }
-    
-    // Supabase'den tüm ürünleri al
     const supabase = createServerSupabaseClient();
     if (!supabase) {
-      return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('products')
-      .select('id, slug, title, price, category, stock, image, description, status, created_at, updated_at')
-      .eq('status', 'active')
-      .abortSignal(controller.signal)
-      .order('created_at', { ascending: false });
+      .select(`
+        *,
+        category:category_id (
+          id,
+          name,
+          slug
+        ),
+        subcategory:subcategory_id (
+          id,
+          name,
+          slug
+        )
+      `)
+      .eq('status', 'active');
+
+    // Kategori filtresi
+    if (category) {
+      query = query.eq('category_id', category);
+    }
+
+    // Arama filtresi
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,tags.cs.{${search}}`);
+    }
+
+    // Sıralama
+    query = query.order(sort, { ascending: order === 'asc' });
+
+    // Sayfalama
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    query = query.range(from, to);
+
+    const { data: products, error, count } = await query;
 
     if (error) {
-      console.error('All products fetch error:', error);
-      return NextResponse.json({ error: 'Ürünler alınamadı' }, { status: 500 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Ürünler alınamadı' 
+      }, { status: 500 });
     }
-    
-    // API: Supabase'den ürünler alındı
-    
-    if (data.length > 0) {
-      return NextResponse.json(data, {
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-    }
-    
-    // Eğer Supabase'de ürün yoksa default ürünleri döndür
-    // API: Default ürünler döndürülüyor
-    return NextResponse.json(getDefaultProducts(), {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+
+    return NextResponse.json({
+      success: true,
+      products: products || [],
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        pages: Math.ceil((count || 0) / limit)
       }
     });
+
   } catch (error) {
-    console.error('GET Error:', error);
-    return NextResponse.json(getDefaultProducts(), {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    });
-  } finally {
-    clearTimeout(timeoutId);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Sunucu hatası' 
+    }, { status: 500 });
   }
 }
 
+// Ürün oluştur
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, price, category, stock, image, images, description, slug, action } = body;
+    const {
+      title,
+      slug,
+      description,
+      short_description,
+      price,
+      compare_price,
+      cost_price,
+      sku,
+      barcode,
+      category_id,
+      subcategory_id,
+      brand,
+      model,
+      weight,
+      dimensions,
+      images,
+      main_image,
+      stock,
+      low_stock_threshold,
+      track_inventory,
+      allow_backorder,
+      is_featured,
+      is_digital,
+      download_url,
+      seo_title,
+      seo_description,
+      seo_keywords,
+      tags,
+      attributes,
+      variants
+    } = body;
 
-    // Product POST request
-
-    if (action === 'get') {
-      const supabase = createServerSupabaseClient();
-      if (!supabase) {
-        return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
-      }
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, slug, title, price, category, stock, image, description, status, created_at, updated_at')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-      if (error) {
-        console.error('Supabase get all error:', error);
-        return NextResponse.json({ error: 'Ürünler alınamadı' }, { status: 500 });
-      }
-      return NextResponse.json({
-        success: true,
-        message: 'Supabase\'den ürünler alındı',
-        products: data.length > 0 ? data : getDefaultProducts()
-      });
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
     }
 
-    if (action === 'add') {
-      // Gelişmiş validasyon
-      if (!title || !title.trim()) {
-        return NextResponse.json({ error: 'Ürün adı gerekli' }, { status: 400 });
-      }
-      
-      if (title.trim().length < 3) {
-        return NextResponse.json({ error: 'Ürün adı en az 3 karakter olmalı' }, { status: 400 });
-      }
-      
-      if (title.trim().length > 200) {
-        return NextResponse.json({ error: 'Ürün adı en fazla 200 karakter olabilir' }, { status: 400 });
-      }
-      
-      if (!price || isNaN(parseFloat(price)) || parseFloat(price) < 0) {
-        return NextResponse.json({ error: 'Geçerli fiyat gerekli (0 veya pozitif sayı)' }, { status: 400 });
-      }
-      
-      if (parseFloat(price) > 999999) {
-        return NextResponse.json({ error: 'Fiyat çok yüksek (max: 999,999)' }, { status: 400 });
-      }
-      
-      if (!category || !category.trim()) {
-        return NextResponse.json({ error: 'Kategori gerekli' }, { status: 400 });
-      }
-      
-      if (!stock || isNaN(parseInt(stock)) || parseInt(stock) < 0) {
-        return NextResponse.json({ error: 'Geçerli stok miktarı gerekli (0 veya pozitif sayı)' }, { status: 400 });
-      }
-      
-      if (parseInt(stock) > 99999) {
-        return NextResponse.json({ error: 'Stok miktarı çok yüksek (max: 99,999)' }, { status: 400 });
-      }
+    // Slug oluştur
+    const productSlug = slug || title.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
 
-      const supabase = createServerSupabaseClient();
-      if (!supabase) {
-        return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
-      }
-
-      const productSlug = slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-
-      const newProduct = {
+    const { data: product, error } = await supabase
+      .from('products')
+      .insert({
+        title,
         slug: productSlug,
-        title: title.trim(),
-        price: parseFloat(price),
-        category: category.trim(),
-        stock: parseInt(stock),
-        image: image || (images && images.length > 0 ? images[0] : ''),
-        images: images || [],
-        description: description ? description.trim() : '',
-        status: 'active'
-      };
+        description,
+        short_description,
+        price,
+        compare_price,
+        cost_price,
+        sku,
+        barcode,
+        category_id,
+        subcategory_id,
+        brand,
+        model,
+        weight,
+        dimensions,
+        images,
+        main_image,
+        stock,
+        low_stock_threshold,
+        track_inventory,
+        allow_backorder,
+        is_featured,
+        is_digital,
+        download_url,
+        seo_title,
+        seo_description,
+        seo_keywords,
+        tags,
+        attributes,
+        variants
+      })
+      .select()
+      .single();
 
-      // Adding new product to Supabase - Retry mekanizması ile
-      let insertSuccess = false;
-      let lastError: any = null;
-      const maxRetries = 3;
-
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          const { data, error } = await supabase
-            .from('products')
-            .insert([newProduct])
-            .select()
-            .single();
-
-          if (error) {
-            lastError = error;
-            console.error(`Product insert attempt ${attempt} error:`, error);
-            
-            // Benzersizlik hatası
-            if (error.code === '23505' || error.message.includes('duplicate')) {
-              return NextResponse.json({ error: 'Bu ürün zaten mevcut (slug benzersizlik hatası)' }, { status: 400 });
-            }
-            
-            // Son deneme değilse tekrar dene
-            if (attempt < maxRetries) {
-              await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-              continue;
-            }
-            
-            return NextResponse.json({ error: `Ürün eklenemedi (${maxRetries} deneme): ${error.message}` }, { status: 500 });
-          }
-
-          insertSuccess = true;
-          return NextResponse.json({
-            success: true,
-            message: 'Ürün başarıyla eklendi',
-            product: data,
-            storageType: 'supabase',
-            attempts: attempt
-          });
-        } catch (supabaseError) {
-          lastError = supabaseError;
-          console.error(`Product insert attempt ${attempt} process error:`, supabaseError);
-          
-          if (attempt < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-            continue;
-          }
-          
-          return NextResponse.json({ error: `Supabase hatası (${maxRetries} deneme): ${supabaseError}` }, { status: 500 });
-        }
+    if (error) {
+      if (error.code === '23505') { // Unique constraint violation
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Bu slug veya SKU zaten kullanılıyor' 
+        }, { status: 400 });
       }
-
-      if (!insertSuccess) {
-        return NextResponse.json({ error: 'Ürün eklenemedi' }, { status: 500 });
-      }
+      
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Ürün oluşturulamadı' 
+      }, { status: 500 });
     }
 
-    if (action === 'update') {
-      const { id, ...updates } = body;
-      if (!id) {
-        return NextResponse.json({ error: 'Ürün ID gerekli' }, { status: 400 });
-      }
+    return NextResponse.json({
+      success: true,
+      product
+    });
 
-      const supabase = createServerSupabaseClient();
-      if (!supabase) {
-        return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('products')
-          .update(updates)
-          .eq('id', id)
-          .select()
-          .single();
-
-        if (error) {
-          console.error('Supabase update product error:', error);
-          return NextResponse.json({ error: 'Ürün güncellenemedi' }, { status: 500 });
-        }
-        return NextResponse.json({
-          success: true,
-          message: 'Ürün güncellendi',
-          product: data
-        });
-      } catch (supabaseError) {
-        console.error('Supabase update error:', supabaseError);
-        return NextResponse.json({ error: 'Güncelleme hatası: ' + supabaseError }, { status: 500 });
-      }
-    }
-
-    if (action === 'delete') {
-      const { id } = body;
-      if (!id) {
-        return NextResponse.json({ error: 'Ürün ID gerekli' }, { status: 400 });
-      }
-
-      const supabase = createServerSupabaseClient();
-      if (!supabase) {
-        return NextResponse.json({ error: 'Supabase bağlantısı kurulamadı' }, { status: 500 });
-      }
-
-      try {
-        const { error } = await supabase
-          .from('products')
-          .delete()
-          .eq('id', id);
-
-        if (error) {
-          console.error('Supabase delete product error:', error);
-          return NextResponse.json({ error: 'Ürün silinemedi' }, { status: 500 });
-        }
-        return NextResponse.json({
-          success: true,
-          message: 'Ürün silindi'
-        });
-      } catch (supabaseError) {
-        console.error('Supabase delete error:', supabaseError);
-        return NextResponse.json({ error: 'Silme hatası: ' + supabaseError }, { status: 500 });
-      }
-    }
-
-    return NextResponse.json({ error: 'Geçersiz işlem' }, { status: 400 });
   } catch (error) {
-    console.error('Product creation error:', error);
-    return NextResponse.json({ error: 'Sunucu hatası: ' + error }, { status: 500 });
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Sunucu hatası' 
+    }, { status: 500 });
+  }
+}
+
+// Ürün güncelle
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, ...updateData } = body;
+
+    if (!id) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Ürün ID gerekli' 
+      }, { status: 400 });
+    }
+
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
+    }
+
+    const { data: product, error } = await supabase
+      .from('products')
+      .update({
+        ...updateData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === '23505') { // Unique constraint violation
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Bu slug veya SKU zaten kullanılıyor' 
+        }, { status: 400 });
+      }
+      
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Ürün güncellenemedi' 
+      }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      product
+    });
+
+  } catch (error) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Sunucu hatası' 
+    }, { status: 500 });
+  }
+}
+
+// Ürün sil
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Ürün ID gerekli' 
+      }, { status: 400 });
+    }
+
+    const supabase = createServerSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Veritabanı bağlantısı kurulamadı' 
+      }, { status: 500 });
+    }
+
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Ürün silinemedi' 
+      }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      success: true
+    });
+
+  } catch (error) {
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Sunucu hatası' 
+    }, { status: 500 });
   }
 }

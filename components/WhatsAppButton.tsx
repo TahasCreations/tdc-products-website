@@ -2,14 +2,14 @@
 
 export default function WhatsAppButton() {
   const handleWhatsAppClick = () => {
-    const message = encodeURIComponent('Merhaba! TDC Products ürünleri hakkında bilgi almak istiyorum.');
+    const message = encodeURIComponent('Merhaba! TDC Market ürünleri hakkında bilgi almak istiyorum.');
     window.open(`https://wa.me/905558988242?text=${message}`, '_blank');
   };
 
   return (
     <button
       onClick={handleWhatsAppClick}
-      className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 group hover:scale-110"
+      className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group hover:scale-110"
       aria-label="WhatsApp ile iletişime geç"
     >
       <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

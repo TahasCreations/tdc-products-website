@@ -24,7 +24,7 @@ const AIChatbot: React.FC<AIChatbotProps> = ({ context }) => {
     {
       id: '1',
       role: 'assistant',
-      content: 'Merhaba! 👋 TDC Products AI asistanıyım. Size nasıl yardımcı olabilirim?',
+      content: 'Merhaba! 👋 TDC Market AI asistanıyım. Size nasıl yardımcı olabilirim?',
       timestamp: new Date()
     }
   ]);
@@ -126,7 +126,7 @@ const AIChatbot: React.FC<AIChatbotProps> = ({ context }) => {
       {
         id: '1',
         role: 'assistant',
-        content: 'Merhaba! 👋 TDC Products AI asistanıyım. Size nasıl yardımcı olabilirim?',
+        content: 'Merhaba! 👋 TDC Market AI asistanıyım. Size nasıl yardımcı olabilirim?',
         timestamp: new Date()
       }
     ]);
@@ -144,15 +144,18 @@ const AIChatbot: React.FC<AIChatbotProps> = ({ context }) => {
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
+        className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group hover:scale-110"
         title="AI Asistan ile Konuş"
       >
         <div className="relative">
-          <i className="ri-robot-line text-2xl"></i>
+          <span className="text-2xl">🤖</span>
           {!isOpen && (
             <div className="absolute -top-2 -right-2 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
           )}
         </div>
+        <span className="absolute right-full mr-3 top-1/2 transform -translate-y-1/2 bg-gray-900 text-white px-3 py-1 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+          AI Asistan ile Konuş
+        </span>
       </button>
 
       {/* Chat Window */}
@@ -161,10 +164,10 @@ const AIChatbot: React.FC<AIChatbotProps> = ({ context }) => {
           {/* Header */}
           <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <i className="ri-robot-line text-xl"></i>
+              <span className="text-xl">🤖</span>
               <div>
                 <h3 className="font-semibold">AI Asistan</h3>
-                <p className="text-xs opacity-90">TDC Products</p>
+                <p className="text-xs opacity-90">TDC Market</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">

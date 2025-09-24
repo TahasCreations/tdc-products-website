@@ -93,8 +93,10 @@ export default function RootLayout({
                               </ErrorBoundary>
                             </main>
                             <Footer />
-                            <WhatsAppButton />
-                            <AIChatbot context={{ userType: 'customer' }} />
+                            <div className="fixed bottom-6 right-6 z-50 flex flex-col space-y-3">
+                              <WhatsAppButton />
+                              <AIChatbot context={{ userType: 'customer' }} />
+                            </div>
                             
                             {/* Analytics */}
                             <GoogleAnalytics 
