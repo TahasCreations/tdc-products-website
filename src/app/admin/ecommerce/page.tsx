@@ -97,6 +97,9 @@ export default function EcommercePage() {
     description: '',
     image: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+  const [submitMessageType, setSubmitMessageType] = useState<'success' | 'error' | ''>('');
 
   useEffect(() => {
     const fetchEcommerceData = async () => {
@@ -275,19 +278,26 @@ export default function EcommercePage() {
     
     // Form validasyonu
     if (!productForm.name || !productForm.price || !productForm.category) {
-      alert('Lütfen tüm zorunlu alanları doldurun.');
+      setSubmitMessage('Lütfen tüm zorunlu alanları doldurun.');
+      setSubmitMessageType('error');
       return;
     }
 
     if (parseFloat(productForm.price) <= 0) {
-      alert('Fiyat 0\'dan büyük olmalıdır.');
+      setSubmitMessage('Fiyat 0\'dan büyük olmalıdır.');
+      setSubmitMessageType('error');
       return;
     }
 
     if (parseInt(productForm.stock) < 0) {
-      alert('Stok miktarı negatif olamaz.');
+      setSubmitMessage('Stok miktarı negatif olamaz.');
+      setSubmitMessageType('error');
       return;
     }
+    
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    setSubmitMessageType('');
     
     try {
       const productData = {
@@ -327,6 +337,8 @@ export default function EcommercePage() {
         });
         setShowProductModal(false);
         setEditingProduct(null);
+        setSubmitMessage(editingProduct ? 'Ürün başarıyla güncellendi!' : 'Ürün başarıyla eklendi!');
+        setSubmitMessageType('success');
         
         // Ürünleri yeniden yükle
         const productsResponse = await fetch('/api/ecommerce?type=products');
@@ -335,11 +347,15 @@ export default function EcommercePage() {
           setProducts(productsData.products || []);
         }
       } else {
-        alert('Hata: ' + result.error);
+        setSubmitMessage('Hata: ' + (result.error || 'Bilinmeyen hata'));
+        setSubmitMessageType('error');
       }
     } catch (error) {
       console.error('Ürün kaydetme hatası:', error);
-      alert('Ürün kaydedilirken bir hata oluştu');
+      setSubmitMessage('Ürün kaydedilirken bir hata oluştu');
+      setSubmitMessageType('error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -353,6 +369,8 @@ export default function EcommercePage() {
       description: product.description || '',
       image: product.image
     });
+    setSubmitMessage('');
+    setSubmitMessageType('');
     setShowProductModal(true);
   };
 
@@ -437,6 +455,8 @@ export default function EcommercePage() {
                     description: '',
                     image: ''
                   });
+                  setSubmitMessage('');
+                  setSubmitMessageType('');
                   setShowProductModal(true);
                 }}
                 className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
@@ -591,6 +611,8 @@ export default function EcommercePage() {
                       description: '',
                       image: ''
                     });
+                    setSubmitMessage('');
+                    setSubmitMessageType('');
                     setShowProductModal(true);
                   }}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -618,6 +640,8 @@ export default function EcommercePage() {
                         description: '',
                         image: ''
                       });
+                      setSubmitMessage('');
+                      setSubmitMessageType('');
                       setShowProductModal(true);
                     }}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -1037,6 +1061,24 @@ export default function EcommercePage() {
               </button>
             </div>
 
+            {/* Hata/Başarı Mesajı */}
+            {submitMessage && (
+              <div className={`mb-4 p-4 rounded-lg ${
+                submitMessageType === 'error' 
+                  ? 'bg-red-50 border border-red-200 text-red-700' 
+                  : 'bg-green-50 border border-green-200 text-green-700'
+              }`}>
+                <div className="flex items-center">
+                  {submitMessageType === 'error' ? (
+                    <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
+                  ) : (
+                    <CheckCircleIcon className="w-5 h-5 mr-2" />
+                  )}
+                  <span className="text-sm font-medium">{submitMessage}</span>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleProductSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -1139,9 +1181,14 @@ export default function EcommercePage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                  disabled={isSubmitting}
+                  className={`px-4 py-2 text-white rounded-lg transition-colors ${
+                    isSubmitting 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
                 >
-                  {editingProduct ? 'Güncelle' : 'Ekle'}
+                  {isSubmitting ? 'Kaydediliyor...' : (editingProduct ? 'Güncelle' : 'Ekle')}
                 </button>
               </div>
             </form>
