@@ -93,6 +93,7 @@ export default function EcommercePage() {
     name: '',
     price: '',
     category: '',
+    subcategory: '',
     stock: '',
     description: '',
     image: ''
@@ -125,6 +126,21 @@ export default function EcommercePage() {
     cartAbandonment: 0,
     customerSatisfaction: 0
   });
+  
+  // Category management states
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [categoryForm, setCategoryForm] = useState({
+    name: '',
+    slug: '',
+    parentId: null,
+    description: '',
+    image: '',
+    sortOrder: 0
+  });
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [selectedParentCategory, setSelectedParentCategory] = useState(null);
 
   useEffect(() => {
     const fetchEcommerceData = async () => {
@@ -250,6 +266,7 @@ export default function EcommercePage() {
     };
 
     fetchEcommerceData();
+    fetchCategories();
   }, []);
 
   // Fetch integration status
@@ -265,6 +282,108 @@ export default function EcommercePage() {
       }
     } catch (error) {
       console.error('Error fetching integration status:', error);
+    }
+  };
+
+  // Category management functions
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      const data = await response.json();
+      if (data.success) {
+        setCategories(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchSubcategories = async (parentId) => {
+    try {
+      const response = await fetch(`/api/categories?parentId=${parentId}`);
+      const data = await response.json();
+      if (data.success) {
+        setSubcategories(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching subcategories:', error);
+    }
+  };
+
+  const handleCategorySubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    setSubmitMessageType('');
+
+    try {
+      const method = editingCategory ? 'PUT' : 'POST';
+      const response = await fetch('/api/categories', {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...categoryForm,
+          id: editingCategory?.id
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitMessage(editingCategory ? 'Kategori güncellendi!' : 'Kategori oluşturuldu!');
+        setSubmitMessageType('success');
+        setShowCategoryModal(false);
+        setCategoryForm({ name: '', slug: '', parentId: null, description: '', image: '', sortOrder: 0 });
+        setEditingCategory(null);
+        fetchCategories();
+      } else {
+        setSubmitMessage(data.message || 'Bir hata oluştu');
+        setSubmitMessageType('error');
+      }
+    } catch (error) {
+      setSubmitMessage('Bir hata oluştu');
+      setSubmitMessageType('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setCategoryForm({
+      name: category.name,
+      slug: category.slug,
+      parentId: category.parentId,
+      description: category.description,
+      image: category.image,
+      sortOrder: category.sortOrder
+    });
+    setShowCategoryModal(true);
+  };
+
+  const handleDeleteCategory = async (categoryId) => {
+    if (confirm('Bu kategoriyi silmek istediğinizden emin misiniz?')) {
+      try {
+        const response = await fetch(`/api/categories?id=${categoryId}`, {
+          method: 'DELETE',
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setSubmitMessage('Kategori silindi!');
+          setSubmitMessageType('success');
+          fetchCategories();
+        } else {
+          setSubmitMessage(data.message || 'Bir hata oluştu');
+          setSubmitMessageType('error');
+        }
+      } catch (error) {
+        setSubmitMessage('Bir hata oluştu');
+        setSubmitMessageType('error');
+      }
     }
   };
 
@@ -371,6 +490,7 @@ export default function EcommercePage() {
           name: '',
           price: '',
           category: '',
+          subcategory: '',
           stock: '',
           description: '',
           image: ''
@@ -404,6 +524,7 @@ export default function EcommercePage() {
       name: product.title || product.name,
       price: product.price.toString(),
       category: product.category,
+      subcategory: '',
       stock: product.stock.toString(),
       description: product.description || '',
       image: product.image
@@ -489,6 +610,7 @@ export default function EcommercePage() {
                     name: '',
                     price: '',
                     category: '',
+                    subcategory: '',
                     stock: '',
                     description: '',
                     image: ''
@@ -526,6 +648,7 @@ export default function EcommercePage() {
               { id: 'bulk', label: 'Toplu İşlemler' },
               { id: 'integrations', label: 'Entegrasyonlar' },
               { id: 'mobile', label: 'Mobil Uygulama' },
+              { id: 'categories', label: 'Kategori Yönetimi' },
               { id: 'advanced', label: 'Gelişmiş Özellikler' }
             ].map((tab) => (
               <button
@@ -654,6 +777,7 @@ export default function EcommercePage() {
                       name: '',
                       price: '',
                       category: '',
+                      subcategory: '',
                       stock: '',
                       description: '',
                       image: ''
@@ -683,6 +807,7 @@ export default function EcommercePage() {
                         name: '',
                         price: '',
                         category: '',
+                        subcategory: '',
                         stock: '',
                         description: '',
                         image: ''
@@ -1334,10 +1459,16 @@ export default function EcommercePage() {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Abonelik Yönetimi</h3>
                 <div className="flex space-x-2">
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  <button 
+                    onClick={() => window.open('/subscriptions?type=seller', '_blank')}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
                     Satıcı Planları
                   </button>
-                  <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                  <button 
+                    onClick={() => window.open('/subscriptions?type=buyer', '_blank')}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
                     Alıcı Planları
                   </button>
                 </div>
@@ -2188,7 +2319,241 @@ export default function EcommercePage() {
             </div>
           </div>
         )}
+
+        {/* Kategori Yönetimi Tab */}
+        {selectedTab === 'categories' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Kategori Yönetimi</h3>
+                <button 
+                  onClick={() => setShowCategoryModal(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  <span>Yeni Kategori</span>
+                </button>
+              </div>
+
+              {/* Ana Kategoriler */}
+              <div className="mb-8">
+                <h4 className="text-md font-semibold text-gray-900 mb-4">Ana Kategoriler</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {categories.filter(cat => cat.level === 0).map(category => (
+                    <div key={category.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="font-medium text-gray-900">{category.name}</h5>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleEditCategory(category)}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(category.id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">{category.description}</p>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>ID: {category.id}</span>
+                        <span className={`px-2 py-1 rounded-full ${
+                          category.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {category.isActive ? 'Aktif' : 'Pasif'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Alt Kategoriler */}
+              <div>
+                <h4 className="text-md font-semibold text-gray-900 mb-4">Alt Kategoriler</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {categories.filter(cat => cat.level === 1).map(subcategory => {
+                    const parentCategory = categories.find(cat => cat.id === subcategory.parentId);
+                    return (
+                      <div key={subcategory.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                          <h5 className="font-medium text-gray-900">{subcategory.name}</h5>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleEditCategory(subcategory)}
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              <PencilIcon className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCategory(subcategory.id)}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{subcategory.description}</p>
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                          <span>Ana: {parentCategory?.name || 'Bilinmiyor'}</span>
+                          <span className={`px-2 py-1 rounded-full ${
+                            subcategory.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {subcategory.isActive ? 'Aktif' : 'Pasif'}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Kategori Modal */}
+      {showCategoryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">
+                {editingCategory ? 'Kategoriyi Düzenle' : 'Yeni Kategori Ekle'}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowCategoryModal(false);
+                  setEditingCategory(null);
+                  setCategoryForm({ name: '', slug: '', parentId: null, description: '', image: '', sortOrder: 0 });
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleCategorySubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Kategori Adı *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={categoryForm.name}
+                    onChange={(e) => setCategoryForm({...categoryForm, name: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Kategori adını girin"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Slug *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={categoryForm.slug}
+                    onChange={(e) => setCategoryForm({...categoryForm, slug: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="kategori-slug"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ana Kategori
+                  </label>
+                  <select
+                    value={categoryForm.parentId || ''}
+                    onChange={(e) => setCategoryForm({...categoryForm, parentId: e.target.value ? parseInt(e.target.value) : null})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Ana kategori (boş bırakın)</option>
+                    {categories.filter(cat => cat.level === 0).map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sıralama
+                  </label>
+                  <input
+                    type="number"
+                    value={categoryForm.sortOrder}
+                    onChange={(e) => setCategoryForm({...categoryForm, sortOrder: parseInt(e.target.value) || 0})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Açıklama
+                </label>
+                <textarea
+                  value={categoryForm.description}
+                  onChange={(e) => setCategoryForm({...categoryForm, description: e.target.value})}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Kategori açıklamasını girin"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Görsel URL
+                </label>
+                <input
+                  type="url"
+                  value={categoryForm.image}
+                  onChange={(e) => setCategoryForm({...categoryForm, image: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCategoryModal(false);
+                    setEditingCategory(null);
+                    setCategoryForm({ name: '', slug: '', parentId: null, description: '', image: '', sortOrder: 0 });
+                  }}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`px-4 py-2 rounded-lg text-white ${
+                    isSubmitting
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                >
+                  {isSubmitting ? 'Kaydediliyor...' : (editingCategory ? 'Güncelle' : 'Ekle')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Ürün Modal */}
       {showProductModal && (
@@ -2264,15 +2629,41 @@ export default function EcommercePage() {
                   <select
                     required
                     value={productForm.category}
-                    onChange={(e) => setProductForm({...productForm, category: e.target.value})}
+                    onChange={(e) => {
+                      const selectedCategory = categories.find(cat => cat.name === e.target.value);
+                      setProductForm({...productForm, category: e.target.value, subcategory: ''});
+                      if (selectedCategory) {
+                        fetchSubcategories(selectedCategory.id);
+                      } else {
+                        setSubcategories([]);
+                      }
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Kategori seçin</option>
-                    <option value="Anime">Anime</option>
-                    <option value="Manga">Manga</option>
-                    <option value="Oyun">Oyun</option>
-                    <option value="Film">Film</option>
-                    <option value="Diğer">Diğer</option>
+                    {categories.filter(cat => cat.level === 0).map(category => (
+                      <option key={category.id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Alt Kategori
+                  </label>
+                  <select
+                    value={productForm.subcategory || ''}
+                    onChange={(e) => setProductForm({...productForm, subcategory: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Alt kategori seçin (opsiyonel)</option>
+                    {subcategories.map(subcategory => (
+                      <option key={subcategory.id} value={subcategory.name}>
+                        {subcategory.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
