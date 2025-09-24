@@ -1333,9 +1333,14 @@ export default function EcommercePage() {
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Abonelik Yönetimi</h3>
-                <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                  Yeni Abonelik Planı
-                </button>
+                <div className="flex space-x-2">
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Satıcı Planları
+                  </button>
+                  <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    Alıcı Planları
+                  </button>
+                </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
