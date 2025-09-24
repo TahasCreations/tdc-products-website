@@ -142,6 +142,20 @@ export default function EcommercePage() {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [selectedParentCategory, setSelectedParentCategory] = useState(null);
+  
+  // Subscription management states
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [editingSubscription, setEditingSubscription] = useState(null);
+  const [subscriptionForm, setSubscriptionForm] = useState({
+    name: '',
+    price: '',
+    currency: '₺',
+    type: 'seller', // seller or buyer
+    features: [],
+    isPopular: false,
+    isActive: true
+  });
+  const [subscriptions, setSubscriptions] = useState([]);
 
   useEffect(() => {
     const fetchEcommerceData = async () => {
@@ -243,6 +257,7 @@ export default function EcommercePage() {
 
     fetchEcommerceData();
     fetchCategories();
+    fetchSubscriptions();
   }, []);
 
   // Fetch integration status
@@ -359,6 +374,108 @@ export default function EcommercePage() {
       } catch (error) {
         setSubmitMessage('Bir hata oluştu');
         setSubmitMessageType('error');
+      }
+    }
+  };
+
+  // Subscription management functions
+  const fetchSubscriptions = async () => {
+    try {
+      const [sellerResponse, buyerResponse] = await Promise.all([
+        fetch('/api/subscriptions/seller-plans'),
+        fetch('/api/subscriptions/buyer-plans')
+      ]);
+
+      const sellerData = await sellerResponse.json();
+      const buyerData = await buyerResponse.json();
+
+      const allSubscriptions = [
+        ...(sellerData.data || []).map((sub: any) => ({ ...sub, type: 'seller' })),
+        ...(buyerData.data || []).map((sub: any) => ({ ...sub, type: 'buyer' }))
+      ];
+
+      setSubscriptions(allSubscriptions);
+    } catch (error) {
+      console.error('Abonelik planları yüklenirken hata:', error);
+      setSubscriptions([]);
+    }
+  };
+
+  const handleSubscriptionSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const url = editingSubscription 
+        ? `/api/subscriptions/manage` 
+        : `/api/subscriptions/${subscriptionForm.type}-plans`;
+      
+      const method = editingSubscription ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...subscriptionForm,
+          price: parseFloat(subscriptionForm.price),
+          features: subscriptionForm.features.filter(f => f.trim() !== '')
+        }),
+      });
+
+      if (response.ok) {
+        setShowSubscriptionModal(false);
+        setSubscriptionForm({
+          name: '',
+          price: '',
+          currency: '₺',
+          type: 'seller',
+          features: [],
+          isPopular: false,
+          isActive: true
+        });
+        setEditingSubscription(null);
+        fetchSubscriptions();
+      } else {
+        console.error('Abonelik planı kaydedilemedi');
+      }
+    } catch (error) {
+      console.error('Abonelik planı kaydedilirken hata:', error);
+    }
+  };
+
+  const handleEditSubscription = (subscription: any) => {
+    setEditingSubscription(subscription);
+    setSubscriptionForm({
+      name: subscription.name,
+      price: subscription.price.toString(),
+      currency: subscription.currency,
+      type: subscription.type,
+      features: subscription.features || [],
+      isPopular: subscription.isPopular || false,
+      isActive: subscription.isActive !== false
+    });
+    setShowSubscriptionModal(true);
+  };
+
+  const handleDeleteSubscription = async (subscriptionId: string) => {
+    if (confirm('Bu abonelik planını silmek istediğinizden emin misiniz?')) {
+      try {
+        const response = await fetch(`/api/subscriptions/manage`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: subscriptionId }),
+        });
+
+        if (response.ok) {
+          fetchSubscriptions();
+        } else {
+          console.error('Abonelik planı silinemedi');
+        }
+      } catch (error) {
+        console.error('Abonelik planı silinirken hata:', error);
       }
     }
   };
@@ -1436,16 +1553,16 @@ export default function EcommercePage() {
                 <h3 className="text-lg font-semibold text-gray-900">Abonelik Yönetimi</h3>
                 <div className="flex space-x-2">
                   <button 
-                    onClick={() => window.open('/subscriptions?type=seller', '_blank')}
+                    onClick={() => setShowSubscriptionModal(true)}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
-                    Satıcı Planları
+                    Yeni Plan Ekle
                   </button>
                   <button 
-                    onClick={() => window.open('/subscriptions?type=buyer', '_blank')}
+                    onClick={() => setShowSubscriptionModal(true)}
                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
-                    Alıcı Planları
+                    Plan Düzenle
                   </button>
                 </div>
               </div>
@@ -1490,36 +1607,58 @@ export default function EcommercePage() {
                 <div>
                   <h4 className="text-md font-semibold text-gray-900 mb-4">Abonelik Planları</h4>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">Temel Plan</p>
-                        <p className="text-sm text-gray-600">Aylık ₺29.99</p>
+                    {subscriptions.map((subscription) => (
+                      <div key={subscription.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2">
+                            <p className="font-medium text-gray-900">{subscription.name}</p>
+                            {subscription.isPopular && (
+                              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Popüler</span>
+                            )}
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              subscription.type === 'seller' 
+                                ? 'bg-blue-100 text-blue-800' 
+                                : 'bg-green-100 text-green-800'
+                            }`}>
+                              {subscription.type === 'seller' ? 'Satıcı' : 'Alıcı'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            {subscription.price === 0 ? 'Ücretsiz' : `Aylık ${subscription.currency}${subscription.price}`}
+                          </p>
+                          <div className="flex items-center space-x-4 mt-2">
+                            <button
+                              onClick={() => handleEditSubscription(subscription)}
+                              className="text-blue-600 hover:text-blue-800 text-sm"
+                            >
+                              <PencilIcon className="w-4 h-4 inline mr-1" />
+                              Düzenle
+                            </button>
+                            <button
+                              onClick={() => handleDeleteSubscription(subscription.id)}
+                              className="text-red-600 hover:text-red-800 text-sm"
+                            >
+                              <TrashIcon className="w-4 h-4 inline mr-1" />
+                              Sil
+                            </button>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-blue-600">
+                            {Math.floor(Math.random() * 1000)} abone
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            %{Math.floor(Math.random() * 100)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold text-blue-600">856 abone</p>
-                        <p className="text-xs text-gray-500">%68.7</p>
+                    ))}
+                    {subscriptions.length === 0 && (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>Henüz abonelik planı yok</p>
+                        <p className="text-sm">Yeni plan eklemek için yukarıdaki butonu kullanın</p>
                       </div>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">Pro Plan</p>
-                        <p className="text-sm text-gray-600">Aylık ₺59.99</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold text-green-600">312 abone</p>
-                        <p className="text-xs text-gray-500">%25.0</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">Premium Plan</p>
-                        <p className="text-sm text-gray-600">Aylık ₺99.99</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-bold text-purple-600">79 abone</p>
-                        <p className="text-xs text-gray-500">%6.3</p>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
                 <div>
@@ -2722,6 +2861,191 @@ export default function EcommercePage() {
                   }`}
                 >
                   {isSubmitting ? 'Kaydediliyor...' : (editingProduct ? 'Güncelle' : 'Ekle')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Subscription Modal */}
+      {showSubscriptionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">
+                {editingSubscription ? 'Abonelik Planını Düzenle' : 'Yeni Abonelik Planı'}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowSubscriptionModal(false);
+                  setEditingSubscription(null);
+                  setSubscriptionForm({
+                    name: '',
+                    price: '',
+                    currency: '₺',
+                    type: 'seller',
+                    features: [],
+                    isPopular: false,
+                    isActive: true
+                  });
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <i className="ri-close-line text-xl"></i>
+              </button>
+            </div>
+
+            <form onSubmit={handleSubscriptionSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Plan Adı
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={subscriptionForm.name}
+                    onChange={(e) => setSubscriptionForm({...subscriptionForm, name: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Plan adını girin"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Plan Türü
+                  </label>
+                  <select
+                    value={subscriptionForm.type}
+                    onChange={(e) => setSubscriptionForm({...subscriptionForm, type: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="seller">Satıcı Planı</option>
+                    <option value="buyer">Alıcı Planı</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Fiyat
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={subscriptionForm.price}
+                    onChange={(e) => setSubscriptionForm({...subscriptionForm, price: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Para Birimi
+                  </label>
+                  <select
+                    value={subscriptionForm.currency}
+                    onChange={(e) => setSubscriptionForm({...subscriptionForm, currency: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="₺">₺ TRY</option>
+                    <option value="$">$ USD</option>
+                    <option value="€">€ EUR</option>
+                    <option value="£">£ GBP</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Özellikler
+                </label>
+                <div className="space-y-2">
+                  {subscriptionForm.features.map((feature, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={feature}
+                        onChange={(e) => {
+                          const newFeatures = [...subscriptionForm.features];
+                          newFeatures[index] = e.target.value;
+                          setSubscriptionForm({...subscriptionForm, features: newFeatures});
+                        }}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Özellik açıklaması"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newFeatures = subscriptionForm.features.filter((_, i) => i !== index);
+                          setSubscriptionForm({...subscriptionForm, features: newFeatures});
+                        }}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setSubscriptionForm({...subscriptionForm, features: [...subscriptionForm.features, '']})}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    + Özellik Ekle
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-4">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={subscriptionForm.isPopular}
+                    onChange={(e) => setSubscriptionForm({...subscriptionForm, isPopular: e.target.checked})}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Popüler Plan</span>
+                </label>
+
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={subscriptionForm.isActive}
+                    onChange={(e) => setSubscriptionForm({...subscriptionForm, isActive: e.target.checked})}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Aktif</span>
+                </label>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSubscriptionModal(false);
+                    setEditingSubscription(null);
+                    setSubscriptionForm({
+                      name: '',
+                      price: '',
+                      currency: '₺',
+                      type: 'seller',
+                      features: [],
+                      isPopular: false,
+                      isActive: true
+                    });
+                  }}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {editingSubscription ? 'Güncelle' : 'Ekle'}
                 </button>
               </div>
             </form>

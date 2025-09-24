@@ -487,15 +487,20 @@ export default function AdminDashboard() {
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-4">
               <button
                 onClick={() => window.history.back()}
-                className="mr-3 p-1.5 rounded-full hover:bg-gray-100 transition-colors group"
+                className="p-1.5 rounded-full hover:bg-gray-100 transition-colors group"
                 title="Önceki sayfaya dön"
               >
                 <i className="ri-close-line text-lg text-gray-600 group-hover:text-red-600 transition-colors"></i>
               </button>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl font-bold text-blue-600">TDC</span>
+                <span className="text-2xl font-bold text-purple-600">Market</span>
+              </div>
+              <div className="h-6 w-px bg-gray-300"></div>
+              <h1 className="text-xl font-semibold text-gray-700">
                 {t('business.dashboard')}
               </h1>
             </div>
