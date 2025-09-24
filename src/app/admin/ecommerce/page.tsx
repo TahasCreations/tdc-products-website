@@ -494,7 +494,7 @@ export default function EcommercePage() {
       <div className="max-w-7xl mx-auto p-6">
         {/* Tab Navigation */}
         <div className="mb-8">
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 overflow-x-auto scrollbar-hide pb-2">
             {[
               { id: 'overview', label: 'Genel Bakış' },
               { id: 'products', label: 'Ürünler' },
@@ -515,10 +515,10 @@ export default function EcommercePage() {
               <button
                 key={tab.id}
                 onClick={() => setSelectedTab(tab.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                   selectedTab === tab.id
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                 }`}
               >
                 {tab.label}
@@ -1303,6 +1303,738 @@ export default function EcommercePage() {
                     <div className="flex items-center justify-between p-3 bg-yellow-100 rounded-lg">
                       <span className="text-sm text-gray-600">Gold (5000+ puan)</span>
                       <span className="text-sm font-bold text-yellow-500">%15 indirim</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Subscriptions Tab */}
+        {selectedTab === 'subscriptions' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Abonelik Yönetimi</h3>
+                <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                  Yeni Abonelik Planı
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">A</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-600">Aktif Abonelikler</p>
+                      <p className="text-2xl font-bold text-blue-700">1,247</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">₺</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-green-600">Aylık Gelir</p>
+                      <p className="text-2xl font-bold text-green-700">₺45,230</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">%</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-purple-600">İptal Oranı</p>
+                      <p className="text-2xl font-bold text-purple-700">%3.2</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">Abonelik Planları</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Temel Plan</p>
+                        <p className="text-sm text-gray-600">Aylık ₺29.99</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-blue-600">856 abone</p>
+                        <p className="text-xs text-gray-500">%68.7</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Pro Plan</p>
+                        <p className="text-sm text-gray-600">Aylık ₺59.99</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-green-600">312 abone</p>
+                        <p className="text-xs text-gray-500">%25.0</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900">Premium Plan</p>
+                        <p className="text-sm text-gray-600">Aylık ₺99.99</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-purple-600">79 abone</p>
+                        <p className="text-xs text-gray-500">%6.3</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">Son Aktiviteler</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-900">Yeni abonelik: Pro Plan</p>
+                        <p className="text-xs text-gray-500">2 saat önce</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-900">Abonelik iptal edildi</p>
+                        <p className="text-xs text-gray-500">4 saat önce</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-900">Plan yükseltme</p>
+                        <p className="text-xs text-gray-500">1 gün önce</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Gift Cards Tab */}
+        {selectedTab === 'giftcards' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Hediye Kartları</h3>
+                <button className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">
+                  Yeni Hediye Kartı
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div className="bg-pink-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-pink-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">🎁</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-pink-600">Toplam Kart</p>
+                      <p className="text-2xl font-bold text-pink-700">2,456</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">₺</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-green-600">Kullanılan Tutar</p>
+                      <p className="text-2xl font-bold text-green-700">₺89,450</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">⏰</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-600">Bekleyen</p>
+                      <p className="text-2xl font-bold text-blue-700">₺23,100</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-orange-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">📅</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-orange-600">Süresi Dolan</p>
+                      <p className="text-2xl font-bold text-orange-700">45</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kod</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tutar</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Oluşturulma</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Son Kullanım</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <code className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">GIFT-ABC123</code>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₺100.00</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Aktif</span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15 Aralık 2024</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className="text-blue-600 hover:text-blue-900 mr-3">Detay</button>
+                        <button className="text-red-600 hover:text-red-900">İptal</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bulk Operations Tab */}
+        {selectedTab === 'bulk' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Toplu İşlemler</h3>
+                <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                  Yeni Toplu İşlem
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div className="bg-indigo-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">📦</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-indigo-600">Toplu Güncelleme</p>
+                      <p className="text-2xl font-bold text-indigo-700">156</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">📊</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-green-600">Toplu İçe Aktarma</p>
+                      <p className="text-2xl font-bold text-green-700">23</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">📤</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-600">Toplu Dışa Aktarma</p>
+                      <p className="text-2xl font-bold text-blue-700">8</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">🔄</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-purple-600">Senkronizasyon</p>
+                      <p className="text-2xl font-bold text-purple-700">12</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">Hızlı İşlemler</h4>
+                  <div className="space-y-3">
+                    <button className="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-900">Ürün Fiyatlarını Güncelle</p>
+                          <p className="text-sm text-gray-600">Toplu fiyat güncelleme</p>
+                        </div>
+                        <span className="text-blue-600">→</span>
+                      </div>
+                    </button>
+                    <button className="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-900">Stok Durumunu Güncelle</p>
+                          <p className="text-sm text-gray-600">Toplu stok güncelleme</p>
+                        </div>
+                        <span className="text-blue-600">→</span>
+                      </div>
+                    </button>
+                    <button className="w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-gray-900">Kategori Ataması</p>
+                          <p className="text-sm text-gray-600">Toplu kategori güncelleme</p>
+                        </div>
+                        <span className="text-blue-600">→</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">Son İşlemler</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-900">Fiyat güncelleme tamamlandı</p>
+                        <p className="text-xs text-gray-500">245 ürün güncellendi</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-900">Stok senkronizasyonu</p>
+                        <p className="text-xs text-gray-500">156 ürün senkronize edildi</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-900">Kategori ataması</p>
+                        <p className="text-xs text-gray-500">89 ürün kategorilendirildi</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Integrations Tab */}
+        {selectedTab === 'integrations' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Entegrasyonlar</h3>
+                <button className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+                  Yeni Entegrasyon
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">📧</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">E-posta Servisleri</h4>
+                      <p className="text-sm text-gray-600">Mailchimp, SendGrid</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Mailchimp</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">SendGrid</span>
+                      <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Pasif</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 p-6 rounded-lg border border-green-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">💳</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Ödeme Sistemleri</h4>
+                      <p className="text-sm text-gray-600">Stripe, PayPal, iyzico</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Stripe</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">PayPal</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">iyzico</span>
+                      <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Test</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">📊</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Analitik</h4>
+                      <p className="text-sm text-gray-600">Google Analytics, Mixpanel</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Google Analytics</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Mixpanel</span>
+                      <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Pasif</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 p-6 rounded-lg border border-orange-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">🚚</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Kargo</h4>
+                      <p className="text-sm text-gray-600">Aras Kargo, MNG</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Aras Kargo</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">MNG Kargo</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-pink-50 p-6 rounded-lg border border-pink-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">📱</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Sosyal Medya</h4>
+                      <p className="text-sm text-gray-600">Instagram, Facebook</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Instagram</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Facebook</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-indigo-50 p-6 rounded-lg border border-indigo-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">🔧</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">API Yönetimi</h4>
+                      <p className="text-sm text-gray-600">REST, GraphQL</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">REST API</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">GraphQL</span>
+                      <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Beta</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile App Tab */}
+        {selectedTab === 'mobile' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Mobil Uygulama</h3>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  Uygulama Ayarları
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">📱</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-600">Toplam İndirme</p>
+                      <p className="text-2xl font-bold text-blue-700">12.5K</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">⭐</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-green-600">Ortalama Puan</p>
+                      <p className="text-2xl font-bold text-green-700">4.7</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">🔄</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-purple-600">Aktif Kullanıcı</p>
+                      <p className="text-2xl font-bold text-purple-700">8.2K</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">Platform Dağılımı</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center">
+                        <div className="w-6 h-6 bg-black rounded mr-3"></div>
+                        <span className="text-sm text-gray-600">iOS</span>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-gray-900">7,250</p>
+                        <p className="text-xs text-gray-500">%58</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-center">
+                        <div className="w-6 h-6 bg-green-500 rounded mr-3"></div>
+                        <span className="text-sm text-gray-600">Android</span>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-gray-900">5,250</p>
+                        <p className="text-xs text-gray-500">%42</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">Özellikler</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">Push Bildirimleri</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">Offline Senkronizasyon</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">Biyometrik Giriş</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">AR Görüntüleme</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">Sesli Arama</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Advanced Features Tab */}
+        {selectedTab === 'advanced' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Gelişmiş Özellikler</h3>
+                <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700">
+                  Özellik Ayarları
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">🤖</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">AI Önerileri</h4>
+                      <p className="text-sm text-gray-600">Akıllı ürün önerileri</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Durum</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Doğruluk</span>
+                      <span className="text-sm font-bold text-blue-600">%87.3</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg border border-green-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">💰</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Fiyat Optimizasyonu</h4>
+                      <p className="text-sm text-gray-600">Dinamik fiyatlandırma</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Durum</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Kar Artışı</span>
+                      <span className="text-sm font-bold text-green-600">+%23.5</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg border border-purple-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">📊</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Gelişmiş Analitik</h4>
+                      <p className="text-sm text-gray-600">Derinlemesine analiz</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Durum</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Raporlar</span>
+                      <span className="text-sm font-bold text-purple-600">156</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg border border-orange-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">🔄</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Otomasyon</h4>
+                      <p className="text-sm text-gray-600">İş akışı otomasyonu</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Durum</span>
+                      <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Test</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Kurallar</span>
+                      <span className="text-sm font-bold text-orange-600">23</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-pink-50 to-pink-100 p-6 rounded-lg border border-pink-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">🎯</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Müşteri Segmentasyonu</h4>
+                      <p className="text-sm text-gray-600">Akıllı müşteri grupları</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Durum</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Segmentler</span>
+                      <span className="text-sm font-bold text-pink-600">8</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-lg border border-indigo-200">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-white text-lg font-bold">🔒</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Güvenlik</h4>
+                      <p className="text-sm text-gray-600">Gelişmiş güvenlik</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Durum</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Güvenlik Skoru</span>
+                      <span className="text-sm font-bold text-indigo-600">98/100</span>
                     </div>
                   </div>
                 </div>

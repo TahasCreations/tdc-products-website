@@ -70,9 +70,12 @@ export default function Header() {
     <header className="bg-white dark:bg-gray-800 border-b border-orange-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors duration-300">
       <div className="max-w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14">
-          <Link href="/" className="flex items-center space-x-2 group">
-            <span className="text-xl md:text-2xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:scale-105 transition-all duration-300 group-hover:animate-pulse">
-              TDC Market
+          <Link href="/" className="flex items-center space-x-1 group">
+            <span className="text-lg md:text-xl font-bold text-blue-600 hover:scale-105 transition-all duration-300">
+              TDC
+            </span>
+            <span className="text-lg md:text-xl font-bold text-purple-600 hover:scale-105 transition-all duration-300">
+              Market
             </span>
           </Link>
 
