@@ -241,6 +241,17 @@ export default function HomePage() {
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </Link>
+              <Link
+                href="/subscriptions"
+                className="group relative bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-emerald-500 hover:to-teal-500 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 overflow-hidden"
+              >
+                <span className="relative z-10 flex items-center">
+                  <StarIcon className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                  Premium Abonelik
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+              </Link>
             </div>
           </div>
         </div>
