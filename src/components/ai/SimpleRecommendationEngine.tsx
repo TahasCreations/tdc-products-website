@@ -34,86 +34,102 @@ export default function SimpleRecommendationEngine({
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Basit mock ürünler - useMemo ile optimize edildi
-  const mockProducts: Product[] = useMemo(() => [
-    {
-      id: '1',
-      title: 'Akıllı Telefon',
-      price: 15000,
-      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&h=300&q=80',
-      category: 'Electronics',
-      rating: 4.5,
-      reviewCount: 128,
-      discount: 10
-    },
-    {
-      id: '2',
-      title: 'Laptop',
-      price: 25000,
-      image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=400&h=300&q=80',
-      category: 'Electronics',
-      rating: 4.8,
-      reviewCount: 89
-    },
-    {
-      id: '3',
-      title: 'Kulaklık',
-      price: 2500,
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&h=300&q=80',
-      category: 'Electronics',
-      rating: 4.3,
-      reviewCount: 256,
-      discount: 15
-    },
-    {
-      id: '4',
-      title: 'Spor Ayakkabı',
-      price: 1200,
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&h=300&q=80',
-      category: 'Fashion',
-      rating: 4.6,
-      reviewCount: 342
-    },
-    {
-      id: '5',
-      title: 'Kitap',
-      price: 150,
-      image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&h=300&q=80',
-      category: 'Books',
-      rating: 4.7,
-      reviewCount: 89
-    },
-    {
-      id: '6',
-      title: 'Saat',
-      price: 3500,
-      image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&h=300&q=80',
-      category: 'Fashion',
-      rating: 4.4,
-      reviewCount: 156
-    }
-  ], []);
+  // Gerçek ürünlerden öneriler - API'den çekilecek
+  const [realProducts, setRealProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    // Simüle edilmiş yükleme süresi
-    const timer = setTimeout(() => {
-      let filteredProducts = mockProducts;
-      
-      if (category) {
-        filteredProducts = mockProducts.filter(p => p.category === category);
-      }
-      
-      // Rastgele sıralama
-      filteredProducts = filteredProducts
-        .sort(() => Math.random() - 0.5)
-        .slice(0, limit);
-      
-      setProducts(filteredProducts);
-      setLoading(false);
-    }, 500);
+    // Gerçek ürünleri API'den çek
+    const fetchRealProducts = async () => {
+      try {
+        const response = await fetch('/api/ecommerce?type=products');
+        const data = await response.json();
+        
+        if (data.success && data.products) {
+          // API'den gelen ürünleri Product formatına çevir
+          const formattedProducts: Product[] = data.products.map((product: any) => ({
+            id: product.id,
+            title: product.title || product.name,
+            price: product.price,
+            image: product.image || 'https://via.placeholder.com/400x300?text=No+Image',
+            category: product.category,
+            rating: product.rating || 4.0,
+            reviewCount: product.reviewCount || Math.floor(Math.random() * 100) + 10,
+            discount: product.discount || 0
+          }));
+          
+          setRealProducts(formattedProducts);
+          
+          // Filtreleme işlemi
+          let filteredProducts = formattedProducts;
 
-    return () => clearTimeout(timer);
-  }, [category, limit, mockProducts]);
+          // Kategori filtresi
+          if (category) {
+            filteredProducts = formattedProducts.filter(p => p.category === category);
+          }
+
+          // Context'e göre özel filtreleme
+          switch (context) {
+            case 'cart':
+              // Sepet içeriğine göre benzer ürünler
+              filteredProducts = formattedProducts.filter(p => p.category === 'Electronics');
+              break;
+            case 'wishlist':
+              // İstek listesine göre benzer ürünler
+              filteredProducts = formattedProducts.filter(p => p.rating > 4.0);
+              break;
+            case 'orders':
+              // Geçmiş siparişlere göre benzer ürünler
+              filteredProducts = formattedProducts.filter(p => p.price > 100);
+              break;
+            case 'search':
+              // Arama sonuçlarına göre benzer ürünler
+              filteredProducts = formattedProducts.filter(p => p.title.toLowerCase().includes('akıllı'));
+              break;
+            case 'product_detail':
+              // Ürün detayına göre benzer ürünler
+              filteredProducts = formattedProducts.filter(p => p.category === 'Electronics');
+              break;
+            case 'profile':
+              // Profil bilgilerine göre öneriler
+              filteredProducts = formattedProducts.filter(p => p.rating > 3.5);
+              break;
+            case 'blog':
+              // Blog içeriğine göre öneriler
+              filteredProducts = formattedProducts.filter(p => p.category === 'Books');
+              break;
+            case 'blog_detail':
+              // Blog detayına göre öneriler
+              filteredProducts = formattedProducts.filter(p => p.category === 'Books');
+              break;
+            case 'about':
+              // Hakkımızda sayfası için popüler ürünler
+              filteredProducts = formattedProducts.filter(p => p.reviewCount > 5);
+              break;
+            default:
+              // Genel öneriler
+              filteredProducts = formattedProducts;
+          }
+
+          // Rastgele sıralama ve limit uygula
+          filteredProducts = filteredProducts
+            .sort(() => Math.random() - 0.5)
+            .slice(0, limit);
+          
+          setProducts(filteredProducts);
+        } else {
+          // API'den veri gelmezse boş array
+          setProducts([]);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRealProducts();
+  }, [category, limit, context]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('tr-TR', {

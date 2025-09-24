@@ -25,6 +25,7 @@ import {
   CheckCircleIcon,
   ClockIcon
 } from '@heroicons/react/24/outline';
+import DragDropImageUpload from '../../../components/DragDropImageUpload';
 
 interface Product {
   id: string;
@@ -192,32 +193,7 @@ export default function EcommercePage() {
           setPaymentMethods(paymentMethodsData.methods || []);
         } else {
           // No data available
-          setPaymentMethods([
-            {
-              id: '1',
-              name: 'Kredi Kartı',
-              type: 'credit_card',
-              isActive: true,
-              fee: 2.5,
-              transactions: 0
-            },
-            {
-              id: '2',
-              name: 'Banka Havalesi',
-              type: 'bank_transfer',
-              isActive: true,
-              fee: 0,
-              transactions: 0
-            },
-            {
-              id: '3',
-              name: 'Kapıda Ödeme',
-              type: 'cash_on_delivery',
-              isActive: false,
-              fee: 5,
-              transactions: 0
-            }
-          ]);
+          setPaymentMethods([]);
         }
 
       } catch (error) {
@@ -2698,13 +2674,32 @@ export default function EcommercePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ürün Görseli URL
+                  Ürün Görseli
                 </label>
+                <DragDropImageUpload
+                  onImageSelect={(file) => {
+                    // Dosyayı base64'e çevir
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      const result = e.target?.result as string;
+                      setProductForm({...productForm, image: result});
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                  onImageRemove={() => {
+                    setProductForm({...productForm, image: ''});
+                  }}
+                  currentImage={productForm.image}
+                  className="mb-4"
+                />
+                <div className="text-sm text-gray-500">
+                  Veya URL ile görsel ekleyin:
+                </div>
                 <input
                   type="url"
                   value={productForm.image}
                   onChange={(e) => setProductForm({...productForm, image: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
