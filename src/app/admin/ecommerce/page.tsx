@@ -494,7 +494,7 @@ export default function EcommercePage() {
       <div className="max-w-7xl mx-auto p-6">
         {/* Tab Navigation */}
         <div className="mb-8">
-          <div className="flex space-x-2 overflow-x-auto scrollbar-hide pb-2">
+          <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
             {[
               { id: 'overview', label: 'Genel Bakış' },
               { id: 'products', label: 'Ürünler' },

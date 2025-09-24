@@ -70,7 +70,7 @@ export default function Header() {
     <header className="bg-white dark:bg-gray-800 border-b border-orange-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors duration-300">
       <div className="max-w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14">
-          <Link href="/" className="flex items-center space-x-1 group">
+          <Link href="/" className="flex items-center space-x-2 group">
             <span className="text-lg md:text-xl font-bold text-blue-600 hover:scale-105 transition-all duration-300">
               TDC
             </span>
@@ -79,7 +79,7 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-8">
             <Link href="/products" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               {t('nav.products')}
             </Link>
