@@ -34,8 +34,10 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
 
-  // Output configuration for Vercel
-  // output: 'standalone', // Removed for Vercel compatibility
+  // Vercel specific optimizations
+  experimental: {
+    serverComponentsExternalPackages: ['bcrypt', 'bcryptjs']
+  },
 
   // Security headers
   async headers() {
