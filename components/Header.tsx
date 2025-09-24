@@ -79,7 +79,7 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-12">
             <Link href="/products" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               {t('nav.products')}
             </Link>
@@ -282,15 +282,15 @@ export default function Header() {
               showNativeNames={false}
             />
 
-            {/* Currency Converter */}
-            <div className="hidden md:flex items-center space-x-2">
-              <div className="text-xs text-gray-600">100₺ =</div>
-              <select className="bg-white border border-gray-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="USD">$3.30</option>
-                <option value="EUR">€3.05</option>
-                <option value="GBP">£2.60</option>
-              </select>
-            </div>
+          {/* Currency Selector */}
+          <div className="hidden md:flex items-center">
+            <select className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors">
+              <option value="TRY">₺ TRY</option>
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+              <option value="GBP">£ GBP</option>
+            </select>
+          </div>
 
             {/* Giriş Yap/Kayıt Ol Butonu - Sadece giriş yapmamış kullanıcılar için */}
             {!user && (

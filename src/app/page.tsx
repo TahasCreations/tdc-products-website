@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ProductCard from '../components/ProductCard';
 import CampaignSlider from '../components/CampaignSlider';
+import { useI18n } from '../hooks/useI18n';
 import { 
   StarIcon,
   TruckIcon,
@@ -31,6 +32,7 @@ interface Product {
 const getDefaultProducts = (): Product[] => [];
 
 export default function HomePage() {
+  const { t } = useI18n();
   const [products, setProducts] = useState<Product[]>(getDefaultProducts());
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -78,20 +80,19 @@ export default function HomePage() {
             <div className="text-center lg:text-left">
               <div className="mb-8">
                 <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-fade-in-up">
-                  TDC Market
+                  {t('home.hero.title')}
                 </h1>
               </div>
 
               <div className="space-y-6">
                 <p className="text-2xl md:text-3xl font-semibold text-white animate-text-slide-up delay-300">
-                  Global Pazaryeri
+                  {t('home.hero.subtitle')}
                 </p>
                 <p className="text-xl md:text-2xl font-medium text-blue-200 animate-text-slide-up delay-500">
-                  Binlerce Satıcı, Milyonlarca Ürün
+                  {t('home.hero.description')}
                 </p>
                 <p className="text-lg text-gray-300 max-w-2xl leading-relaxed animate-text-slide-up delay-700">
-                  Dünya çapında satıcıların sunduğu geniş ürün yelpazesini keşfedin.
-                  Güvenli alışveriş, hızlı teslimat ve mükemmel müşteri hizmetleri.
+                  {t('home.hero.details')}
                 </p>
               </div>
             </div>
@@ -285,24 +286,24 @@ export default function HomePage() {
               <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <StarIcon className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Güvenilir Satıcılar</h3>
-              <p className="text-gray-600">Doğrulanmış ve güvenilir satıcılardan alışveriş</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('home.features.trusted_sellers.title')}</h3>
+              <p className="text-gray-600">{t('home.features.trusted_sellers.description')}</p>
             </div>
             
             <div className="text-center group">
               <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <TruckIcon className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Hızlı Teslimat</h3>
-              <p className="text-gray-600">Dünya çapında hızlı ve güvenli teslimat</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('home.features.fast_delivery.title')}</h3>
+              <p className="text-gray-600">{t('home.features.fast_delivery.description')}</p>
             </div>
             
             <div className="text-center group">
               <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <ShieldCheckIcon className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Güvenli Ödeme</h3>
-              <p className="text-gray-600">SSL korumalı güvenli ödeme sistemi</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('home.features.secure_payment.title')}</h3>
+              <p className="text-gray-600">{t('home.features.secure_payment.description')}</p>
             </div>
           </div>
         </div>

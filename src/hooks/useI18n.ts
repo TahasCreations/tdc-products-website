@@ -220,7 +220,19 @@ export function useI18n() {
         'common.peta': 'Peta',
         'common.exa': 'Exa',
         'common.zetta': 'Zetta',
-        'common.yotta': 'Yotta'
+        'common.yotta': 'Yotta',
+        
+        // Home page translations
+        'home.hero.title': 'TDC Market',
+        'home.hero.subtitle': 'Global Pazaryeri',
+        'home.hero.description': 'Binlerce Satıcı, Milyonlarca Ürün',
+        'home.hero.details': 'Dünya çapında satıcıların sunduğu geniş ürün yelpazesini keşfedin. Güvenli alışveriş, hızlı teslimat ve mükemmel müşteri hizmetleri.',
+        'home.features.trusted_sellers.title': 'Güvenilir Satıcılar',
+        'home.features.trusted_sellers.description': 'Doğrulanmış ve güvenilir satıcılardan alışveriş',
+        'home.features.fast_delivery.title': 'Hızlı Teslimat',
+        'home.features.fast_delivery.description': 'Dünya çapında hızlı ve güvenli teslimat',
+        'home.features.secure_payment.title': 'Güvenli Ödeme',
+        'home.features.secure_payment.description': 'SSL korumalı güvenli ödeme sistemi'
       },
       en: {
         'nav.home': 'Home',
@@ -405,7 +417,19 @@ export function useI18n() {
         'common.peta': 'Peta',
         'common.exa': 'Exa',
         'common.zetta': 'Zetta',
-        'common.yotta': 'Yotta'
+        'common.yotta': 'Yotta',
+        
+        // Home page translations
+        'home.hero.title': 'TDC Market',
+        'home.hero.subtitle': 'Global Marketplace',
+        'home.hero.description': 'Thousands of Sellers, Millions of Products',
+        'home.hero.details': 'Discover the wide range of products offered by sellers worldwide. Secure shopping, fast delivery and excellent customer service.',
+        'home.features.trusted_sellers.title': 'Trusted Sellers',
+        'home.features.trusted_sellers.description': 'Shop from verified and trusted sellers',
+        'home.features.fast_delivery.title': 'Fast Delivery',
+        'home.features.fast_delivery.description': 'Fast and secure delivery worldwide',
+        'home.features.secure_payment.title': 'Secure Payment',
+        'home.features.secure_payment.description': 'SSL protected secure payment system'
       },
       de: {
         'nav.home': 'Startseite',
