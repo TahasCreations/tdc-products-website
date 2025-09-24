@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
 
-// Mock kategori verileri
-const categories = [
+// Mock kategori verileri - dinamik olarak güncellenebilir
+let categories = [
   {
-    id: 1,
+    id: 'cat-1',
     name: 'Elektronik',
     slug: 'elektronik',
     parentId: null,
@@ -11,12 +12,12 @@ const categories = [
     isActive: true,
     sortOrder: 1,
     description: 'Elektronik ürünler ve aksesuarlar',
-    image: '/images/categories/electronics.jpg',
+    image: 'https://images.unsplash.com/photo-1526170375885-4d8bdd19ceab?auto=format&fit=crop&w=400&q=80',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
   {
-    id: 2,
+    id: 'cat-2',
     name: 'Giyim',
     slug: 'giyim',
     parentId: null,
@@ -24,12 +25,12 @@ const categories = [
     isActive: true,
     sortOrder: 2,
     description: 'Giyim ve aksesuar ürünleri',
-    image: '/images/categories/clothing.jpg',
+    image: 'https://images.unsplash.com/photo-1483985988355-f7dc55c96655?auto=format&fit=crop&w=400&q=80',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
   {
-    id: 3,
+    id: 'cat-3',
     name: 'Ev & Yaşam',
     slug: 'ev-yasam',
     parentId: null,
@@ -37,12 +38,12 @@ const categories = [
     isActive: true,
     sortOrder: 3,
     description: 'Ev ve yaşam ürünleri',
-    image: '/images/categories/home.jpg',
+    image: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=400&q=80',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
   {
-    id: 4,
+    id: 'cat-4',
     name: 'Spor & Outdoor',
     slug: 'spor-outdoor',
     parentId: null,
@@ -55,7 +56,7 @@ const categories = [
     updatedAt: '2024-01-01T00:00:00Z'
   },
   {
-    id: 5,
+    id: 'cat-5',
     name: 'Kitap & Hobi',
     slug: 'kitap-hobi',
     parentId: null,
@@ -63,73 +64,73 @@ const categories = [
     isActive: true,
     sortOrder: 5,
     description: 'Kitap ve hobi ürünleri',
-    image: '/images/categories/books.jpg',
+    image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=400&q=80',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
   // Alt kategoriler
   {
-    id: 6,
+    id: 'sub-1-1',
     name: 'Telefon & Aksesuar',
     slug: 'telefon-aksesuar',
-    parentId: 1,
+    parentId: 'cat-1',
     level: 1,
     isActive: true,
     sortOrder: 1,
     description: 'Telefon ve aksesuarları',
-    image: '/images/categories/phones.jpg',
+    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
   {
-    id: 7,
+    id: 'sub-1-2',
     name: 'Bilgisayar & Tablet',
     slug: 'bilgisayar-tablet',
-    parentId: 1,
+    parentId: 'cat-1',
     level: 1,
     isActive: true,
     sortOrder: 2,
     description: 'Bilgisayar ve tablet ürünleri',
-    image: '/images/categories/computers.jpg',
+    image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=400&q=80',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
   {
-    id: 8,
+    id: 'sub-2-1',
     name: 'Erkek Giyim',
     slug: 'erkek-giyim',
-    parentId: 2,
+    parentId: 'cat-2',
     level: 1,
     isActive: true,
     sortOrder: 1,
     description: 'Erkek giyim ürünleri',
-    image: '/images/categories/mens-clothing.jpg',
+    image: 'https://images.unsplash.com/photo-1527719327867-f650ed16062b?auto=format&fit=crop&w=400&q=80',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
   {
-    id: 9,
+    id: 'sub-2-2',
     name: 'Kadın Giyim',
     slug: 'kadin-giyim',
-    parentId: 2,
+    parentId: 'cat-2',
     level: 1,
     isActive: true,
     sortOrder: 2,
     description: 'Kadın giyim ürünleri',
-    image: '/images/categories/womens-clothing.jpg',
+    image: 'https://images.unsplash.com/photo-1529139574466-a303027c5d84?auto=format&fit=crop&w=400&q=80',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
   {
-    id: 10,
+    id: 'sub-3-1',
     name: 'Mobilya',
     slug: 'mobilya',
-    parentId: 3,
+    parentId: 'cat-3',
     level: 1,
     isActive: true,
     sortOrder: 1,
     description: 'Mobilya ürünleri',
-    image: '/images/categories/furniture.jpg',
+    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   }
@@ -145,7 +146,7 @@ export async function GET(request: NextRequest) {
     let filteredCategories = categories;
 
     if (parentId !== null) {
-      filteredCategories = filteredCategories.filter(cat => cat.parentId === parseInt(parentId));
+      filteredCategories = filteredCategories.filter(cat => cat.parentId === parentId);
     }
 
     if (level !== null) {
@@ -193,10 +194,10 @@ export async function POST(request: NextRequest) {
 
     // Create new category
     const newCategory = {
-      id: categories.length + 1,
+      id: uuidv4(),
       name,
       slug,
-      parentId: parentId ? parseInt(parentId) : null,
+      parentId: parentId || null,
       level: parentId ? 1 : 0,
       isActive: true,
       sortOrder: sortOrder || categories.length + 1,
@@ -227,7 +228,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { id, name, slug, parentId, description, image, sortOrder, isActive } = body;
 
-    const categoryIndex = categories.findIndex(cat => cat.id === parseInt(id));
+    const categoryIndex = categories.findIndex(cat => cat.id === id);
     if (categoryIndex === -1) {
       return NextResponse.json({
         success: false,
@@ -240,7 +241,7 @@ export async function PUT(request: NextRequest) {
       ...categories[categoryIndex],
       name: name || categories[categoryIndex].name,
       slug: slug || categories[categoryIndex].slug,
-      parentId: parentId !== undefined ? (parentId ? parseInt(parentId) : null) : categories[categoryIndex].parentId,
+      parentId: parentId !== undefined ? parentId : categories[categoryIndex].parentId,
       level: parentId ? 1 : 0,
       description: description !== undefined ? description : categories[categoryIndex].description,
       image: image !== undefined ? image : categories[categoryIndex].image,
@@ -275,7 +276,7 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const categoryIndex = categories.findIndex(cat => cat.id === parseInt(id));
+    const categoryIndex = categories.findIndex(cat => cat.id === id);
     if (categoryIndex === -1) {
       return NextResponse.json({
         success: false,
@@ -284,7 +285,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check if category has subcategories
-    const hasSubcategories = categories.some(cat => cat.parentId === parseInt(id));
+    const hasSubcategories = categories.some(cat => cat.parentId === id);
     if (hasSubcategories) {
       return NextResponse.json({
         success: false,

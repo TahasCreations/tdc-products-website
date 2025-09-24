@@ -973,7 +973,12 @@ export default function EcommercePage() {
                     <option value="delivered">Teslim Edildi</option>
                     <option value="cancelled">İptal Edildi</option>
                   </select>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <button 
+                    onClick={() => {
+                      alert('Yeni sipariş oluşturma özelliği yakında eklenecek!');
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
                     <PlusIcon className="w-4 h-4 mr-2 inline" />
                     Yeni Sipariş
                   </button>
@@ -1097,13 +1102,13 @@ export default function EcommercePage() {
                     className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   />
                   <button 
-                    onClick={() => window.location.href = '/admin/orders'}
+                    onClick={() => setSelectedTab('orders')}
                     className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors mr-2"
                   >
                     Sipariş Yönetimi
                   </button>
                   <button 
-                    onClick={() => window.location.href = '/admin/customers'}
+                    onClick={() => setSelectedTab('customers')}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <PlusIcon className="w-4 h-4 mr-2 inline" />
@@ -1312,7 +1317,12 @@ export default function EcommercePage() {
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Stok Yönetimi</h3>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button 
+                  onClick={() => {
+                    alert('Stok güncelleme özelliği yakında eklenecek!');
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
                   Stok Güncelle
                 </button>
               </div>
@@ -1414,7 +1424,12 @@ export default function EcommercePage() {
                     </div>
                   </div>
                 </div>
-                <button className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button 
+                  onClick={() => {
+                    alert('Kampanya oluşturma özelliği yakında eklenecek!');
+                  }}
+                  className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
                   Yeni Kampanya Oluştur
                 </button>
               </div>
@@ -1435,7 +1450,12 @@ export default function EcommercePage() {
                     <span className="text-sm font-bold text-blue-400">3.1K</span>
                   </div>
                 </div>
-                <button className="w-full mt-4 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">
+                <button 
+                  onClick={() => {
+                    alert('Sosyal medya yönetimi özelliği yakında eklenecek!');
+                  }}
+                  className="w-full mt-4 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700"
+                >
                   Sosyal Medya Yönetimi
                 </button>
               </div>
@@ -1456,7 +1476,12 @@ export default function EcommercePage() {
                     <span className="text-sm font-bold text-purple-600">89</span>
                   </div>
                 </div>
-                <button className="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                <button 
+                  onClick={() => {
+                    alert('SEO raporu özelliği yakında eklenecek!');
+                  }}
+                  className="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
                   SEO Raporu
                 </button>
               </div>
@@ -1470,7 +1495,12 @@ export default function EcommercePage() {
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Sadakat Programı</h3>
-                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                <button 
+                  onClick={() => {
+                    alert('Sadakat programı ayarları özelliği yakında eklenecek!');
+                  }}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
                   Program Ayarları
                 </button>
               </div>
@@ -1698,7 +1728,12 @@ export default function EcommercePage() {
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Hediye Kartları</h3>
-                <button className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">
+                <button 
+                  onClick={() => {
+                    alert('Hediye kartı oluşturma özelliği yakında eklenecek!');
+                  }}
+                  className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700"
+                >
                   Yeni Hediye Kartı
                 </button>
               </div>
@@ -1791,7 +1826,12 @@ export default function EcommercePage() {
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Toplu İşlemler</h3>
-                <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                <button 
+                  onClick={() => {
+                    alert('Toplu işlem özelliği yakında eklenecek!');
+                  }}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                >
                   Yeni Toplu İşlem
                 </button>
               </div>
@@ -1915,12 +1955,20 @@ export default function EcommercePage() {
                 <h3 className="text-lg font-semibold text-gray-900">Entegrasyonlar</h3>
                 <div className="flex space-x-2">
                   <button 
-                    onClick={() => fetchIntegrationStatus()}
+                    onClick={() => {
+                      fetchIntegrationStatus();
+                      alert('Entegrasyon durumu yenilendi!');
+                    }}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                   >
                     Durumu Yenile
                   </button>
-                  <button className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+                  <button 
+                    onClick={() => {
+                      alert('Yeni entegrasyon ekleme özelliği yakında eklenecek!');
+                    }}
+                    className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                  >
                     Yeni Entegrasyon
                   </button>
                 </div>
@@ -2190,7 +2238,12 @@ export default function EcommercePage() {
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Mobil Uygulama</h3>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <button 
+                  onClick={() => {
+                    alert('Mobil uygulama ayarları özelliği yakında eklenecek!');
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
                   Uygulama Ayarları
                 </button>
               </div>
@@ -2293,7 +2346,12 @@ export default function EcommercePage() {
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Gelişmiş Özellikler</h3>
-                <button className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700">
+                <button 
+                  onClick={() => {
+                    alert('Gelişmiş özellik ayarları özelliği yakında eklenecek!');
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700"
+                >
                   Özellik Ayarları
                 </button>
               </div>
