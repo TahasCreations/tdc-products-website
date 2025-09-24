@@ -35,7 +35,7 @@ const nextConfig = {
   poweredByHeader: false,
 
   // Output configuration for Vercel
-  output: 'standalone',
+  // output: 'standalone', // Removed for Vercel compatibility
 
   // Security headers
   async headers() {
