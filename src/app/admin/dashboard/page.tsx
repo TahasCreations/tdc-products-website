@@ -35,6 +35,10 @@ export default function AdminDashboard() {
 
   const tabs = [
     { id: 'overview', label: t('navigation.dashboard'), icon: 'ri-dashboard-line' },
+    { id: 'atlassian', label: 'Atlassian Workspace', icon: 'ri-layout-grid-line' },
+    { id: 'marketplace', label: 'Pazaryeri Yönetimi', icon: 'ri-store-line' },
+    { id: 'vendors', label: 'Satıcı Yönetimi', icon: 'ri-user-line' },
+    { id: 'commissions', label: 'Komisyon Sistemi', icon: 'ri-percent-line' },
     { id: 'ai', label: 'AI & Otomasyon', icon: 'ri-brain-line' },
     { id: 'payments', label: t('payment.paymentMethod'), icon: 'ri-money-dollar-circle-line' },
     { id: 'analytics', label: t('business.analytics'), icon: 'ri-bar-chart-line' },
@@ -58,6 +62,313 @@ export default function AdminDashboard() {
     );
 
     switch (activeTab) {
+      case 'atlassian':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Atlassian Workspace</h2>
+                  <p className="text-gray-600 mt-1">Proje yönetimi, iş akışları ve işbirliği araçları</p>
+                </div>
+                <button
+                  onClick={() => window.history.back()}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                >
+                  <span>←</span>
+                  <span>Geri</span>
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-blue-50 p-6 rounded-lg">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">4</div>
+                  <div className="text-gray-600">Aktif Proje</div>
+                </div>
+                <div className="bg-green-50 p-6 rounded-lg">
+                  <div className="text-3xl font-bold text-green-600 mb-2">89</div>
+                  <div className="text-gray-600">Toplam Issue</div>
+                </div>
+                <div className="bg-purple-50 p-6 rounded-lg">
+                  <div className="text-3xl font-bold text-purple-600 mb-2">12</div>
+                  <div className="text-gray-600">Ekip Üyesi</div>
+                </div>
+                <div className="bg-orange-50 p-6 rounded-lg">
+                  <div className="text-3xl font-bold text-orange-600 mb-2">68%</div>
+                  <div className="text-gray-600">Tamamlanma Oranı</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Hızlı Erişim</h3>
+                  <div className="space-y-3">
+                    <button className="w-full text-left px-4 py-3 bg-white rounded-lg border hover:bg-gray-50 transition-colors">
+                      📋 Yeni Proje Oluştur
+                    </button>
+                    <button className="w-full text-left px-4 py-3 bg-white rounded-lg border hover:bg-gray-50 transition-colors">
+                      🐛 Bug Raporu Oluştur
+                    </button>
+                    <button className="w-full text-left px-4 py-3 bg-white rounded-lg border hover:bg-gray-50 transition-colors">
+                      📖 Yeni Story Ekle
+                    </button>
+                    <button className="w-full text-left px-4 py-3 bg-white rounded-lg border hover:bg-gray-50 transition-colors">
+                      📊 Raporları Görüntüle
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Son Aktiviteler</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">TMP-123 tamamlandı</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">Yeni sprint başlatıldı</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">SOB-45 review'da</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <span className="text-sm text-gray-600">Yeni ekip üyesi eklendi</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <a 
+                  href="/admin/atlassian"
+                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <span>Atlassian Workspace'e Git</span>
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        );
+      case 'marketplace':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Pazaryeri Yönetimi</h2>
+                  <p className="text-gray-600 mt-1">TDC Market pazaryerinin genel yönetimi</p>
+                </div>
+                <button
+                  onClick={() => window.history.back()}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                >
+                  <span>←</span>
+                  <span>Geri</span>
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="bg-blue-50 p-6 rounded-lg">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">10M+</div>
+                  <div className="text-gray-600">Toplam Müşteri</div>
+                </div>
+                <div className="bg-green-50 p-6 rounded-lg">
+                  <div className="text-3xl font-bold text-green-600 mb-2">50K+</div>
+                  <div className="text-gray-600">Aktif Satıcı</div>
+                </div>
+                <div className="bg-purple-50 p-6 rounded-lg">
+                  <div className="text-3xl font-bold text-purple-600 mb-2">100M+</div>
+                  <div className="text-gray-600">Toplam Ürün</div>
+                </div>
+                <div className="bg-orange-50 p-6 rounded-lg">
+                  <div className="text-3xl font-bold text-orange-600 mb-2">190+</div>
+                  <div className="text-gray-600">Ülke</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Pazaryeri Ayarları</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Yeni Satıcı Kayıtları</span>
+                      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Açık</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Komisyon Oranı</span>
+                      <span className="text-gray-900 font-semibold">%8.5</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Minimum Satış Limiti</span>
+                      <span className="text-gray-900 font-semibold">₺100</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Hızlı İşlemler</h3>
+                  <div className="space-y-3">
+                    <button className="w-full text-left px-4 py-3 bg-white rounded-lg border hover:bg-gray-50 transition-colors">
+                      Satıcı Başvurularını İncele
+                    </button>
+                    <button className="w-full text-left px-4 py-3 bg-white rounded-lg border hover:bg-gray-50 transition-colors">
+                      Komisyon Ayarlarını Düzenle
+                    </button>
+                    <button className="w-full text-left px-4 py-3 bg-white rounded-lg border hover:bg-gray-50 transition-colors">
+                      Pazaryeri Raporlarını Görüntüle
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 'vendors':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Satıcı Yönetimi</h2>
+                  <p className="text-gray-600 mt-1">Tüm satıcıları yönetin ve takip edin</p>
+                </div>
+                <button
+                  onClick={() => window.history.back()}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                >
+                  <span>←</span>
+                  <span>Geri</span>
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Satıcı</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Durum</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Ürün Sayısı</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">Aylık Satış</th>
+                      <th className="text-left py-3 px-4 font-semibold text-gray-900">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-100">
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-semibold">AB</span>
+                          </div>
+                          <div>
+                            <div className="font-semibold text-gray-900">Ahmet Bey E-ticaret</div>
+                            <div className="text-sm text-gray-500">ahmet@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Aktif</span>
+                      </td>
+                      <td className="py-4 px-4 text-gray-900">245</td>
+                      <td className="py-4 px-4 text-gray-900">₺45,230</td>
+                      <td className="py-4 px-4">
+                        <button className="text-blue-600 hover:text-blue-800 mr-3">Düzenle</button>
+                        <button className="text-red-600 hover:text-red-800">Durdur</button>
+                      </td>
+                    </tr>
+                    <tr className="border-b border-gray-100">
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <span className="text-green-600 font-semibold">MZ</span>
+                          </div>
+                          <div>
+                            <div className="font-semibold text-gray-900">Mehmet Zeki Mağaza</div>
+                            <div className="text-sm text-gray-500">mehmet@example.com</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">Beklemede</span>
+                      </td>
+                      <td className="py-4 px-4 text-gray-900">0</td>
+                      <td className="py-4 px-4 text-gray-900">₺0</td>
+                      <td className="py-4 px-4">
+                        <button className="text-green-600 hover:text-green-800 mr-3">Onayla</button>
+                        <button className="text-red-600 hover:text-red-800">Reddet</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+      case 'commissions':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Komisyon Sistemi</h2>
+                  <p className="text-gray-600 mt-1">Komisyon oranlarını yönetin ve takip edin</p>
+                </div>
+                <button
+                  onClick={() => window.history.back()}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                >
+                  <span>←</span>
+                  <span>Geri</span>
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Komisyon Oranları</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Elektronik</span>
+                      <span className="text-gray-900 font-semibold">%8.5</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Giyim</span>
+                      <span className="text-gray-900 font-semibold">%12.0</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Ev & Yaşam</span>
+                      <span className="text-gray-900 font-semibold">%10.0</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Spor & Outdoor</span>
+                      <span className="text-gray-900 font-semibold">%9.5</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Aylık Komisyon Geliri</h3>
+                  <div className="text-3xl font-bold text-green-600 mb-2">₺2,450,000</div>
+                  <div className="text-gray-600 mb-4">Bu ay toplam komisyon</div>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Geçen aya göre</span>
+                      <span className="text-green-600">+12.5%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Hedef</span>
+                      <span className="text-gray-900">₺2,200,000</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       case 'ai':
         return (
           <div className="space-y-6">

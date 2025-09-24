@@ -105,7 +105,7 @@ export default function AdminOrdersPage() {
       
       setOrders(filteredOrders);
     } catch (error) {
-      console.error('Fetch orders error:', error);
+      
       setMessage('Bağlantı hatası');
       setMessageType('error');
     } finally {
@@ -148,7 +148,7 @@ export default function AdminOrdersPage() {
         setMessageType('error');
       }
     } catch (error) {
-      console.error('Status update error:', error);
+      
       setMessage('Durum güncellenirken hata oluştu');
       setMessageType('error');
     }
@@ -183,7 +183,7 @@ export default function AdminOrdersPage() {
         setMessageType('error');
       }
     } catch (error) {
-      console.error('Payment update error:', error);
+      
       setMessage('Ödeme durumu güncellenirken hata oluştu');
       setMessageType('error');
     }
@@ -218,7 +218,7 @@ export default function AdminOrdersPage() {
         setMessageType('error');
       }
     } catch (error) {
-      console.error('Shipping update error:', error);
+      
       setMessage('Kargo bilgileri güncellenirken hata oluştu');
       setMessageType('error');
     }

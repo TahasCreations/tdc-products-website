@@ -112,7 +112,6 @@ export default function TestImagesPage() {
                       fill
                       className="object-cover"
                       onError={(e) => {
-                        console.error('Görsel yüklenemedi:', url);
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
                       }}
@@ -130,15 +129,6 @@ export default function TestImagesPage() {
           )}
         </div>
 
-        {/* Debug Info */}
-        <div className="bg-white rounded-lg p-6 mt-8 shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Debug Bilgileri</h2>
-          <div className="space-y-2 text-sm">
-            <p><strong>Supabase URL:</strong> {process.env.NEXT_PUBLIC_SUPABASE_URL}</p>
-            <p><strong>Bucket:</strong> images</p>
-            <p><strong>Toplam görsel:</strong> {uploadedImages.length}</p>
-          </div>
-        </div>
       </div>
     </div>
   );

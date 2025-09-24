@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import AdminProtection from '../../../components/AdminProtection';
 import OptimizedLoader from '../../../components/OptimizedLoader';
 import Link from 'next/link';
@@ -103,7 +103,6 @@ export default function AdminInvoicesPage() {
         setMessageType('error');
       }
     } catch (error) {
-      console.error('Fetch invoices error:', error);
       // Sessizce demo invoices göster (hata mesajı gösterme)
       const defaultInvoices = [
         {

@@ -180,7 +180,6 @@ export default function EcommercePage() {
         }
 
       } catch (error) {
-        console.error('E-ticaret verileri yüklenirken hata:', error);
         // Hata durumunda boş data kullan
         setStats({
           totalRevenue: 0,
@@ -351,7 +350,6 @@ export default function EcommercePage() {
         setSubmitMessageType('error');
       }
     } catch (error) {
-      console.error('Ürün kaydetme hatası:', error);
       setSubmitMessage('Ürün kaydedilirken bir hata oluştu');
       setSubmitMessageType('error');
     } finally {
@@ -404,7 +402,6 @@ export default function EcommercePage() {
         alert('Hata: ' + result.error);
       }
     } catch (error) {
-      console.error('Ürün silme hatası:', error);
       alert('Ürün silinirken bir hata oluştu');
     }
   };
@@ -800,7 +797,6 @@ export default function EcommercePage() {
                                   const newStatus = prompt('Yeni durum seçin:', order.status);
                                   if (newStatus && newStatus !== order.status) {
                                     // API'ye durum güncelleme isteği gönder
-                                    console.log('Sipariş durumu güncelleniyor:', order.id, newStatus);
                                   }
                                 }}
                                 className="text-gray-600 hover:text-gray-900"

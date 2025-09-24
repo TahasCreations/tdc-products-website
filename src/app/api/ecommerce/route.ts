@@ -6,7 +6,6 @@ const createServerSupabaseClient = () => {
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   if (!supabaseUrl || !supabaseServiceKey) {
-    console.error('Supabase environment variables are missing');
     return null;
   }
   
@@ -38,7 +37,6 @@ export async function GET(request: NextRequest) {
         .order('name', { ascending: true });
 
       if (error) {
-        console.error('Shipping companies fetch error:', error);
         return NextResponse.json({ 
           success: false, 
           error: 'Kargo firmaları alınamadı' 
@@ -60,7 +58,7 @@ export async function GET(request: NextRequest) {
         .order('name', { ascending: true });
 
       if (error) {
-        console.error('Payment methods fetch error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Ödeme yöntemleri alınamadı' 
@@ -83,7 +81,7 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Coupons fetch error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Kuponlar alınamadı' 
@@ -198,7 +196,7 @@ export async function GET(request: NextRequest) {
         .order('added_at', { ascending: false });
 
       if (error) {
-        console.error('Wishlist fetch error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Wishlist alınamadı' 
@@ -233,7 +231,7 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Product reviews fetch error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Ürün incelemeleri alınamadı' 
@@ -273,7 +271,7 @@ export async function GET(request: NextRequest) {
         .gte('weight_to', weight);
 
       if (error) {
-        console.error('Shipping rates fetch error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Kargo fiyatları alınamadı' 
@@ -299,7 +297,7 @@ export async function GET(request: NextRequest) {
       ]);
 
       if (ordersError || productsError || customersError) {
-        console.error('Stats fetch error:', { ordersError, productsError, customersError });
+        
         return NextResponse.json({ 
           success: false, 
           error: 'İstatistikler alınamadı' 
@@ -353,7 +351,7 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Products fetch error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Ürünler alınamadı' 
@@ -383,7 +381,7 @@ export async function GET(request: NextRequest) {
         .limit(50);
 
       if (error) {
-        console.error('Orders fetch error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Siparişler alınamadı' 
@@ -402,7 +400,7 @@ export async function GET(request: NextRequest) {
     }, { status: 400 });
 
   } catch (error) {
-    console.error('E-commerce API error:', error);
+    
     return NextResponse.json({ 
       success: false, 
       error: 'Sunucu hatası' 
@@ -443,7 +441,7 @@ export async function POST(request: NextRequest) {
             error: 'Ürün zaten wishlist\'te' 
           }, { status: 400 });
         }
-        console.error('Add to wishlist error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Wishlist\'e eklenemedi' 
@@ -466,7 +464,7 @@ export async function POST(request: NextRequest) {
         .eq('product_id', product_id);
 
       if (error) {
-        console.error('Remove from wishlist error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Wishlist\'ten çıkarılamadı' 
@@ -503,7 +501,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error) {
-        console.error('Add product review error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'İnceleme eklenemedi' 
@@ -558,7 +556,7 @@ export async function POST(request: NextRequest) {
             error: 'Bu kupon kodu zaten kullanılıyor' 
           }, { status: 400 });
         }
-        console.error('Create coupon error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Kupon oluşturulamadı' 
@@ -605,7 +603,7 @@ export async function POST(request: NextRequest) {
             error: 'Bu kargo kodu zaten kullanılıyor' 
           }, { status: 400 });
         }
-        console.error('Create shipping company error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Kargo firması oluşturulamadı' 
@@ -654,7 +652,7 @@ export async function POST(request: NextRequest) {
             error: 'Bu ödeme kodu zaten kullanılıyor' 
           }, { status: 400 });
         }
-        console.error('Create payment method error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Ödeme yöntemi oluşturulamadı' 
@@ -701,7 +699,7 @@ export async function POST(request: NextRequest) {
             error: 'Bu slug zaten kullanılıyor' 
           }, { status: 400 });
         }
-        console.error('Create product error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Ürün oluşturulamadı' 
@@ -745,7 +743,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (error) {
-        console.error('Update product error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Ürün güncellenemedi' 
@@ -767,7 +765,7 @@ export async function POST(request: NextRequest) {
         .eq('id', id);
 
       if (error) {
-        console.error('Delete product error:', error);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Ürün silinemedi' 
@@ -813,7 +811,7 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (orderError) {
-        console.error('Create test order error:', orderError);
+        
         return NextResponse.json({ 
           success: false, 
           error: 'Test siparişi oluşturulamadı' 
@@ -835,7 +833,7 @@ export async function POST(request: NextRequest) {
           .insert(orderItems);
 
         if (itemsError) {
-          console.error('Create order items error:', itemsError);
+          
           // Sipariş oluşturuldu ama öğeler eklenemedi - siparişi sil
           await supabase.from('orders').delete().eq('id', order.id);
           return NextResponse.json({ 
@@ -857,7 +855,7 @@ export async function POST(request: NextRequest) {
     }, { status: 400 });
 
   } catch (error) {
-    console.error('E-commerce POST API error:', error);
+    
     return NextResponse.json({ 
       success: false, 
       error: 'Sunucu hatası' 

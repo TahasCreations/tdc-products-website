@@ -9,11 +9,8 @@ import {
   StarIcon,
   TruckIcon,
   ShieldCheckIcon,
-  HeartIcon,
-  SparklesIcon,
   CubeIcon,
-  CpuChipIcon,
-  PrinterIcon
+  CpuChipIcon
 } from '@heroicons/react/24/outline';
 
 interface Product {
@@ -81,20 +78,20 @@ export default function HomePage() {
             <div className="text-center lg:text-left">
               <div className="mb-8">
                 <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-fade-in-up">
-                  TDC Products
+                  TDC Market
                 </h1>
               </div>
 
               <div className="space-y-6">
                 <p className="text-2xl md:text-3xl font-semibold text-white animate-text-slide-up delay-300">
-                  3D Yazıcı ile Üretilen
+                  Global Pazaryeri
                 </p>
                 <p className="text-xl md:text-2xl font-medium text-blue-200 animate-text-slide-up delay-500">
-                  Premium Figürler & Koleksiyon Ürünleri
+                  Binlerce Satıcı, Milyonlarca Ürün
                 </p>
                 <p className="text-lg text-gray-300 max-w-2xl leading-relaxed animate-text-slide-up delay-700">
-                  En sevdiğiniz karakterlerin detaylı ve kaliteli figürlerini keşfedin.
-                  Her ürün 3D yazıcı teknolojisi ile özenle üretilmiştir.
+                  Dünya çapında satıcıların sunduğu geniş ürün yelpazesini keşfedin.
+                  Güvenli alışveriş, hızlı teslimat ve mükemmel müşteri hizmetleri.
                 </p>
               </div>
             </div>
@@ -288,8 +285,8 @@ export default function HomePage() {
               <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <StarIcon className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Premium Kalite</h3>
-              <p className="text-gray-600">Yüksek kaliteli malzemeler ve detaylı işçilik</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Güvenilir Satıcılar</h3>
+              <p className="text-gray-600">Doğrulanmış ve güvenilir satıcılardan alışveriş</p>
             </div>
             
             <div className="text-center group">
@@ -297,15 +294,15 @@ export default function HomePage() {
                 <TruckIcon className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Hızlı Teslimat</h3>
-              <p className="text-gray-600">Güvenli ve hızlı kargo ile teslimat</p>
+              <p className="text-gray-600">Dünya çapında hızlı ve güvenli teslimat</p>
             </div>
             
             <div className="text-center group">
               <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
                 <ShieldCheckIcon className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Güvenli Alışveriş</h3>
-              <p className="text-gray-600">Güvenli ödeme ve müşteri memnuniyeti</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Güvenli Ödeme</h3>
+              <p className="text-gray-600">SSL korumalı güvenli ödeme sistemi</p>
             </div>
           </div>
         </div>

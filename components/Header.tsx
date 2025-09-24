@@ -57,7 +57,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center space-x-2 group">
             <span className="text-2xl md:text-3xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:scale-105 transition-all duration-300 group-hover:animate-pulse">
-              TDC Products
+              TDC Market
             </span>
           </Link>
 
@@ -76,6 +76,9 @@ export default function Header() {
             </Link>
             <Link href="/contact" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               {t('nav.contact')}
+            </Link>
+            <Link href="/become-seller" className="text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-all duration-300 font-medium hover:scale-105 transform bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-lg">
+              Satıcı Ol
             </Link>
             <Link href="/tdc-bist" className="relative bg-gradient-to-r from-blue-500 to-blue-600 text-black font-bold px-6 py-3 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 overflow-hidden group whitespace-nowrap">
               <span className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
@@ -525,6 +528,9 @@ export default function Header() {
             </Link>
             <Link href="/contact" className="block text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-200 font-medium hover:translate-x-2 transform">
               İletişim
+            </Link>
+            <Link href="/become-seller" className="block text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200 font-medium hover:translate-x-2 transform bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-lg w-fit">
+              Satıcı Ol
             </Link>
             <Link href="/tdc-bist" className="block bg-gradient-to-r from-blue-500 to-blue-600 text-black font-bold px-4 py-2 rounded-full w-fit">
               TDC BİST
