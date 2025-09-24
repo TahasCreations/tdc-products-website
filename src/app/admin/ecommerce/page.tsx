@@ -100,6 +100,31 @@ export default function EcommercePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
   const [submitMessageType, setSubmitMessageType] = useState<'success' | 'error' | ''>('');
+  
+  // Yeni gelişmiş özellikler
+  const [showAdvancedModal, setShowAdvancedModal] = useState(false);
+  const [advancedFeatures, setAdvancedFeatures] = useState({
+    inventoryManagement: false,
+    priceOptimization: false,
+    customerSegmentation: false,
+    automatedMarketing: false,
+    advancedAnalytics: false,
+    multiVendorSupport: false,
+    subscriptionManagement: false,
+    loyaltyProgram: false,
+    giftCards: false,
+    bulkOperations: false,
+    apiIntegration: false,
+    mobileApp: false
+  });
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+  const [performanceMetrics, setPerformanceMetrics] = useState({
+    pageLoadTime: 0,
+    conversionRate: 0,
+    bounceRate: 0,
+    cartAbandonment: 0,
+    customerSatisfaction: 0
+  });
 
   useEffect(() => {
     const fetchEcommerceData = async () => {
@@ -476,7 +501,16 @@ export default function EcommercePage() {
               { id: 'orders', label: 'Siparişler' },
               { id: 'customers', label: 'Müşteriler' },
               { id: 'payments', label: 'Ödemeler' },
-              { id: 'analytics', label: 'Analizler' }
+              { id: 'analytics', label: 'Analizler' },
+              { id: 'inventory', label: 'Stok Yönetimi' },
+              { id: 'marketing', label: 'Pazarlama' },
+              { id: 'loyalty', label: 'Sadakat Programı' },
+              { id: 'subscriptions', label: 'Abonelikler' },
+              { id: 'giftcards', label: 'Hediye Kartları' },
+              { id: 'bulk', label: 'Toplu İşlemler' },
+              { id: 'integrations', label: 'Entegrasyonlar' },
+              { id: 'mobile', label: 'Mobil Uygulama' },
+              { id: 'advanced', label: 'Gelişmiş Özellikler' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -1031,6 +1065,245 @@ export default function EcommercePage() {
                   </div>
                   <div className="p-3 bg-purple-100 rounded-full">
                     <ChartBarIcon className="w-6 h-6 text-purple-600" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Inventory Management Tab */}
+        {selectedTab === 'inventory' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Stok Yönetimi</h3>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  Stok Güncelle
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <ExclamationTriangleIcon className="w-8 h-8 text-red-600 mr-3" />
+                    <div>
+                      <p className="text-sm text-red-600">Düşük Stok</p>
+                      <p className="text-2xl font-bold text-red-700">12 ürün</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <ClockIcon className="w-8 h-8 text-yellow-600 mr-3" />
+                    <div>
+                      <p className="text-sm text-yellow-600">Yakında Tükenecek</p>
+                      <p className="text-2xl font-bold text-yellow-700">8 ürün</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <CheckCircleIcon className="w-8 h-8 text-green-600 mr-3" />
+                    <div>
+                      <p className="text-sm text-green-600">Yeterli Stok</p>
+                      <p className="text-2xl font-bold text-green-700">45 ürün</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ürün</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mevcut Stok</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Minimum Stok</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    <tr>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-gray-200 rounded-lg mr-3"></div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">Naruto Figürü</p>
+                            <p className="text-sm text-gray-500">Anime</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">10</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Düşük Stok</span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button className="text-blue-600 hover:text-blue-900 mr-3">Stok Ekle</button>
+                        <button className="text-gray-600 hover:text-gray-900">Detay</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Marketing Tab */}
+        {selectedTab === 'marketing' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="bg-white rounded-xl shadow-sm border p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">E-posta Kampanyaları</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-blue-900">Yeni Ürün Duyurusu</p>
+                      <p className="text-sm text-blue-700">1,250 gönderildi</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-blue-600">%12.5</p>
+                      <p className="text-xs text-blue-500">Açılma Oranı</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-green-900">İndirim Kampanyası</p>
+                      <p className="text-sm text-green-700">2,100 gönderildi</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-green-600">%18.3</p>
+                      <p className="text-xs text-green-500">Açılma Oranı</p>
+                    </div>
+                  </div>
+                </div>
+                <button className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                  Yeni Kampanya Oluştur
+                </button>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Sosyal Medya</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Instagram Takipçi</span>
+                    <span className="text-sm font-bold text-pink-600">12.5K</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Facebook Beğeni</span>
+                    <span className="text-sm font-bold text-blue-600">8.2K</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Twitter Takipçi</span>
+                    <span className="text-sm font-bold text-blue-400">3.1K</span>
+                  </div>
+                </div>
+                <button className="w-full mt-4 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">
+                  Sosyal Medya Yönetimi
+                </button>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">SEO Analizi</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Organik Trafik</span>
+                    <span className="text-sm font-bold text-green-600">+24%</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Anahtar Kelime</span>
+                    <span className="text-sm font-bold text-blue-600">156</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Backlink</span>
+                    <span className="text-sm font-bold text-purple-600">89</span>
+                  </div>
+                </div>
+                <button className="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                  SEO Raporu
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loyalty Program Tab */}
+        {selectedTab === 'loyalty' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Sadakat Programı</h3>
+                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                  Program Ayarları
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <StarIcon className="w-8 h-8 text-purple-600 mr-3" />
+                    <div>
+                      <p className="text-sm text-purple-600">Aktif Üyeler</p>
+                      <p className="text-2xl font-bold text-purple-700">1,247</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <TagIcon className="w-8 h-8 text-yellow-600 mr-3" />
+                    <div>
+                      <p className="text-sm text-yellow-600">Kullanılan Puan</p>
+                      <p className="text-2xl font-bold text-yellow-700">45,230</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <CheckCircleIcon className="w-8 h-8 text-green-600 mr-3" />
+                    <div>
+                      <p className="text-sm text-green-600">Kazanılan Puan</p>
+                      <p className="text-2xl font-bold text-green-700">78,450</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">Puan Sistemi</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-600">Her ₺1 harcama</span>
+                      <span className="text-sm font-bold text-blue-600">1 puan</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-600">100 puan</span>
+                      <span className="text-sm font-bold text-green-600">₺5 indirim</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-600">Referans</span>
+                      <span className="text-sm font-bold text-purple-600">50 puan</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-md font-semibold text-gray-900 mb-4">Seviye Sistemi</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                      <span className="text-sm text-gray-600">Bronze (0-999 puan)</span>
+                      <span className="text-sm font-bold text-yellow-600">%5 indirim</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-600">Silver (1000-4999 puan)</span>
+                      <span className="text-sm font-bold text-gray-600">%10 indirim</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-yellow-100 rounded-lg">
+                      <span className="text-sm text-gray-600">Gold (5000+ puan)</span>
+                      <span className="text-sm font-bold text-yellow-500">%15 indirim</span>
+                    </div>
                   </div>
                 </div>
               </div>

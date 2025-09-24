@@ -37,6 +37,21 @@ export default function Header() {
     }).format(price);
   };
 
+  // Para birimi dönüştürme fonksiyonu
+  const convertCurrency = (amount: number, fromCurrency: string, toCurrency: string) => {
+    const rates: { [key: string]: number } = {
+      'TRY': 1,
+      'USD': 0.033,
+      'EUR': 0.030,
+      'GBP': 0.026
+    };
+    
+    const baseAmount = amount * rates[fromCurrency];
+    const convertedAmount = baseAmount / rates[toCurrency];
+    
+    return convertedAmount.toFixed(2);
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
@@ -54,30 +69,30 @@ export default function Header() {
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-orange-100 dark:border-gray-700 sticky top-0 z-50 shadow-sm transition-colors duration-300">
       <div className="max-w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-14">
           <Link href="/" className="flex items-center space-x-2 group">
-            <span className="text-2xl md:text-3xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:scale-105 transition-all duration-300 group-hover:animate-pulse">
+            <span className="text-xl md:text-2xl font-bubblegum text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:scale-105 transition-all duration-300 group-hover:animate-pulse">
               TDC Market
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/products" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link href="/products" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               {t('nav.products')}
             </Link>
-            <Link href="/campaigns" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
+            <Link href="/campaigns" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               {t('nav.campaigns')}
             </Link>
-            <Link href="/about" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
+            <Link href="/about" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               {t('nav.about')}
             </Link>
-            <Link href="/blog" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
+            <Link href="/blog" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               {t('nav.blog')}
             </Link>
-            <Link href="/contact" className="text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
+            <Link href="/contact" className="text-sm text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-300 font-medium hover:scale-105 transform">
               {t('nav.contact')}
             </Link>
-            <Link href="/become-seller" className="text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-all duration-300 font-medium hover:scale-105 transform bg-green-50 dark:bg-green-900/20 px-4 py-2 rounded-lg">
+            <Link href="/become-seller" className="text-sm text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-all duration-300 font-medium hover:scale-105 transform bg-green-50 dark:bg-green-900/20 px-3 py-1.5 rounded-lg">
               Satıcı Ol
             </Link>
             <Link href="/tdc-bist" className="relative bg-gradient-to-r from-blue-500 to-blue-600 text-black font-bold px-6 py-3 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 overflow-hidden group whitespace-nowrap">
@@ -259,26 +274,28 @@ export default function Header() {
 
             {/* Language Switcher */}
             <LanguageSwitcher 
-              className="hidden md:flex"
+              className="hidden md:flex text-xs"
               showFlags={true}
               showNativeNames={false}
             />
 
             {/* Currency Converter */}
-            <div className="hidden md:flex items-center">
-              <div className="text-xs text-gray-600 mr-2">100₺ =</div>
-              <div className="bg-white border border-gray-300 rounded px-2 py-1 text-sm">
-                <span className="text-green-600 font-medium">$3.30</span>
-              </div>
+            <div className="hidden md:flex items-center space-x-2">
+              <div className="text-xs text-gray-600">100₺ =</div>
+              <select className="bg-white border border-gray-300 rounded px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="USD">$3.30</option>
+                <option value="EUR">€3.05</option>
+                <option value="GBP">£2.60</option>
+              </select>
             </div>
 
             {/* Giriş Yap/Kayıt Ol Butonu - Sadece giriş yapmamış kullanıcılar için */}
             {!user && (
               <Link
                 href="/auth"
-                className="hidden md:flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="hidden md:flex items-center space-x-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                <i className="ri-login-box-line"></i>
+                <i className="ri-login-box-line text-sm"></i>
                 <span>Giriş Yap</span>
               </Link>
             )}
