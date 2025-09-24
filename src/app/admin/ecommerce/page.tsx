@@ -252,6 +252,22 @@ export default function EcommercePage() {
     fetchEcommerceData();
   }, []);
 
+  // Fetch integration status
+  const fetchIntegrationStatus = async () => {
+    try {
+      const response = await fetch('/api/integrations/status');
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update integration status in UI
+        console.log('Integration status updated:', data.data);
+        // You can add state management for integration status here
+      }
+    } catch (error) {
+      console.error('Error fetching integration status:', error);
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
@@ -1646,144 +1662,269 @@ export default function EcommercePage() {
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Entegrasyonlar</h3>
-                <button className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
-                  Yeni Entegrasyon
-                </button>
+                <div className="flex space-x-2">
+                  <button 
+                    onClick={() => fetchIntegrationStatus()}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  >
+                    Durumu Yenile
+                  </button>
+                  <button className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+                    Yeni Entegrasyon
+                  </button>
+                </div>
+              </div>
+              
+              {/* Integration Status Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">✓</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-green-600">Aktif</p>
+                      <p className="text-2xl font-bold text-green-700">8</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">○</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Pasif</p>
+                      <p className="text-2xl font-bold text-gray-700">2</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-yellow-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">T</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-yellow-600">Test</p>
+                      <p className="text-2xl font-bold text-yellow-700">2</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mr-3">
+                      <span className="text-white text-sm font-bold">B</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-600">Beta</p>
+                      <p className="text-2xl font-bold text-blue-700">1</p>
+                    </div>
+                  </div>
+                </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
-                  <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-white text-lg font-bold">📧</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                        <span className="text-white text-lg font-bold">📧</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">E-posta Servisleri</h4>
+                        <p className="text-sm text-gray-600">Mailchimp, SendGrid</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">E-posta Servisleri</h4>
-                      <p className="text-sm text-gray-600">Mailchimp, SendGrid</p>
-                    </div>
+                    <button className="text-blue-600 hover:text-blue-800">
+                      <span className="text-lg">⚙️</span>
+                    </button>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Mailchimp</span>
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                        <button className="text-blue-600 hover:text-blue-800 text-xs">Test</button>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">SendGrid</span>
-                      <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Pasif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Pasif</span>
+                        <button className="text-blue-600 hover:text-blue-800 text-xs">Aktif Et</button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-green-50 p-6 rounded-lg border border-green-200">
-                  <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-white text-lg font-bold">💳</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3">
+                        <span className="text-white text-lg font-bold">💳</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Ödeme Sistemleri</h4>
+                        <p className="text-sm text-gray-600">Stripe, PayPal, iyzico</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Ödeme Sistemleri</h4>
-                      <p className="text-sm text-gray-600">Stripe, PayPal, iyzico</p>
-                    </div>
+                    <button className="text-green-600 hover:text-green-800">
+                      <span className="text-lg">⚙️</span>
+                    </button>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Stripe</span>
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                        <button className="text-green-600 hover:text-green-800 text-xs">Test</button>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">PayPal</span>
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                        <button className="text-green-600 hover:text-green-800 text-xs">Test</button>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">iyzico</span>
-                      <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Test</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Test</span>
+                        <button className="text-green-600 hover:text-green-800 text-xs">Aktif Et</button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
-                  <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-white text-lg font-bold">📊</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mr-3">
+                        <span className="text-white text-lg font-bold">📊</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Analitik</h4>
+                        <p className="text-sm text-gray-600">Google Analytics, Mixpanel</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Analitik</h4>
-                      <p className="text-sm text-gray-600">Google Analytics, Mixpanel</p>
-                    </div>
+                    <button className="text-purple-600 hover:text-purple-800">
+                      <span className="text-lg">⚙️</span>
+                    </button>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Google Analytics</span>
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                        <button className="text-purple-600 hover:text-purple-800 text-xs">Rapor</button>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Mixpanel</span>
-                      <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Pasif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">Pasif</span>
+                        <button className="text-purple-600 hover:text-purple-800 text-xs">Aktif Et</button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-orange-50 p-6 rounded-lg border border-orange-200">
-                  <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-white text-lg font-bold">🚚</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center mr-3">
+                        <span className="text-white text-lg font-bold">🚚</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Kargo</h4>
+                        <p className="text-sm text-gray-600">Aras Kargo, MNG</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Kargo</h4>
-                      <p className="text-sm text-gray-600">Aras Kargo, MNG</p>
-                    </div>
+                    <button className="text-orange-600 hover:text-orange-800">
+                      <span className="text-lg">⚙️</span>
+                    </button>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Aras Kargo</span>
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                        <button className="text-orange-600 hover:text-orange-800 text-xs">Test</button>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">MNG Kargo</span>
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                        <button className="text-orange-600 hover:text-orange-800 text-xs">Test</button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-pink-50 p-6 rounded-lg border border-pink-200">
-                  <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-white text-lg font-bold">📱</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center mr-3">
+                        <span className="text-white text-lg font-bold">📱</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Sosyal Medya</h4>
+                        <p className="text-sm text-gray-600">Instagram, Facebook</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Sosyal Medya</h4>
-                      <p className="text-sm text-gray-600">Instagram, Facebook</p>
-                    </div>
+                    <button className="text-pink-600 hover:text-pink-800">
+                      <span className="text-lg">⚙️</span>
+                    </button>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Instagram</span>
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                        <button className="text-pink-600 hover:text-pink-800 text-xs">Post</button>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Facebook</span>
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                        <button className="text-pink-600 hover:text-pink-800 text-xs">Post</button>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="bg-indigo-50 p-6 rounded-lg border border-indigo-200">
-                  <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-white text-lg font-bold">🔧</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                        <span className="text-white text-lg font-bold">🔧</span>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">API Yönetimi</h4>
+                        <p className="text-sm text-gray-600">REST, GraphQL</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">API Yönetimi</h4>
-                      <p className="text-sm text-gray-600">REST, GraphQL</p>
-                    </div>
+                    <button className="text-indigo-600 hover:text-indigo-800">
+                      <span className="text-lg">⚙️</span>
+                    </button>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">REST API</span>
-                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Aktif</span>
+                        <button className="text-indigo-600 hover:text-indigo-800 text-xs">Docs</button>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">GraphQL</span>
-                      <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Beta</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Beta</span>
+                        <button className="text-indigo-600 hover:text-indigo-800 text-xs">Test</button>
+                      </div>
                     </div>
                   </div>
                 </div>
