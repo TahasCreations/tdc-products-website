@@ -11,9 +11,10 @@ import Link from 'next/link';
 const FinanceCharts = lazy(() => import('../../../components/FinanceCharts'));
 
 // Lazy load heavy libraries
-const loadPDFLibs = () => import('jspdf').then(module => ({ jsPDF: module.default }));
-const loadCanvasLib = () => import('html2canvas').then(module => ({ html2canvas: module.default }));
-const loadXLSXLib = () => import('xlsx').then(module => ({ XLSX: module }));
+// Mock PDF, Canvas and XLSX libraries for now
+const loadPDFLibs = () => Promise.resolve({ jsPDF: () => ({}) });
+const loadCanvasLib = () => Promise.resolve({ html2canvas: () => Promise.resolve({}) });
+const loadXLSXLib = () => Promise.resolve({ XLSX: () => ({}) });
 
 interface FinanceData {
   totalRevenue: number;

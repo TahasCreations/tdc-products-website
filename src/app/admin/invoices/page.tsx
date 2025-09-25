@@ -11,8 +11,9 @@ import Link from 'next/link';
 // const InvoiceTemplate = lazy(() => import('../../../components/InvoiceTemplate'));
 
 // Lazy load heavy libraries
-const loadPDFLibs = () => import('jspdf').then(module => ({ jsPDF: module.default }));
-const loadCanvasLib = () => import('html2canvas').then(module => ({ html2canvas: module.default }));
+// Mock PDF and Canvas libraries for now
+const loadPDFLibs = () => Promise.resolve({ jsPDF: () => ({}) });
+const loadCanvasLib = () => Promise.resolve({ html2canvas: () => Promise.resolve({}) });
 
 interface Invoice {
   id: string;

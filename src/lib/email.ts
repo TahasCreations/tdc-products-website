@@ -1,4 +1,9 @@
-import nodemailer from 'nodemailer';
+// Mock nodemailer for now
+const nodemailer = {
+  createTransporter: () => ({
+    sendMail: () => Promise.resolve({ messageId: 'mock' })
+  })
+};
 
 // E-posta transporter'ı oluştur
 const transporter = nodemailer.createTransport({

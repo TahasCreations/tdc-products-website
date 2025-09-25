@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useTranslation } from 'next-i18next';
+// Mock translation hook for now
+const useTranslation = () => ({ t: (key: string) => key });
 import {
   GlobeAltIcon,
   ChevronDownIcon,

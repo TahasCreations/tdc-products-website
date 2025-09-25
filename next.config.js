@@ -42,7 +42,7 @@ const nextConfig = {
 
   // Vercel specific optimizations
   experimental: {
-    serverComponentsExternalPackages: ['bcrypt', 'bcryptjs'],
+    serverComponentsExternalPackages: ['bcryptjs'],
     optimizePackageImports: ['@heroicons/react', 'chart.js', 'recharts']
   },
 

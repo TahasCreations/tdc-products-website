@@ -16,10 +16,7 @@
     "analyze:browser": "BUNDLE_ANALYZE=browser npm run build",
     "prebuild": "echo 'Starting build process...'",
     "postbuild": "echo 'Build completed successfully!'",
-    "vercel-build": "node vercel-build.js",
-    "build:vercel": "node vercel-build.js",
     "build:production": "NODE_ENV=production npm run build",
-    "build:optimized": "node scripts/build-optimized.js",
     "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
@@ -29,13 +26,10 @@
     "bcryptjs": "^3.0.2",
     "chart.js": "^4.5.0",
     "date-fns": "^4.1.0",
-    "i18next": "^25.5.2",
     "next": "14.2.5",
-    "next-i18next": "^15.4.2",
     "react": "18.3.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "18.3.1",
-    "react-i18next": "^15.7.3",
     "recharts": "^3.1.2"
   },
   "devDependencies": {
