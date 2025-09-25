@@ -1,11 +1,25 @@
 {
   "version": 2,
   "framework": "nextjs",
+  "buildCommand": "npm run build:optimized",
+  "outputDirectory": ".next",
+  "installCommand": "npm ci",
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 30
     }
   },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/health",
+      "schedule": "0 */6 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

@@ -173,17 +173,17 @@ const AIChatbot: React.FC<AIChatbotProps> = ({ context }) => {
             <div className="flex items-center space-x-2">
               <button
                 onClick={clearChat}
-                className="text-white hover:text-gray-200 transition-colors"
+                className="text-white hover:text-gray-200 transition-colors p-1 rounded hover:bg-white hover:bg-opacity-20"
                 title="Sohbeti Temizle"
               >
                 <i className="ri-refresh-line text-lg"></i>
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-white hover:text-gray-200 transition-colors"
+                className="text-white hover:text-red-200 transition-colors p-2 rounded-full hover:bg-red-500 hover:bg-opacity-20"
                 title="Kapat"
               >
-                <i className="ri-close-line text-lg"></i>
+                <i className="ri-close-line text-xl"></i>
               </button>
             </div>
           </div>

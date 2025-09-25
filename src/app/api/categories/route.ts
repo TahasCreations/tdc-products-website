@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
 
 // Mock kategori verileri - dinamik olarak güncellenebilir
 let categories = [
@@ -194,7 +193,7 @@ export async function POST(request: NextRequest) {
 
     // Create new category
     const newCategory = {
-      id: uuidv4(),
+      id: `cat-${Date.now()}`,
       name,
       slug,
       parentId: parentId || null,

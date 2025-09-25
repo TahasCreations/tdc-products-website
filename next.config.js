@@ -3,6 +3,12 @@ const nextConfig = {
   // Basic configuration
   reactStrictMode: true,
   
+  // Build optimizations
+  swcMinify: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  
   // Image optimization
   images: {
     remotePatterns: [
@@ -36,7 +42,25 @@ const nextConfig = {
 
   // Vercel specific optimizations
   experimental: {
-    serverComponentsExternalPackages: ['bcrypt', 'bcryptjs']
+    serverComponentsExternalPackages: ['bcrypt', 'bcryptjs'],
+    optimizePackageImports: ['@heroicons/react', 'chart.js', 'recharts']
+  },
+
+  // Webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+        },
+      };
+    }
+    return config;
   },
 
   // Security headers
