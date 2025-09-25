@@ -5,6 +5,7 @@ import Image from 'next/image';
 import AdminProtection from '../../../components/AdminProtection';
 import ProductForm from '../../../components/admin/ProductForm';
 import OptimizedLoader from '../../../components/OptimizedLoader';
+import EmojiPicker from '../../../components/EmojiPicker';
 import { getSupabaseClient } from '../../../lib/supabase-client';
 
 interface Category {
@@ -12,6 +13,7 @@ interface Category {
   name: string;
   color: string;
   icon: string;
+  emoji?: string;
   parent_id?: string | null;
   level?: number;
   created_at: string;
@@ -65,11 +67,14 @@ export default function AdminProductsPage() {
     name: '',
     color: '#6b7280',
     icon: 'ri-more-line',
+    emoji: '📦',
     parent_id: null as string | null
   });
 
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emojiPickerFor, setEmojiPickerFor] = useState<'add' | 'edit'>('add');
 
   useEffect(() => {
     fetchProducts();
@@ -262,7 +267,10 @@ export default function AdminProductsPage() {
         },
         body: JSON.stringify({
           action: 'add',
-          ...newCategory
+          name: newCategory.name,
+          description: '',
+          emoji: newCategory.emoji,
+          parentId: newCategory.parent_id
         }),
       });
 
@@ -275,6 +283,7 @@ export default function AdminProductsPage() {
           name: '',
           color: '#6b7280',
           icon: 'ri-more-line',
+          emoji: '📦',
           parent_id: null
         });
         setShowCategoryForm(false);
@@ -298,6 +307,7 @@ export default function AdminProductsPage() {
       name: category.name,
       color: category.color,
       icon: category.icon,
+      emoji: category.emoji || '📦',
       parent_id: category.parent_id || null
     });
     setShowEditForm(true);
@@ -323,7 +333,10 @@ export default function AdminProductsPage() {
         body: JSON.stringify({
           action: 'update',
           id: editingCategory.id,
-          ...newCategory
+          name: newCategory.name,
+          description: '',
+          emoji: newCategory.emoji,
+          parentId: newCategory.parent_id
         }),
       });
 
@@ -338,6 +351,7 @@ export default function AdminProductsPage() {
           name: '',
           color: '#6b7280',
           icon: 'ri-more-line',
+          emoji: '📦',
           parent_id: null
         });
         fetchCategories();
@@ -386,6 +400,18 @@ export default function AdminProductsPage() {
       setMessage('Bağlantı hatası');
       setMessageType('error');
     }
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setNewCategory(prev => ({
+      ...prev,
+      emoji: emoji
+    }));
+  };
+
+  const openEmojiPicker = (forAction: 'add' | 'edit') => {
+    setEmojiPickerFor(forAction);
+    setShowEmojiPicker(true);
   };
 
   const handleDeleteProduct = async (id: string) => {
@@ -563,36 +589,19 @@ export default function AdminProductsPage() {
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      İkon
+                      Emoji
                     </label>
                     <div className="flex items-center gap-2">
-                      <i className={`${newCategory.icon} text-xl`} style={{ color: newCategory.color }}></i>
-                      <select
-                        value={newCategory.icon}
-                        onChange={(e) => setNewCategory(prev => ({ ...prev, icon: e.target.value }))}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      <div className="w-10 h-10 border-2 border-gray-300 rounded-lg flex items-center justify-center text-2xl bg-gray-50">
+                        {newCategory.emoji}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openEmojiPicker(showEditForm ? 'edit' : 'add')}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-colors"
                       >
-                        <option value="ri-more-line">Genel</option>
-                        <option value="ri-gamepad-line">Oyun</option>
-                        <option value="ri-movie-line">Film</option>
-                        <option value="ri-music-line">Müzik</option>
-                        <option value="ri-book-line">Kitap</option>
-                        <option value="ri-shirt-line">Giyim</option>
-                        <option value="ri-smartphone-line">Teknoloji</option>
-                        <option value="ri-home-line">Ev & Yaşam</option>
-                        <option value="ri-car-line">Araç</option>
-                        <option value="ri-heart-line">Hediye</option>
-                        <option value="ri-computer-line">Bilgisayar</option>
-                        <option value="ri-camera-line">Kamera</option>
-                        <option value="ri-headphone-line">Ses</option>
-                        <option value="ri-tv-line">TV</option>
-                        <option value="ri-game-line">Oyun Konsolu</option>
-                        <option value="ri-tablet-line">Tablet</option>
-                        <option value="ri-watch-line">Saat</option>
-                        <option value="ri-basketball-line">Spor</option>
-                        <option value="ri-plant-line">Bahçe</option>
-                        <option value="ri-tools-line">Araçlar</option>
-                      </select>
+                        Emoji Seç
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -617,6 +626,7 @@ export default function AdminProductsPage() {
                           name: '',
                           color: '#6b7280',
                           icon: 'ri-more-line',
+                          emoji: '📦',
                           parent_id: null
                         });
                       }}
@@ -634,6 +644,7 @@ export default function AdminProductsPage() {
                         name: '',
                         color: '#6b7280',
                         icon: 'ri-more-line',
+                        emoji: '📦',
                         parent_id: null
                       })}
                       className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
@@ -789,11 +800,8 @@ export default function AdminProductsPage() {
                         <tr key={category.id} className="hover:bg-gray-50">
                           <td className="px-4 py-4 whitespace-nowrap">
                             <div className="flex items-center gap-3">
-                              <div 
-                                className="w-6 h-6 rounded-full flex items-center justify-center"
-                                style={{ backgroundColor: category.color }}
-                              >
-                                <i className={`${category.icon} text-white text-sm`}></i>
+                              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-lg bg-gray-50 border border-gray-200">
+                                {category.emoji || '📦'}
                               </div>
                               <div>
                                 <div className="text-sm font-medium text-gray-900">
@@ -972,6 +980,14 @@ export default function AdminProductsPage() {
           </div>
         </div>
       </div>
+
+      {/* Emoji Picker */}
+      <EmojiPicker
+        isOpen={showEmojiPicker}
+        onClose={() => setShowEmojiPicker(false)}
+        onSelect={handleEmojiSelect}
+        currentEmoji={newCategory.emoji}
+      />
     </AdminProtection>
   );
 }

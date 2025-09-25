@@ -12,6 +12,7 @@ let categories = [
     sortOrder: 1,
     description: 'Elektronik ürünler ve aksesuarlar',
     image: 'https://images.unsplash.com/photo-1526170375885-4d8bdd19ceab?auto=format&fit=crop&w=400&q=80',
+    emoji: '📱',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
@@ -25,6 +26,7 @@ let categories = [
     sortOrder: 2,
     description: 'Giyim ve aksesuar ürünleri',
     image: 'https://images.unsplash.com/photo-1483985988355-f7dc55c96655?auto=format&fit=crop&w=400&q=80',
+    emoji: '👕',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
@@ -38,6 +40,7 @@ let categories = [
     sortOrder: 3,
     description: 'Ev ve yaşam ürünleri',
     image: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=400&q=80',
+    emoji: '🏠',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
@@ -51,6 +54,7 @@ let categories = [
     sortOrder: 4,
     description: 'Spor ve outdoor ürünleri',
     image: '/images/categories/sports.jpg',
+    emoji: '⚽',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
@@ -64,6 +68,7 @@ let categories = [
     sortOrder: 5,
     description: 'Kitap ve hobi ürünleri',
     image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=400&q=80',
+    emoji: '📚',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
@@ -78,6 +83,7 @@ let categories = [
     sortOrder: 1,
     description: 'Telefon ve aksesuarları',
     image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80',
+    emoji: '📱',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
@@ -91,6 +97,7 @@ let categories = [
     sortOrder: 2,
     description: 'Bilgisayar ve tablet ürünleri',
     image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=400&q=80',
+    emoji: '💻',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
@@ -104,6 +111,7 @@ let categories = [
     sortOrder: 1,
     description: 'Erkek giyim ürünleri',
     image: 'https://images.unsplash.com/photo-1527719327867-f650ed16062b?auto=format&fit=crop&w=400&q=80',
+    emoji: '👔',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
@@ -117,6 +125,7 @@ let categories = [
     sortOrder: 2,
     description: 'Kadın giyim ürünleri',
     image: 'https://images.unsplash.com/photo-1529139574466-a303027c5d84?auto=format&fit=crop&w=400&q=80',
+    emoji: '👗',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   },
@@ -130,6 +139,7 @@ let categories = [
     sortOrder: 1,
     description: 'Mobilya ürünleri',
     image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80',
+    emoji: '🪑',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z'
   }
@@ -172,51 +182,127 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, slug, parentId, description, image, sortOrder } = body;
+    const { action, id, name, slug, parentId, description, image, sortOrder, emoji } = body;
 
-    // Validation
-    if (!name || !slug) {
+    // Handle delete action
+    if (action === 'delete' && id) {
+      const categoryIndex = categories.findIndex(cat => cat.id === id);
+      if (categoryIndex === -1) {
+        return NextResponse.json({
+          success: false,
+          message: 'Category not found'
+        }, { status: 404 });
+      }
+
+      // Check if category has subcategories
+      const hasSubcategories = categories.some(cat => cat.parentId === id);
+      if (hasSubcategories) {
+        return NextResponse.json({
+          success: false,
+          message: 'Cannot delete category with subcategories'
+        }, { status: 400 });
+      }
+
+      categories.splice(categoryIndex, 1);
+
       return NextResponse.json({
-        success: false,
-        message: 'Name and slug are required'
-      }, { status: 400 });
+        success: true,
+        message: 'Category deleted successfully'
+      });
     }
 
-    // Check if slug already exists
-    const existingCategory = categories.find(cat => cat.slug === slug);
-    if (existingCategory) {
+    // Handle add/update actions
+    if (action === 'add') {
+      // Validation
+      if (!name) {
+        return NextResponse.json({
+          success: false,
+          message: 'Category name is required'
+        }, { status: 400 });
+      }
+
+      // Generate slug from name
+      const generatedSlug = name.toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+        .trim();
+
+      // Check if slug already exists
+      const existingCategory = categories.find(cat => cat.slug === generatedSlug);
+      if (existingCategory) {
+        return NextResponse.json({
+          success: false,
+          message: 'Category with this name already exists'
+        }, { status: 400 });
+      }
+
+      // Create new category
+      const newCategory = {
+        id: `cat-${Date.now()}`,
+        name,
+        slug: generatedSlug,
+        parentId: parentId || null,
+        level: parentId ? 1 : 0,
+        isActive: true,
+        sortOrder: sortOrder || categories.length + 1,
+        description: description || '',
+        image: emoji || image || '📦', // Use emoji as default
+        emoji: emoji || '📦',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      categories.push(newCategory);
+
       return NextResponse.json({
-        success: false,
-        message: 'Category with this slug already exists'
-      }, { status: 400 });
+        success: true,
+        message: 'Category created successfully',
+        data: newCategory
+      });
     }
 
-    // Create new category
-    const newCategory = {
-      id: `cat-${Date.now()}`,
-      name,
-      slug,
-      parentId: parentId || null,
-      level: parentId ? 1 : 0,
-      isActive: true,
-      sortOrder: sortOrder || categories.length + 1,
-      description: description || '',
-      image: image || '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    if (action === 'update' && id) {
+      const categoryIndex = categories.findIndex(cat => cat.id === id);
+      if (categoryIndex === -1) {
+        return NextResponse.json({
+          success: false,
+          message: 'Category not found'
+        }, { status: 404 });
+      }
 
-    categories.push(newCategory);
+      // Update category
+      categories[categoryIndex] = {
+        ...categories[categoryIndex],
+        name: name || categories[categoryIndex].name,
+        description: description || categories[categoryIndex].description,
+        image: emoji || image || categories[categoryIndex].image,
+        emoji: emoji || categories[categoryIndex].emoji || '📦',
+        parentId: parentId !== undefined ? parentId : categories[categoryIndex].parentId,
+        updatedAt: new Date().toISOString()
+      };
+
+      return NextResponse.json({
+        success: true,
+        message: 'Category updated successfully',
+        data: categories[categoryIndex]
+      });
+    }
 
     return NextResponse.json({
-      success: true,
-      message: 'Category created successfully',
-      data: newCategory
-    });
+      success: false,
+      message: 'Invalid action'
+    }, { status: 400 });
+
   } catch (error) {
     return NextResponse.json({
       success: false,
-      message: 'Failed to create category',
+      message: 'Failed to process request',
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }

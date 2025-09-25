@@ -8,8 +8,12 @@ import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  CloudIcon,
+  ShareIcon
 } from '@heroicons/react/24/outline';
+import SocialMediaIntegrations from './admin/SocialMediaIntegrations';
+import AccountSyncManager from './admin/AccountSyncManager';
 
 export default function IntegrationManagementSystem() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -18,6 +22,8 @@ export default function IntegrationManagementSystem() {
   const tabs = [
     { id: 'overview', name: 'Genel Bakış', icon: LinkIcon },
     { id: 'integrations', name: 'Entegrasyonlar', icon: CheckCircleIcon },
+    { id: 'social-media', name: 'Sosyal Medya', icon: ShareIcon },
+    { id: 'account-sync', name: 'Hesap Senkronizasyonu', icon: CloudIcon },
     { id: 'api', name: 'API Yönetimi', icon: PencilIcon },
     { id: 'logs', name: 'Loglar', icon: ArrowPathIcon }
   ];
@@ -161,6 +167,10 @@ export default function IntegrationManagementSystem() {
             </div>
           </div>
         );
+      case 'social-media':
+        return <SocialMediaIntegrations />;
+      case 'account-sync':
+        return <AccountSyncManager />;
       case 'api':
         return (
           <div className="space-y-6">

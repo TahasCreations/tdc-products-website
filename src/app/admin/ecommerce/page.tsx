@@ -26,6 +26,7 @@ import {
   ClockIcon
 } from '@heroicons/react/24/outline';
 import DragDropImageUpload from '../../../components/DragDropImageUpload';
+import AdvancedFeaturesModal from '../../../components/admin/AdvancedFeaturesModal';
 
 interface Product {
   id: string;
@@ -105,6 +106,8 @@ export default function EcommercePage() {
   
   // Yeni gelişmiş özellikler
   const [showAdvancedModal, setShowAdvancedModal] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState('');
+  const [showFeatureModal, setShowFeatureModal] = useState(false);
   const [advancedFeatures, setAdvancedFeatures] = useState({
     inventoryManagement: false,
     priceOptimization: false,
@@ -625,6 +628,17 @@ export default function EcommercePage() {
     setSubmitMessage('');
     setSubmitMessageType('');
     setShowProductModal(true);
+  };
+
+  const handleFeatureSettings = (featureKey: string) => {
+    setSelectedFeature(featureKey);
+    setShowFeatureModal(true);
+  };
+
+  const handleFeatureSave = (settings: any) => {
+    console.log('Feature settings saved:', settings);
+    // Burada API çağrısı yapılabilir
+    setShowFeatureModal(false);
   };
 
   const handleDeleteProduct = async (productId: string) => {
@@ -2347,9 +2361,7 @@ export default function EcommercePage() {
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Gelişmiş Özellikler</h3>
                 <button 
-                  onClick={() => {
-                    alert('Gelişmiş özellik ayarları özelliği yakında eklenecek!');
-                  }}
+                  onClick={() => setShowAdvancedModal(true)}
                   className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700"
                 >
                   Özellik Ayarları
@@ -2357,7 +2369,10 @@ export default function EcommercePage() {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200">
+                <div 
+                  onClick={() => handleFeatureSettings('ai-recommendations')}
+                  className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
                   <div className="flex items-center mb-4">
                     <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
                       <span className="text-white text-lg font-bold">🤖</span>
@@ -2377,9 +2392,15 @@ export default function EcommercePage() {
                       <span className="text-sm font-bold text-blue-600">%87.3</span>
                     </div>
                   </div>
+                  <div className="mt-4 pt-3 border-t border-blue-200">
+                    <span className="text-xs text-blue-600 font-medium">Ayarları düzenlemek için tıklayın →</span>
+                  </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg border border-green-200">
+                <div 
+                  onClick={() => handleFeatureSettings('price-optimization')}
+                  className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg border border-green-200 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
                   <div className="flex items-center mb-4">
                     <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3">
                       <span className="text-white text-lg font-bold">💰</span>
@@ -2399,9 +2420,15 @@ export default function EcommercePage() {
                       <span className="text-sm font-bold text-green-600">+%23.5</span>
                     </div>
                   </div>
+                  <div className="mt-4 pt-3 border-t border-green-200">
+                    <span className="text-xs text-green-600 font-medium">Ayarları düzenlemek için tıklayın →</span>
+                  </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg border border-purple-200">
+                <div 
+                  onClick={() => handleFeatureSettings('advanced-analytics')}
+                  className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg border border-purple-200 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
                   <div className="flex items-center mb-4">
                     <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mr-3">
                       <span className="text-white text-lg font-bold">📊</span>
@@ -2421,9 +2448,15 @@ export default function EcommercePage() {
                       <span className="text-sm font-bold text-purple-600">156</span>
                     </div>
                   </div>
+                  <div className="mt-4 pt-3 border-t border-purple-200">
+                    <span className="text-xs text-purple-600 font-medium">Ayarları düzenlemek için tıklayın →</span>
+                  </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg border border-orange-200">
+                <div 
+                  onClick={() => handleFeatureSettings('automation')}
+                  className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg border border-orange-200 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
                   <div className="flex items-center mb-4">
                     <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center mr-3">
                       <span className="text-white text-lg font-bold">🔄</span>
@@ -2443,9 +2476,15 @@ export default function EcommercePage() {
                       <span className="text-sm font-bold text-orange-600">23</span>
                     </div>
                   </div>
+                  <div className="mt-4 pt-3 border-t border-orange-200">
+                    <span className="text-xs text-orange-600 font-medium">Ayarları düzenlemek için tıklayın →</span>
+                  </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-pink-50 to-pink-100 p-6 rounded-lg border border-pink-200">
+                <div 
+                  onClick={() => handleFeatureSettings('customer-segmentation')}
+                  className="bg-gradient-to-br from-pink-50 to-pink-100 p-6 rounded-lg border border-pink-200 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
                   <div className="flex items-center mb-4">
                     <div className="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center mr-3">
                       <span className="text-white text-lg font-bold">🎯</span>
@@ -2465,9 +2504,15 @@ export default function EcommercePage() {
                       <span className="text-sm font-bold text-pink-600">8</span>
                     </div>
                   </div>
+                  <div className="mt-4 pt-3 border-t border-pink-200">
+                    <span className="text-xs text-pink-600 font-medium">Ayarları düzenlemek için tıklayın →</span>
+                  </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-lg border border-indigo-200">
+                <div 
+                  onClick={() => handleFeatureSettings('security')}
+                  className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-lg border border-indigo-200 cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:scale-105"
+                >
                   <div className="flex items-center mb-4">
                     <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center mr-3">
                       <span className="text-white text-lg font-bold">🔒</span>
@@ -2486,6 +2531,9 @@ export default function EcommercePage() {
                       <span className="text-sm text-gray-600">Güvenlik Skoru</span>
                       <span className="text-sm font-bold text-indigo-600">98/100</span>
                     </div>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-indigo-200">
+                    <span className="text-xs text-indigo-600 font-medium">Ayarları düzenlemek için tıklayın →</span>
                   </div>
                 </div>
               </div>
@@ -3110,6 +3158,14 @@ export default function EcommercePage() {
           </div>
         </div>
       )}
+
+      {/* Advanced Features Modal */}
+      <AdvancedFeaturesModal
+        isOpen={showFeatureModal}
+        onClose={() => setShowFeatureModal(false)}
+        feature={selectedFeature}
+        onSave={handleFeatureSave}
+      />
     </div>
   );
 }

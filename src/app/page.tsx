@@ -232,7 +232,7 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
               </Link>
               <Link
-                href="/about"
+                href="/3d-teknolojisi"
                 className="group relative bg-white/10 backdrop-blur-sm text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 border-2 border-white/20 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center">
