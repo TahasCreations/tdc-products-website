@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '../../../../lib/supabase';
 
 // Mock kategori verileri - dinamik olarak güncellenebilir
 let categories = [
@@ -152,25 +153,81 @@ export async function GET(request: NextRequest) {
     const level = searchParams.get('level');
     const isActive = searchParams.get('isActive');
 
-    let filteredCategories = categories;
+    // Supabase'den kategorileri çek
+    let query = supabase
+      .from('categories')
+      .select('*')
+      .order('sort_order', { ascending: true });
 
+    // Parent ID'ye göre filtreleme
     if (parentId !== null) {
-      filteredCategories = filteredCategories.filter(cat => cat.parentId === parentId);
+      if (parentId === 'null' || parentId === '') {
+        query = query.is('parent_id', null);
+      } else {
+        query = query.eq('parent_id', parentId);
+      }
     }
 
+    // Level filtreleme
     if (level !== null) {
-      filteredCategories = filteredCategories.filter(cat => cat.level === parseInt(level));
+      // Level hesaplama - parent_id null ise level 0, değilse level 1
+      if (level === '0') {
+        query = query.is('parent_id', null);
+      } else if (level === '1') {
+        query = query.not('parent_id', 'is', null);
+      }
     }
 
+    // Aktif kategorileri filtreleme
     if (isActive !== null) {
-      filteredCategories = filteredCategories.filter(cat => cat.isActive === (isActive === 'true'));
+      query = query.eq('is_active', isActive === 'true');
     }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Supabase error:', error);
+      // Fallback olarak mock data kullan
+      let filteredCategories = categories;
+      if (parentId !== null) {
+        filteredCategories = filteredCategories.filter(cat => cat.parentId === parentId);
+      }
+      if (level !== null) {
+        filteredCategories = filteredCategories.filter(cat => cat.level === parseInt(level));
+      }
+      if (isActive !== null) {
+        filteredCategories = filteredCategories.filter(cat => cat.isActive === (isActive === 'true'));
+      }
+      return NextResponse.json({
+        success: true,
+        data: filteredCategories,
+        source: 'mock'
+      });
+    }
+
+    // Supabase verilerini frontend formatına dönüştür
+    const formattedData = data?.map(cat => ({
+      id: cat.id,
+      name: cat.name,
+      slug: cat.slug,
+      parentId: cat.parent_id,
+      level: cat.parent_id ? 1 : 0,
+      isActive: cat.is_active,
+      sortOrder: cat.sort_order,
+      description: cat.description || '',
+      image: cat.image_url || '',
+      emoji: cat.emoji || '📦',
+      createdAt: cat.created_at,
+      updatedAt: cat.updated_at
+    })) || [];
 
     return NextResponse.json({
       success: true,
-      data: filteredCategories
+      data: formattedData,
+      source: 'supabase'
     });
   } catch (error) {
+    console.error('API error:', error);
     return NextResponse.json({
       success: false,
       message: 'Failed to fetch categories',
@@ -186,24 +243,39 @@ export async function POST(request: NextRequest) {
 
     // Handle delete action
     if (action === 'delete' && id) {
-      const categoryIndex = categories.findIndex(cat => cat.id === id);
-      if (categoryIndex === -1) {
-        return NextResponse.json({
-          success: false,
-          message: 'Category not found'
-        }, { status: 404 });
-      }
+      // Supabase'den sil
+      const { error: deleteError } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id);
 
-      // Check if category has subcategories
-      const hasSubcategories = categories.some(cat => cat.parentId === id);
-      if (hasSubcategories) {
-        return NextResponse.json({
-          success: false,
-          message: 'Cannot delete category with subcategories'
-        }, { status: 400 });
-      }
+      if (deleteError) {
+        console.error('Supabase delete error:', deleteError);
+        
+        // Fallback: Mock data'dan sil
+        const categoryIndex = categories.findIndex(cat => cat.id === id);
+        if (categoryIndex === -1) {
+          return NextResponse.json({
+            success: false,
+            message: 'Category not found'
+          }, { status: 404 });
+        }
 
-      categories.splice(categoryIndex, 1);
+        const hasSubcategories = categories.some(cat => cat.parentId === id);
+        if (hasSubcategories) {
+          return NextResponse.json({
+            success: false,
+            message: 'Cannot delete category with subcategories'
+          }, { status: 400 });
+        }
+
+        categories.splice(categoryIndex, 1);
+
+        return NextResponse.json({
+          success: true,
+          message: 'Category deleted successfully (mock)'
+        });
+      }
 
       return NextResponse.json({
         success: true,
@@ -233,64 +305,149 @@ export async function POST(request: NextRequest) {
         .replace(/\s+/g, '-')
         .trim();
 
-      // Check if slug already exists
-      const existingCategory = categories.find(cat => cat.slug === generatedSlug);
-      if (existingCategory) {
+      // Supabase'e ekle
+      const { data: newCategoryData, error: insertError } = await supabase
+        .from('categories')
+        .insert([{
+          name,
+          slug: generatedSlug,
+          parent_id: parentId || null,
+          description: description || '',
+          image_url: emoji || image || '📦',
+          emoji: emoji || '📦',
+          sort_order: sortOrder || 0,
+          is_active: true
+        }])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Supabase insert error:', insertError);
+        
+        // Fallback: Mock data'ya ekle
+        const existingCategory = categories.find(cat => cat.slug === generatedSlug);
+        if (existingCategory) {
+          return NextResponse.json({
+            success: false,
+            message: 'Category with this name already exists'
+          }, { status: 400 });
+        }
+
+        const newCategory = {
+          id: `cat-${Date.now()}`,
+          name,
+          slug: generatedSlug,
+          parentId: parentId || null,
+          level: parentId ? 1 : 0,
+          isActive: true,
+          sortOrder: sortOrder || categories.length + 1,
+          description: description || '',
+          image: emoji || image || '📦',
+          emoji: emoji || '📦',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        categories.push(newCategory);
+
         return NextResponse.json({
-          success: false,
-          message: 'Category with this name already exists'
-        }, { status: 400 });
+          success: true,
+          message: 'Category created successfully (mock)',
+          data: newCategory
+        });
       }
 
-      // Create new category
-      const newCategory = {
-        id: `cat-${Date.now()}`,
-        name,
-        slug: generatedSlug,
-        parentId: parentId || null,
-        level: parentId ? 1 : 0,
-        isActive: true,
-        sortOrder: sortOrder || categories.length + 1,
-        description: description || '',
-        image: emoji || image || '📦', // Use emoji as default
-        emoji: emoji || '📦',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+      // Supabase verisini frontend formatına dönüştür
+      const formattedCategory = {
+        id: newCategoryData.id,
+        name: newCategoryData.name,
+        slug: newCategoryData.slug,
+        parentId: newCategoryData.parent_id,
+        level: newCategoryData.parent_id ? 1 : 0,
+        isActive: newCategoryData.is_active,
+        sortOrder: newCategoryData.sort_order,
+        description: newCategoryData.description || '',
+        image: newCategoryData.image_url || '',
+        emoji: newCategoryData.emoji || emoji || '📦',
+        createdAt: newCategoryData.created_at,
+        updatedAt: newCategoryData.updated_at
       };
-
-      categories.push(newCategory);
 
       return NextResponse.json({
         success: true,
         message: 'Category created successfully',
-        data: newCategory
+        data: formattedCategory
       });
     }
 
     if (action === 'update' && id) {
-      const categoryIndex = categories.findIndex(cat => cat.id === id);
-      if (categoryIndex === -1) {
+      // Supabase'de güncelle
+      const updateData: any = {};
+      if (name) updateData.name = name;
+      if (description !== undefined) updateData.description = description;
+      if (emoji || image) {
+        updateData.image_url = emoji || image;
+        updateData.emoji = emoji || '📦';
+      }
+      if (parentId !== undefined) updateData.parent_id = parentId;
+      if (sortOrder !== undefined) updateData.sort_order = sortOrder;
+
+      const { data: updatedCategoryData, error: updateError } = await supabase
+        .from('categories')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error('Supabase update error:', updateError);
+        
+        // Fallback: Mock data'da güncelle
+        const categoryIndex = categories.findIndex(cat => cat.id === id);
+        if (categoryIndex === -1) {
+          return NextResponse.json({
+            success: false,
+            message: 'Category not found'
+          }, { status: 404 });
+        }
+
+        categories[categoryIndex] = {
+          ...categories[categoryIndex],
+          name: name || categories[categoryIndex].name,
+          description: description || categories[categoryIndex].description,
+          image: emoji || image || categories[categoryIndex].image,
+          emoji: emoji || categories[categoryIndex].emoji || '📦',
+          parentId: parentId !== undefined ? parentId : categories[categoryIndex].parentId,
+          updatedAt: new Date().toISOString()
+        };
+
         return NextResponse.json({
-          success: false,
-          message: 'Category not found'
-        }, { status: 404 });
+          success: true,
+          message: 'Category updated successfully (mock)',
+          data: categories[categoryIndex]
+        });
       }
 
-      // Update category
-      categories[categoryIndex] = {
-        ...categories[categoryIndex],
-        name: name || categories[categoryIndex].name,
-        description: description || categories[categoryIndex].description,
-        image: emoji || image || categories[categoryIndex].image,
-        emoji: emoji || categories[categoryIndex].emoji || '📦',
-        parentId: parentId !== undefined ? parentId : categories[categoryIndex].parentId,
-        updatedAt: new Date().toISOString()
+      // Supabase verisini frontend formatına dönüştür
+      const formattedCategory = {
+        id: updatedCategoryData.id,
+        name: updatedCategoryData.name,
+        slug: updatedCategoryData.slug,
+        parentId: updatedCategoryData.parent_id,
+        level: updatedCategoryData.parent_id ? 1 : 0,
+        isActive: updatedCategoryData.is_active,
+        sortOrder: updatedCategoryData.sort_order,
+        description: updatedCategoryData.description || '',
+        image: updatedCategoryData.image_url || '',
+        emoji: updatedCategoryData.emoji || emoji || '📦',
+        createdAt: updatedCategoryData.created_at,
+        updatedAt: updatedCategoryData.updated_at
       };
 
       return NextResponse.json({
         success: true,
         message: 'Category updated successfully',
-        data: categories[categoryIndex]
+        data: formattedCategory
       });
     }
 

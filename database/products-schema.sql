@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS categories (
     parent_id UUID REFERENCES categories(id) ON DELETE CASCADE,
     description TEXT,
     image_url TEXT,
+    emoji VARCHAR(10) DEFAULT '📦',
     sort_order INTEGER DEFAULT 0,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

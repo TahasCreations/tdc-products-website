@@ -17,7 +17,10 @@
     "prebuild": "echo 'Starting build process...'",
     "postbuild": "echo 'Build completed successfully!'",
     "build:production": "NODE_ENV=production npm run build",
-    "deploy:vercel": "vercel --prod"
+    "deploy:vercel": "vercel --prod",
+    "setup:supabase": "node setup-supabase.js",
+    "test:supabase": "node test-supabase-connection.js",
+    "db:setup": "echo 'Supabase veritabanı kurulumu için SUPABASE-KURULUM-REHBERI.md dosyasını okuyun'"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

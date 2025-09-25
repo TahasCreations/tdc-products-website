@@ -1,0 +1,136 @@
+# 🚀 TDC PRODUCTS WEBSITE - ENVIRONMENT VARIABLES
+# Bu dosyayı .env.local olarak kopyala ve gerçek değerlerle doldur
+
+# ========================================
+# SUPABASE CONFIGURATION
+# ========================================
+# Supabase Dashboard → Settings → API sayfasından al
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# ========================================
+# SITE URLS
+# ========================================
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# ========================================
+# ADMIN CONFIGURATION
+# ========================================
+ADMIN_CLEANUP_TOKEN=change_me_strong_token_12345
+DEV_ADMIN_BYPASS=true
+DEV_ADMIN_EMAIL=bentahasarii@gmail.com
+DEV_ADMIN_PASSWORD=35sandalye
+
+# ========================================
+# EMAIL CONFIGURATION
+# ========================================
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+
+# ========================================
+# SECURITY
+# ========================================
+NEXTAUTH_SECRET=your_nextauth_secret_key_here_12345
+NEXTAUTH_URL=http://localhost:3000
+
+# ========================================
+# VERCEL DEPLOYMENT
+# ========================================
+VERCEL_URL=your_vercel_url
+VERCEL_ENV=production
+NODE_ENV=production
+
+# ========================================
+# ANALYTICS & TRACKING
+# ========================================
+NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
+NEXT_PUBLIC_GTM_ID=your_gtm_id
+
+# ========================================
+# FEATURE FLAGS
+# ========================================
+NEXT_PUBLIC_ENABLE_ANALYTICS=false
+NEXT_PUBLIC_ENABLE_PWA=true
+NEXT_PUBLIC_ENABLE_AI=true
+
+# ========================================
+# PAYMENT PROVIDERS
+# ========================================
+# iyzico
+IYZICO_API_KEY=your_iyzico_api_key
+IYZICO_SECRET_KEY=your_iyzico_secret_key
+IYZICO_BASE_URL=https://sandbox-api.iyzipay.com
+
+# Stripe
+STRIPE_PUBLIC_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# PayPal
+PAYPAL_CLIENT_ID=your_paypal_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+PAYPAL_MODE=sandbox
+
+# ========================================
+# SHIPPING PROVIDERS
+# ========================================
+# Aras Kargo
+ARAS_USERNAME=your_aras_username
+ARAS_PASSWORD=your_aras_password
+ARAS_CUSTOMER_CODE=your_aras_customer_code
+
+# MNG Kargo
+MNG_USERNAME=your_mng_username
+MNG_PASSWORD=your_mng_password
+MNG_CUSTOMER_CODE=your_mng_customer_code
+
+# ========================================
+# SOCIAL MEDIA INTEGRATIONS
+# ========================================
+# Facebook
+FACEBOOK_APP_ID=your_facebook_app_id
+FACEBOOK_APP_SECRET=your_facebook_app_secret
+
+# Instagram
+INSTAGRAM_CLIENT_ID=your_instagram_client_id
+INSTAGRAM_CLIENT_SECRET=your_instagram_client_secret
+
+# Twitter/X
+TWITTER_API_KEY=your_twitter_api_key
+TWITTER_API_SECRET=your_twitter_api_secret
+TWITTER_ACCESS_TOKEN=your_twitter_access_token
+TWITTER_ACCESS_TOKEN_SECRET=your_twitter_access_token_secret
+
+# TikTok
+TIKTOK_CLIENT_KEY=your_tiktok_client_key
+TIKTOK_CLIENT_SECRET=your_tiktok_client_secret
+
+# ========================================
+# AI & MACHINE LEARNING
+# ========================================
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+
+# ========================================
+# CACHE & PERFORMANCE
+# ========================================
+REDIS_URL=redis://localhost:6379
+UPSTASH_REDIS_REST_URL=https://...
+UPSTASH_REDIS_REST_TOKEN=...
+
+# ========================================
+# MONITORING & LOGGING
+# ========================================
+SENTRY_DSN=https://...
+LOGFLARE_API_KEY=...
+LOGFLARE_SOURCE_TOKEN=...
+
+# ========================================
+# DEVELOPMENT TOOLS
+# ========================================
+DEBUG=true
+VERBOSE_LOGGING=false
+MOCK_PAYMENTS=true
+MOCK_SHIPPING=true
