@@ -369,6 +369,16 @@ export default function AdminProductsPage() {
   };
 
   const handleDeleteCategory = async (id: string) => {
+    // Önce alt kategorileri kontrol et
+    const category = categories.find(cat => cat.id === id);
+    const hasSubcategories = categories.some(cat => cat.parentId === id);
+    
+    if (hasSubcategories) {
+      setMessage('Bu kategorinin alt kategorileri bulunmaktadır. Önce alt kategorileri siliniz.');
+      setMessageType('error');
+      return;
+    }
+
     if (!confirm('Bu kategoriyi silmek istediğinizden emin misiniz?')) {
       return;
     }
@@ -392,7 +402,7 @@ export default function AdminProductsPage() {
         setMessageType('success');
         fetchCategories();
       } else {
-        setMessage(data.error || 'Kategori silinemedi');
+        setMessage(data.message || data.error || 'Kategori silinemedi');
         setMessageType('error');
       }
     } catch (error) {
@@ -722,8 +732,17 @@ export default function AdminProductsPage() {
                           </button>
                           <button
                             onClick={() => handleDeleteCategory(category.id)}
-                            className="text-red-500 hover:text-red-700 text-sm p-1"
-                            title="Kategoriyi Sil"
+                            disabled={categories.some(c => c.parent_id === category.id)}
+                            className={`text-sm p-1 ${
+                              categories.some(c => c.parent_id === category.id)
+                                ? 'text-gray-400 cursor-not-allowed'
+                                : 'text-red-500 hover:text-red-700'
+                            }`}
+                            title={
+                              categories.some(c => c.parent_id === category.id)
+                                ? 'Alt kategorileri olan kategoriler silinemez'
+                                : 'Kategoriyi Sil'
+                            }
                           >
                             <i className="ri-delete-bin-line"></i>
                           </button>
@@ -856,8 +875,17 @@ export default function AdminProductsPage() {
                               </button>
                               <button
                                 onClick={() => handleDeleteCategory(category.id)}
-                                className="text-red-600 hover:text-red-900"
-                                title="Sil"
+                                disabled={categories.some(c => c.parent_id === category.id)}
+                                className={`${
+                                  categories.some(c => c.parent_id === category.id)
+                                    ? 'text-gray-400 cursor-not-allowed'
+                                    : 'text-red-600 hover:text-red-900'
+                                }`}
+                                title={
+                                  categories.some(c => c.parent_id === category.id)
+                                    ? 'Alt kategorileri olan kategoriler silinemez'
+                                    : 'Sil'
+                                }
                               >
                                 <i className="ri-delete-bin-line"></i>
                               </button>

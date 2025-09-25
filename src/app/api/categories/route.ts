@@ -254,6 +254,7 @@ export async function POST(request: NextRequest) {
         
         // Fallback: Mock data'dan sil
         const categoryIndex = categories.findIndex(cat => cat.id === id);
+        
         if (categoryIndex === -1) {
           return NextResponse.json({
             success: false,
@@ -262,6 +263,7 @@ export async function POST(request: NextRequest) {
         }
 
         const hasSubcategories = categories.some(cat => cat.parentId === id);
+        
         if (hasSubcategories) {
           return NextResponse.json({
             success: false,

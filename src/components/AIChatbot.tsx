@@ -180,7 +180,7 @@ const AIChatbot: React.FC<AIChatbotProps> = ({ context }) => {
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-white hover:text-red-200 transition-colors p-2 rounded-full hover:bg-red-500 hover:bg-opacity-20"
+                className="text-white hover:text-red-200 transition-colors p-2 rounded-full hover:bg-red-500 hover:bg-opacity-20 bg-red-600 bg-opacity-30 border border-red-400"
                 title="Kapat"
               >
                 <i className="ri-close-line text-xl"></i>
