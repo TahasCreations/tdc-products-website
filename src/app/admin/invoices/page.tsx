@@ -12,8 +12,25 @@ import Link from 'next/link';
 
 // Lazy load heavy libraries
 // Mock PDF and Canvas libraries for now
-const loadPDFLibs = () => Promise.resolve({ jsPDF: () => ({}) });
-const loadCanvasLib = () => Promise.resolve({ html2canvas: () => Promise.resolve({}) });
+const loadPDFLibs = () => Promise.resolve({ 
+  jsPDF: class MockJsPDF {
+    constructor(orientation?: string, unit?: string, format?: string) {
+      // Mock constructor
+    }
+    addImage(imgData: string, format: string, x: number, y: number, width: number, height: number) {}
+    save(filename?: string) {}
+    addPage() {}
+    setPage(pageNumber: number) {}
+    getNumberOfPages() { return 1; }
+  }
+});
+const loadCanvasLib = () => Promise.resolve({ 
+  html2canvas: (element: any, options?: any) => Promise.resolve({
+    toDataURL: (format?: string) => 'data:image/png;base64,mock',
+    height: 1000,
+    width: 800
+  })
+});
 
 interface Invoice {
   id: string;

@@ -1,7 +1,7 @@
 // Mock nodemailer for now
 const nodemailer = {
-  createTransporter: () => ({
-    sendMail: () => Promise.resolve({ messageId: 'mock' })
+  createTransport: (config?: any) => ({
+    sendMail: (options: any) => Promise.resolve({ messageId: 'mock' })
   })
 };
 

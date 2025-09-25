@@ -3,7 +3,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 // Mock translation hook for now
-const useTranslation = () => ({ t: (key: string) => key });
+const useTranslation = () => ({ 
+  t: (key: string) => key,
+  i18n: { 
+    language: 'tr',
+    changeLanguage: async (lang: string) => {
+      // Mock change language function
+      console.log('Changing language to:', lang);
+    }
+  }
+});
 import {
   GlobeAltIcon,
   ChevronDownIcon,
