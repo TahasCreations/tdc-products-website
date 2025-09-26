@@ -66,33 +66,75 @@ export default function AccountingPage() {
   const [selectedPeriod, setSelectedPeriod] = useState('this_month');
 
   useEffect(() => {
-    // Mock data - Gerçek API'den gelecek
-    const mockSummary: FinancialSummary = {
-      totalRevenue: 0,
-      totalExpenses: 0,
-      netProfit: 0,
-      pendingInvoices: 0,
-      overdueInvoices: 0,
-      monthlyGrowth: 0,
-      quarterlyGrowth: 0
+    const fetchAccountingData = async () => {
+      try {
+        setLoading(true);
+        
+        // Paralel olarak tüm verileri çek
+        const [statsResponse, invoicesResponse] = await Promise.all([
+          fetch('/api/accounting/stats'),
+          fetch('/api/accounting/invoices?limit=10')
+        ]);
+
+        // İstatistikleri işle
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          if (statsData.success) {
+            setSummary(statsData.data);
+          }
+        }
+
+        // Faturaları işle
+        if (invoicesResponse.ok) {
+          const invoicesData = await invoicesResponse.json();
+          if (invoicesData.success) {
+            setInvoices(invoicesData.data);
+          }
+        }
+
+        // Mock ETA integration (henüz API yok)
+        const mockEtaIntegration: EtaIntegration = {
+          isConnected: false,
+          lastSync: '',
+          syncStatus: 'pending',
+          invoicesSynced: 0,
+          customersSynced: 0
+        };
+        setEtaIntegration(mockEtaIntegration);
+
+      } catch (error) {
+        console.error('Error fetching accounting data:', error);
+        
+        // Fallback: Mock data
+        const mockSummary: FinancialSummary = {
+          totalRevenue: 0,
+          totalExpenses: 0,
+          netProfit: 0,
+          pendingInvoices: 0,
+          overdueInvoices: 0,
+          monthlyGrowth: 0,
+          quarterlyGrowth: 0
+        };
+
+        const mockInvoices: Invoice[] = [];
+
+        const mockEtaIntegration: EtaIntegration = {
+          isConnected: false,
+          lastSync: '',
+          syncStatus: 'pending',
+          invoicesSynced: 0,
+          customersSynced: 0
+        };
+
+        setSummary(mockSummary);
+        setInvoices(mockInvoices);
+        setEtaIntegration(mockEtaIntegration);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const mockInvoices: Invoice[] = [];
-
-    const mockEtaIntegration: EtaIntegration = {
-      isConnected: false,
-      lastSync: '',
-      syncStatus: 'pending',
-      invoicesSynced: 0,
-      customersSynced: 0
-    };
-
-    setTimeout(() => {
-      setSummary(mockSummary);
-      setInvoices(mockInvoices);
-      setEtaIntegration(mockEtaIntegration);
-      setLoading(false);
-    }, 1000);
+    fetchAccountingData();
   }, []);
 
   const formatCurrency = (amount: number) => {

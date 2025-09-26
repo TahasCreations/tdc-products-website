@@ -1,135 +1,280 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSupabaseClient } from '../../../../lib/supabase-client';
-
-export const dynamic = 'force-dynamic';
+import { supabase } from '../../../../../lib/supabase';
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = getServerSupabaseClient();
-    
-    if (!supabase) {
-      return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const search = searchParams.get('search') || '';
+    const tier = searchParams.get('tier') || '';
+    const status = searchParams.get('status') || '';
+
+    let customers = [];
+
+    if (supabase) {
+      // Supabase'den müşterileri çek
+      let query = supabase
+        .from('customers')
+        .select(`
+          id,
+          customer_code,
+          first_name,
+          last_name,
+          email,
+          phone,
+          company_name,
+          customer_type,
+          customer_status,
+          customer_tier,
+          total_orders,
+          total_spent,
+          last_order_date,
+          created_at,
+          customer_tags(tags(id, name, color))
+        `)
+        .order('created_at', { ascending: false });
+
+      // Filtreler
+      if (search) {
+        query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%,company_name.ilike.%${search}%`);
+      }
+      if (tier) {
+        query = query.eq('customer_tier', tier);
+      }
+      if (status) {
+        query = query.eq('customer_status', status);
+      }
+
+      // Sayfalama
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      query = query.range(from, to);
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Supabase customers error:', error);
+        throw error;
+      }
+
+      customers = data?.map(customer => ({
+        id: customer.id,
+        customer_code: customer.customer_code,
+        first_name: customer.first_name,
+        last_name: customer.last_name,
+        email: customer.email,
+        phone: customer.phone,
+        company_name: customer.company_name,
+        customer_type: customer.customer_type,
+        customer_status: customer.customer_status,
+        customer_tier: customer.customer_tier,
+        total_orders: customer.total_orders || 0,
+        total_spent: customer.total_spent || 0,
+        last_order_date: customer.last_order_date,
+        created_at: customer.created_at,
+        tags: customer.customer_tags?.map((ct: any) => ({
+          tag: ct.tags
+        })) || []
+      })) || [];
+
+    } else {
+      // Fallback: Mock data
+      customers = [
+        {
+          id: '1',
+          customer_code: 'CUST-001',
+          first_name: 'Ahmet',
+          last_name: 'Yılmaz',
+          email: 'ahmet@example.com',
+          phone: '+90 555 123 4567',
+          company_name: 'Yılmaz Ltd.',
+          customer_type: 'Kurumsal',
+          customer_status: 'active',
+          customer_tier: 'Gold',
+          total_orders: 15,
+          total_spent: 25000,
+          last_order_date: '2024-01-20T10:00:00Z',
+          created_at: '2023-06-15T10:00:00Z',
+          tags: [
+            {
+              tag: {
+                id: '1',
+                name: 'VIP',
+                color: '#FFD700'
+              }
+            }
+          ]
+        },
+        {
+          id: '2',
+          customer_code: 'CUST-002',
+          first_name: 'Fatma',
+          last_name: 'Demir',
+          email: 'fatma@example.com',
+          phone: '+90 555 987 6543',
+          company_name: 'Demir A.Ş.',
+          customer_type: 'Bireysel',
+          customer_status: 'active',
+          customer_tier: 'Silver',
+          total_orders: 8,
+          total_spent: 12000,
+          last_order_date: '2024-01-18T10:00:00Z',
+          created_at: '2023-08-20T10:00:00Z',
+          tags: [
+            {
+              tag: {
+                id: '2',
+                name: 'Sadık Müşteri',
+                color: '#32CD32'
+              }
+            }
+          ]
+        }
+      ];
     }
 
-    // Mock customer data
-    const customers = [
-      {
-        id: '1',
-        name: 'Ahmet Yılmaz',
-        email: 'ahmet@example.com',
-        phone: '+905551234567',
-        company: 'ABC Şirketi',
-        segment: 'VIP',
-        status: 'active',
-        totalOrders: 25,
-        totalSpent: 45000,
-        averageOrderValue: 1800,
-        lastOrderDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        registrationDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
-        source: 'Website',
-        tags: ['VIP', 'Sadık Müşteri'],
-        notes: 'Çok memnun müşteri, özel kampanyalar için öncelikli',
-        assignedTo: 'Satış Ekibi',
-        leadScore: 95,
-        lifetimeValue: 45000,
-        churnRisk: 'low',
-        preferences: {
-          categories: ['Elektronik', 'Ev & Yaşam'],
-          brands: ['Samsung', 'Apple'],
-          priceRange: { min: 1000, max: 5000 },
-          communication: 'email'
-        }
-      },
-      {
-        id: '2',
-        name: 'Mehmet Kaya',
-        email: 'mehmet@example.com',
-        phone: '+905559876543',
-        company: 'XYZ Ltd.',
-        segment: 'Premium',
-        status: 'active',
-        totalOrders: 15,
-        totalSpent: 25000,
-        averageOrderValue: 1667,
-        lastOrderDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        registrationDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(),
-        source: 'Referans',
-        tags: ['Premium', 'Kurumsal'],
-        notes: 'Kurumsal müşteri, toplu alımlar yapıyor',
-        assignedTo: 'Kurumsal Satış',
-        leadScore: 85,
-        lifetimeValue: 25000,
-        churnRisk: 'low',
-        preferences: {
-          categories: ['Ofis', 'Teknoloji'],
-          brands: ['Dell', 'HP'],
-          priceRange: { min: 500, max: 3000 },
-          communication: 'phone'
-        }
-      },
-      {
-        id: '3',
-        name: 'Ayşe Demir',
-        email: 'ayse@example.com',
-        phone: '+905556543210',
-        company: 'DEF A.Ş.',
-        segment: 'Standard',
-        status: 'active',
-        totalOrders: 8,
-        totalSpent: 12000,
-        averageOrderValue: 1500,
-        lastOrderDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-        registrationDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-        source: 'Sosyal Medya',
-        tags: ['Standard', 'Yeni Müşteri'],
-        notes: 'Yeni müşteri, potansiyeli yüksek',
-        assignedTo: 'Satış Ekibi',
-        leadScore: 70,
-        lifetimeValue: 12000,
-        churnRisk: 'medium',
-        preferences: {
-          categories: ['Moda', 'Kozmetik'],
-          brands: ['Nike', 'Adidas'],
-          priceRange: { min: 200, max: 1000 },
-          communication: 'email'
-        }
-      },
-      {
-        id: '4',
-        name: 'Fatma Özkan',
-        email: 'fatma@example.com',
-        phone: '+905557890123',
-        company: 'GHI Şirketi',
-        segment: 'Basic',
-        status: 'inactive',
-        totalOrders: 3,
-        totalSpent: 2500,
-        averageOrderValue: 833,
-        lastOrderDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-        registrationDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(),
-        source: 'Google Ads',
-        tags: ['Basic', 'Risk Altında'],
-        notes: 'Uzun süre alışveriş yapmadı, takip edilmeli',
-        assignedTo: 'Müşteri Hizmetleri',
-        leadScore: 45,
-        lifetimeValue: 2500,
-        churnRisk: 'high',
-        preferences: {
-          categories: ['Ev & Yaşam'],
-          brands: ['IKEA'],
-          priceRange: { min: 100, max: 500 },
-          communication: 'sms'
-        }
+    return NextResponse.json({
+      success: true,
+      data: customers,
+      pagination: {
+        page,
+        limit,
+        total: customers.length
       }
-    ];
-
-    return NextResponse.json(customers);
+    });
 
   } catch (error) {
     console.error('CRM customers error:', error);
-    return NextResponse.json(
-      { error: 'Müşteri verileri alınamadı' },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to fetch customers',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { action, id, ...customerData } = body;
+
+    if (action === 'create') {
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('customers')
+          .insert([{
+            customer_code: customerData.customer_code,
+            first_name: customerData.first_name,
+            last_name: customerData.last_name,
+            email: customerData.email,
+            phone: customerData.phone,
+            company_name: customerData.company_name,
+            customer_type: customerData.customer_type,
+            customer_status: customerData.customer_status || 'active',
+            customer_tier: customerData.customer_tier || 'Bronze'
+          }])
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        return NextResponse.json({
+          success: true,
+          message: 'Customer created successfully',
+          data
+        });
+      } else {
+        // Fallback: Mock creation
+        const newCustomer = {
+          id: Date.now().toString(),
+          ...customerData,
+          created_at: new Date().toISOString()
+        };
+
+        return NextResponse.json({
+          success: true,
+          message: 'Customer created successfully (mock)',
+          data: newCustomer
+        });
+      }
+    }
+
+    if (action === 'update' && id) {
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('customers')
+          .update({
+            first_name: customerData.first_name,
+            last_name: customerData.last_name,
+            email: customerData.email,
+            phone: customerData.phone,
+            company_name: customerData.company_name,
+            customer_type: customerData.customer_type,
+            customer_status: customerData.customer_status,
+            customer_tier: customerData.customer_tier,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) {
+          throw error;
+        }
+
+        return NextResponse.json({
+          success: true,
+          message: 'Customer updated successfully',
+          data
+        });
+      } else {
+        // Fallback: Mock update
+        return NextResponse.json({
+          success: true,
+          message: 'Customer updated successfully (mock)',
+          data: { id, ...customerData }
+        });
+      }
+    }
+
+    if (action === 'delete' && id) {
+      if (supabase) {
+        const { error } = await supabase
+          .from('customers')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          throw error;
+        }
+
+        return NextResponse.json({
+          success: true,
+          message: 'Customer deleted successfully'
+        });
+      } else {
+        // Fallback: Mock delete
+        return NextResponse.json({
+          success: true,
+          message: 'Customer deleted successfully (mock)'
+        });
+      }
+    }
+
+    return NextResponse.json({
+      success: false,
+      message: 'Invalid action'
+    }, { status: 400 });
+
+  } catch (error) {
+    console.error('CRM customers error:', error);
+    return NextResponse.json({
+      success: false,
+      message: 'Failed to process customer request',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }

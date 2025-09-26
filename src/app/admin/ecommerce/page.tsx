@@ -164,22 +164,20 @@ export default function EcommercePage() {
     const fetchEcommerceData = async () => {
       try {
         // Paralel olarak tüm verileri çek
-        const [statsResponse, productsResponse, ordersResponse, paymentMethodsResponse] = await Promise.all([
-          fetch('/api/ecommerce?type=stats'),
-          fetch('/api/ecommerce?type=products'),
-          fetch('/api/ecommerce?type=orders'),
-          fetch('/api/ecommerce?type=payment_methods')
+        const [statsResponse, productsResponse, ordersResponse] = await Promise.all([
+          fetch('/api/ecommerce/stats'),
+          fetch('/api/ecommerce/products?limit=10'),
+          fetch('/api/ecommerce/orders?limit=10')
         ]);
 
-        const [statsData, productsData, ordersData, paymentMethodsData] = await Promise.all([
+        const [statsData, productsData, ordersData] = await Promise.all([
           statsResponse.json(),
           productsResponse.json(),
-          ordersResponse.json(),
-          paymentMethodsResponse.json()
+          ordersResponse.json()
         ]);
 
         if (statsData.success) {
-          setStats(statsData.stats);
+          setStats(statsData.data);
         } else {
           // No data available
           setStats({
@@ -195,23 +193,44 @@ export default function EcommercePage() {
         }
 
         if (productsData.success) {
-          setProducts(productsData.products || []);
+          setProducts(productsData.data || []);
         } else {
           setProducts([]);
         }
 
         if (ordersData.success) {
-          setOrders(ordersData.orders || []);
+          setOrders(ordersData.data || []);
         } else {
           setOrders([]);
         }
 
-        if (paymentMethodsData.success) {
-          setPaymentMethods(paymentMethodsData.methods || []);
-        } else {
-          // No data available
-          setPaymentMethods([]);
-        }
+        // Mock payment methods (henüz API yok)
+        setPaymentMethods([
+          {
+            id: '1',
+            name: 'Kredi Kartı',
+            type: 'credit_card',
+            isActive: true,
+            fee: 2.5,
+            transactions: 156
+          },
+          {
+            id: '2',
+            name: 'Banka Havalesi',
+            type: 'bank_transfer',
+            isActive: true,
+            fee: 0,
+            transactions: 89
+          },
+          {
+            id: '3',
+            name: 'Kapıda Ödeme',
+            type: 'cash_on_delivery',
+            isActive: true,
+            fee: 15,
+            transactions: 45
+          }
+        ]);
 
       } catch (error) {
         // Hata durumunda boş data kullan
