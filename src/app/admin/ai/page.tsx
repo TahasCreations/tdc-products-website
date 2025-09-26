@@ -54,6 +54,7 @@ export default function AdminAIPage() {
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'recommendations' | 'chatbot' | 'analytics' | 'settings'>('overview');
+  const [chatbotRef, setChatbotRef] = useState<any>(null);
 
   useEffect(() => {
     fetchAIStats();
@@ -195,6 +196,36 @@ export default function AdminAIPage() {
       case 'medium': return 'text-yellow-600 bg-yellow-100';
       case 'low': return 'text-green-600 bg-green-100';
       default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
+  const testChatbot = async (message: string) => {
+    try {
+      const response = await fetch('/api/ai-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: message,
+          conversationHistory: [],
+          context: { userType: 'admin' }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          alert(`Chatbot Yanıtı: ${data.response}`);
+        } else {
+          alert('Chatbot yanıt veremedi');
+        }
+      } else {
+        alert('API hatası oluştu');
+      }
+    } catch (error) {
+      console.error('Test error:', error);
+      alert('Test sırasında hata oluştu');
     }
   };
 
@@ -395,6 +426,38 @@ export default function AdminAIPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="bg-gray-50 p-6 rounded-lg">
                     <h4 className="font-semibold text-gray-900 mb-4">Chatbot Test</h4>
+                    
+                    {/* Test Butonları */}
+                    <div className="mb-4 space-y-2">
+                      <p className="text-sm text-gray-600 mb-3">Hızlı test için örnek sorular:</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => testChatbot('Merhaba, nasılsın?')}
+                          className="px-3 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+                        >
+                          Selamlama Testi
+                        </button>
+                        <button
+                          onClick={() => testChatbot('Ürün önerisi ver')}
+                          className="px-3 py-2 bg-green-500 text-white text-sm rounded hover:bg-green-600 transition-colors"
+                        >
+                          Ürün Önerisi
+                        </button>
+                        <button
+                          onClick={() => testChatbot('Kampanyaları göster')}
+                          className="px-3 py-2 bg-purple-500 text-white text-sm rounded hover:bg-purple-600 transition-colors"
+                        >
+                          Kampanya Testi
+                        </button>
+                        <button
+                          onClick={() => testChatbot('Sipariş durumu sorgula')}
+                          className="px-3 py-2 bg-orange-500 text-white text-sm rounded hover:bg-orange-600 transition-colors"
+                        >
+                          Sipariş Testi
+                        </button>
+                      </div>
+                    </div>
+                    
                     <div className="h-96 bg-white rounded-lg border border-gray-200 p-4">
                       <AIChatbot 
                         context={{ userType: 'admin' }}

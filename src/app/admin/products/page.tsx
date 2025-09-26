@@ -277,7 +277,7 @@ export default function AdminProductsPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage('Kategori başarıyla eklendi');
+        setMessage(data.message || 'Kategori başarıyla eklendi');
         setMessageType('success');
         setNewCategory({
           name: '',
@@ -289,7 +289,7 @@ export default function AdminProductsPage() {
         setShowCategoryForm(false);
         fetchCategories();
       } else {
-        setMessage(data.error || 'Kategori eklenemedi');
+        setMessage(data.message || data.error || 'Kategori eklenemedi');
         setMessageType('error');
       }
     } catch (error) {
@@ -343,7 +343,7 @@ export default function AdminProductsPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage('Kategori başarıyla güncellendi');
+        setMessage(data.message || 'Kategori başarıyla güncellendi');
         setMessageType('success');
         setEditingCategory(null);
         setShowEditForm(false);
@@ -356,7 +356,7 @@ export default function AdminProductsPage() {
         });
         fetchCategories();
       } else {
-        setMessage(data.error || 'Kategori güncellenemedi');
+        setMessage(data.message || data.error || 'Kategori güncellenemedi');
         setMessageType('error');
       }
     } catch (error) {
@@ -398,7 +398,7 @@ export default function AdminProductsPage() {
       const data = await response.json();
 
       if (data.success) {
-        setMessage('Kategori başarıyla silindi');
+        setMessage(data.message || 'Kategori başarıyla silindi');
         setMessageType('success');
         fetchCategories();
       } else {

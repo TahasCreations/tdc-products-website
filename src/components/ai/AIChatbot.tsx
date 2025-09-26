@@ -168,7 +168,37 @@ export default function AIChatbot({
   };
 
   const generateAIResponse = async (userInput: string) => {
-    // Simulate AI processing
+    try {
+      // Gerçek API çağrısı yap
+      const response = await fetch('/api/ai-chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userInput,
+          conversationHistory: messages.slice(-5), // Son 5 mesajı gönder
+          context: context
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          return {
+            content: data.response,
+            suggestions: language === 'tr' 
+              ? ["Ürün öner", "Sipariş durumu", "Kampanyalar", "Yardım"]
+              : ["Recommend products", "Order status", "Campaigns", "Help"],
+            actions: []
+          };
+        }
+      }
+    } catch (error) {
+      console.error('API call failed, falling back to local response:', error);
+    }
+
+    // Fallback: Local AI processing
     const input = userInput.toLowerCase();
     
     // Product recommendations

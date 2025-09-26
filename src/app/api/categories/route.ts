@@ -271,143 +271,171 @@ export async function POST(request: NextRequest) {
 
     // Handle delete action
     if (action === 'delete' && id) {
-      // Supabase'den sil
-      const { error: deleteError } = supabase ? await supabase
-        .from('categories')
-        .delete()
-        .eq('id', id) : { error: { message: 'Supabase not available' } };
+      try {
+        // Supabase'den sil
+        if (supabase) {
+          const { error: deleteError } = await supabase
+            .from('categories')
+            .delete()
+            .eq('id', id);
 
-      if (deleteError) {
-        console.error('Supabase delete error:', deleteError);
-        
-        // Fallback: Mock data'dan sil
-        const categoryIndex = categories.findIndex(cat => cat.id === id);
-        
-        if (categoryIndex === -1) {
+          if (deleteError) {
+            console.error('Supabase delete error:', deleteError);
+            return NextResponse.json({
+              success: false,
+              message: deleteError.message || 'Kategori silinemedi'
+            }, { status: 400 });
+          }
+
           return NextResponse.json({
-            success: false,
-            message: 'Category not found'
-          }, { status: 404 });
-        }
+            success: true,
+            message: 'Kategori başarıyla silindi'
+          });
+        } else {
+          // Fallback: Mock data'dan sil
+          const categoryIndex = categories.findIndex(cat => cat.id === id);
+          
+          if (categoryIndex === -1) {
+            return NextResponse.json({
+              success: false,
+              message: 'Kategori bulunamadı'
+            }, { status: 404 });
+          }
 
-        const hasSubcategories = categories.some(cat => cat.parentId === id);
-        
-        if (hasSubcategories) {
+          const hasSubcategories = categories.some(cat => cat.parentId === id);
+          
+          if (hasSubcategories) {
+            return NextResponse.json({
+              success: false,
+              message: 'Alt kategorileri olan kategori silinemez'
+            }, { status: 400 });
+          }
+
+          categories.splice(categoryIndex, 1);
+
           return NextResponse.json({
-            success: false,
-            message: 'Cannot delete category with subcategories'
-          }, { status: 400 });
+            success: true,
+            message: 'Kategori başarıyla silindi (mock)'
+          });
         }
-
-        categories.splice(categoryIndex, 1);
-
+      } catch (error) {
+        console.error('Delete category error:', error);
         return NextResponse.json({
-          success: true,
-          message: 'Category deleted successfully (mock)'
-        });
+          success: false,
+          message: 'Kategori silinirken hata oluştu'
+        }, { status: 500 });
       }
-
-      return NextResponse.json({
-        success: true,
-        message: 'Category deleted successfully'
-      });
     }
 
     // Handle add/update actions
     if (action === 'add') {
-      // Validation
-      if (!name) {
-        return NextResponse.json({
-          success: false,
-          message: 'Category name is required'
-        }, { status: 400 });
-      }
-
-      // Generate slug from name
-      const generatedSlug = name.toLowerCase()
-        .replace(/ğ/g, 'g')
-        .replace(/ü/g, 'u')
-        .replace(/ş/g, 's')
-        .replace(/ı/g, 'i')
-        .replace(/ö/g, 'o')
-        .replace(/ç/g, 'c')
-        .replace(/[^a-z0-9\s]/g, '')
-        .replace(/\s+/g, '-')
-        .trim();
-
-      // Supabase'e ekle
-      const { data: newCategoryData, error: insertError } = supabase ? await supabase
-        .from('categories')
-        .insert([{
-          name,
-          slug: generatedSlug,
-          parent_id: parentId || null,
-          description: description || '',
-          image_url: emoji || image || '📦',
-          emoji: emoji || '📦',
-          sort_order: sortOrder || 0,
-          is_active: true
-        }])
-        .select()
-        .single() : { data: null, error: { message: 'Supabase not available' } };
-
-      if (insertError) {
-        console.error('Supabase insert error:', insertError);
-        
-        // Fallback: Mock data'ya ekle
-        const existingCategory = categories.find(cat => cat.slug === generatedSlug);
-        if (existingCategory) {
+      try {
+        // Validation
+        if (!name) {
           return NextResponse.json({
             success: false,
-            message: 'Category with this name already exists'
+            message: 'Kategori adı gerekli'
           }, { status: 400 });
         }
 
-        const newCategory = {
-          id: `cat-${Date.now()}`,
-          name,
-          slug: generatedSlug,
-          parentId: parentId || null,
-          level: parentId ? 1 : 0,
-          isActive: true,
-          sortOrder: sortOrder || categories.length + 1,
-          description: description || '',
-          image: emoji || image || '📦',
-          emoji: emoji || '📦',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        };
+        // Generate slug from name
+        const generatedSlug = name.toLowerCase()
+          .replace(/ğ/g, 'g')
+          .replace(/ü/g, 'u')
+          .replace(/ş/g, 's')
+          .replace(/ı/g, 'i')
+          .replace(/ö/g, 'o')
+          .replace(/ç/g, 'c')
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, '-')
+          .trim();
 
-        categories.push(newCategory);
+        // Supabase'e ekle
+        if (supabase) {
+          const { data: newCategoryData, error: insertError } = await supabase
+            .from('categories')
+            .insert([{
+              name,
+              slug: generatedSlug,
+              parent_id: parentId || null,
+              description: description || '',
+              image_url: emoji || image || '📦',
+              emoji: emoji || '📦',
+              sort_order: sortOrder || 0,
+              is_active: true
+            }])
+            .select()
+            .single();
 
+          if (insertError) {
+            console.error('Supabase insert error:', insertError);
+            return NextResponse.json({
+              success: false,
+              message: insertError.message || 'Kategori eklenemedi'
+            }, { status: 400 });
+          }
+
+          // Supabase verisini frontend formatına dönüştür
+          const formattedCategory = {
+            id: newCategoryData.id,
+            name: newCategoryData.name,
+            slug: newCategoryData.slug,
+            parentId: newCategoryData.parent_id,
+            level: newCategoryData.parent_id ? 1 : 0,
+            isActive: newCategoryData.is_active,
+            sortOrder: newCategoryData.sort_order,
+            description: newCategoryData.description || '',
+            image: newCategoryData.image_url || '',
+            emoji: newCategoryData.emoji || emoji || '📦',
+            createdAt: newCategoryData.created_at,
+            updatedAt: newCategoryData.updated_at
+          };
+
+          return NextResponse.json({
+            success: true,
+            message: 'Kategori başarıyla eklendi',
+            data: formattedCategory
+          });
+        } else {
+          // Fallback: Mock data'ya ekle
+          const existingCategory = categories.find(cat => cat.slug === generatedSlug);
+          if (existingCategory) {
+            return NextResponse.json({
+              success: false,
+              message: 'Bu isimde bir kategori zaten mevcut'
+            }, { status: 400 });
+          }
+
+          const newCategory = {
+            id: `cat-${Date.now()}`,
+            name,
+            slug: generatedSlug,
+            parentId: parentId || null,
+            level: parentId ? 1 : 0,
+            isActive: true,
+            sortOrder: sortOrder || categories.length + 1,
+            description: description || '',
+            image: emoji || image || '📦',
+            emoji: emoji || '📦',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+
+          categories.push(newCategory);
+
+          return NextResponse.json({
+            success: true,
+            message: 'Kategori başarıyla eklendi (mock)',
+            data: newCategory
+          });
+        }
+      } catch (error) {
+        console.error('Add category error:', error);
         return NextResponse.json({
-          success: true,
-          message: 'Category created successfully (mock)',
-          data: newCategory
-        });
+          success: false,
+          message: 'Kategori eklenirken hata oluştu'
+        }, { status: 500 });
       }
-
-      // Supabase verisini frontend formatına dönüştür
-      const formattedCategory = {
-        id: newCategoryData.id,
-        name: newCategoryData.name,
-        slug: newCategoryData.slug,
-        parentId: newCategoryData.parent_id,
-        level: newCategoryData.parent_id ? 1 : 0,
-        isActive: newCategoryData.is_active,
-        sortOrder: newCategoryData.sort_order,
-        description: newCategoryData.description || '',
-        image: newCategoryData.image_url || '',
-        emoji: newCategoryData.emoji || emoji || '📦',
-        createdAt: newCategoryData.created_at,
-        updatedAt: newCategoryData.updated_at
-      };
-
-      return NextResponse.json({
-        success: true,
-        message: 'Category created successfully',
-        data: formattedCategory
-      });
     }
 
     if (action === 'update' && id) {
