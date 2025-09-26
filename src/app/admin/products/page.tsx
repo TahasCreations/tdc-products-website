@@ -107,7 +107,7 @@ export default function AdminProductsPage() {
       const data = await response.json();
       
       if (data.success) {
-        setCategories(data.categories || []);
+        setCategories(data.data || []);
       }
     } catch (error) {
       console.error('Fetch categories error:', error);
