@@ -154,13 +154,12 @@ export async function GET(request: NextRequest) {
     const isActive = searchParams.get('isActive');
 
     // Supabase'den kategorileri çek
-    let query = supabase
-      .from('categories')
+    let query = supabase?.from('categories')
       .select('*')
       .order('sort_order', { ascending: true });
 
     // Parent ID'ye göre filtreleme
-    if (parentId !== null) {
+    if (parentId !== null && query) {
       if (parentId === 'null' || parentId === '') {
         query = query.is('parent_id', null);
       } else {
@@ -169,7 +168,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Level filtreleme
-    if (level !== null) {
+    if (level !== null && query) {
       // Level hesaplama - parent_id null ise level 0, değilse level 1
       if (level === '0') {
         query = query.is('parent_id', null);
@@ -179,11 +178,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Aktif kategorileri filtreleme
-    if (isActive !== null) {
+    if (isActive !== null && query) {
       query = query.eq('is_active', isActive === 'true');
     }
 
-    const { data, error } = await query;
+    const { data, error } = query ? await query : { data: null, error: { message: 'Supabase not available' } };
 
     if (error) {
       console.error('Supabase error:', error);
@@ -244,10 +243,10 @@ export async function POST(request: NextRequest) {
     // Handle delete action
     if (action === 'delete' && id) {
       // Supabase'den sil
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = supabase ? await supabase
         .from('categories')
         .delete()
-        .eq('id', id);
+        .eq('id', id) : { error: { message: 'Supabase not available' } };
 
       if (deleteError) {
         console.error('Supabase delete error:', deleteError);
@@ -308,7 +307,7 @@ export async function POST(request: NextRequest) {
         .trim();
 
       // Supabase'e ekle
-      const { data: newCategoryData, error: insertError } = await supabase
+      const { data: newCategoryData, error: insertError } = supabase ? await supabase
         .from('categories')
         .insert([{
           name,
@@ -321,7 +320,7 @@ export async function POST(request: NextRequest) {
           is_active: true
         }])
         .select()
-        .single();
+        .single() : { data: null, error: { message: 'Supabase not available' } };
 
       if (insertError) {
         console.error('Supabase insert error:', insertError);
@@ -394,12 +393,12 @@ export async function POST(request: NextRequest) {
       if (parentId !== undefined) updateData.parent_id = parentId;
       if (sortOrder !== undefined) updateData.sort_order = sortOrder;
 
-      const { data: updatedCategoryData, error: updateError } = await supabase
+      const { data: updatedCategoryData, error: updateError } = supabase ? await supabase
         .from('categories')
         .update(updateData)
         .eq('id', id)
         .select()
-        .single();
+        .single() : { data: null, error: { message: 'Supabase not available' } };
 
       if (updateError) {
         console.error('Supabase update error:', updateError);

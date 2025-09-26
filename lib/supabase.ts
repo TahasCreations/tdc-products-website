@@ -1,12 +1,24 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Check if environment variables are available
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('Supabase environment variables are not set. Using mock data.');
+}
+
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
 // Helper functions
 export const getProducts = async () => {
+  if (!supabase) {
+    console.warn('Supabase not available, returning empty array');
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -21,6 +33,10 @@ export const getProducts = async () => {
 };
 
 export const addProduct = async (product: any) => {
+  if (!supabase) {
+    throw new Error('Supabase not available');
+  }
+
   const { data, error } = await supabase
     .from('products')
     .insert([product])
@@ -35,6 +51,10 @@ export const addProduct = async (product: any) => {
 };
 
 export const updateProduct = async (id: string, updates: any) => {
+  if (!supabase) {
+    throw new Error('Supabase not available');
+  }
+
   const { data, error } = await supabase
     .from('products')
     .update(updates)
@@ -50,6 +70,10 @@ export const updateProduct = async (id: string, updates: any) => {
 };
 
 export const deleteProduct = async (id: string) => {
+  if (!supabase) {
+    throw new Error('Supabase not available');
+  }
+
   const { error } = await supabase
     .from('products')
     .delete()
@@ -62,6 +86,11 @@ export const deleteProduct = async (id: string) => {
 };
 
 export const getCategories = async () => {
+  if (!supabase) {
+    console.warn('Supabase not available, returning empty array');
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('categories')
     .select('*')
@@ -76,6 +105,10 @@ export const getCategories = async () => {
 };
 
 export const addCategory = async (category: any) => {
+  if (!supabase) {
+    throw new Error('Supabase not available');
+  }
+
   const { data, error } = await supabase
     .from('categories')
     .insert([category])
@@ -90,6 +123,10 @@ export const addCategory = async (category: any) => {
 };
 
 export const updateCategory = async (id: string, updates: any) => {
+  if (!supabase) {
+    throw new Error('Supabase not available');
+  }
+
   const { data, error } = await supabase
     .from('categories')
     .update(updates)
@@ -105,6 +142,10 @@ export const updateCategory = async (id: string, updates: any) => {
 };
 
 export const deleteCategory = async (id: string) => {
+  if (!supabase) {
+    throw new Error('Supabase not available');
+  }
+
   const { error } = await supabase
     .from('categories')
     .delete()
