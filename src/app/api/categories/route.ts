@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '../../../../lib/supabase';
 
-// Mock kategori verileri - dinamik olarak güncellenebilir
-let categories = [
+// DEMO_MODE kontrolü
+const isDemoMode = process.env.DEMO_MODE === 'true';
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Mock kategori verileri - sadece DEMO_MODE=true iken kullanılır
+const getMockCategories = () => [
   {
     id: 'cat-1',
     name: 'Elektronik',
@@ -146,12 +150,26 @@ let categories = [
   }
 ];
 
+// Production'da mock data kullanma
+let categories = isProduction ? [] : getMockCategories();
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const parentId = searchParams.get('parentId');
     const level = searchParams.get('level');
     const isActive = searchParams.get('isActive');
+
+    // Production'da ve DEMO_MODE=false iken mock data kullanma
+    if (isProduction || !isDemoMode) {
+      if (!supabase) {
+        return NextResponse.json({
+          success: false,
+          message: 'Supabase bağlantısı kurulamadı',
+          data: []
+        }, { status: 500 });
+      }
+    }
 
     // Supabase'den kategorileri çek
     let query = supabase?.from('categories')
@@ -186,22 +204,33 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Supabase error:', error);
-      // Fallback olarak mock data kullan
-      let filteredCategories = categories;
-      if (parentId !== null) {
-        filteredCategories = filteredCategories.filter(cat => cat.parentId === parentId);
+      
+      // DEMO_MODE=true ise mock data kullan
+      if (isDemoMode && !isProduction) {
+        let filteredCategories = categories;
+        if (parentId !== null) {
+          filteredCategories = filteredCategories.filter(cat => cat.parentId === parentId);
+        }
+        if (level !== null) {
+          filteredCategories = filteredCategories.filter(cat => cat.level === parseInt(level));
+        }
+        if (isActive !== null) {
+          filteredCategories = filteredCategories.filter(cat => cat.isActive === (isActive === 'true'));
+        }
+        return NextResponse.json({
+          success: true,
+          data: filteredCategories,
+          source: 'mock',
+          demo_mode: true
+        });
       }
-      if (level !== null) {
-        filteredCategories = filteredCategories.filter(cat => cat.level === parseInt(level));
-      }
-      if (isActive !== null) {
-        filteredCategories = filteredCategories.filter(cat => cat.isActive === (isActive === 'true'));
-      }
+      
+      // Production'da veya DEMO_MODE=false ise hata döndür
       return NextResponse.json({
-        success: true,
-        data: filteredCategories,
-        source: 'mock'
-      });
+        success: false,
+        message: 'Veritabanı bağlantı hatası',
+        data: []
+      }, { status: 500 });
     }
 
     // Supabase verilerini frontend formatına dönüştür

@@ -20,20 +20,27 @@
     "deploy:vercel": "vercel --prod",
     "setup:supabase": "node setup-supabase.js",
     "test:supabase": "node test-supabase-connection.js",
-    "db:setup": "echo 'Supabase veritabanı kurulumu için SUPABASE-KURULUM-REHBERI.md dosyasını okuyun'"
+    "db:setup": "echo 'Supabase veritabanı kurulumu için SUPABASE-KURULUM-REHBERI.md dosyasını okuyun'",
+    "clean:demo": "tsx scripts/clean-demo.ts",
+    "seed": "tsx scripts/seed.ts",
+    "seed:demo": "DEMO_MODE=true tsx scripts/seed.ts",
+    "clean:all": "npm run clean:demo && npm run clean"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@heroicons/react": "^2.2.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.56.0",
     "bcryptjs": "^3.0.2",
     "chart.js": "^4.5.0",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.2.2",
     "next": "14.2.5",
     "react": "18.3.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "18.3.1",
-    "recharts": "^3.1.2"
+    "recharts": "^3.1.2",
+    "tsx": "^4.7.0"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^15.5.2",
