@@ -1,166 +1,196 @@
-# TDC Products Website
+# TDC Market - Modüler E-ticaret Platformu
 
-<!-- Deploy trigger - Build test -->
-
-Modern ve kullanıcı dostu bir e-ticaret web sitesi. Anime, oyun ve film karakterlerinin yüksek kaliteli 3D baskı figürlerini satan platform.
+TDC Market, modüler plug-in mimarisine sahip gelişmiş bir e-ticaret platformudur. Her modül bağımsız olarak geliştirilebilir, test edilebilir ve başka projelere entegre edilebilir.
 
 ## 🚀 Özellikler
 
-### 🔐 Kullanıcı Yönetimi
-- **Kayıt Olma**: E-posta ve şifre ile kolay kayıt
-- **Giriş Yapma**: Güvenli kimlik doğrulama
-- **Profil Yönetimi**: Kişisel bilgileri güncelleme
-- **Şifre Sıfırlama**: E-posta ile şifre sıfırlama
-- **Oturum Yönetimi**: Güvenli çıkış yapma
-
-### 🛍️ E-ticaret Özellikleri
-- **Ürün Kataloğu**: Kategorilere göre ürün listesi
-- **Arama Sistemi**: Gelişmiş ürün arama
-- **Sepet Yönetimi**: Ürün ekleme/çıkarma
-- **Favori Listesi**: Beğenilen ürünleri kaydetme
-- **Sipariş Takibi**: Sipariş geçmişi ve durumu
-
-### ✍️ Blog Sistemi
-- **Blog Yazma**: Zengin metin editörü
-- **Otomatik Kaydetme**: Draft otomatik kaydetme
-- **Klavye Kısayolları**: Hızlı işlemler
-- **Etiket Sistemi**: Kategorilere göre etiketleme
-- **Validasyon**: Form doğrulama sistemi
-
-### 🎨 Kullanıcı Arayüzü
-- **Responsive Tasarım**: Mobil ve masaüstü uyumlu
-- **Dark Mode**: Karanlık tema desteği
-- **Modern UI**: Tailwind CSS ile tasarım
-- **Animasyonlar**: Smooth geçişler ve efektler
-- **Toast Bildirimleri**: Kullanıcı geri bildirimleri
-
-## 🛠️ Teknolojiler
-
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Styling**: Tailwind CSS, CSS Modules
-- **Backend**: Supabase (Auth, Database, Storage)
-- **State Management**: React Context API
-- **Icons**: Remix Icons
-- **Deployment**: Vercel
+- **Modüler Mimari**: Her özellik bağımsız modül olarak geliştirilebilir
+- **Plug-in Sistemi**: Modüller runtime'da yüklenebilir ve kaldırılabilir
+- **TypeScript**: Tam tip güvenliği
+- **Next.js 14**: App Router ile modern React framework
+- **Supabase**: PostgreSQL veritabanı ve real-time özellikler
+- **Tailwind CSS**: Modern ve responsive UI
+- **Monorepo**: pnpm + Turborepo ile hızlı geliştirme
 
 ## 📁 Proje Yapısı
 
 ```
-src/
-├── app/                    # Next.js App Router
-│   ├── auth/              # Kimlik doğrulama sayfaları
-│   ├── blog/              # Blog sistemi
-│   ├── products/          # Ürün sayfaları
-│   ├── profile/           # Kullanıcı profili
-│   └── ...
-├── components/             # Yeniden kullanılabilir bileşenler
-│   ├── Header.tsx         # Site başlığı
-│   ├── Footer.tsx         # Site alt bilgisi
-│   ├── Toast.tsx          # Bildirim sistemi
-│   └── ...
-├── contexts/               # React Context'ler
-│   ├── AuthContext.tsx    # Kimlik doğrulama
-│   ├── CartContext.tsx    # Sepet yönetimi
-│   └── ...
-└── ...
+tdc-market/
+├── apps/
+│   ├── web/                 # Ana web uygulaması (localhost:3000)
+│   └── admin/               # Admin paneli (localhost:3001)
+├── packages/
+│   ├── core/                # Çekirdek modül sistemi
+│   ├── ui/                  # Ortak UI bileşenleri
+│   ├── sdk/                 # SDK ve API client'ları
+│   ├── shared/              # Paylaşılan tipler ve utilities
+│   └── feature-*/           # Özellik modülleri
+│       ├── feature-pricing/     # Fiyat yönetimi
+│       ├── feature-accounting/  # Muhasebe
+│       ├── feature-loyalty/     # Sadakat programı
+│       └── feature-automation/  # Otomasyon
+├── docs/                    # Dokümantasyon
+└── database/               # Veritabanı şemaları
 ```
 
-## 🚀 Kurulum
+## 🛠️ Kurulum
 
 ### Gereksinimler
-- Node.js 18+ 
-- npm veya yarn
-- Supabase hesabı
 
-### Adımlar
+- Node.js >= 18.0.0
+- pnpm >= 8.0.0
+- PostgreSQL veya Supabase hesabı
 
-1. **Projeyi klonlayın**
+### Hızlı Başlangıç
+
+1. **Repository'yi klonlayın:**
 ```bash
-git clone https://github.com/username/tdc-products-website.git
-cd tdc-products-website
+git clone https://github.com/tdc/market.git
+cd market
 ```
 
-2. **Bağımlılıkları yükleyin**
+2. **Bağımlılıkları yükleyin:**
 ```bash
-npm install
-# veya
-yarn install
+pnpm install
 ```
 
-3. **Environment variables oluşturun**
+3. **Environment variables'ları ayarlayın:**
 ```bash
-cp .env.example .env.local
+cp env.example .env.local
+# .env.local dosyasını düzenleyin
 ```
 
-4. **Supabase bilgilerini ekleyin**
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-5. **Geliştirme sunucusunu başlatın**
+4. **Veritabanını kurun:**
 ```bash
-npm run dev
-# veya
-yarn dev
+pnpm db:migrate
+pnpm db:seed
 ```
 
-6. **Tarayıcıda açın**
-```
-http://localhost:3000
-```
-
-## 🔧 Geliştirme
-
-### Scripts
-
+5. **Uygulamaları başlatın:**
 ```bash
-npm run dev          # Geliştirme sunucusu
-npm run build        # Production build
-npm run start        # Production sunucusu
-npm run lint         # ESLint kontrolü
-npm run type-check   # TypeScript kontrolü
+pnpm dev
 ```
 
-### Kod Standartları
+Uygulamalar şu adreslerde çalışacak:
+- Web: http://localhost:3000
+- Admin: http://localhost:3001
 
-- **TypeScript**: Strict mode kullanımı
-- **ESLint**: Kod kalitesi kontrolü
-- **Prettier**: Kod formatlaması
-- **Husky**: Git hooks
+## 📦 Mevcut Modüller
 
-## 📱 Responsive Tasarım
+### 🏷️ Pricing Module (@tdc/feature-pricing)
+- Fiyat önerileri ve optimizasyonu
+- Rakip fiyat takibi
+- Fiyat simülasyonu
+- Otomatik fiyat uyarıları
 
-- **Mobile First**: Mobil öncelikli tasarım
-- **Breakpoints**: sm, md, lg, xl
-- **Touch Friendly**: Dokunmatik cihaz uyumlu
-- **Performance**: Optimize edilmiş görüntüler
+### 💰 Accounting Module (@tdc/feature-accounting)
+- Fatura yönetimi
+- Mali raporlar
+- Gelir-gider takibi
+- Vergi hesaplamaları
 
-## 🔐 Güvenlik
+### 🎁 Loyalty Module (@tdc/feature-loyalty)
+- Müşteri sadakat programı
+- Puan sistemi
+- Ödül yönetimi
+- Kampanya takibi
 
-- **Supabase Auth**: Güvenli kimlik doğrulama
-- **JWT Tokens**: Güvenli oturum yönetimi
-- **Input Validation**: Form doğrulama
-- **XSS Protection**: Güvenlik önlemleri
+### ⚙️ Automation Module (@tdc/feature-automation)
+- İş süreçleri otomasyonu
+- Workflow yönetimi
+- Trigger sistemi
+- Zamanlanmış görevler
 
-## 🚀 Deployment
+## 🚀 Komutlar
 
-### Vercel (Önerilen)
-
-1. **Vercel'e bağlayın**
+### Geliştirme
 ```bash
-npm i -g vercel
-vercel
+# Tüm uygulamaları başlat
+pnpm dev
+
+# Sadece web uygulamasını başlat
+pnpm --filter @tdc/web dev
+
+# Sadece admin uygulamasını başlat
+pnpm --filter @tdc/admin dev
+
+# Sadece core paketini build et
+pnpm --filter @tdc/core build
 ```
 
-2. **Environment variables ekleyin**
-3. **Deploy edin**
+### Build ve Deploy
+```bash
+# Tüm paketleri build et
+pnpm build
 
-### Diğer Platformlar
+# Production build
+pnpm build:production
 
-- **Netlify**: Static site hosting
-- **AWS Amplify**: Full-stack hosting
-- **Docker**: Container deployment
+# Vercel'e deploy
+pnpm deploy:vercel
+```
+
+### Veritabanı
+```bash
+# Migration'ları çalıştır
+pnpm db:migrate
+
+# Demo verileri yükle
+pnpm db:seed
+
+# Demo verileri temizle
+pnpm clean:demo
+
+# Tüm verileri temizle
+pnpm clean:all
+```
+
+### Test
+```bash
+# Tüm testleri çalıştır
+pnpm test
+
+# Type check
+pnpm type-check
+
+# Lint
+pnpm lint
+```
+
+## 🔧 Yeni Modül Ekleme
+
+1. **Modül dizinini oluşturun:**
+```bash
+mkdir packages/feature-your-module
+cd packages/feature-your-module
+```
+
+2. **Temel dosyaları oluşturun:**
+```bash
+# package.json, tsconfig.json, plugin.manifest.json
+# src/index.ts, src/components/, src/api/
+```
+
+3. **Modülü admin'e ekleyin:**
+```typescript
+// apps/admin/src/modules.ts
+export const activeModules = [
+  'pricing',
+  'accounting',
+  'loyalty',
+  'automation',
+  'your-module' // Yeni modülünüzü ekleyin
+];
+```
+
+Detaylı rehber için [Modüler Mimari Dokümantasyonu](docs/modular-architecture.md) dosyasını inceleyin.
+
+## 📚 Dokümantasyon
+
+- [Modüler Mimari Rehberi](docs/modular-architecture.md)
+- [API Dokümantasyonu](docs/api.md)
+- [UI Bileşenleri](docs/ui-components.md)
+- [Veritabanı Şeması](docs/database-schema.md)
 
 ## 🤝 Katkıda Bulunma
 
@@ -172,21 +202,23 @@ vercel
 
 ## 📄 Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır.
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasını inceleyin.
 
-## 📞 İletişim
+## 🆘 Destek
 
-- **Website**: [tdc-products.com](https://tdc-products.com)
-- **Email**: info@tdc-products.com
-- **GitHub**: [@username](https://github.com/username)
+- GitHub Issues: [Sorun bildir](https://github.com/tdc/market/issues)
+- Dokümantasyon: [docs/](docs/)
+- Email: support@tdc.com
 
-## 🙏 Teşekkürler
+## 🏗️ Roadmap
 
-- [Next.js](https://nextjs.org/) - React framework
-- [Supabase](https://supabase.com/) - Backend as a Service
-- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
-- [Remix Icons](https://remixicon.com/) - Icon library
+- [ ] Daha fazla e-ticaret modülü
+- [ ] Mobile app desteği
+- [ ] Multi-tenant mimari
+- [ ] Advanced analytics
+- [ ] AI/ML entegrasyonları
+- [ ] Third-party entegrasyonlar
 
 ---
 
-⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
+**TDC Market** - Modüler e-ticaret platformu ile işinizi büyütün! 🚀

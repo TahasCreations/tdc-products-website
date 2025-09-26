@@ -1,0 +1,42 @@
+{
+  "name": "@tdc/admin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TDC Admin Application",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tdc/core": "workspace:*",
+    "@tdc/ui": "workspace:*",
+    "@tdc/feature-pricing": "workspace:*",
+    "@tdc/feature-accounting": "workspace:*",
+    "@tdc/feature-loyalty": "workspace:*",
+    "@tdc/feature-automation": "workspace:*",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "@heroicons/react": "^2.2.0",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.56.0",
+    "chart.js": "^4.5.0",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.2.2",
+    "react-chartjs-2": "^5.3.0",
+    "recharts": "^3.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.5",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.3.3"
+  }
+}
