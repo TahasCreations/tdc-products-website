@@ -14,12 +14,19 @@ import {
 import MultiFactorAuth from '../../../components/security/MultiFactorAuth';
 import RoleBasedAccess from '../../../components/security/RoleBasedAccess';
 import SecurityMonitoring from '../../../components/security/SecurityMonitoring';
+import SecurityIssues from '../../../components/security/SecurityIssues';
 import AdminProtection from '../../../components/AdminProtection';
 
 export default function SecurityAdminPage() {
-  const [activeTab, setActiveTab] = useState('monitoring');
+  const [activeTab, setActiveTab] = useState('issues');
 
   const tabs = [
+    {
+      id: 'issues',
+      name: 'Güvenlik Sorunları',
+      icon: ExclamationTriangleIcon,
+      description: 'Kritik hatalar ve güvenlik açıkları'
+    },
     {
       id: 'monitoring',
       name: 'Güvenlik İzleme',
@@ -42,6 +49,8 @@ export default function SecurityAdminPage() {
 
   const renderTabContent = () => {
     switch (activeTab) {
+      case 'issues':
+        return <SecurityIssues />;
       case 'monitoring':
         return <SecurityMonitoring />;
       case 'mfa':
@@ -49,7 +58,7 @@ export default function SecurityAdminPage() {
       case 'rbac':
         return <RoleBasedAccess />;
       default:
-        return <SecurityMonitoring />;
+        return <SecurityIssues />;
     }
   };
 
