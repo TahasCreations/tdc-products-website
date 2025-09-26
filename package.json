@@ -46,7 +46,8 @@
     "redux": "^5.0.0",
     "react-redux": "^9.0.0",
     "redux-thunk": "^3.1.0",
-    "reselect": "^5.0.0"
+    "reselect": "^5.0.0",
+    "@heroicons/react": "^2.0.0"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
