@@ -371,7 +371,7 @@ export default function AdminProductsPage() {
   const handleDeleteCategory = async (id: string) => {
     // Önce alt kategorileri kontrol et
     const category = categories.find(cat => cat.id === id);
-    const hasSubcategories = categories.some(cat => cat.parentId === id);
+    const hasSubcategories = categories.some(cat => cat.parent_id === id);
     
     if (hasSubcategories) {
       setMessage('Bu kategorinin alt kategorileri bulunmaktadır. Önce alt kategorileri siliniz.');
