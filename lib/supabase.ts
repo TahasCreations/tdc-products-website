@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { performanceMonitor } from '../src/lib/performance-monitor';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -8,46 +9,65 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase environment variables are not set. Using mock data.');
 }
 
+// Optimized Supabase client with performance monitoring
 export const supabase = supabaseUrl && supabaseAnonKey 
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false, // Disable session persistence for better performance
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 10, // Limit realtime events
+        },
+      },
+      global: {
+        headers: {
+          'x-application-name': 'tdc-products-website',
+        },
+      },
+    })
   : null;
 
-// Helper functions
+// Optimized helper functions with performance monitoring
 export const getProducts = async () => {
-  if (!supabase) {
-    console.warn('Supabase not available, returning empty array');
-    return [];
-  }
+  return performanceMonitor.wrapDatabaseQuery('getProducts', async () => {
+    if (!supabase) {
+      console.warn('Supabase not available, returning empty array');
+      return [];
+    }
 
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching products:', error);
-    return [];
-  }
+    if (error) {
+      console.error('Error fetching products:', error);
+      return [];
+    }
 
-  return data || [];
+    return data || [];
+  });
 };
 
 export const addProduct = async (product: any) => {
-  if (!supabase) {
-    throw new Error('Supabase not available');
-  }
+  return performanceMonitor.wrapDatabaseQuery('addProduct', async () => {
+    if (!supabase) {
+      throw new Error('Supabase not available');
+    }
 
-  const { data, error } = await supabase
-    .from('products')
-    .insert([product])
-    .select();
+    const { data, error } = await supabase
+      .from('products')
+      .insert([product])
+      .select();
 
-  if (error) {
-    console.error('Error adding product:', error);
-    throw error;
-  }
+    if (error) {
+      console.error('Error adding product:', error);
+      throw error;
+    }
 
-  return data?.[0];
+    return data?.[0];
+  }, { productId: product.id });
 };
 
 export const updateProduct = async (id: string, updates: any) => {
@@ -86,22 +106,24 @@ export const deleteProduct = async (id: string) => {
 };
 
 export const getCategories = async () => {
-  if (!supabase) {
-    console.warn('Supabase not available, returning empty array');
-    return [];
-  }
+  return performanceMonitor.wrapDatabaseQuery('getCategories', async () => {
+    if (!supabase) {
+      console.warn('Supabase not available, returning empty array');
+      return [];
+    }
 
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('Error fetching categories:', error);
-    return [];
-  }
+    if (error) {
+      console.error('Error fetching categories:', error);
+      return [];
+    }
 
-  return data || [];
+    return data || [];
+  });
 };
 
 export const addCategory = async (category: any) => {
