@@ -46,6 +46,7 @@ export default function AdminProductsPage() {
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
   const [showAddForm, setShowAddForm] = useState(false);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [activeCategoryTab, setActiveCategoryTab] = useState<'main' | 'sub'>('main');
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -520,7 +521,7 @@ export default function AdminProductsPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">Kategori Yönetimi</h2>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
                 <span className="text-sm text-gray-500">
                   Toplam: {categories.length} kategori
                 </span>
@@ -533,130 +534,118 @@ export default function AdminProductsPage() {
               </div>
             </div>
             
-            {/* Add/Edit Category Form */}
-            <div className="bg-gray-50 rounded-lg p-6 mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                {showEditForm ? 'Kategori Düzenle' : 'Yeni Kategori Oluştur'}
-              </h3>
-              <form onSubmit={showEditForm ? handleUpdateCategory : handleAddCategory} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Kategori Adı *
-                    </label>
-                    <input
-                      type="text"
-                      value={newCategory.name}
-                      onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Örn: Elektronik"
-                      required
-                    />
+            {/* Category Tabs */}
+            <div className="flex border-b border-gray-200 mb-6">
+              <button
+                onClick={() => setActiveCategoryTab('main')}
+                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                  activeCategoryTab === 'main'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <i className="ri-folder-line mr-2"></i>
+                Ana Kategori Oluştur
+              </button>
+              <button
+                onClick={() => setActiveCategoryTab('sub')}
+                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                  activeCategoryTab === 'sub'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <i className="ri-folder-open-line mr-2"></i>
+                Alt Kategori Oluştur
+              </button>
+            </div>
+
+            {/* Main Category Form */}
+            {activeCategoryTab === 'main' && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i className="ri-folder-line text-blue-600 text-xl"></i>
                   </div>
-                  
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Ana Kategori
-                    </label>
-                    <select
-                      value={newCategory.parent_id || ''}
-                      onChange={(e) => setNewCategory(prev => ({ 
-                        ...prev, 
-                        parent_id: e.target.value || null 
-                      }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">Ana Kategori Oluştur</option>
-                      {categories.filter(cat => !cat.parent_id).map(category => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Boş bırakırsanız ana kategori oluşturulur
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Renk
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={newCategory.color}
-                        onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
-                        className="w-12 h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      <input
-                        type="text"
-                        value={newCategory.color}
-                        onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                        placeholder="#6b7280"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Emoji
-                    </label>
-                    <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 border-2 border-gray-300 rounded-lg flex items-center justify-center text-2xl bg-gray-50">
-                        {newCategory.emoji}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => openEmojiPicker(showEditForm ? 'edit' : 'add')}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-colors"
-                      >
-                        Emoji Seç
-                      </button>
-                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">Ana Kategori Oluştur</h3>
+                    <p className="text-sm text-gray-600">Yeni bir ana kategori ekleyin</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-4">
-                  <button
-                    type="submit"
-                    disabled={apiLoading}
-                    className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-                  >
-                    <i className={showEditForm ? "ri-save-line" : "ri-add-line"}></i>
-                    {apiLoading ? (showEditForm ? 'Güncelleniyor...' : 'Ekleniyor...') : (showEditForm ? 'Güncelle' : 'Kategori Ekle')}
-                  </button>
+                <form onSubmit={handleAddCategory} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Kategori Adı *
+                      </label>
+                      <input
+                        type="text"
+                        value={activeCategoryTab === 'main' ? newCategory.name : ''}
+                        onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Örn: Elektronik"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Renk
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={newCategory.color}
+                          onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
+                          className="w-12 h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <input
+                          type="text"
+                          value={newCategory.color}
+                          onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          placeholder="#6b7280"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Emoji
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <div className="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center text-2xl bg-white shadow-sm">
+                          {newCategory.emoji}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openEmojiPicker('add')}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white hover:bg-gray-50 transition-colors"
+                        >
+                          Emoji Seç
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                   
-                  {showEditForm && (
+                  <div className="flex items-center gap-4">
                     <button
-                      type="button"
-                      onClick={() => {
-                        setShowEditForm(false);
-                        setEditingCategory(null);
-                        setNewCategory({
-                          name: '',
-                          color: '#6b7280',
-                          icon: 'ri-more-line',
-                          emoji: '📦',
-                          parent_id: null
-                        });
-                      }}
-                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                      type="submit"
+                      disabled={apiLoading}
+                      className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
                     >
-                      <i className="ri-close-line"></i>
-                      İptal
+                      <i className="ri-add-line"></i>
+                      {apiLoading ? 'Ekleniyor...' : 'Ana Kategori Ekle'}
                     </button>
-                  )}
-                  
-                  {!showEditForm && (
+                    
                     <button
                       type="button"
                       onClick={() => setNewCategory({
                         name: '',
-                        color: '#6b7280',
-                        icon: 'ri-more-line',
-                        emoji: '📦',
+                        color: '#3B82F6',
+                        icon: 'ri-folder-line',
+                        emoji: '📁',
                         parent_id: null
                       })}
                       className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
@@ -664,10 +653,153 @@ export default function AdminProductsPage() {
                       <i className="ri-refresh-line"></i>
                       Temizle
                     </button>
-                  )}
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Sub Category Form */}
+            {activeCategoryTab === 'sub' && (
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-6 mb-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i className="ri-folder-open-line text-green-600 text-xl"></i>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Alt Kategori Oluştur</h3>
+                    <p className="text-sm text-gray-600">Mevcut ana kategorilerin altına yeni alt kategori ekleyin</p>
+                  </div>
                 </div>
-              </form>
-            </div>
+                
+                <form onSubmit={handleAddCategory} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Ana Kategori *
+                      </label>
+                      <select
+                        value={newCategory.parent_id || ''}
+                        onChange={(e) => setNewCategory(prev => ({ 
+                          ...prev, 
+                          parent_id: e.target.value || null 
+                        }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        required
+                      >
+                        <option value="">Ana kategori seçin</option>
+                        {categories.filter(cat => !cat.parent_id).map(category => (
+                          <option key={category.id} value={category.id}>
+                            {category.emoji} {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Alt Kategori Adı *
+                      </label>
+                      <input
+                        type="text"
+                        value={newCategory.name}
+                        onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Örn: Telefon"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Renk
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={newCategory.color}
+                          onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
+                          className="w-12 h-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        />
+                        <input
+                          type="text"
+                          value={newCategory.color}
+                          onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                          placeholder="#10B981"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Emoji
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <div className="w-12 h-12 border-2 border-gray-300 rounded-lg flex items-center justify-center text-2xl bg-white shadow-sm">
+                          {newCategory.emoji}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openEmojiPicker('add')}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white hover:bg-gray-50 transition-colors"
+                        >
+                          Emoji Seç
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Önizleme
+                      </label>
+                      <div className="bg-white border border-gray-200 rounded-lg p-3 flex items-center gap-3">
+                        {newCategory.parent_id && (
+                          <>
+                            <span className="text-lg">
+                              {categories.find(c => c.id === newCategory.parent_id)?.emoji}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              {categories.find(c => c.id === newCategory.parent_id)?.name}
+                            </span>
+                            <i className="ri-arrow-right-line text-gray-400"></i>
+                          </>
+                        )}
+                        <span className="text-lg">{newCategory.emoji}</span>
+                        <span className="text-sm font-medium">{newCategory.name || 'Alt Kategori'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="submit"
+                      disabled={apiLoading || !newCategory.parent_id}
+                      className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                    >
+                      <i className="ri-add-line"></i>
+                      {apiLoading ? 'Ekleniyor...' : 'Alt Kategori Ekle'}
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={() => setNewCategory({
+                        name: '',
+                        color: '#10B981',
+                        icon: 'ri-folder-open-line',
+                        emoji: '📂',
+                        parent_id: null
+                      })}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                    >
+                      <i className="ri-refresh-line"></i>
+                      Temizle
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
             
             {/* Categories List */}
             <div className="border-t pt-6">
@@ -696,11 +828,8 @@ export default function AdminProductsPage() {
                     <div key={category.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div 
-                            className="w-6 h-6 rounded-full flex items-center justify-center"
-                            style={{ backgroundColor: category.color }}
-                          >
-                            <i className={`${category.icon} text-white text-sm`}></i>
+                          <div className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl bg-gray-50 border-2 border-gray-200">
+                            {category.emoji || '📁'}
                           </div>
                           <div>
                             <span className="font-medium text-gray-900">
@@ -713,14 +842,18 @@ export default function AdminProductsPage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={() => setNewCategory(prev => ({ 
-                              ...prev, 
-                              parent_id: category.id,
-                              name: '',
-                              color: '#6b7280',
-                              icon: 'ri-more-line'
-                            }))}
-                            className="text-blue-500 hover:text-blue-700 text-sm p-1"
+                            onClick={() => {
+                              setActiveCategoryTab('sub');
+                              setNewCategory(prev => ({ 
+                                ...prev, 
+                                parent_id: category.id,
+                                name: '',
+                                color: '#10B981',
+                                icon: 'ri-folder-open-line',
+                                emoji: '📂'
+                              }));
+                            }}
+                            className="text-green-500 hover:text-green-700 text-sm p-1"
                             title="Alt Kategori Ekle"
                           >
                             <i className="ri-add-line"></i>
@@ -757,12 +890,10 @@ export default function AdminProductsPage() {
                           {categories.filter(c => c.parent_id === category.id).map(subCategory => (
                             <div key={subCategory.id} className="flex items-center justify-between bg-gray-50 rounded p-2">
                               <div className="flex items-center gap-2">
-                                <div 
-                                  className="w-3 h-3 rounded-full"
-                                  style={{ backgroundColor: subCategory.color }}
-                                ></div>
-                                <i className={`${subCategory.icon} text-sm`} style={{ color: subCategory.color }}></i>
-                                <span className="text-sm text-gray-700">
+                                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-lg bg-white border border-gray-200">
+                                  {subCategory.emoji || '📂'}
+                                </div>
+                                <span className="text-sm text-gray-700 font-medium">
                                   {subCategory.name}
                                 </span>
                               </div>
