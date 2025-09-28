@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { localStorageManager } from '../../../../lib/local-storage-manager';
+import { fileStorageManager } from '../../../../lib/file-storage-manager';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const search = searchParams.get('search');
 
-    let products = await localStorageManager.getProducts();
+    let products = await fileStorageManager.getProducts();
 
     // Kategori filtresi
     if (category) {

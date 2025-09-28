@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { localStorageManager } from '../../../lib/local-storage-manager';
+import { fileStorageManager } from '../../../lib/file-storage-manager';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort') || 'createdAt';
     const order = searchParams.get('order') || 'desc';
 
-    let products = await localStorageManager.getProducts();
+    let products = await fileStorageManager.getProducts();
 
     // Kategori filtresi
     if (category) {
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
 
-      const newProduct = await localStorageManager.addProduct({
+      const newProduct = await fileStorageManager.addProduct({
         name: title,
         title: title,
         price: parseFloat(price),
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
 
-      const updatedProduct = await localStorageManager.updateProduct(id, data);
+      const updatedProduct = await fileStorageManager.updateProduct(id, data);
       
       if (!updatedProduct) {
         return NextResponse.json({ 
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
 
-      const deleted = await localStorageManager.deleteProduct(id);
+      const deleted = await fileStorageManager.deleteProduct(id);
       
       if (!deleted) {
         return NextResponse.json({ 
@@ -197,7 +197,7 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const updatedProduct = await localStorageManager.updateProduct(id, updateData);
+    const updatedProduct = await fileStorageManager.updateProduct(id, updateData);
     
     if (!updatedProduct) {
       return NextResponse.json({ 
@@ -234,7 +234,7 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const deleted = await localStorageManager.deleteProduct(id);
+    const deleted = await fileStorageManager.deleteProduct(id);
     
     if (!deleted) {
       return NextResponse.json({ 

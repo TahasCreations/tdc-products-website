@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { localStorageManager } from '../../../lib/local-storage-manager';
+import { fileStorageManager } from '../../../lib/file-storage-manager';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const parentId = searchParams.get('parent_id');
     const search = searchParams.get('search');
 
-    let categories = await localStorageManager.getCategories();
+    let categories = await fileStorageManager.getCategories();
 
     // Ana kategori filtresi
     if (parentId === 'null' || parentId === '') {
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Aynı isimde kategori var mı kontrol et
-      const existingCategories = await localStorageManager.getCategories();
+      const existingCategories = await fileStorageManager.getCategories();
       const nameExists = existingCategories.some(c => 
         c.name.toLowerCase() === name.toLowerCase() && 
         c.parent_id === parentId
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
 
-      const newCategory = await localStorageManager.addCategory({
+      const newCategory = await fileStorageManager.addCategory({
         name: name.trim(),
         description: description || '',
         emoji: emoji || '📦',
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
 
-      const updatedCategory = await localStorageManager.updateCategory(id, data);
+      const updatedCategory = await fileStorageManager.updateCategory(id, data);
       
       if (!updatedCategory) {
         return NextResponse.json({ 
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
       }
 
       try {
-        const deleted = await localStorageManager.deleteCategory(id);
+        const deleted = await fileStorageManager.deleteCategory(id);
         
         if (!deleted) {
           return NextResponse.json({ 
@@ -185,7 +185,7 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const updatedCategory = await localStorageManager.updateCategory(id, updateData);
+    const updatedCategory = await fileStorageManager.updateCategory(id, updateData);
     
     if (!updatedCategory) {
       return NextResponse.json({ 
@@ -223,7 +223,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     try {
-      const deleted = await localStorageManager.deleteCategory(id);
+      const deleted = await fileStorageManager.deleteCategory(id);
       
       if (!deleted) {
         return NextResponse.json({ 

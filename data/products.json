@@ -1,0 +1,53 @@
+[
+  {
+    "id": "demo-1",
+    "name": "iPhone 15 Pro",
+    "title": "iPhone 15 Pro",
+    "price": 45999,
+    "category": "demo-elektronik",
+    "stock": 25,
+    "status": "active",
+    "image": "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400",
+    "description": "En yeni iPhone modeli",
+    "slug": "iphone-15-pro",
+    "sales": 15,
+    "rating": 4.8,
+    "createdAt": "2025-09-28T13:01:38.176Z",
+    "created_at": "2025-09-28T13:01:38.177Z",
+    "isDemo": true
+  },
+  {
+    "id": "demo-2",
+    "name": "Samsung Galaxy S24",
+    "title": "Samsung Galaxy S24",
+    "price": 35999,
+    "category": "demo-elektronik",
+    "stock": 30,
+    "status": "active",
+    "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+    "description": "Samsung'un en yeni modeli",
+    "slug": "samsung-galaxy-s24",
+    "sales": 22,
+    "rating": 4.6,
+    "createdAt": "2025-09-28T13:01:38.177Z",
+    "created_at": "2025-09-28T13:01:38.177Z",
+    "isDemo": true
+  },
+  {
+    "id": "demo-3",
+    "name": "MacBook Pro M3",
+    "title": "MacBook Pro M3",
+    "price": 89999,
+    "category": "demo-bilgisayar",
+    "stock": 12,
+    "status": "active",
+    "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400",
+    "description": "Apple'ın en güçlü dizüstü bilgisayarı",
+    "slug": "macbook-pro-m3",
+    "sales": 8,
+    "rating": 4.9,
+    "createdAt": "2025-09-28T13:01:38.177Z",
+    "created_at": "2025-09-28T13:01:38.178Z",
+    "isDemo": true
+  }
+]
