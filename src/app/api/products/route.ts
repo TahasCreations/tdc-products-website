@@ -1,16 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { localStorageManager } from '../../../lib/local-storage-manager';
 
-const createServerSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
-  if (!supabaseUrl || !supabaseServiceKey) {
-    return null;
-  }
-  
-  return createClient(supabaseUrl, supabaseServiceKey);
-};
+export const dynamic = 'force-dynamic';
 
 // Ürünleri getir
 export async function GET(request: NextRequest) {
@@ -20,195 +11,180 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
-    const sort = searchParams.get('sort') || 'created_at';
+    const sort = searchParams.get('sort') || 'createdAt';
     const order = searchParams.get('order') || 'desc';
 
-    const supabase = createServerSupabaseClient();
-    if (!supabase) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Veritabanı bağlantısı kurulamadı' 
-      }, { status: 500 });
-    }
-
-    let query = supabase
-      .from('products')
-      .select(`
-        *,
-        category:category_id (
-          id,
-          name,
-          slug
-        ),
-        subcategory:subcategory_id (
-          id,
-          name,
-          slug
-        )
-      `)
-      .eq('status', 'active');
+    let products = await localStorageManager.getProducts();
 
     // Kategori filtresi
     if (category) {
-      query = query.eq('category_id', category);
+      products = products.filter(p => p.category === category);
     }
 
     // Arama filtresi
     if (search) {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,tags.cs.{${search}}`);
+      const searchLower = search.toLowerCase();
+      products = products.filter(p => 
+        p.title?.toLowerCase().includes(searchLower) ||
+        p.name?.toLowerCase().includes(searchLower) ||
+        p.description?.toLowerCase().includes(searchLower)
+      );
     }
 
     // Sıralama
-    query = query.order(sort, { ascending: order === 'asc' });
+    products.sort((a, b) => {
+      const aValue = a[sort as keyof typeof a];
+      const bValue = b[sort as keyof typeof b];
+      
+      if (order === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
 
     // Sayfalama
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
-    query = query.range(from, to);
-
-    const { data: products, error, count } = await query;
-
-    if (error) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Ürünler alınamadı' 
-      }, { status: 500 });
-    }
+    const total = products.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedProducts = products.slice(startIndex, endIndex);
 
     return NextResponse.json({
       success: true,
-      products: products || [],
+      products: paginatedProducts,
       pagination: {
         page,
         limit,
-        total: count || 0,
-        pages: Math.ceil((count || 0) / limit)
+        total,
+        pages: Math.ceil(total / limit)
       }
     });
 
   } catch (error) {
+    console.error('Get products error:', error);
     return NextResponse.json({ 
       success: false, 
-      error: 'Sunucu hatası' 
+      error: 'Ürünler alınamadı' 
     }, { status: 500 });
   }
 }
 
-// Ürün oluştur
+// Ürün oluştur/güncelle/sil
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      title,
-      slug,
-      description,
-      short_description,
-      price,
-      compare_price,
-      cost_price,
-      sku,
-      barcode,
-      category_id,
-      subcategory_id,
-      brand,
-      model,
-      weight,
-      dimensions,
-      images,
-      main_image,
-      stock,
-      low_stock_threshold,
-      track_inventory,
-      allow_backorder,
-      is_featured,
-      is_digital,
-      download_url,
-      seo_title,
-      seo_description,
-      seo_keywords,
-      tags,
-      attributes,
-      variants
-    } = body;
+    const { action, id, ...data } = body;
 
-    const supabase = createServerSupabaseClient();
-    if (!supabase) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Veritabanı bağlantısı kurulamadı' 
-      }, { status: 500 });
-    }
-
-    // Slug oluştur
-    const productSlug = slug || title.toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-
-    const { data: product, error } = await supabase
-      .from('products')
-      .insert({
+    if (action === 'add') {
+      // Yeni ürün ekle
+      const {
         title,
-        slug: productSlug,
-        description,
-        short_description,
         price,
-        compare_price,
-        cost_price,
-        sku,
-        barcode,
-        category_id,
-        subcategory_id,
-        brand,
-        model,
-        weight,
-        dimensions,
-        images,
-        main_image,
+        category,
+        subcategory,
         stock,
-        low_stock_threshold,
-        track_inventory,
-        allow_backorder,
-        is_featured,
-        is_digital,
-        download_url,
-        seo_title,
-        seo_description,
-        seo_keywords,
-        tags,
-        attributes,
-        variants
-      })
-      .select()
-      .single();
+        image,
+        images,
+        description,
+        slug
+      } = data;
 
-    if (error) {
-      if (error.code === '23505') { // Unique constraint violation
+      if (!title || !price || !category) {
         return NextResponse.json({ 
           success: false, 
-          error: 'Bu slug veya SKU zaten kullanılıyor' 
+          error: 'Başlık, fiyat ve kategori gerekli' 
         }, { status: 400 });
       }
+
+      // Slug oluştur
+      const productSlug = slug || title.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+      const newProduct = await localStorageManager.addProduct({
+        name: title,
+        title: title,
+        price: parseFloat(price),
+        category: category,
+        subcategory: subcategory || undefined,
+        stock: parseInt(stock) || 0,
+        status: 'active',
+        image: image || '',
+        images: images || [],
+        description: description || '',
+        slug: productSlug
+      });
+
+      return NextResponse.json({
+        success: true,
+        product: newProduct,
+        message: 'Ürün başarıyla eklendi'
+      });
+
+    } else if (action === 'update') {
+      // Ürün güncelle
+      if (!id) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Ürün ID gerekli' 
+        }, { status: 400 });
+      }
+
+      const updatedProduct = await localStorageManager.updateProduct(id, data);
       
+      if (!updatedProduct) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Ürün bulunamadı' 
+        }, { status: 404 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        product: updatedProduct,
+        message: 'Ürün başarıyla güncellendi'
+      });
+
+    } else if (action === 'delete') {
+      // Ürün sil
+      if (!id) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Ürün ID gerekli' 
+        }, { status: 400 });
+      }
+
+      const deleted = await localStorageManager.deleteProduct(id);
+      
+      if (!deleted) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Ürün bulunamadı' 
+        }, { status: 404 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Ürün başarıyla silindi'
+      });
+
+    } else {
       return NextResponse.json({ 
         success: false, 
-        error: 'Ürün oluşturulamadı' 
-      }, { status: 500 });
+        error: 'Geçersiz işlem' 
+      }, { status: 400 });
     }
 
-    return NextResponse.json({
-      success: true,
-      product
-    });
-
   } catch (error) {
+    console.error('Product operation error:', error);
     return NextResponse.json({ 
       success: false, 
-      error: 'Sunucu hatası' 
+      error: error instanceof Error ? error.message : 'Sunucu hatası' 
     }, { status: 500 });
   }
 }
 
-// Ürün güncelle
+// Ürün güncelle (PUT method)
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
@@ -221,44 +197,23 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const supabase = createServerSupabaseClient();
-    if (!supabase) {
+    const updatedProduct = await localStorageManager.updateProduct(id, updateData);
+    
+    if (!updatedProduct) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Veritabanı bağlantısı kurulamadı' 
-      }, { status: 500 });
-    }
-
-    const { data: product, error } = await supabase
-      .from('products')
-      .update({
-        ...updateData,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) {
-      if (error.code === '23505') { // Unique constraint violation
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Bu slug veya SKU zaten kullanılıyor' 
-        }, { status: 400 });
-      }
-      
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Ürün güncellenemedi' 
-      }, { status: 500 });
+        error: 'Ürün bulunamadı' 
+      }, { status: 404 });
     }
 
     return NextResponse.json({
       success: true,
-      product
+      product: updatedProduct,
+      message: 'Ürün başarıyla güncellendi'
     });
 
   } catch (error) {
+    console.error('Update product error:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Sunucu hatası' 
@@ -266,7 +221,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// Ürün sil
+// Ürün sil (DELETE method)
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -279,31 +234,22 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const supabase = createServerSupabaseClient();
-    if (!supabase) {
+    const deleted = await localStorageManager.deleteProduct(id);
+    
+    if (!deleted) {
       return NextResponse.json({ 
         success: false, 
-        error: 'Veritabanı bağlantısı kurulamadı' 
-      }, { status: 500 });
-    }
-
-    const { error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Ürün silinemedi' 
-      }, { status: 500 });
+        error: 'Ürün bulunamadı' 
+      }, { status: 404 });
     }
 
     return NextResponse.json({
-      success: true
+      success: true,
+      message: 'Ürün başarıyla silindi'
     });
 
   } catch (error) {
+    console.error('Delete product error:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Sunucu hatası' 
