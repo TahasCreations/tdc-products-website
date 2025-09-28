@@ -94,7 +94,17 @@ class HybridStorageManager {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (supabaseUrl && supabaseKey) {
+    // Check if environment variables are available and valid
+    const isValidUrl = (url: string) => {
+      try {
+        new URL(url);
+        return !url.includes('your_') && !url.includes('example');
+      } catch {
+        return false;
+      }
+    };
+
+    if (supabaseUrl && supabaseKey && isValidUrl(supabaseUrl)) {
       this.supabase = createClient(supabaseUrl, supabaseKey);
       console.log('🌐 Supabase connected for hybrid mode');
     } else {

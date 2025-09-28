@@ -4,13 +4,22 @@ import { performanceMonitor } from '../src/lib/performance-monitor';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Check if environment variables are available
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase environment variables are not set. Using mock data.');
+// Check if environment variables are available and valid
+const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return !url.includes('your_') && !url.includes('example');
+  } catch {
+    return false;
+  }
+};
+
+if (!supabaseUrl || !supabaseAnonKey || !isValidUrl(supabaseUrl)) {
+  console.warn('Supabase environment variables are not set or invalid. Using mock data.');
 }
 
 // Optimized Supabase client with performance monitoring
-export const supabase = supabaseUrl && supabaseAnonKey 
+export const supabase = supabaseUrl && supabaseAnonKey && isValidUrl(supabaseUrl)
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: false, // Disable session persistence for better performance
