@@ -132,14 +132,24 @@ export default function EcommercePage() {
   });
   
   // Category management states
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [showMainCategoryModal, setShowMainCategoryModal] = useState(false);
+  const [showSubCategoryModal, setShowSubCategoryModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
-  const [categoryForm, setCategoryForm] = useState({
+  const [mainCategoryForm, setMainCategoryForm] = useState({
+    name: '',
+    slug: '',
+    description: '',
+    emoji: '📁',
+    color: '#3B82F6',
+    sortOrder: 0
+  });
+  const [subCategoryForm, setSubCategoryForm] = useState({
     name: '',
     slug: '',
     parentId: null,
     description: '',
-    image: '',
+    emoji: '📂',
+    color: '#10B981',
     sortOrder: 0
   });
   const [categories, setCategories] = useState([]);
@@ -323,7 +333,7 @@ export default function EcommercePage() {
     }
   };
 
-  const handleCategorySubmit = async (e) => {
+  const handleMainCategorySubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage('');
@@ -337,18 +347,61 @@ export default function EcommercePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...categoryForm,
-          id: editingCategory?.id
+          ...mainCategoryForm,
+          id: editingCategory?.id,
+          parent_id: null,
+          level: 0
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setSubmitMessage(editingCategory ? 'Kategori güncellendi!' : 'Kategori oluşturuldu!');
+        setSubmitMessage(editingCategory ? 'Ana kategori güncellendi!' : 'Ana kategori oluşturuldu!');
         setSubmitMessageType('success');
-        setShowCategoryModal(false);
-        setCategoryForm({ name: '', slug: '', parentId: null, description: '', image: '', sortOrder: 0 });
+        setShowMainCategoryModal(false);
+        setMainCategoryForm({ name: '', slug: '', description: '', emoji: '📁', color: '#3B82F6', sortOrder: 0 });
+        setEditingCategory(null);
+        fetchCategories();
+      } else {
+        setSubmitMessage(data.message || 'Bir hata oluştu');
+        setSubmitMessageType('error');
+      }
+    } catch (error) {
+      setSubmitMessage('Bir hata oluştu');
+      setSubmitMessageType('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubCategorySubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    setSubmitMessageType('');
+
+    try {
+      const method = editingCategory ? 'PUT' : 'POST';
+      const response = await fetch('/api/categories', {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...subCategoryForm,
+          id: editingCategory?.id,
+          level: 1
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSubmitMessage(editingCategory ? 'Alt kategori güncellendi!' : 'Alt kategori oluşturuldu!');
+        setSubmitMessageType('success');
+        setShowSubCategoryModal(false);
+        setSubCategoryForm({ name: '', slug: '', parentId: null, description: '', emoji: '📂', color: '#10B981', sortOrder: 0 });
         setEditingCategory(null);
         fetchCategories();
       } else {
@@ -365,15 +418,31 @@ export default function EcommercePage() {
 
   const handleEditCategory = (category) => {
     setEditingCategory(category);
-    setCategoryForm({
-      name: category.name,
-      slug: category.slug,
-      parentId: category.parentId,
-      description: category.description,
-      image: category.image,
-      sortOrder: category.sortOrder
-    });
-    setShowCategoryModal(true);
+    
+    if (category.level === 0 || !category.parentId) {
+      // Ana kategori düzenleme
+      setMainCategoryForm({
+        name: category.name,
+        slug: category.slug,
+        description: category.description,
+        emoji: category.emoji || '📁',
+        color: category.color || '#3B82F6',
+        sortOrder: category.sortOrder || 0
+      });
+      setShowMainCategoryModal(true);
+    } else {
+      // Alt kategori düzenleme
+      setSubCategoryForm({
+        name: category.name,
+        slug: category.slug,
+        parentId: category.parentId,
+        description: category.description,
+        emoji: category.emoji || '📂',
+        color: category.color || '#10B981',
+        sortOrder: category.sortOrder || 0
+      });
+      setShowSubCategoryModal(true);
+    }
   };
 
   const handleDeleteCategory = async (categoryId) => {
@@ -2566,47 +2635,70 @@ export default function EcommercePage() {
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Kategori Yönetimi</h3>
-                <button 
-                  onClick={() => setShowCategoryModal(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-                >
-                  <PlusIcon className="w-4 h-4" />
-                  <span>Yeni Kategori</span>
-                </button>
+                <div className="flex space-x-3">
+                  <button 
+                    onClick={() => {
+                      setEditingCategory(null);
+                      setMainCategoryForm({ name: '', slug: '', description: '', emoji: '📁', color: '#3B82F6', sortOrder: 0 });
+                      setShowMainCategoryModal(true);
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+                  >
+                    <PlusIcon className="w-4 h-4" />
+                    <span>Ana Kategori</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setEditingCategory(null);
+                      setSubCategoryForm({ name: '', slug: '', parentId: null, description: '', emoji: '📂', color: '#10B981', sortOrder: 0 });
+                      setShowSubCategoryModal(true);
+                    }}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
+                  >
+                    <PlusIcon className="w-4 h-4" />
+                    <span>Alt Kategori</span>
+                  </button>
+                </div>
               </div>
 
               {/* Ana Kategoriler */}
               <div className="mb-8">
                 <h4 className="text-md font-semibold text-gray-900 mb-4">Ana Kategoriler</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {categories.filter(cat => cat.level === 0).map(category => (
+                  {categories.filter(cat => cat.level === 0 || !cat.parent_id).map(category => (
                     <div key={category.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex items-center justify-between mb-2">
-                        <h5 className="font-medium text-gray-900">{category.name}</h5>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl bg-gray-50 border-2 border-gray-200">
+                            {category.emoji || '📁'}
+                          </div>
+                          <div>
+                            <h5 className="font-medium text-gray-900">{category.name}</h5>
+                            <p className="text-xs text-gray-500">
+                              {categories.filter(cat => cat.parent_id === category.id).length} alt kategori
+                            </p>
+                          </div>
+                        </div>
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleEditCategory(category)}
                             className="text-blue-600 hover:text-blue-800"
+                            title="Düzenle"
                           >
                             <PencilIcon className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteCategory(category.id)}
                             className="text-red-600 hover:text-red-800"
+                            title="Sil"
                           >
                             <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{category.description}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span>ID: {category.id}</span>
-                        <span className={`px-2 py-1 rounded-full ${
-                          category.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
-                          {category.isActive ? 'Aktif' : 'Pasif'}
-                        </span>
-                      </div>
+                      {category.description && (
+                        <p className="text-sm text-gray-600 mb-2">{category.description}</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -2616,36 +2708,42 @@ export default function EcommercePage() {
               <div>
                 <h4 className="text-md font-semibold text-gray-900 mb-4">Alt Kategoriler</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {categories.filter(cat => cat.level === 1).map(subcategory => {
-                    const parentCategory = categories.find(cat => cat.id === subcategory.parentId);
+                  {categories.filter(cat => cat.level === 1 || cat.parent_id).map(subcategory => {
+                    const parentCategory = categories.find(cat => cat.id === subcategory.parent_id || cat.id === subcategory.parentId);
                     return (
                       <div key={subcategory.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div className="flex items-center justify-between mb-2">
-                          <h5 className="font-medium text-gray-900">{subcategory.name}</h5>
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl bg-white border border-gray-200">
+                              {subcategory.emoji || '📂'}
+                            </div>
+                            <div>
+                              <h5 className="font-medium text-gray-900">{subcategory.name}</h5>
+                              <p className="text-xs text-gray-500">
+                                Ana: {parentCategory?.name || 'Bilinmiyor'}
+                              </p>
+                            </div>
+                          </div>
                           <div className="flex space-x-2">
                             <button
                               onClick={() => handleEditCategory(subcategory)}
                               className="text-blue-600 hover:text-blue-800"
+                              title="Düzenle"
                             >
                               <PencilIcon className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteCategory(subcategory.id)}
                               className="text-red-600 hover:text-red-800"
+                              title="Sil"
                             >
                               <TrashIcon className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">{subcategory.description}</p>
-                        <div className="flex items-center justify-between text-xs text-gray-500">
-                          <span>Ana: {parentCategory?.name || 'Bilinmiyor'}</span>
-                          <span className={`px-2 py-1 rounded-full ${
-                            subcategory.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {subcategory.isActive ? 'Aktif' : 'Pasif'}
-                          </span>
-                        </div>
+                        {subcategory.description && (
+                          <p className="text-sm text-gray-600 mb-2">{subcategory.description}</p>
+                        )}
                       </div>
                     );
                   })}
@@ -2657,18 +2755,18 @@ export default function EcommercePage() {
       </div>
 
       {/* Kategori Modal */}
-      {showCategoryModal && (
+      {showMainCategoryModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-gray-900">
-                {editingCategory ? 'Kategoriyi Düzenle' : 'Yeni Kategori Ekle'}
+                {editingCategory ? 'Ana Kategoriyi Düzenle' : 'Yeni Ana Kategori Ekle'}
               </h3>
               <button
                 onClick={() => {
-                  setShowCategoryModal(false);
+                  setShowMainCategoryModal(false);
                   setEditingCategory(null);
-                  setCategoryForm({ name: '', slug: '', parentId: null, description: '', image: '', sortOrder: 0 });
+                  setMainCategoryForm({ name: '', slug: '', description: '', emoji: '📁', color: '#3B82F6', sortOrder: 0 });
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
@@ -2678,7 +2776,7 @@ export default function EcommercePage() {
               </button>
             </div>
 
-            <form onSubmit={handleCategorySubmit} className="space-y-4">
+            <form onSubmit={handleMainCategorySubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2687,8 +2785,8 @@ export default function EcommercePage() {
                   <input
                     type="text"
                     required
-                    value={categoryForm.name}
-                    onChange={(e) => setCategoryForm({...categoryForm, name: e.target.value})}
+                    value={mainCategoryForm.name}
+                    onChange={(e) => setMainCategoryForm({...mainCategoryForm, name: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Kategori adını girin"
                   />
@@ -2701,30 +2799,13 @@ export default function EcommercePage() {
                   <input
                     type="text"
                     required
-                    value={categoryForm.slug}
-                    onChange={(e) => setCategoryForm({...categoryForm, slug: e.target.value})}
+                    value={mainCategoryForm.slug}
+                    onChange={(e) => setMainCategoryForm({...mainCategoryForm, slug: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="kategori-slug"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Ana Kategori
-                  </label>
-                  <select
-                    value={categoryForm.parentId || ''}
-                    onChange={(e) => setCategoryForm({...categoryForm, parentId: e.target.value ? parseInt(e.target.value) : null})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Ana kategori (boş bırakın)</option>
-                    {categories.filter(cat => cat.level === 0).map(category => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2732,8 +2813,8 @@ export default function EcommercePage() {
                   </label>
                   <input
                     type="number"
-                    value={categoryForm.sortOrder}
-                    onChange={(e) => setCategoryForm({...categoryForm, sortOrder: parseInt(e.target.value) || 0})}
+                    value={mainCategoryForm.sortOrder}
+                    onChange={(e) => setMainCategoryForm({...mainCategoryForm, sortOrder: parseInt(e.target.value) || 0})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="0"
                   />
@@ -2745,34 +2826,22 @@ export default function EcommercePage() {
                   Açıklama
                 </label>
                 <textarea
-                  value={categoryForm.description}
-                  onChange={(e) => setCategoryForm({...categoryForm, description: e.target.value})}
+                  value={mainCategoryForm.description}
+                  onChange={(e) => setMainCategoryForm({...mainCategoryForm, description: e.target.value})}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Kategori açıklamasını girin"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Görsel URL
-                </label>
-                <input
-                  type="url"
-                  value={categoryForm.image}
-                  onChange={(e) => setCategoryForm({...categoryForm, image: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
 
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => {
-                    setShowCategoryModal(false);
+                    setShowMainCategoryModal(false);
                     setEditingCategory(null);
-                    setCategoryForm({ name: '', slug: '', parentId: null, description: '', image: '', sortOrder: 0 });
+                    setMainCategoryForm({ name: '', slug: '', description: '', emoji: '📁', color: '#3B82F6', sortOrder: 0 });
                   }}
                   className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
