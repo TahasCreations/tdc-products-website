@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { hybridStorageManager } from '../../../lib/hybrid-storage-manager';
+import { hybridStorageManager } from '../../../../lib/hybrid-storage-manager';
 
 export const dynamic = 'force-dynamic';
 
-// Ürünleri getir
+// Hibrit ürün yönetimi
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -49,6 +49,9 @@ export async function GET(request: NextRequest) {
     const endIndex = startIndex + limit;
     const paginatedProducts = products.slice(startIndex, endIndex);
 
+    // Sync status bilgisi
+    const syncStatus = hybridStorageManager.getSyncStatus();
+
     return NextResponse.json({
       success: true,
       products: paginatedProducts,
@@ -57,11 +60,13 @@ export async function GET(request: NextRequest) {
         limit,
         total,
         pages: Math.ceil(total / limit)
-      }
+      },
+      syncStatus,
+      isHybrid: true
     });
 
   } catch (error) {
-    console.error('Get products error:', error);
+    console.error('Hybrid get products error:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Ürünler alınamadı' 
@@ -69,14 +74,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Ürün oluştur/güncelle/sil
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { action, id, ...data } = body;
 
     if (action === 'add') {
-      // Yeni ürün ekle
       const {
         title,
         price,
@@ -96,7 +99,6 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
 
-      // Slug oluştur
       const productSlug = slug || title.toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
@@ -115,14 +117,16 @@ export async function POST(request: NextRequest) {
         slug: productSlug
       });
 
+      const syncStatus = hybridStorageManager.getSyncStatus();
+
       return NextResponse.json({
         success: true,
         product: newProduct,
-        message: 'Ürün başarıyla eklendi'
+        message: 'Ürün başarıyla eklendi (Local + Cloud)',
+        syncStatus
       });
 
     } else if (action === 'update') {
-      // Ürün güncelle
       if (!id) {
         return NextResponse.json({ 
           success: false, 
@@ -139,14 +143,16 @@ export async function POST(request: NextRequest) {
         }, { status: 404 });
       }
 
+      const syncStatus = hybridStorageManager.getSyncStatus();
+
       return NextResponse.json({
         success: true,
         product: updatedProduct,
-        message: 'Ürün başarıyla güncellendi'
+        message: 'Ürün başarıyla güncellendi (Local + Cloud)',
+        syncStatus
       });
 
     } else if (action === 'delete') {
-      // Ürün sil
       if (!id) {
         return NextResponse.json({ 
           success: false, 
@@ -163,9 +169,12 @@ export async function POST(request: NextRequest) {
         }, { status: 404 });
       }
 
+      const syncStatus = hybridStorageManager.getSyncStatus();
+
       return NextResponse.json({
         success: true,
-        message: 'Ürün başarıyla silindi'
+        message: 'Ürün başarıyla silindi (Local + Cloud)',
+        syncStatus
       });
 
     } else {
@@ -176,83 +185,10 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Product operation error:', error);
+    console.error('Hybrid product operation error:', error);
     return NextResponse.json({ 
       success: false, 
       error: error instanceof Error ? error.message : 'Sunucu hatası' 
-    }, { status: 500 });
-  }
-}
-
-// Ürün güncelle (PUT method)
-export async function PUT(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { id, ...updateData } = body;
-
-    if (!id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Ürün ID gerekli' 
-      }, { status: 400 });
-    }
-
-    const updatedProduct = await hybridStorageManager.updateProduct(id, updateData);
-    
-    if (!updatedProduct) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Ürün bulunamadı' 
-      }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      success: true,
-      product: updatedProduct,
-      message: 'Ürün başarıyla güncellendi'
-    });
-
-  } catch (error) {
-    console.error('Update product error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Sunucu hatası' 
-    }, { status: 500 });
-  }
-}
-
-// Ürün sil (DELETE method)
-export async function DELETE(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-
-    if (!id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Ürün ID gerekli' 
-      }, { status: 400 });
-    }
-
-    const deleted = await hybridStorageManager.deleteProduct(id);
-    
-    if (!deleted) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Ürün bulunamadı' 
-      }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Ürün başarıyla silindi'
-    });
-
-  } catch (error) {
-    console.error('Delete product error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Sunucu hatası' 
     }, { status: 500 });
   }
 }

@@ -6,6 +6,7 @@ import AdminProtection from '../../../components/AdminProtection';
 import ProductForm from '../../../components/admin/ProductForm';
 import OptimizedLoader from '../../../components/OptimizedLoader';
 import EmojiPicker from '../../../components/EmojiPicker';
+import HybridStatusIndicator from '../../../components/HybridStatusIndicator';
 import { getSupabaseClient } from '../../../lib/supabase-client';
 
 interface Category {
@@ -478,6 +479,7 @@ export default function AdminProductsPage() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Ürün Yönetimi</h1>
               <p className="text-gray-600">Ürünleri ekleyin, düzenleyin ve yönetin</p>
+              <HybridStatusIndicator className="mt-1" />
             </div>
           </div>
           <div className="flex gap-3">

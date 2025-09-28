@@ -24,7 +24,14 @@
     "clean:demo": "tsx scripts/clean-demo.ts",
     "seed": "tsx scripts/seed.ts",
     "seed:demo": "DEMO_MODE=true tsx scripts/seed.ts",
-    "clean:all": "npm run clean:demo && npm run clean"
+    "clean:all": "npm run clean:demo && npm run clean",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart",
+    "docker:deploy": "chmod +x scripts/docker-deploy.sh && ./scripts/docker-deploy.sh",
+    "production": "NODE_ENV=production npm run build && npm start"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",

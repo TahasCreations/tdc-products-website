@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fileStorageManager } from '../../../../lib/file-storage-manager';
+import { hybridStorageManager } from '../../../../lib/hybrid-storage-manager';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const status = searchParams.get('status');
 
-    let orders = await fileStorageManager.getOrders();
+    let orders = await hybridStorageManager.getOrders();
 
     // Durum filtresi
     if (status) {

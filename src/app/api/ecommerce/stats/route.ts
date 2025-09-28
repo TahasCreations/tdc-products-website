@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { fileStorageManager } from '../../../../lib/file-storage-manager';
+import { hybridStorageManager } from '../../../../lib/hybrid-storage-manager';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const stats = await fileStorageManager.getStats();
+    const stats = await hybridStorageManager.getStats();
 
     return NextResponse.json({
       success: true,

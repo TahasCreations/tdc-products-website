@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { hybridStorageManager } from '../../../lib/hybrid-storage-manager';
+import { hybridStorageManager } from '../../../../lib/hybrid-storage-manager';
 
 export const dynamic = 'force-dynamic';
 
-// Kategorileri getir
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -28,21 +27,25 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Sıralama (ana kategoriler önce, sonra alt kategoriler)
+    // Sıralama
     categories.sort((a, b) => {
       if (!a.parent_id && b.parent_id) return -1;
       if (a.parent_id && !b.parent_id) return 1;
       return a.name.localeCompare(b.name);
     });
 
+    const syncStatus = hybridStorageManager.getSyncStatus();
+
     return NextResponse.json({
       success: true,
       data: categories,
-      total: categories.length
+      total: categories.length,
+      syncStatus,
+      isHybrid: true
     });
 
   } catch (error) {
-    console.error('Get categories error:', error);
+    console.error('Hybrid get categories error:', error);
     return NextResponse.json({ 
       success: false, 
       error: 'Kategoriler alınamadı' 
@@ -50,14 +53,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Kategori oluştur/güncelle/sil
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { action, id, ...data } = body;
 
     if (action === 'add') {
-      // Yeni kategori ekle
       const {
         name,
         description,
@@ -96,14 +97,16 @@ export async function POST(request: NextRequest) {
         level: parentId ? 2 : 1
       });
 
+      const syncStatus = hybridStorageManager.getSyncStatus();
+
       return NextResponse.json({
         success: true,
         category: newCategory,
-        message: 'Kategori başarıyla eklendi'
+        message: 'Kategori başarıyla eklendi (Local + Cloud)',
+        syncStatus
       });
 
     } else if (action === 'update') {
-      // Kategori güncelle
       if (!id) {
         return NextResponse.json({ 
           success: false, 
@@ -120,14 +123,16 @@ export async function POST(request: NextRequest) {
         }, { status: 404 });
       }
 
+      const syncStatus = hybridStorageManager.getSyncStatus();
+
       return NextResponse.json({
         success: true,
         category: updatedCategory,
-        message: 'Kategori başarıyla güncellendi'
+        message: 'Kategori başarıyla güncellendi (Local + Cloud)',
+        syncStatus
       });
 
     } else if (action === 'delete') {
-      // Kategori sil
       if (!id) {
         return NextResponse.json({ 
           success: false, 
@@ -145,9 +150,12 @@ export async function POST(request: NextRequest) {
           }, { status: 404 });
         }
 
+        const syncStatus = hybridStorageManager.getSyncStatus();
+
         return NextResponse.json({
           success: true,
-          message: 'Kategori başarıyla silindi'
+          message: 'Kategori başarıyla silindi (Local + Cloud)',
+          syncStatus
         });
       } catch (deleteError) {
         return NextResponse.json({ 
@@ -164,90 +172,10 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Category operation error:', error);
+    console.error('Hybrid category operation error:', error);
     return NextResponse.json({ 
       success: false, 
       error: error instanceof Error ? error.message : 'Sunucu hatası' 
-    }, { status: 500 });
-  }
-}
-
-// Kategori güncelle (PUT method)
-export async function PUT(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { id, ...updateData } = body;
-
-    if (!id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Kategori ID gerekli' 
-      }, { status: 400 });
-    }
-
-    const updatedCategory = await hybridStorageManager.updateCategory(id, updateData);
-    
-    if (!updatedCategory) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Kategori bulunamadı' 
-      }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      success: true,
-      category: updatedCategory,
-      message: 'Kategori başarıyla güncellendi'
-    });
-
-  } catch (error) {
-    console.error('Update category error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Sunucu hatası' 
-    }, { status: 500 });
-  }
-}
-
-// Kategori sil (DELETE method)
-export async function DELETE(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-
-    if (!id) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Kategori ID gerekli' 
-      }, { status: 400 });
-    }
-
-    try {
-      const deleted = await hybridStorageManager.deleteCategory(id);
-      
-      if (!deleted) {
-        return NextResponse.json({ 
-          success: false, 
-          error: 'Kategori bulunamadı' 
-        }, { status: 404 });
-      }
-
-      return NextResponse.json({
-        success: true,
-        message: 'Kategori başarıyla silindi'
-      });
-    } catch (deleteError) {
-      return NextResponse.json({ 
-        success: false, 
-        error: deleteError instanceof Error ? deleteError.message : 'Kategori silinemedi' 
-      }, { status: 400 });
-    }
-
-  } catch (error) {
-    console.error('Delete category error:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: 'Sunucu hatası' 
     }, { status: 500 });
   }
 }
