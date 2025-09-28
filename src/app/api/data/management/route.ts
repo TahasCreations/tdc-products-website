@@ -18,10 +18,10 @@ export async function POST(request: NextRequest) {
         });
 
       case 'clear-demo':
-        await fileStorageManager.clearDemoData();
+        await fileStorageManager.clearAllData();
         return NextResponse.json({
           success: true,
-          message: 'Demo veriler temizlendi'
+          message: 'Tüm veriler temizlendi'
         });
 
       case 'clear-all':
@@ -117,9 +117,6 @@ export async function GET(request: NextRequest) {
           totalProducts: products.length,
           totalCategories: categories.length,
           totalOrders: orders.length,
-          demoProducts: products.filter(p => p.isDemo).length,
-          demoCategories: categories.filter(c => c.isDemo).length,
-          demoOrders: orders.filter(o => o.isDemo).length
         },
         directories: {
           data: fileStorageManager.getDataDirectory(),

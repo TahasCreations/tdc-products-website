@@ -64,87 +64,15 @@ export default function AdminPaymentsPage() {
   const fetchPayments = useCallback(async () => {
     try {
       setLoading(true);
-      
-      // Demo veriler - gerçek API'den veri gelene kadar
-      const demoPayments: Payment[] = [
-        {
-          id: '1',
-          transaction_id: 'TXN-001-2024',
-          payment_method: 'credit_card',
-          amount: 1250.00,
-          total_amount: 1250.00,
-          currency: 'TRY',
-          customer_name: 'Ahmet Yılmaz',
-          customer_email: 'ahmet@example.com',
-          status: 'completed',
-          fees: 37.50,
-          processing_time: 2.3,
-          created_at: new Date(Date.now() - 86400000).toISOString(),
-          provider_response: { status: 'approved', code: '00' }
-        },
-        {
-          id: '2',
-          transaction_id: 'TXN-002-2024',
-          payment_method: 'bank_transfer',
-          amount: 2500.00,
-          total_amount: 2500.00,
-          currency: 'TRY',
-          customer_name: 'Fatma Demir',
-          customer_email: 'fatma@example.com',
-          status: 'pending',
-          fees: 0,
-          processing_time: 0,
-          created_at: new Date(Date.now() - 172800000).toISOString()
-        },
-        {
-          id: '3',
-          transaction_id: 'TXN-003-2024',
-          payment_method: 'mobile_payment',
-          amount: 750.00,
-          total_amount: 750.00,
-          currency: 'TRY',
-          customer_name: 'Mehmet Kaya',
-          customer_email: 'mehmet@example.com',
-          status: 'failed',
-          fees: 22.50,
-          processing_time: 1.8,
-          created_at: new Date(Date.now() - 259200000).toISOString(),
-          provider_response: { status: 'declined', code: '05' }
-        },
-        {
-          id: '4',
-          transaction_id: 'TXN-004-2024',
-          payment_method: 'credit_card',
-          amount: 3200.00,
-          total_amount: 3200.00,
-          currency: 'TRY',
-          customer_name: 'Ayşe Özkan',
-          customer_email: 'ayse@example.com',
-          status: 'completed',
-          fees: 96.00,
-          processing_time: 1.5,
-          created_at: new Date(Date.now() - 345600000).toISOString(),
-          provider_response: { status: 'approved', code: '00' }
-        }
-      ];
-
-      setPayments(demoPayments);
-
-      // Gerçek API'yi de dene
-      try {
-        const response = await fetch(`/api/payments/advanced/process?${new URLSearchParams({
-          ...filter,
-          search: searchTerm
-        })}`);
-        const data = await response.json();
-        if (data.payments && data.payments.length > 0) {
-          setPayments(data.payments);
-        }
-      } catch (apiError) {
-        console.log('API not available, using demo data');
-      }
+      const response = await fetch(`/api/payments/advanced/process?${new URLSearchParams({
+        ...filter,
+        search: searchTerm
+      })}`);
+      const data = await response.json();
+      setPayments(data.payments || []);
     } catch (error) {
       console.error('Error fetching payments:', error);
+      setPayments([]);
     } finally {
       setLoading(false);
     }
@@ -152,43 +80,12 @@ export default function AdminPaymentsPage() {
 
   const fetchStats = useCallback(async () => {
     try {
-      // Demo stats - gerçek API'den veri gelene kadar
-      const demoStats: PaymentStats = {
-        totalPayments: 1247,
-        totalAmount: 1250000,
-        successRate: 94.5,
-        averageProcessingTime: 2.1,
-        methodBreakdown: {
-          'credit_card': 65,
-          'bank_transfer': 20,
-          'mobile_payment': 12,
-          'crypto': 3
-        },
-        dailyStats: [
-          { date: '2024-01-01', count: 45, amount: 45000 },
-          { date: '2024-01-02', count: 52, amount: 52000 },
-          { date: '2024-01-03', count: 38, amount: 38000 },
-          { date: '2024-01-04', count: 61, amount: 61000 },
-          { date: '2024-01-05', count: 47, amount: 47000 },
-          { date: '2024-01-06', count: 43, amount: 43000 },
-          { date: '2024-01-07', count: 55, amount: 55000 }
-        ]
-      };
-
-      setStats(demoStats);
-
-      // Gerçek API'yi de dene
-      try {
-        const response = await fetch('/api/admin/payments/stats');
-        const data = await response.json();
-        if (data.stats) {
-          setStats(data.stats);
-        }
-      } catch (apiError) {
-        console.log('Stats API not available, using demo data');
-      }
+      const response = await fetch('/api/admin/payments/stats');
+      const data = await response.json();
+      setStats(data.stats || null);
     } catch (error) {
       console.error('Error fetching stats:', error);
+      setStats(null);
     }
   }, []);
 
@@ -275,7 +172,10 @@ export default function AdminPaymentsPage() {
     return (
       <AdminProtection>
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Ödeme verileri yükleniyor...</p>
+          </div>
         </div>
       </AdminProtection>
     );
@@ -292,7 +192,7 @@ export default function AdminPaymentsPage() {
         </div>
 
         {/* Stats Cards */}
-        {stats && (
+        {stats ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white p-6 rounded-lg shadow">
               <div className="flex items-center">
@@ -339,6 +239,24 @@ export default function AdminPaymentsPage() {
                   <p className="text-sm font-medium text-gray-600">Ort. İşlem Süresi</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.averageProcessingTime}ms</p>
                 </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white p-8 rounded-lg shadow mb-8">
+            <div className="text-center">
+              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <ChartBarIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Ödeme Verisi Yok</h3>
+              <p className="text-gray-600 mb-4">
+                İlk ödeme işlemi gerçekleştiğinde burada istatistikler görünecek.
+              </p>
+              <div className="text-sm text-gray-500">
+                <p>• Toplam ödeme sayısı</p>
+                <p>• Başarı oranı</p>
+                <p>• Ortalama işlem süresi</p>
+                <p>• Ödeme yöntemi dağılımı</p>
               </div>
             </div>
           </div>
@@ -439,7 +357,8 @@ export default function AdminPaymentsPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredPayments.map((payment) => (
+                {filteredPayments.length > 0 ? (
+                  filteredPayments.map((payment) => (
                   <tr key={payment.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
@@ -511,7 +430,28 @@ export default function AdminPaymentsPage() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center">
+                      <div className="flex flex-col items-center">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                          <CreditCardIcon className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Ödeme Yok</h3>
+                        <p className="text-gray-600 mb-4 max-w-md">
+                          Müşterileriniz ürün satın aldığında burada ödeme kayıtları görünecek.
+                        </p>
+                        <div className="text-sm text-gray-500 space-y-1">
+                          <p>• Kredi kartı ödemeleri</p>
+                          <p>• Banka havalesi</p>
+                          <p>• Mobil ödemeler</p>
+                          <p>• Kripto para ödemeleri</p>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

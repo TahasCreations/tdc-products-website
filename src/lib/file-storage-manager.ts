@@ -25,7 +25,6 @@ interface Product {
   createdAt: string;
   created_at?: string;
   updated_at?: string;
-  isDemo?: boolean;
 }
 
 interface Category {
@@ -39,7 +38,6 @@ interface Category {
   level?: number;
   created_at: string;
   updated_at: string;
-  isDemo?: boolean;
 }
 
 interface Order {
@@ -57,7 +55,6 @@ interface Order {
   created_at?: string;
   paymentMethod: string;
   payment_method?: string;
-  isDemo?: boolean;
 }
 
 interface EcommerceData {
@@ -95,7 +92,7 @@ class FileStorageManager {
         console.log(`💾 Backup klasörü oluşturuldu: ${this.BACKUP_DIR}`);
       }
 
-      // Demo verileri yükle (eğer dosyalar yoksa)
+      // Dosyaları başlat
       this.initializeFiles();
     } catch (error) {
       console.error('Storage initialization error:', error);
@@ -103,19 +100,19 @@ class FileStorageManager {
   }
 
   /**
-   * Dosyaları başlat ve demo verileri yükle
+   * Dosyaları başlat
    */
   private initializeFiles() {
     // Products dosyası
     if (!fs.existsSync(this.PRODUCTS_FILE)) {
-      this.saveProducts(this.getDemoProducts());
-      console.log('📦 Demo ürünler yüklendi');
+      this.saveProducts([]);
+      console.log('📦 Products dosyası oluşturuldu');
     }
 
     // Categories dosyası
     if (!fs.existsSync(this.CATEGORIES_FILE)) {
-      this.saveCategories(this.getDemoCategories());
-      console.log('📂 Demo kategoriler yüklendi');
+      this.saveCategories([]);
+      console.log('📂 Categories dosyası oluşturuldu');
     }
 
     // Orders dosyası
@@ -125,111 +122,6 @@ class FileStorageManager {
     }
   }
 
-  /**
-   * Demo ürünleri
-   */
-  private getDemoProducts(): Product[] {
-    return [
-      {
-        id: 'demo-1',
-        name: 'iPhone 15 Pro',
-        title: 'iPhone 15 Pro',
-        price: 45999,
-        category: 'demo-elektronik',
-        stock: 25,
-        status: 'active',
-        image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400',
-        description: 'En yeni iPhone modeli',
-        slug: 'iphone-15-pro',
-        sales: 15,
-        rating: 4.8,
-        createdAt: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        isDemo: true
-      },
-      {
-        id: 'demo-2',
-        name: 'Samsung Galaxy S24',
-        title: 'Samsung Galaxy S24',
-        price: 35999,
-        category: 'demo-elektronik',
-        stock: 30,
-        status: 'active',
-        image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400',
-        description: 'Samsung\'un en yeni modeli',
-        slug: 'samsung-galaxy-s24',
-        sales: 22,
-        rating: 4.6,
-        createdAt: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        isDemo: true
-      },
-      {
-        id: 'demo-3',
-        name: 'MacBook Pro M3',
-        title: 'MacBook Pro M3',
-        price: 89999,
-        category: 'demo-bilgisayar',
-        stock: 12,
-        status: 'active',
-        image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400',
-        description: 'Apple\'ın en güçlü dizüstü bilgisayarı',
-        slug: 'macbook-pro-m3',
-        sales: 8,
-        rating: 4.9,
-        createdAt: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        isDemo: true
-      }
-    ];
-  }
-
-  /**
-   * Demo kategorileri
-   */
-  private getDemoCategories(): Category[] {
-    return [
-      {
-        id: 'demo-elektronik',
-        name: 'Elektronik',
-        description: 'Elektronik ürünler',
-        emoji: '📱',
-        color: '#3b82f6',
-        icon: 'ri-smartphone-line',
-        parent_id: null,
-        level: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        isDemo: true
-      },
-      {
-        id: 'demo-bilgisayar',
-        name: 'Bilgisayar',
-        description: 'Bilgisayar ve aksesuarları',
-        emoji: '💻',
-        color: '#10b981',
-        icon: 'ri-computer-line',
-        parent_id: null,
-        level: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        isDemo: true
-      },
-      {
-        id: 'demo-telefon',
-        name: 'Telefon',
-        description: 'Telefon alt kategorisi',
-        emoji: '📞',
-        color: '#8b5cf6',
-        icon: 'ri-phone-line',
-        parent_id: 'demo-elektronik',
-        level: 2,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        isDemo: true
-      }
-    ];
-  }
 
   // PRODUCT METHODS
   async getProducts(): Promise<Product[]> {
@@ -249,7 +141,6 @@ class FileStorageManager {
       id: `product-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       createdAt: new Date().toISOString(),
       created_at: new Date().toISOString(),
-      isDemo: false
     };
 
     products.push(newProduct);
@@ -323,7 +214,6 @@ class FileStorageManager {
       id: `category-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      isDemo: false
     };
 
     categories.push(newCategory);
@@ -410,7 +300,6 @@ class FileStorageManager {
       id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       createdAt: new Date().toISOString(),
       created_at: new Date().toISOString(),
-      isDemo: false
     };
 
     orders.push(newOrder);
@@ -514,17 +403,6 @@ class FileStorageManager {
     console.log('🗑️ Tüm veriler temizlendi');
   }
 
-  async clearDemoData(): Promise<void> {
-    const products = await this.getProducts();
-    const categories = await this.getCategories();
-    const orders = await this.getOrders();
-
-    await this.saveProducts(products.filter(p => !p.isDemo));
-    await this.saveCategories(categories.filter(c => !c.isDemo));
-    await this.saveOrders(orders.filter(o => !o.isDemo));
-    
-    console.log('🧹 Demo veriler temizlendi');
-  }
 
   async exportData(): Promise<string> {
     const products = await this.getProducts();

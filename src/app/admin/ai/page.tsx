@@ -89,22 +89,7 @@ export default function AdminAIPage() {
       }
     } catch (error) {
       console.error('Error fetching AI stats:', error);
-      // Mock data for demo
-      setStats({
-        totalRecommendations: 15420,
-        recommendationAccuracy: 87.5,
-        userEngagement: 73.2,
-        conversionRate: 12.8,
-        chatbotInteractions: 8934,
-        averageResponseTime: 1.2,
-        popularAlgorithms: {
-          'hybrid': 45,
-          'collaborative': 30,
-          'content-based': 20,
-          'trending': 5
-        },
-        userSatisfaction: 4.6
-      });
+      setStats(null);
     } finally {
       setLoading(false);
     }
@@ -118,55 +103,11 @@ export default function AdminAIPage() {
       if (data.success) {
         setInsights(data.data || []);
       } else {
-        // Fallback: Mock data
-        setInsights([
-          {
-            id: '1',
-            type: 'trend',
-            title: 'Kullanıcı Tercihleri Değişiyor',
-            description: 'Son 30 günde kullanıcıların %23\'ü daha fazla mobil cihaz kullanmaya başladı',
-            impact: 'high',
-            confidence: 89,
-            actionRequired: true,
-            createdAt: '2024-01-20T10:00:00Z'
-          }
-        ]);
+        setInsights([]);
       }
     } catch (error) {
       console.error('Error fetching AI insights:', error);
-      // Mock insights for demo
-      setInsights([
-        {
-          id: '1',
-          type: 'opportunity',
-          title: 'Yeni Kategori Keşfi',
-          description: 'Kullanıcılar "gaming" kategorisinde artan ilgi gösteriyor. Bu kategoriye odaklanarak %15 daha fazla satış elde edebilirsiniz.',
-          impact: 'high',
-          confidence: 89,
-          actionRequired: true,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          type: 'trend',
-          title: 'Fiyat Hassasiyeti Artışı',
-          description: 'Son 30 günde kullanıcıların fiyat hassasiyeti %12 arttı. İndirim kampanyaları daha etkili olabilir.',
-          impact: 'medium',
-          confidence: 76,
-          actionRequired: false,
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '3',
-          type: 'anomaly',
-          title: 'Anormal Satış Düşüşü',
-          description: 'Elektronik kategorisinde beklenmeyen satış düşüşü tespit edildi. Rekabet analizi önerilir.',
-          impact: 'high',
-          confidence: 92,
-          actionRequired: true,
-          createdAt: new Date().toISOString()
-        }
-      ]);
+      setInsights([]);
     }
   };
 
@@ -250,7 +191,7 @@ export default function AdminAIPage() {
         </div>
 
         {/* Stats Cards */}
-        {stats && (
+        {stats ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white p-6 rounded-lg shadow">
               <div className="flex items-center">
@@ -300,6 +241,24 @@ export default function AdminAIPage() {
               </div>
             </div>
           </div>
+        ) : (
+          <div className="bg-white p-8 rounded-lg shadow mb-8">
+            <div className="text-center">
+              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <SparklesIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">AI Verileri Henüz Hazır Değil</h3>
+              <p className="text-gray-600 mb-4">
+                AI sistemleri aktif kullanıma geçtiğinde burada istatistikler görünecek.
+              </p>
+              <div className="text-sm text-gray-500">
+                <p>• Öneri sistemi analizi</p>
+                <p>• Chatbot etkileşim verileri</p>
+                <p>• Kullanıcı davranış analizi</p>
+                <p>• Otomatik fiyat optimizasyonu</p>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Tabs */}
@@ -339,7 +298,8 @@ export default function AdminAIPage() {
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-4">AI İçgörüleri</h4>
                     <div className="space-y-4">
-                      {insights.map((insight) => (
+                      {insights.length > 0 ? (
+                        insights.map((insight) => (
                         <div key={insight.id} className="border border-gray-200 rounded-lg p-4">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex items-center">
@@ -364,7 +324,18 @@ export default function AdminAIPage() {
                           </div>
                           <p className="text-sm text-gray-600">{insight.description}</p>
                         </div>
-                      ))}
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <EyeIcon className="w-6 h-6 text-gray-400" />
+                          </div>
+                          <h3 className="text-sm font-medium text-gray-900 mb-1">Henüz AI İçgörüsü Yok</h3>
+                          <p className="text-xs text-gray-500">
+                            AI sistemi aktif kullanıma geçtiğinde burada içgörüler görünecek.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
