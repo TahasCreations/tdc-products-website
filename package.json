@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:vercel": "cross-env CI= next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit --incremental",
@@ -67,6 +68,7 @@
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.0",
+    "cross-env": "^10.0.0",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.5",
     "postcss": "^8.4.0",
