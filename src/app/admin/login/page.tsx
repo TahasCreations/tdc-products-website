@@ -2,7 +2,8 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -12,6 +13,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Optimized login handler with useCallback
   const handleLogin = useCallback(async (e: React.FormEvent) => {
@@ -25,6 +27,15 @@ export default function AdminLoginPage() {
 
     setLoading(true);
     setError('');
+
+    // Beni hatırla özelliği - bilgileri localStorage'a kaydet
+    if (rememberMe) {
+      localStorage.setItem('remembered_admin_email', email.trim());
+      localStorage.setItem('remembered_admin_password', password);
+    } else {
+      localStorage.removeItem('remembered_admin_email');
+      localStorage.removeItem('remembered_admin_password');
+    }
 
     try {
       const response = await fetch('/api/admin-login', {
@@ -131,7 +142,19 @@ export default function AdminLoginPage() {
     } finally {
       setLoading(false);
     }
-  }, [email, password, router]);
+  }, [email, password, router, rememberMe]);
+
+  // Sayfa yüklendiğinde hatırlanan bilgileri al
+  React.useEffect(() => {
+    const rememberedEmail = localStorage.getItem('remembered_admin_email');
+    const rememberedPassword = localStorage.getItem('remembered_admin_password');
+    
+    if (rememberedEmail && rememberedPassword) {
+      setEmail(rememberedEmail);
+      setPassword(rememberedPassword);
+      setRememberMe(true);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
@@ -186,6 +209,21 @@ export default function AdminLoginPage() {
               {error}
             </div>
           )}
+
+          {/* Beni Hatırla Checkbox */}
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+              Beni Hatırla
+            </label>
+          </div>
 
           <div>
             <button
