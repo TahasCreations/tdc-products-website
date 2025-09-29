@@ -30,6 +30,7 @@ interface Product {
 interface Category {
   id: string;
   name: string;
+  slug?: string;
   description?: string;
   emoji?: string;
   color?: string;
@@ -208,7 +209,14 @@ class FileStorageManager {
   }
 
   async addCategory(category: Omit<Category, 'id' | 'created_at' | 'updated_at'>): Promise<Category> {
+    console.log('🔍 FileStorageManager - addCategory called with:', {
+      categoryData: category,
+      timestamp: new Date().toISOString()
+    });
+
     const categories = await this.getCategories();
+    console.log('🔍 FileStorageManager - Current categories count:', categories.length);
+
     const newCategory: Category = {
       ...category,
       id: `category-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -216,11 +224,21 @@ class FileStorageManager {
       updated_at: new Date().toISOString(),
     };
 
+    console.log('🔍 FileStorageManager - Generated category:', {
+      id: newCategory.id,
+      name: newCategory.name,
+      timestamp: new Date().toISOString()
+    });
+
     categories.push(newCategory);
     await this.saveCategories(categories);
     
+    console.log('✅ FileStorageManager - Category saved to file');
+    
     // Backup oluştur
     await this.createBackup('categories');
+    
+    console.log('✅ FileStorageManager - Backup created');
     
     return newCategory;
   }

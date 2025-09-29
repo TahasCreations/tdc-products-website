@@ -56,6 +56,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, id, ...data } = body;
 
+    // Structured logging for debugging
+    console.log('🔍 Category API - POST Request:', {
+      action,
+      id,
+      dataKeys: Object.keys(data),
+      timestamp: new Date().toISOString()
+    });
+
     if (action === 'add') {
       // Yeni kategori ekle
       const {
@@ -86,14 +94,51 @@ export async function POST(request: NextRequest) {
         }, { status: 400 });
       }
 
-      const newCategory = await fileStorageManager.addCategory({
+      // Generate unique slug
+      const baseSlug = name.trim()
+        .toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+
+      let slug = baseSlug;
+      let counter = 1;
+      
+      // Check for slug conflicts
+      while (existingCategories.some(c => c.slug === slug)) {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+
+      const categoryData = {
         name: name.trim(),
+        slug: slug,
         description: description || '',
         emoji: emoji || '📦',
         color: '#6b7280',
         icon: 'ri-more-line',
         parent_id: parentId || null,
         level: parentId ? 2 : 1
+      };
+
+      console.log('🔍 Category API - Adding category with data:', {
+        categoryData,
+        timestamp: new Date().toISOString()
+      });
+
+      const newCategory = await fileStorageManager.addCategory(categoryData);
+
+      console.log('✅ Category API - Category added successfully:', {
+        categoryId: newCategory.id,
+        categoryName: newCategory.name,
+        timestamp: new Date().toISOString()
       });
 
       return NextResponse.json({

@@ -4,13 +4,7 @@
  */
 
 import React from 'react';
-
-// Mock vitest if not available
-const vi = {
-  mock: () => {},
-  fn: () => () => {},
-  clearAllMocks: () => {}
-};
+import { vi } from 'vitest';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({

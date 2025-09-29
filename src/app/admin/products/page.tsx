@@ -253,6 +253,11 @@ export default function AdminProductsPage() {
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('🔍 Frontend - handleAddCategory called with:', {
+      newCategory,
+      timestamp: new Date().toISOString()
+    });
+    
     if (!newCategory.name.trim()) {
       setMessage('Kategori adı gerekli');
       setMessageType('error');
@@ -262,23 +267,41 @@ export default function AdminProductsPage() {
     try {
       setApiLoading(true);
       
+      const requestData = {
+        action: 'add',
+        name: newCategory.name,
+        description: '',
+        emoji: newCategory.emoji,
+        parentId: newCategory.parent_id
+      };
+
+      console.log('🔍 Frontend - Sending request to API:', {
+        url: '/api/categories',
+        method: 'POST',
+        data: requestData,
+        timestamp: new Date().toISOString()
+      });
+      
       const response = await fetch('/api/categories', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          action: 'add',
-          name: newCategory.name,
-          description: '',
-          emoji: newCategory.emoji,
-          parentId: newCategory.parent_id
-        }),
+        body: JSON.stringify(requestData),
       });
 
       const data = await response.json();
 
+      console.log('🔍 Frontend - API Response received:', {
+        success: data.success,
+        message: data.message,
+        error: data.error,
+        status: response.status,
+        timestamp: new Date().toISOString()
+      });
+
       if (data.success) {
+        console.log('✅ Frontend - Category added successfully, refreshing list');
         setMessage(data.message || 'Kategori başarıyla eklendi');
         setMessageType('success');
         setNewCategory({
@@ -291,6 +314,7 @@ export default function AdminProductsPage() {
         setShowCategoryForm(false);
         fetchCategories();
       } else {
+        console.log('❌ Frontend - Category add failed:', data.error);
         setMessage(data.message || data.error || 'Kategori eklenemedi');
         setMessageType('error');
       }

@@ -342,14 +342,17 @@ export default function EcommercePage() {
     try {
       const method = editingCategory ? 'PUT' : 'POST';
       const response = await fetch('/api/categories', {
-        method,
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...mainCategoryForm,
+          action: editingCategory ? 'update' : 'add',
           id: editingCategory?.id,
-          parent_id: null,
+          name: mainCategoryForm.name,
+          description: mainCategoryForm.description,
+          emoji: mainCategoryForm.emoji,
+          parentId: null,
           level: 0
         }),
       });
@@ -382,15 +385,18 @@ export default function EcommercePage() {
     setSubmitMessageType('');
 
     try {
-      const method = editingCategory ? 'PUT' : 'POST';
       const response = await fetch('/api/categories', {
-        method,
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...subCategoryForm,
+          action: editingCategory ? 'update' : 'add',
           id: editingCategory?.id,
+          name: subCategoryForm.name,
+          description: subCategoryForm.description,
+          emoji: subCategoryForm.emoji,
+          parentId: subCategoryForm.parentId,
           level: 1
         }),
       });

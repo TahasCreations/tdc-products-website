@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Test Kategori",
+    "description": "Test açıklama",
+    "emoji": "🧪",
+    "color": "#6b7280",
+    "icon": "ri-more-line",
+    "parent_id": null,
+    "level": 1,
+    "id": "category-1759140582427-trb42eovy",
+    "created_at": "2025-09-29T10:09:42.427Z",
+    "updated_at": "2025-09-29T10:09:42.427Z"
+  }
+]
