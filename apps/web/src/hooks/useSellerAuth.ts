@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Seller {
@@ -15,24 +15,12 @@ interface Seller {
   lastLoginAt?: string;
 }
 
-interface SellerAuthContextType {
-  seller: Seller | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<boolean>;
-  logout: () => void;
-  updateSeller: (sellerData: Partial<Seller>) => void;
-}
-
-const SellerAuthContext = createContext<SellerAuthContextType | undefined>(undefined);
-
-export function SellerAuthProvider({ children }: { children: ReactNode }) {
+export function useSellerAuth() {
   const [seller, setSeller] = useState<Seller | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // Load seller session on mount
   useEffect(() => {
     const loadSellerSession = () => {
       try {
@@ -42,7 +30,6 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
         if (savedSeller && savedToken) {
           const sellerData = JSON.parse(savedSeller);
           setSeller(sellerData);
-          setToken(savedToken);
         }
       } catch (error) {
         console.error('Error loading seller session:', error);
@@ -77,7 +64,6 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
         }
 
         setSeller(data.seller);
-        setToken(data.token);
         return true;
       } else {
         throw new Error(data.error || 'Login failed');
@@ -94,8 +80,6 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('remember_seller');
     
     setSeller(null);
-    setToken(null);
-    
     router.push('/seller/login');
   };
 
@@ -107,31 +91,17 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const providerValue: SellerAuthContextType = {
+  return {
     seller,
-    token,
-    isAuthenticated: !!seller && !!token,
+    isAuthenticated: !!seller,
     isLoading,
     login,
     logout,
     updateSeller,
   };
-
-  return (
-    <SellerAuthContext.Provider value={providerValue}>
-      {children}
-    </SellerAuthContext.Provider>
-  );
 }
 
-export function useSellerAuth(): SellerAuthContextType {
-  const context = useContext(SellerAuthContext);
-  if (context === undefined) {
-    throw new Error('useSellerAuth must be used within a SellerAuthProvider');
-  }
-  return context;
-}
-
+// Helper hooks
 export function useIsSeller(): boolean {
   const { seller } = useSellerAuth();
   return seller?.role === 'seller';

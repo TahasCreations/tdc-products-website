@@ -8,9 +8,6 @@ import dynamic from "next/dynamic";
 const Header = dynamic(() => import("../components/Header"), { ssr: false });
 const Footer = dynamic(() => import("../components/Footer"), { ssr: false });
 
-// Import SellerAuthProvider directly since it's a provider component
-import { SellerAuthProvider } from "../hooks/useSellerAuth";
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -62,18 +59,16 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="TDC Market" />
       </head>
       <body className={`${inter.className} transition-colors duration-300`}>
-        <SellerAuthProvider>
-          <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-            <a href="#main-content" className="skip-link">
-              Ana içeriğe geç
-            </a>
-            <Header />
-            <main id="main-content" className="flex-grow">
-              {children}
-            </main>
-            <Footer />
-          </div>
-        </SellerAuthProvider>
+        <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+          <a href="#main-content" className="skip-link">
+            Ana içeriğe geç
+          </a>
+          <Header />
+          <main id="main-content" className="flex-grow">
+            {children}
+          </main>
+          <Footer />
+        </div>
       </body>
     </html>
   );
