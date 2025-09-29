@@ -10,7 +10,7 @@ import {
   EyeIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
-  ArrowUpDownIcon,
+  ArrowsUpDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
