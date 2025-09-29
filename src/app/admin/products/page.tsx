@@ -105,14 +105,23 @@ export default function AdminProductsPage() {
 
   const fetchCategories = async () => {
     try {
+      console.log('🔍 Frontend - fetchCategories called');
       const response = await fetch('/api/categories');
       const data = await response.json();
       
+      console.log('🔍 Frontend - fetchCategories response:', {
+        success: data.success,
+        dataLength: data.data?.length || 0,
+        categories: data.data,
+        timestamp: new Date().toISOString()
+      });
+      
       if (data.success) {
         setCategories(data.data || []);
+        console.log('✅ Frontend - Categories updated in state:', data.data?.length || 0);
       }
     } catch (error) {
-      console.error('Fetch categories error:', error);
+      console.error('❌ Frontend - Fetch categories error:', error);
     }
   };
 
@@ -255,11 +264,19 @@ export default function AdminProductsPage() {
     
     console.log('🔍 Frontend - handleAddCategory called with:', {
       newCategory,
+      activeCategoryTab,
       timestamp: new Date().toISOString()
     });
     
     if (!newCategory.name.trim()) {
       setMessage('Kategori adı gerekli');
+      setMessageType('error');
+      return;
+    }
+
+    // Alt kategori için parent_id kontrolü
+    if (activeCategoryTab === 'sub' && !newCategory.parent_id) {
+      setMessage('Alt kategori için ana kategori seçmelisiniz');
       setMessageType('error');
       return;
     }
@@ -306,12 +323,13 @@ export default function AdminProductsPage() {
         setMessageType('success');
         setNewCategory({
           name: '',
-          color: '#6b7280',
-          icon: 'ri-more-line',
-          emoji: '📦',
+          color: activeCategoryTab === 'sub' ? '#10B981' : '#6b7280',
+          icon: activeCategoryTab === 'sub' ? 'ri-folder-open-line' : 'ri-more-line',
+          emoji: activeCategoryTab === 'sub' ? '📂' : '📦',
           parent_id: null
         });
         setShowCategoryForm(false);
+        console.log('🔄 Frontend - Refreshing categories after successful add');
         fetchCategories();
       } else {
         console.log('❌ Frontend - Category add failed:', data.error);
@@ -561,7 +579,16 @@ export default function AdminProductsPage() {
             {/* Category Tabs */}
             <div className="flex border-b border-gray-200 mb-6">
               <button
-                onClick={() => setActiveCategoryTab('main')}
+                onClick={() => {
+                  setActiveCategoryTab('main');
+                  setNewCategory({
+                    name: '',
+                    color: '#6b7280',
+                    icon: 'ri-more-line',
+                    emoji: '📦',
+                    parent_id: null
+                  });
+                }}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                   activeCategoryTab === 'main'
                     ? 'border-blue-500 text-blue-600'
@@ -572,7 +599,16 @@ export default function AdminProductsPage() {
                 Ana Kategori Oluştur
               </button>
               <button
-                onClick={() => setActiveCategoryTab('sub')}
+                onClick={() => {
+                  setActiveCategoryTab('sub');
+                  setNewCategory({
+                    name: '',
+                    color: '#10B981',
+                    icon: 'ri-folder-open-line',
+                    emoji: '📂',
+                    parent_id: null
+                  });
+                }}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                   activeCategoryTab === 'sub'
                     ? 'border-blue-500 text-blue-600'
@@ -656,8 +692,8 @@ export default function AdminProductsPage() {
                   <div className="flex items-center gap-4">
                     <button
                       type="submit"
-                      disabled={apiLoading}
-                      className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                      disabled={apiLoading || !newCategory.name.trim()}
+                      className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
                     >
                       <i className="ri-add-line"></i>
                       {apiLoading ? 'Ekleniyor...' : 'Ana Kategori Ekle'}
@@ -799,8 +835,8 @@ export default function AdminProductsPage() {
                   <div className="flex items-center gap-4">
                     <button
                       type="submit"
-                      disabled={apiLoading || !newCategory.parent_id}
-                      className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                      disabled={apiLoading || !newCategory.parent_id || !newCategory.name.trim()}
+                      className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
                     >
                       <i className="ri-add-line"></i>
                       {apiLoading ? 'Ekleniyor...' : 'Alt Kategori Ekle'}
