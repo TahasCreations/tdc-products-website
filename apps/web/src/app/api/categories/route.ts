@@ -112,16 +112,7 @@ export async function POST(request: NextRequest) {
         name: body.name,
         slug: slug,
         description: body.description,
-        parentId: body.parentId || null,
-        // imageUrl: body.imageUrl,
-        // icon: body.icon,
-        // emoji: body.emoji,
-        // sortOrder: body.sortOrder || 0,
-        isActive: body.isActive !== false,
-        seoTitle: body.seoTitle,
-        seoDescription: body.seoDescription,
-        seoKeywords: body.seoKeywords || [],
-        metadata: body.metadata || {}
+        parentId: body.parentId || null
       },
       include: {
         parent: true,
