@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useI18n } from '../hooks/useI18n';
-import { useSellerAuth } from '../hooks/useSellerAuth';
+import { useSellerAuth } from '../hooks/useSellerAuth.js';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
