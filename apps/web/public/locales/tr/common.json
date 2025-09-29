@@ -1,0 +1,170 @@
+{
+  "navigation": {
+    "home": "Ana Sayfa",
+    "products": "Ürünler",
+    "about": "Hakkımızda",
+    "contact": "İletişim",
+    "blog": "Blog",
+    "cart": "Sepet",
+    "wishlist": "İstek Listesi",
+    "orders": "Siparişler",
+    "profile": "Profil",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "logout": "Çıkış Yap",
+    "admin": "Admin Panel"
+  },
+  "homepage": {
+    "hero": {
+      "title": "TDC Products - Premium Figür Koleksiyonu",
+      "subtitle": "En kaliteli anime, manga ve oyun figürlerini keşfedin",
+      "cta": "Ürünleri Keşfet"
+    },
+    "features": {
+      "title": "Neden TDC Products?",
+      "quality": {
+        "title": "Premium Kalite",
+        "description": "Sadece en kaliteli ve orijinal figürler"
+      },
+      "shipping": {
+        "title": "Hızlı Kargo",
+        "description": "Türkiye geneli ücretsiz kargo"
+      },
+      "support": {
+        "title": "7/24 Destek",
+        "description": "Her zaman yanınızdayız"
+      }
+    },
+    "campaigns": {
+      "title": "Özel Kampanyalar",
+      "subtitle": "Sınırlı süreli indirimler ve özel teklifler"
+    },
+    "stats": {
+      "customers": "Mutlu Müşteri",
+      "products": "Ürün Çeşidi",
+      "orders": "Tamamlanan Sipariş",
+      "experience": "Yıllık Deneyim"
+    }
+  },
+  "products": {
+    "title": "Ürünler",
+    "filter": "Filtrele",
+    "sort": "Sırala",
+    "price": "Fiyat",
+    "category": "Kategori",
+    "brand": "Marka",
+    "addToCart": "Sepete Ekle",
+    "addToWishlist": "İstek Listesine Ekle",
+    "outOfStock": "Stokta Yok",
+    "inStock": "Stokta Var",
+    "description": "Açıklama",
+    "specifications": "Özellikler",
+    "reviews": "Değerlendirmeler",
+    "relatedProducts": "Benzer Ürünler"
+  },
+  "cart": {
+    "title": "Sepetim",
+    "empty": "Sepetiniz boş",
+    "subtotal": "Ara Toplam",
+    "shipping": "Kargo",
+    "tax": "Vergi",
+    "total": "Toplam",
+    "checkout": "Ödeme Yap",
+    "continueShopping": "Alışverişe Devam Et",
+    "remove": "Kaldır",
+    "update": "Güncelle"
+  },
+  "checkout": {
+    "title": "Ödeme",
+    "billingInfo": "Fatura Bilgileri",
+    "shippingInfo": "Kargo Bilgileri",
+    "paymentMethod": "Ödeme Yöntemi",
+    "orderSummary": "Sipariş Özeti",
+    "placeOrder": "Siparişi Tamamla",
+    "processing": "İşleniyor...",
+    "success": "Sipariş başarıyla oluşturuldu!"
+  },
+  "auth": {
+    "login": {
+      "title": "Giriş Yap",
+      "email": "E-posta",
+      "password": "Şifre",
+      "rememberMe": "Beni Hatırla",
+      "forgotPassword": "Şifremi Unuttum",
+      "noAccount": "Hesabınız yok mu?",
+      "signUp": "Kayıt Ol"
+    },
+    "register": {
+      "title": "Kayıt Ol",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "E-posta",
+      "password": "Şifre",
+      "confirmPassword": "Şifre Tekrar",
+      "agreeTerms": "Kullanım şartlarını kabul ediyorum",
+      "hasAccount": "Zaten hesabınız var mı?",
+      "signIn": "Giriş Yap"
+    }
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Ürünler",
+    "orders": "Siparişler",
+    "users": "Kullanıcılar",
+    "analytics": "Analitik",
+    "settings": "Ayarlar",
+    "logout": "Çıkış Yap"
+  },
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Hata oluştu",
+    "success": "Başarılı",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "view": "Görüntüle",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "sort": "Sırala",
+    "price": "Fiyat",
+    "currency": "TL",
+    "quantity": "Adet",
+    "total": "Toplam",
+    "subtotal": "Ara Toplam",
+    "tax": "Vergi",
+    "shipping": "Kargo",
+    "discount": "İndirim",
+    "free": "Ücretsiz",
+    "yes": "Evet",
+    "no": "Hayır",
+    "confirm": "Onayla",
+    "back": "Geri",
+    "next": "İleri",
+    "previous": "Önceki",
+    "close": "Kapat",
+    "open": "Aç",
+    "show": "Göster",
+    "hide": "Gizle",
+    "more": "Daha Fazla",
+    "less": "Daha Az",
+    "all": "Tümü",
+    "none": "Hiçbiri",
+    "select": "Seç",
+    "selected": "Seçili",
+    "required": "Zorunlu",
+    "optional": "İsteğe Bağlı",
+    "recommended": "Önerilen",
+    "popular": "Popüler",
+    "new": "Yeni",
+    "sale": "İndirim",
+    "featured": "Öne Çıkan",
+    "bestSeller": "En Çok Satan",
+    "comingSoon": "Yakında",
+    "outOfStock": "Stokta Yok",
+    "inStock": "Stokta Var",
+    "lowStock": "Az Stok",
+    "preOrder": "Ön Sipariş",
+    "discontinued": "Üretimden Kaldırıldı"
+  }
+}

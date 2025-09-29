@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Kategori 2",
+    "description": "Test",
+    "emoji": "📁",
+    "color": "#3B82F6",
+    "icon": "ri-folder-line",
+    "parent_id": null,
+    "level": 1,
+    "id": "category-1759144839987-swa35rrnp",
+    "created_at": "2025-09-29T11:20:39.987Z",
+    "updated_at": "2025-09-29T11:20:39.987Z"
+  }
+]

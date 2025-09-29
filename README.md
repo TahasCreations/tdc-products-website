@@ -13,7 +13,8 @@ TDC Market, modüler plug-in mimarisine sahip gelişmiş bir e-ticaret platformu
 - **Plug-in Sistemi**: Modüller runtime'da yüklenebilir ve kaldırılabilir
 - **TypeScript**: Tam tip güvenliği
 - **Next.js 14**: App Router ile modern React framework
-- **Supabase**: PostgreSQL veritabanı ve real-time özellikler
+- **Prisma + PostgreSQL**: Modern ORM ve veritabanı
+- **NextAuth.js**: Google OAuth + Credentials authentication
 - **Tailwind CSS**: Modern ve responsive UI
 - **Monorepo**: pnpm + Turborepo ile hızlı geliştirme
 
@@ -43,8 +44,9 @@ tdc-market/
 ### Gereksinimler
 
 - Node.js >= 18.0.0
-- pnpm >= 8.0.0
-- PostgreSQL veya Supabase hesabı
+- npm veya pnpm
+- PostgreSQL database (local veya Neon)
+- Google OAuth credentials (opsiyonel)
 
 ### Hızlı Başlangıç
 

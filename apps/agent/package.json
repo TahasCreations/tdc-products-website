@@ -1,0 +1,40 @@
+{
+  "name": "@tdc/agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "watch": "tsx src/watcher.ts",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:sync": "vitest run src/test/sync.test.ts"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "compression": "^1.7.4",
+    "chokidar": "^3.6.0",
+    "prisma": "^5.16.2",
+    "@prisma/client": "^5.16.2",
+    "zod": "^3.23.8",
+    "pusher": "^5.2.0",
+    "pusher-js": "^8.4.0-rc2",
+    "node-cron": "^3.0.3",
+    "@upstash/redis": "^1.27.0",
+    "@tdc/sync-protocol": "file:../../packages/sync-protocol"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.12",
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17",
+    "@types/compression": "^1.7.5",
+    "@types/node-cron": "^3.0.11",
+    "typescript": "^5.5.3",
+    "tsx": "^4.7.1",
+    "vitest": "^1.0.0"
+  }
+}

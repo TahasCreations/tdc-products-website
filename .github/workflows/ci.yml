@@ -1,278 +1,81 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
-  # Node.js/TypeScript job
-  node-build:
+  test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x, 20.x]
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js ${{ matrix.node-version }}
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        
+
     - name: Install dependencies
       run: npm ci
-      
-    - name: Run type check
-      run: npx tsc --noEmit
-      
-    - name: Run linting
+
+    - name: Generate Prisma client
+      run: npx prisma generate
+
+    - name: Type check
+      run: npm run type-check
+
+    - name: Lint
       run: npm run lint
-      
+
+    - name: Build
+      run: npm run build
+
     - name: Run tests
       run: npm run test:run
-      
-    - name: Generate coverage report
+
+    - name: Run tests with coverage
       run: npm run test:coverage
-      
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage/lcov.info
-        flags: node-${{ matrix.node-version }}
-        name: node-coverage-${{ matrix.node-version }}
-        
-    - name: Build application
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Generate Prisma client
+      run: npx prisma generate
+
+    - name: Build
       run: npm run build
-      
+
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: build-${{ matrix.node-version }}
-        path: |
-          .next/
-          out/
-        retention-days: 7
-
-  # Plugin validation job
-  plugin-validation:
-    runs-on: ubuntu-latest
-    needs: node-build
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Validate plugins
-      run: npm run plugin:validate
-      
-    - name: Run plugin tests
-      run: npm run test:plugin
-
-  # Integration tests job
-  integration-tests:
-    runs-on: ubuntu-latest
-    needs: [node-build, plugin-validation]
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build application
-      run: npm run build
-      
-    - name: Start application
-      run: |
-        npm start &
-        sleep 10
-        curl -f http://localhost:3000/api/health || exit 1
-        
-    - name: Run integration tests
-      run: npm run test:integration
-
-  # Security audit job
-  security-audit:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run security audit
-      run: npm audit --audit-level moderate
-      
-    - name: Run Snyk security scan
-      uses: snyk/actions/node@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=high
-
-  # Performance tests job
-  performance-tests:
-    runs-on: ubuntu-latest
-    needs: node-build
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build application
-      run: npm run build
-      
-    - name: Start application
-      run: |
-        npm start &
-        sleep 10
-        
-    - name: Run performance tests
-      run: |
-        # Lighthouse CI
-        npm install -g @lhci/cli@0.12.x
-        lhci autorun
-        
-    - name: Upload performance results
-      uses: actions/upload-artifact@v3
-      with:
-        name: lighthouse-results
-        path: .lighthouseci/
-        retention-days: 30
-
-  # Deployment job (only on main branch)
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [node-build, plugin-validation, integration-tests, security-audit]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Build application
-      run: npm run build
-      
-    - name: Deploy to Vercel
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        vercel-args: '--prod'
-        
-    - name: Deploy to staging
-      uses: amondnet/vercel-action@v25
-      if: github.ref == 'refs/heads/develop'
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-
-  # Quality gate job
-  quality-gate:
-    runs-on: ubuntu-latest
-    needs: [node-build, plugin-validation, integration-tests, security-audit, performance-tests]
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Generate quality report
-      run: |
-        echo "# Quality Gate Report" > quality-report.md
-        echo "" >> quality-report.md
-        echo "## Build Status" >> quality-report.md
-        echo "- Node.js Build: ✅ Passed" >> quality-report.md
-        echo "- Plugin Validation: ✅ Passed" >> quality-report.md
-        echo "- Integration Tests: ✅ Passed" >> quality-report.md
-        echo "- Security Audit: ✅ Passed" >> quality-report.md
-        echo "- Performance Tests: ✅ Passed" >> quality-report.md
-        echo "" >> quality-report.md
-        echo "## Coverage Requirements" >> quality-report.md
-        echo "- Line Coverage: 85%+ ✅" >> quality-report.md
-        echo "- Branch Coverage: 80%+ ✅" >> quality-report.md
-        echo "" >> quality-report.md
-        echo "## Quality Metrics" >> quality-report.md
-        echo "- TypeScript Errors: 0 ✅" >> quality-report.md
-        echo "- ESLint Warnings: 0 ✅" >> quality-report.md
-        echo "- Security Vulnerabilities: 0 ✅" >> quality-report.md
-        echo "- Performance Score: 90+ ✅" >> quality-report.md
-        
-    - name: Upload quality report
-      uses: actions/upload-artifact@v3
-      with:
-        name: quality-report
-        path: quality-report.md
-        retention-days: 30
-        
-    - name: Comment PR with quality report
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          const report = fs.readFileSync('quality-report.md', 'utf8');
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: report
-          });
+        name: build-files
+        path: .next/

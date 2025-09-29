@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Ana Kategori",
+    "description": "Ana kategori açıklama",
+    "emoji": "📁",
+    "color": "#3B82F6",
+    "icon": "ri-folder-line",
+    "parent_id": null,
+    "level": 1,
+    "id": "category-1759144839970-qesbz17f5",
+    "created_at": "2025-09-29T11:20:39.970Z",
+    "updated_at": "2025-09-29T11:20:39.970Z"
+  }
+]
