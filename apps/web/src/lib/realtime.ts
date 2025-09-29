@@ -1,19 +1,26 @@
 import Pusher from 'pusher'
-import { TRealtimeEvent } from '@tdc/sync-protocol'
 
 // Initialize Pusher
 const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID!,
-  key: process.env.PUSHER_KEY!,
-  secret: process.env.PUSHER_SECRET!,
+  appId: process.env.PUSHER_APP_ID || 'dummy',
+  key: process.env.PUSHER_KEY || 'dummy',
+  secret: process.env.PUSHER_SECRET || 'dummy',
   cluster: process.env.PUSHER_CLUSTER || 'eu',
   useTLS: true
 })
 
+export interface RealtimeEvent {
+  type: string;
+  entity: string;
+  entityId: string;
+  data?: any;
+  timestamp: string;
+}
+
 /**
  * Publish realtime event
  */
-export async function publish(event: TRealtimeEvent): Promise<void> {
+export async function publish(event: RealtimeEvent): Promise<void> {
   try {
     await pusher.trigger(
       `sync-${event.entity}`,
