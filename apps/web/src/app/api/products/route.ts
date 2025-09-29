@@ -94,12 +94,12 @@ export async function GET(request: NextRequest) {
           //     imageUrl: true
           //   }
           // },
-          _count: {
-            select: {
-              reviews: true,
-              wishlists: true
-            }
-          }
+          // _count: {
+          //   select: {
+          //     reviews: true,
+          //     wishlists: true
+          //   }
+          // }
         },
         orderBy,
         skip: offset,
