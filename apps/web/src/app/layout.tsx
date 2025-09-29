@@ -9,7 +9,7 @@ const Header = dynamic(() => import("../components/Header"), { ssr: false });
 const Footer = dynamic(() => import("../components/Footer"), { ssr: false });
 
 // Import SellerAuthProvider directly since it's a provider component
-import { SellerAuthProvider } from "../hooks/useSellerAuth";
+import { SellerAuthProvider } from "../hooks/useSellerAuth.tsx";
 
 const inter = Inter({ subsets: ["latin"] });
 
