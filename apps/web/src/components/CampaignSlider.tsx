@@ -76,8 +76,6 @@ export default function CampaignSlider() {
   const goToSlide = (index: number) => {
     setCurrentIndex(index);
     setIsAutoPlaying(false);
-    
-    // Resume auto-play after 10 seconds
     setTimeout(() => setIsAutoPlaying(true), 10000);
   };
 
@@ -95,7 +93,6 @@ export default function CampaignSlider() {
 
   return (
     <div className="relative">
-      {/* Main Slider */}
       <div className="relative overflow-hidden rounded-3xl shadow-2xl">
         <div 
           className="flex transition-transform duration-500 ease-in-out"
@@ -104,15 +101,13 @@ export default function CampaignSlider() {
           {campaigns.map((campaign, index) => (
             <div key={campaign.id} className="w-full flex-shrink-0">
               <div className={`relative h-96 bg-gradient-to-br ${campaign.gradient} overflow-hidden`}>
-                {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-20">
-                  <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+                  <div className="absolute top-0 left-0 w-full h-full bg-white/10"></div>
                 </div>
                 
                 <div className="relative h-full flex items-center">
                   <div className="max-w-7xl mx-auto px-8 w-full">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                      {/* Content */}
                       <div className="text-white">
                         <div className="mb-4">
                           <span className="inline-block bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold">
@@ -148,7 +143,6 @@ export default function CampaignSlider() {
                         </Link>
                       </div>
                       
-                      {/* Image */}
                       <div className="relative hidden lg:block">
                         <div className="relative w-full h-80 rounded-2xl overflow-hidden shadow-2xl">
                           <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"></div>
@@ -159,7 +153,6 @@ export default function CampaignSlider() {
                           </div>
                         </div>
                         
-                        {/* Floating Elements */}
                         <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full blur-xl animate-pulse"></div>
                         <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-ping delay-1000"></div>
                       </div>
@@ -171,7 +164,6 @@ export default function CampaignSlider() {
           ))}
         </div>
         
-        {/* Navigation Arrows */}
         <button
           onClick={goToPrevious}
           className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm text-white w-12 h-12 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
@@ -187,7 +179,6 @@ export default function CampaignSlider() {
         </button>
       </div>
       
-      {/* Dots Indicator */}
       <div className="flex justify-center space-x-3 mt-8">
         {campaigns.map((_, index) => (
           <button
