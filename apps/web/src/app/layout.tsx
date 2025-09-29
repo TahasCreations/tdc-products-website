@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 // Dynamic imports to avoid SSR issues
 const Header = dynamic(() => import("../components/Header"), { ssr: false });
 const Footer = dynamic(() => import("../components/Footer"), { ssr: false });
+const { SellerAuthProvider } = dynamic(() => import("../hooks/useSellerAuth"), { ssr: false });
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -59,16 +60,18 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="TDC Market" />
       </head>
       <body className={`${inter.className} transition-colors duration-300`}>
-        <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-          <a href="#main-content" className="skip-link">
-            Ana içeriğe geç
-          </a>
-          <Header />
-          <main id="main-content" className="flex-grow">
-            {children}
-          </main>
-          <Footer />
-        </div>
+        <SellerAuthProvider>
+          <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+            <a href="#main-content" className="skip-link">
+              Ana içeriğe geç
+            </a>
+            <Header />
+            <main id="main-content" className="flex-grow">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </SellerAuthProvider>
       </body>
     </html>
   );

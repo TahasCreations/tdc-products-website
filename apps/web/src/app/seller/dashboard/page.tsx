@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useSellerAuth } from '../../hooks/useSellerAuth';
 import { 
   ChartBarIcon,
   ShoppingCartIcon,
@@ -69,6 +70,7 @@ function SellerDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const status = searchParams.get('status');
+  const { seller, isAuthenticated, logout } = useSellerAuth();
   
   const [stats, setStats] = useState<SellerStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
@@ -78,6 +80,12 @@ function SellerDashboardContent() {
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
+    // Redirect to login if not authenticated
+    if (!isAuthenticated) {
+      router.push('/seller/login');
+      return;
+    }
+
     // Simulate loading data
     setTimeout(() => {
       setStats({
@@ -166,7 +174,7 @@ function SellerDashboardContent() {
 
       setLoading(false);
     }, 1000);
-  }, []);
+  }, [isAuthenticated, router]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('tr-TR', {
@@ -244,8 +252,12 @@ function SellerDashboardContent() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Satıcı Dashboard</h1>
-              <p className="text-gray-600 mt-1">Mağazanızı yönetin ve satışlarınızı takip edin</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {seller?.storeName} Dashboard
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Hoş geldiniz, {seller?.firstName} {seller?.lastName}
+              </p>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/" className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center">

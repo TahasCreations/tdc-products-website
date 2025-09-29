@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useI18n } from '../hooks/useI18n';
+import { useSellerAuth } from '../hooks/useSellerAuth';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,6 +14,7 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { t } = useI18n();
+  const { seller, isAuthenticated: isSellerAuthenticated, logout: sellerLogout } = useSellerAuth();
 
   const router = useRouter();
 
@@ -118,6 +120,33 @@ export default function Header() {
                 </div>
               )}
             </div>
+
+            {/* Seller Panel Link */}
+            {isSellerAuthenticated ? (
+              <div className="hidden md:flex items-center space-x-2">
+                <Link
+                  href="/seller/dashboard"
+                  className="flex items-center space-x-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  <i className="ri-store-line text-sm"></i>
+                  <span>{seller?.storeName}</span>
+                </Link>
+                <button
+                  onClick={sellerLogout}
+                  className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                  Çıkış
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/seller/login"
+                className="hidden md:flex items-center space-x-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <i className="ri-store-line text-sm"></i>
+                <span>Satıcı Girişi</span>
+              </Link>
+            )}
 
             {/* Admin Panel Link */}
             <Link
