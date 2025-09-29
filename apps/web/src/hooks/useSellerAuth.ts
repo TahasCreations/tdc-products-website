@@ -33,7 +33,6 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Load seller session on mount
   useEffect(() => {
     const loadSellerSession = () => {
       try {
@@ -47,7 +46,6 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error('Error loading seller session:', error);
-        // Clear invalid session data
         localStorage.removeItem('seller_user');
         localStorage.removeItem('seller_token');
       } finally {
@@ -71,7 +69,6 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
       const data = await response.json();
 
       if (response.ok) {
-        // Store seller session
         localStorage.setItem('seller_user', JSON.stringify(data.seller));
         localStorage.setItem('seller_token', data.token);
         
@@ -92,7 +89,6 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    // Clear session data
     localStorage.removeItem('seller_user');
     localStorage.removeItem('seller_token');
     localStorage.removeItem('remember_seller');
@@ -100,7 +96,6 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
     setSeller(null);
     setToken(null);
     
-    // Redirect to seller login
     router.push('/seller/login');
   };
 
@@ -137,19 +132,16 @@ export function useSellerAuth(): SellerAuthContextType {
   return context;
 }
 
-// Hook for checking if user is a seller
 export function useIsSeller(): boolean {
   const { seller } = useSellerAuth();
   return seller?.role === 'seller';
 }
 
-// Hook for getting seller store name
 export function useSellerStore(): string | null {
   const { seller } = useSellerAuth();
   return seller?.storeName || null;
 }
 
-// Hook for checking seller status
 export function useSellerStatus(): 'active' | 'pending' | 'suspended' | null {
   const { seller } = useSellerAuth();
   return seller?.status || null;
