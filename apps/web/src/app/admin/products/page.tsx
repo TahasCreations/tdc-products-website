@@ -32,12 +32,11 @@ interface Product {
     id: string;
     name: string;
     slug: string;
-    emoji: string;
   };
-  seller: {
-    id: string;
-    businessName: string;
-  };
+  // seller: {
+  //   id: string;
+  //   businessName: string;
+  // };
   viewCount: number;
   purchaseCount: number;
   averageRating: number;
@@ -97,7 +96,7 @@ export default function AdminProductsPage() {
       if (statusFilter !== 'all') params.append('status', statusFilter);
       if (categoryFilter !== 'all') params.append('category', categoryFilter);
       
-      const response = await fetch(`/api/products?${params}`);
+      const response = await fetch(`/api/products/simple?${params}`);
       const data: ProductsResponse = await response.json();
       
       if (data.success) {
@@ -118,7 +117,7 @@ export default function AdminProductsPage() {
   // Load categories
   const loadCategories = async () => {
     try {
-      const response = await fetch('/api/categories');
+      const response = await fetch('/api/categories/simple');
       const data = await response.json();
       if (data.success) {
         setCategories(data.data);
@@ -409,12 +408,11 @@ export default function AdminProductsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <span className="text-lg mr-2">{product.category.emoji}</span>
                           <span className="text-sm text-gray-900">{product.category.name}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{product.seller.businessName}</div>
+                        <div className="text-sm text-gray-900">Satıcı</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">

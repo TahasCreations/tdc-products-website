@@ -69,14 +69,14 @@ export async function GET(request: NextRequest) {
       prisma.product.findMany({
         where,
         include: {
-          seller: {
-            select: {
-              id: true,
-              businessName: true,
-              averageRating: true,
-              totalReviews: true
-            }
-          },
+          // seller: {
+          //   select: {
+          //     id: true,
+          //     businessName: true,
+          //     averageRating: true,
+          //     totalReviews: true
+          //   }
+          // },
           category: {
             select: {
               id: true,
