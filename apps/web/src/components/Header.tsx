@@ -132,7 +132,7 @@ export default function Header() {
                   className="flex items-center space-x-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   <i className="ri-store-line text-sm"></i>
-                  <span>{seller?.storeName}</span>
+                  <span>Mağaza</span>
                 </Link>
                 <button
                   onClick={sellerLogout}
