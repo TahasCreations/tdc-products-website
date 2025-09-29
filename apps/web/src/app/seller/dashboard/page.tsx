@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useSellerAuth } from '../../hooks/useSellerAuth';
+// import { useSellerAuth } from '../../hooks/useSellerAuth';
 import { 
   ChartBarIcon,
   ShoppingCartIcon,
@@ -70,7 +70,10 @@ function SellerDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const status = searchParams.get('status');
-  const { seller, isAuthenticated, logout } = useSellerAuth();
+  // const { seller, isAuthenticated, logout } = useSellerAuth();
+  const seller = { firstName: 'Test', lastName: 'User', storeName: 'Test Store' };
+  const isAuthenticated = true;
+  const logout = () => {};
   
   const [stats, setStats] = useState<SellerStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);

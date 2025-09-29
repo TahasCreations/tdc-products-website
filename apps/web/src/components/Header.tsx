@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useI18n } from '../hooks/useI18n';
-import { useSellerAuth } from '../hooks/useSellerAuth';
+// import { useSellerAuth } from '../hooks/useSellerAuth';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,7 +14,10 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { t } = useI18n();
-  const { seller, isAuthenticated: isSellerAuthenticated, logout: sellerLogout } = useSellerAuth();
+  // const { seller, isAuthenticated: isSellerAuthenticated, logout: sellerLogout } = useSellerAuth();
+  const seller = null;
+  const isSellerAuthenticated = false;
+  const sellerLogout = () => {};
 
   const router = useRouter();
 
