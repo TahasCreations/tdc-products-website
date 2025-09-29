@@ -128,13 +128,8 @@ export const cacheHelpers = {
 
   // Clear related caches when data changes
   invalidateProducts: () => {
-    const keysToDelete: string[] = [];
-    cache.cache.forEach((_, key) => {
-      if (key.startsWith(CACHE_KEYS.PRODUCTS)) {
-        keysToDelete.push(key);
-      }
-    });
-    keysToDelete.forEach(key => cache.delete(key));
+    // Simple implementation - clear all cache for now
+    cache.clear();
   },
 
   invalidateCategories: () => {
