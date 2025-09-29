@@ -50,13 +50,13 @@ class CacheManager {
     let active = 0;
     let expired = 0;
 
-    for (const [key, item] of this.cache.entries()) {
+    this.cache.forEach((item) => {
       if (now - item.timestamp > item.ttl) {
         expired++;
       } else {
         active++;
       }
-    }
+    });
 
     return {
       total: this.cache.size,
@@ -77,11 +77,15 @@ class CacheManager {
   // Clean expired items
   cleanup(): void {
     const now = Date.now();
-    for (const [key, item] of this.cache.entries()) {
+    const keysToDelete: string[] = [];
+    
+    this.cache.forEach((item, key) => {
       if (now - item.timestamp > item.ttl) {
-        this.cache.delete(key);
+        keysToDelete.push(key);
       }
-    }
+    });
+    
+    keysToDelete.forEach(key => this.cache.delete(key));
   }
 }
 
@@ -124,11 +128,13 @@ export const cacheHelpers = {
 
   // Clear related caches when data changes
   invalidateProducts: () => {
-    for (const [key] of cache.cache.entries()) {
+    const keysToDelete: string[] = [];
+    cache.cache.forEach((_, key) => {
       if (key.startsWith(CACHE_KEYS.PRODUCTS)) {
-        cache.delete(key);
+        keysToDelete.push(key);
       }
-    }
+    });
+    keysToDelete.forEach(key => cache.delete(key));
   },
 
   invalidateCategories: () => {
