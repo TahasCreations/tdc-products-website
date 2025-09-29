@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useSellerAuth } from '../../hooks/useSellerAuth.js';
+import { useSellerAuth } from '../../hooks/useSellerAuth';
 import { 
   ChartBarIcon,
   ShoppingCartIcon,
