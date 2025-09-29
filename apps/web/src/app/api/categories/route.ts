@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
         parentId: body.parentId || null,
         // imageUrl: body.imageUrl,
         // icon: body.icon,
-        emoji: body.emoji,
+        // emoji: body.emoji,
         // sortOrder: body.sortOrder || 0,
         isActive: body.isActive !== false,
         seoTitle: body.seoTitle,
