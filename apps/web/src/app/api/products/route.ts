@@ -84,16 +84,16 @@ export async function GET(request: NextRequest) {
               slug: true
             }
           },
-          variants: {
-            where: { isActive: true },
-            select: {
-              id: true,
-              name: true,
-              price: true,
-              stockQuantity: true,
-              imageUrl: true
-            }
-          },
+          // variants: {
+          //   where: { isActive: true },
+          //   select: {
+          //     id: true,
+          //     name: true,
+          //     price: true,
+          //     stockQuantity: true,
+          //     imageUrl: true
+          //   }
+          // },
           _count: {
             select: {
               reviews: true,
