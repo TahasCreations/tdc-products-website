@@ -360,7 +360,7 @@ export type TranslationKeys = typeof translations.tr;
 // Get translation function
 export function getTranslation(lang: SupportedLanguage, key: string): string {
   const keys = key.split('.');
-  let value: any = translations[lang];
+  let value: any = (translations as any)[lang];
   
   for (const k of keys) {
     if (value && typeof value === 'object' && k in value) {
