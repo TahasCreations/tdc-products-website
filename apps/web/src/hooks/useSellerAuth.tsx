@@ -137,37 +137,6 @@ export function useSellerAuth(): SellerAuthContextType {
   return context;
 }
 
-// Higher-order component for protecting seller routes
-export function withSellerAuth<T extends object>(WrappedComponent: React.ComponentType<T>) {
-  return function SellerAuthWrapper(props: T) {
-    const { isAuthenticated, isLoading } = useSellerAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-      if (!isLoading && !isAuthenticated) {
-        router.push('/seller/login');
-      }
-    }, [isAuthenticated, isLoading, router]);
-
-    if (isLoading) {
-      return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Yükleniyor...</p>
-          </div>
-        </div>
-      );
-    }
-
-    if (!isAuthenticated) {
-      return null;
-    }
-
-    return <WrappedComponent {...props} />;
-  };
-}
-
 // Hook for checking if user is a seller
 export function useIsSeller(): boolean {
   const { seller } = useSellerAuth();
