@@ -107,7 +107,7 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const contextValue: SellerAuthContextType = {
+  const providerValue: SellerAuthContextType = {
     seller,
     token,
     isAuthenticated: !!seller && !!token,
@@ -118,7 +118,7 @@ export function SellerAuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <SellerAuthContext.Provider value={contextValue}>
+    <SellerAuthContext.Provider value={providerValue}>
       {children}
     </SellerAuthContext.Provider>
   );
