@@ -6,6 +6,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { EventEmitter } from 'events';
 
 interface Product {
   id: string;
@@ -65,7 +66,7 @@ interface EcommerceData {
   lastUpdated: string;
 }
 
-class FileStorageManager {
+class FileStorageManager extends EventEmitter {
   private readonly DATA_DIR = path.join(process.cwd(), 'data');
   private readonly PRODUCTS_FILE = path.join(this.DATA_DIR, 'products.json');
   private readonly CATEGORIES_FILE = path.join(this.DATA_DIR, 'categories.json');
@@ -73,6 +74,7 @@ class FileStorageManager {
   private readonly BACKUP_DIR = path.join(this.DATA_DIR, 'backups');
 
   constructor() {
+    super();
     this.initializeStorage();
   }
 
