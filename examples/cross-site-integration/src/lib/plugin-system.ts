@@ -1,4 +1,4 @@
-import { enhancedPluginRegistry } from '../../src/lib/plugin-system/registry-enhanced';
+import { enhancedPluginRegistry } from '../../../src/lib/plugin-system/registry-enhanced';
 
 // Mock servisler - gerçek uygulamada bunlar farklı kaynaklardan gelecek
 function createStorageService() {

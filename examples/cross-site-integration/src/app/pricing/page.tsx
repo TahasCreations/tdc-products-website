@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { enhancedPluginRegistry } from '@/lib/plugin-system';
+import { enhancedPluginRegistry } from '../../src/lib/plugin-system/registry-enhanced';
 
 interface PriceCalculation {
   basePrice: number;

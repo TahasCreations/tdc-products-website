@@ -384,8 +384,8 @@ export class EnhancedPluginRegistry {
       }
 
       // Try to load from plugin file
-      const module = await import(filePath);
-      const plugin = module.default || module.plugin;
+      const pluginModule = await import(filePath);
+      const plugin = pluginModule.default || pluginModule.plugin;
       
       if (plugin && plugin.meta) {
         return {

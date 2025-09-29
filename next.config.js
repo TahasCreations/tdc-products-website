@@ -64,6 +64,7 @@ const nextConfig = {
     scrollRestoration: true,
   },
   
+  
   // Security headers
   async headers() {
     return [

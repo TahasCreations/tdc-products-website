@@ -42,6 +42,7 @@
     "**/*.spec.tsx",
     "src/test/**/*",
     "scripts/validate-plugins.ts",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "examples/**/*"
   ]
 }
