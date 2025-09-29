@@ -2,14 +2,17 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useI18n } from '../hooks/useI18n';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const { t } = useI18n();
 
   const router = useRouter();
 
@@ -39,22 +42,22 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="/products" className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Ürünler
+              {t('nav.products')}
             </Link>
             <Link href="/campaigns" className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Kampanyalar
+              {t('nav.campaigns')}
             </Link>
             <Link href="/about" className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Hakkımızda
+              {t('nav.about')}
             </Link>
             <Link href="/blog" className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              Blog
+              {t('nav.blog')}
             </Link>
             <Link href="/contact" className="text-sm text-gray-700 hover:text-blue-600 transition-colors font-medium">
-              İletişim
+              {t('nav.contact')}
             </Link>
             <Link href="/become-seller" className="text-sm text-gray-700 hover:text-green-600 transition-colors font-medium bg-green-50 px-3 py-1.5 rounded-lg">
-              Satıcı Ol
+              {t('nav.becomeSeller')}
             </Link>
             <Link href="/tdc-bist" className="bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold px-6 py-3 rounded-full transition-all duration-300 hover:scale-105 hover:shadow-lg">
               TDC BİST
@@ -63,6 +66,9 @@ export default function Header() {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
+            {/* Language Switcher */}
+            <LanguageSwitcher size="sm" showLabel={false} />
+            
             {/* Search Button */}
             <button 
               className="w-6 h-6 flex items-center justify-center hover:scale-110 transition-transform duration-300"
@@ -119,7 +125,7 @@ export default function Header() {
               className="hidden md:flex items-center space-x-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <i className="ri-admin-line text-sm"></i>
-              <span>Admin</span>
+              <span>{t('nav.admin')}</span>
             </Link>
 
             {/* Login Button */}
@@ -128,7 +134,7 @@ export default function Header() {
               className="hidden md:flex items-center space-x-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <i className="ri-login-box-line text-sm"></i>
-              <span>Giriş Yap</span>
+              <span>{t('nav.login')}</span>
             </Link>
 
             {/* Mobile Menu Button */}
