@@ -1,0 +1,1 @@
+"use strict";exports.id=550,exports.ids=[550],exports.modules={7550:(t,e,s)=>{s.r(e),s.d(e,{default:()=>r});let r=(0,s(3189).createProxy)(String.raw`C:\Users\taha\tdc-products-website\apps\web\src\components\Footer.tsx#default`)}};

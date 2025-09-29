@@ -1,6 +1,8 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import ProductManagement from '@/components/admin/ProductManagement'
 
 export default async function AdminProductsPage() {
   const session = await auth()
@@ -9,34 +11,53 @@ export default async function AdminProductsPage() {
     redirect('/login')
   }
 
-  return (
-    <div className="p-6">
-      <div className="mb-6">
-              <h1 className="text-2xl font-bold text-gray-900">Ürün Yönetimi</h1>
-        <p className="text-gray-600">Ürünlerinizi yönetin</p>
-            </div>
+  const supabase = createClient()
+  
+  // Fetch products and categories
+  const [productsResult, categoriesResult] = await Promise.all([
+    supabase.from('products').select('*').order('created_at', { ascending: false }),
+    supabase.from('categories').select('*').order('name')
+  ])
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="text-center py-12">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-gray-100">
-            <svg className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-          </div>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Ürün Yönetimi</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Ürün yönetimi modülü geliştirme aşamasında.
-          </p>
-          <div className="mt-6">
-            <Link
-              href="/admin/categories"
-              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-            >
-              Kategori Yönetimine Git
-            </Link>
+  const products = productsResult.data || []
+  const categories = categoriesResult.data || []
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <div className="flex items-center space-x-4">
+              <Link 
+                href="/admin"
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Ürün Yönetimi</h1>
+                <p className="text-sm text-gray-600">Ürünlerinizi yönetin ve düzenleyin</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-700">
+                Toplam {products.length} ürün
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <ProductManagement 
+          initialProducts={products} 
+          categories={categories}
+        />
+      </main>
     </div>
   )
 }

@@ -100,7 +100,7 @@ export declare const Category: z.ZodObject<{
     parentId?: string | undefined;
 }>;
 export type TCategory = z.infer<typeof Category>;
-export declare const Change: z.ZodObject<{
+declare const ChangeSchema: z.ZodObject<{
     entity: z.ZodEnum<["product", "category"]>;
     op: z.ZodEnum<["upsert", "delete"]>;
     data: z.ZodUnion<[z.ZodObject<{
@@ -235,8 +235,8 @@ export declare const Change: z.ZodObject<{
         parentId?: string | undefined;
     };
 }>;
-export type TChange = z.infer<typeof Change>;
-export declare const ChangeBatch: z.ZodObject<{
+export type TChange = z.infer<typeof ChangeSchema>;
+declare const ChangeBatchSchema: z.ZodObject<{
     clientRev: z.ZodNumber;
     changes: z.ZodArray<z.ZodObject<{
         entity: z.ZodEnum<["product", "category"]>;
@@ -439,8 +439,8 @@ export declare const ChangeBatch: z.ZodObject<{
     }[];
     clientId?: string | undefined;
 }>;
-export type TChangeBatch = z.infer<typeof ChangeBatch>;
-export declare const SyncPullResponse: z.ZodObject<{
+export type TChangeBatch = z.infer<typeof ChangeBatchSchema>;
+declare const SyncPullResponseSchema: z.ZodObject<{
     sinceRev: z.ZodNumber;
     latestRev: z.ZodNumber;
     changes: z.ZodArray<z.ZodObject<{
@@ -646,8 +646,8 @@ export declare const SyncPullResponse: z.ZodObject<{
     latestRev: number;
     hasMore?: boolean | undefined;
 }>;
-export type TSyncPullResponse = z.infer<typeof SyncPullResponse>;
-export declare const SyncPushResponse: z.ZodObject<{
+export type TSyncPullResponse = z.infer<typeof SyncPullResponseSchema>;
+declare const SyncPushResponseSchema: z.ZodObject<{
     success: z.ZodBoolean;
     conflicts: z.ZodOptional<z.ZodArray<z.ZodObject<{
         entity: z.ZodString;
@@ -693,7 +693,7 @@ export declare const SyncPushResponse: z.ZodObject<{
         decided: "current" | "incoming";
     }[] | undefined;
 }>;
-export type TSyncPushResponse = z.infer<typeof SyncPushResponse>;
+export type TSyncPushResponse = z.infer<typeof SyncPushResponseSchema>;
 export declare const RevisionLog: z.ZodObject<{
     id: z.ZodString;
     entity: z.ZodString;
@@ -749,3 +749,11 @@ export type TRealtimeEvent = z.infer<typeof RealtimeEvent>;
 export * from './hash';
 export * from './http';
 export * from './conflict';
+export { ChangeBatchSchema as ChangeBatch };
+export { ChangeSchema as Change };
+export { SyncPullResponseSchema as SyncPullResponse };
+export { SyncPushResponseSchema as SyncPushResponse };
+export type { TSyncPushResponse as SyncPushResponseType };
+export type { TSyncPullResponse as SyncPullResponseType };
+export type { TChangeBatch as ChangeBatchType };
+export type { TChange as ChangeType };

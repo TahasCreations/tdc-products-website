@@ -1,0 +1,1 @@
+"use strict";exports.id=517,exports.ids=[517],exports.modules={6517:(e,t,s)=>{s.r(t),s.d(t,{default:()=>r});let r=(0,s(3189).createProxy)(String.raw`C:\Users\taha\tdc-products-website\apps\web\src\components\Header.tsx#default`)}};

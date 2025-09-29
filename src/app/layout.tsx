@@ -21,6 +21,7 @@ const GoogleAnalytics = dynamic(() => import("../components/analytics/GoogleAnal
 const HeatmapTracker = dynamic(() => import("../components/analytics/HeatmapTracker"), { ssr: false });
 
 import { ToastProvider } from "../components/Toast";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -105,6 +106,24 @@ export default function RootLayout({
                             />
                             <HeatmapTracker 
                               enabled={process.env.NODE_ENV === 'production'} 
+                            />
+                            
+                            {/* Toast Notifications */}
+                            <Toaster 
+                              position="top-right"
+                              toastOptions={{
+                                duration: 4000,
+                                style: {
+                                  background: '#363636',
+                                  color: '#fff',
+                                },
+                                success: {
+                                  duration: 3000,
+                                },
+                                error: {
+                                  duration: 5000,
+                                },
+                              }}
                             />
                           </div>
                         </OrderProvider>

@@ -39,6 +39,8 @@
     "setup": "npm install && npm run build:sync && npm run prisma:generate"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "react-hot-toast": "^2.6.0",
     "turbo": "^1.12.4"
   },
   "devDependencies": {

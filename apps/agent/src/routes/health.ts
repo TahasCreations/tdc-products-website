@@ -1,9 +1,9 @@
-import { Router } from 'express'
+import { Router, Request, Response } from 'express'
 import { logger } from '../lib/logger'
 
 const router = Router()
 
-router.get('/', (req, res) => {
+router.get('/', (req: Request, res: Response) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
   })
 })
 
-router.get('/detailed', async (req, res) => {
+router.get('/detailed', async (req: Request, res: Response) => {
   try {
     // Check database connection
     // TODO: Add actual database health check

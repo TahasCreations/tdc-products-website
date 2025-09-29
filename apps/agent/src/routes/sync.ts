@@ -1,9 +1,9 @@
-import { Router } from 'express'
+import { Router, Request, Response } from 'express'
 import { 
   ChangeBatch, 
-  SyncPushResponse, 
-  SyncPullResponse,
-  TChange,
+  SyncPushResponseType, 
+  SyncPullResponseType,
+  ChangeType,
   signedFetch,
   retryFetch
 } from '@tdc/sync-protocol'
@@ -14,7 +14,7 @@ import { logger } from '../lib/logger'
 const router = Router()
 
 // POST /sync/push - Receive changes from cloud
-router.post('/push', async (req, res) => {
+router.post('/push', async (req: Request, res: Response) => {
   try {
     const body = await ChangeBatch.parseAsync(req.body)
     
@@ -26,7 +26,7 @@ router.post('/push', async (req, res) => {
 
     const result = await processCloudChanges(body)
     
-    const response: SyncPushResponse = {
+    const response: SyncPushResponseType = {
       success: true,
       conflicts: result.conflicts,
       appliedCount: result.appliedCount,
@@ -49,7 +49,7 @@ router.post('/push', async (req, res) => {
 })
 
 // GET /sync/pull - Send local changes to cloud
-router.get('/pull', async (req, res) => {
+router.get('/pull', async (req: Request, res: Response) => {
   try {
     const sinceRev = parseInt(req.query.sinceRev as string) || 0
     const limit = parseInt(req.query.limit as string) || 100
@@ -58,7 +58,7 @@ router.get('/pull', async (req, res) => {
 
     const result = await getLocalChanges(sinceRev, limit)
     
-    const response: SyncPullResponse = {
+    const response: SyncPullResponseType = {
       sinceRev,
       latestRev: result.latestRev,
       changes: result.changes,
@@ -80,7 +80,7 @@ router.get('/pull', async (req, res) => {
 })
 
 // POST /sync/initiate - Initiate sync with cloud
-router.post('/initiate', async (req, res) => {
+router.post('/initiate', async (req: Request, res: Response) => {
   try {
     const cloudBaseUrl = process.env.CLOUD_SYNC_BASE
     const syncToken = process.env.SYNC_TOKEN

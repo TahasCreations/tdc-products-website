@@ -1,0 +1,44 @@
+
+> @tdc/web@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.33
+  - Experiments (use with caution):
+    · scrollRestoration
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+ ⨯ ESLint must be installed in order to run during builds: npm install --save-dev eslint
+   Collecting page data ...
+   Generating static pages (0/16) ...
+   Generating static pages (4/16) 
+   Generating static pages (8/16) 
+   Generating static pages (12/16) 
+ ✓ Generating static pages (16/16)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                             Size     First Load JS
+┌ ○ /                                   5.09 kB         187 kB
+├ ○ /_not-found                         134 B           181 kB
+├ ○ /admin                              3.49 kB         185 kB
+├ ○ /admin/products                     3.27 kB         184 kB
+├ ƒ /api/auth/seller/login              0 B                0 B
+├ ƒ /api/categories/simple              0 B                0 B
+├ ƒ /api/products/simple                0 B                0 B
+├ ƒ /api/sellers/register               0 B                0 B
+├ ○ /become-seller                      3.5 kB          185 kB
+├ ○ /robots.txt                         0 B                0 B
+├ ○ /seller/dashboard                   3.64 kB         185 kB
+├ ○ /seller/login                       2.47 kB         184 kB
+└ ○ /sitemap.xml                        0 B                0 B
++ First Load JS shared by all           201 kB
+  ├ chunks/vendors-5093cf64db4768ef.js  179 kB
+  ├ css/ba338a7c19303bb4.css            19.3 kB
+  └ other shared chunks (total)         1.89 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

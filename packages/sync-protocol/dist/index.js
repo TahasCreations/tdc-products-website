@@ -25,26 +25,26 @@ export const Category = EntityBase.extend({
     parentId: z.string().optional()
 });
 // Change operation schema
-export const Change = z.object({
+const ChangeSchema = z.object({
     entity: z.enum(['product', 'category']),
     op: z.enum(['upsert', 'delete']),
     data: z.union([Product, Category])
 });
 // Change batch schema
-export const ChangeBatch = z.object({
+const ChangeBatchSchema = z.object({
     clientRev: z.number().int().nonnegative(),
-    changes: z.array(Change).min(1),
+    changes: z.array(ChangeSchema).min(1),
     clientId: z.string().optional()
 });
 // Sync pull response
-export const SyncPullResponse = z.object({
+const SyncPullResponseSchema = z.object({
     sinceRev: z.number().int().nonnegative(),
     latestRev: z.number().int().nonnegative(),
-    changes: z.array(Change),
+    changes: z.array(ChangeSchema),
     hasMore: z.boolean().default(false)
 });
 // Sync push response
-export const SyncPushResponse = z.object({
+const SyncPushResponseSchema = z.object({
     success: z.boolean(),
     conflicts: z.array(z.object({
         entity: z.string(),
@@ -80,3 +80,8 @@ export const RealtimeEvent = z.object({
 export * from './hash';
 export * from './http';
 export * from './conflict';
+// Export schemas for runtime validation
+export { ChangeBatchSchema as ChangeBatch };
+export { ChangeSchema as Change };
+export { SyncPullResponseSchema as SyncPullResponse };
+export { SyncPushResponseSchema as SyncPushResponse };

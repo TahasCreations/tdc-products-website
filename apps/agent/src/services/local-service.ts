@@ -1,13 +1,13 @@
-import { SyncPullResponse, TChange, TProduct, TCategory } from '@tdc/sync-protocol'
+import { SyncPullResponseType, ChangeType, TProduct, TCategory } from '@tdc/sync-protocol'
 import { LocalFileManager } from './file-manager'
 import { logger } from '../lib/logger'
 
 /**
  * Get local changes to send to cloud
  */
-export async function getLocalChanges(sinceRev: number, limit: number): Promise<SyncPullResponse> {
+export async function getLocalChanges(sinceRev: number, limit: number): Promise<SyncPullResponseType> {
   const fileManager = new LocalFileManager()
-  const changes: TChange[] = []
+  const changes: ChangeType[] = []
 
   logger.info('Fetching local changes', { sinceRev, limit })
 

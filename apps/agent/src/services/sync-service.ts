@@ -1,6 +1,6 @@
 import { 
-  ChangeBatch, 
-  TChange, 
+  ChangeBatchType, 
+  ChangeType, 
   TProduct, 
   TCategory,
   generateChecksum,
@@ -19,7 +19,7 @@ export interface SyncResult {
 /**
  * Process changes received from cloud
  */
-export async function processCloudChanges(batch: ChangeBatch): Promise<SyncResult> {
+export async function processCloudChanges(batch: ChangeBatchType): Promise<SyncResult> {
   const fileManager = new LocalFileManager()
   const conflicts: any[] = []
   let appliedCount = 0
@@ -72,7 +72,7 @@ export async function processCloudChanges(batch: ChangeBatch): Promise<SyncResul
 
 async function processChange(
   fileManager: LocalFileManager,
-  change: TChange,
+  change: ChangeType,
   clientRev: number
 ): Promise<{ success: boolean; rev?: number; conflict?: any }> {
   const { entity, op, data } = change
