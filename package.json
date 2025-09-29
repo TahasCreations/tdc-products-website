@@ -31,7 +31,18 @@
     "docker:logs": "docker-compose logs -f",
     "docker:restart": "docker-compose restart",
     "docker:deploy": "chmod +x scripts/docker-deploy.sh && ./scripts/docker-deploy.sh",
-    "production": "NODE_ENV=production npm run build && npm start"
+    "production": "NODE_ENV=production npm run build && npm start",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch",
+    "test:ui": "vitest --ui",
+    "test:plugin": "vitest run src/lib/plugin-system",
+    "test:ecommerce": "vitest run src/plugins/ecommerce",
+    "test:integration": "vitest run src/test/integration",
+    "test:all": "npm run test:run && npm run test:coverage",
+    "plugin:validate": "tsx scripts/validate-plugins.ts",
+    "plugin:test": "npm run test:plugin && npm run plugin:validate"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
@@ -74,7 +85,12 @@
     "tailwindcss": "^3.4.0",
     "tsx": "^4.7.0",
     "turbo": "^1.12.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^1.0.0",
+    "@vitest/ui": "^1.0.0",
+    "jsdom": "^23.0.0",
+    "vitest": "^1.0.0"
   },
   "engines": {
     "node": ">=18.0.0",

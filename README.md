@@ -2,6 +2,11 @@
 
 TDC Market, modüler plug-in mimarisine sahip gelişmiş bir e-ticaret platformudur. Her modül bağımsız olarak geliştirilebilir, test edilebilir ve başka projelere entegre edilebilir.
 
+[![Build Status](https://github.com/tdc/market/workflows/CI/badge.svg)](https://github.com/tdc/market/actions)
+[![Coverage](https://codecov.io/gh/tdc/market/branch/main/graph/badge.svg)](https://codecov.io/gh/tdc/market)
+[![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## 🚀 Özellikler
 
 - **Modüler Mimari**: Her özellik bağımsız modül olarak geliştirilebilir
@@ -185,12 +190,44 @@ export const activeModules = [
 
 Detaylı rehber için [Modüler Mimari Dokümantasyonu](docs/modular-architecture.md) dosyasını inceleyin.
 
+## 🔌 Plugin Mimarisi
+
+TDC Market, güçlü bir plugin mimarisi ile donatılmıştır:
+
+### Core Plugin System
+- **Plugin Interface**: Standart plugin arayüzü
+- **Plugin Registry**: Plugin keşfi ve yönetimi
+- **Configuration Management**: Zod şemaları ile tip güvenli konfigürasyon
+- **Dependency Resolution**: Otomatik bağımlılık çözümleme
+- **Hot Reload**: Geliştirme sırasında canlı yeniden yükleme
+
+### Mevcut Plugin'ler
+- **E-commerce Plugin**: Ürün yönetimi, kategori sistemi, sipariş takibi
+- **Pricing Plugin**: Dinamik fiyat hesaplama, vergi hesaplamaları
+- **Logger Plugin**: Merkezi log yönetimi ve hata takibi
+
+### Plugin Geliştirme
+```typescript
+import { Plugin } from '@tdc/plugin-system';
+
+const myPlugin: Plugin = {
+  meta: { name: 'my-plugin', version: '1.0.0' },
+  validateConfig: (config) => ({ valid: true }),
+  init: async (context, config) => { /* ... */ },
+  getPublicAPI: () => ({ /* ... */ })
+};
+```
+
+Detaylı bilgi için [Plugin Kılavuzu](docs/PLUGIN_GUIDE.md) ve [Plugin Kataloğu](docs/PLUGIN_CATALOG.md) dosyalarını inceleyin.
+
 ## 📚 Dokümantasyon
 
-- [Modüler Mimari Rehberi](docs/modular-architecture.md)
-- [API Dokümantasyonu](docs/api.md)
-- [UI Bileşenleri](docs/ui-components.md)
-- [Veritabanı Şeması](docs/database-schema.md)
+- [Plugin Kılavuzu](docs/PLUGIN_GUIDE.md) - Plugin geliştirme rehberi
+- [Plugin Kataloğu](docs/PLUGIN_CATALOG.md) - Mevcut plugin'ler
+- [Cross-Site Integration](examples/cross-site-integration/) - Entegrasyon örnekleri
+- [API Referansı](docs/API_REFERENCE.md) - Plugin API dokümantasyonu
+- [Migration Notes](docs/MIGRATION_NOTES.md) - Geçiş notları
+- [QA Report](docs/QA_REPORT.md) - Kalite raporu
 
 ## 🤝 Katkıda Bulunma
 

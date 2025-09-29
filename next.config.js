@@ -37,6 +37,7 @@ const nextConfig = {
   
   // Bundle optimization
   webpack: (config, { dev, isServer }) => {
+
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',

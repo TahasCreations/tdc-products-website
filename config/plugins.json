@@ -1,0 +1,262 @@
+{
+  "ecommerce": {
+    "enabled": true,
+    "priority": 60,
+    "settings": {
+      "currency": "TRY",
+      "taxRate": 0.18,
+      "allowGuestCheckout": true,
+      "requireEmailVerification": false,
+      "maxCartItems": 100,
+      "enableInventoryTracking": true,
+      "lowStockThreshold": 10,
+      "enableProductVariants": true,
+      "enableReviews": true,
+      "enableWishlist": true
+    },
+    "features": {
+      "advancedInventory": true,
+      "bulkOperations": true,
+      "categoryManagement": true,
+      "orderTracking": true,
+      "analytics": true
+    },
+    "integrations": {
+      "payment": {
+        "stripe": false,
+        "paypal": false,
+        "iyzico": true
+      },
+      "shipping": {
+        "aras": true,
+        "ups": false,
+        "fedex": false
+      }
+    }
+  },
+  "logger": {
+    "enabled": true,
+    "priority": 10,
+    "settings": {
+      "level": "info",
+      "format": "text",
+      "timestamp": true,
+      "colorize": true,
+      "maxFiles": 5
+    },
+    "features": {
+      "fileLogging": false,
+      "remoteLogging": false,
+      "performanceLogging": true
+    },
+    "integrations": {
+      "sentry": {
+        "enabled": false
+      },
+      "datadog": {
+        "enabled": false
+      }
+    }
+  },
+  "analytics": {
+    "enabled": true,
+    "priority": 70,
+    "settings": {
+      "trackingEnabled": true,
+      "dataRetentionDays": 365,
+      "realTimeUpdates": true,
+      "exportFormats": ["csv", "excel", "pdf"]
+    },
+    "features": {
+      "heatmapTracking": true,
+      "abTesting": true,
+      "predictiveAnalytics": false,
+      "customReports": true
+    },
+    "integrations": {
+      "googleAnalytics": {
+        "enabled": false
+      },
+      "mixpanel": {
+        "enabled": false
+      }
+    }
+  },
+  "security": {
+    "enabled": true,
+    "priority": 20,
+    "settings": {
+      "multiFactorAuth": false,
+      "roleBasedAccess": true,
+      "securityMonitoring": true,
+      "sessionTimeout": 3600
+    },
+    "features": {
+      "threatDetection": true,
+      "accessLogging": true,
+      "passwordPolicy": true,
+      "ipWhitelisting": false
+    },
+    "integrations": {
+      "auth0": {
+        "enabled": false
+      },
+      "okta": {
+        "enabled": false
+      }
+    }
+  },
+  "payment-system": {
+    "enabled": true,
+    "priority": 50,
+    "settings": {
+      "currency": "TRY",
+      "testMode": true
+    },
+    "features": {
+      "stripe": false,
+      "paypal": false,
+      "iyzico": true
+    },
+    "integrations": {
+      "stripe": {
+        "enabled": false,
+        "publicKey": "",
+        "secretKey": ""
+      },
+      "paypal": {
+        "enabled": false,
+        "clientId": "",
+        "clientSecret": ""
+      },
+      "iyzico": {
+        "enabled": true,
+        "apiKey": "",
+        "secretKey": ""
+      }
+    }
+  },
+  "ai-system": {
+    "enabled": false,
+    "priority": 80,
+    "settings": {
+      "chatbotEnabled": true,
+      "recommendationsEnabled": true,
+      "priceOptimizationEnabled": false,
+      "languageModel": "gpt-3.5"
+    },
+    "features": {
+      "naturalLanguageProcessing": true,
+      "sentimentAnalysis": false,
+      "imageRecognition": false,
+      "predictiveModeling": false
+    },
+    "integrations": {
+      "openai": {
+        "enabled": false,
+        "apiKey": "",
+        "model": "gpt-3.5-turbo"
+      },
+      "anthropic": {
+        "enabled": false,
+        "apiKey": "",
+        "model": "claude-3-sonnet"
+      }
+    }
+  },
+  "marketing": {
+    "enabled": true,
+    "priority": 40,
+    "settings": {
+      "emailMarketing": true,
+      "socialMedia": true,
+      "campaigns": true,
+      "coupons": true
+    },
+    "features": {
+      "automatedCampaigns": false,
+      "segmentation": true,
+      "abTesting": false,
+      "analytics": true
+    },
+    "integrations": {
+      "mailchimp": {
+        "enabled": false,
+        "apiKey": "",
+        "listId": ""
+      },
+      "sendgrid": {
+        "enabled": false,
+        "apiKey": ""
+      }
+    }
+  },
+  "hr-system": {
+    "enabled": false,
+    "priority": 30,
+    "settings": {
+      "employeeTracking": true,
+      "payroll": true,
+      "attendance": true,
+      "performance": false
+    },
+    "features": {
+      "timeTracking": true,
+      "leaveManagement": true,
+      "performanceReviews": false,
+      "training": false
+    },
+    "integrations": {
+      "adp": {
+        "enabled": false,
+        "clientId": "",
+        "clientSecret": ""
+      }
+    }
+  },
+  "inventory": {
+    "enabled": true,
+    "priority": 45,
+    "settings": {
+      "stockTracking": true,
+      "lowStockAlerts": true,
+      "warehouses": 1,
+      "barcodeSupport": false
+    },
+    "features": {
+      "automatedReordering": false,
+      "batchTracking": false,
+      "serialNumberTracking": false,
+      "recommendations": true
+    },
+    "integrations": {
+      "barcodeScanner": {
+        "enabled": false
+      }
+    }
+  },
+  "multi-currency": {
+    "enabled": true,
+    "priority": 25,
+    "settings": {
+      "supportedCurrencies": ["TRY", "USD", "EUR"],
+      "exchangeRateProvider": "fixer",
+      "updateInterval": 3600
+    },
+    "features": {
+      "autoConversion": true,
+      "currencySymbols": true,
+      "historicalRates": false
+    },
+    "integrations": {
+      "fixer": {
+        "enabled": false,
+        "apiKey": ""
+      },
+      "currencylayer": {
+        "enabled": false,
+        "apiKey": ""
+      }
+    }
+  }
+}
