@@ -40,7 +40,10 @@ export default async function AdminAnalyticsPage() {
     products: productsResult.data || [],
     categories: categoriesResult.data || [],
     orders: ordersResult.data || [],
-    recentOrders: recentOrdersResult.data || []
+    recentOrders: (recentOrdersResult.data || []).map(order => ({
+      ...order,
+      users: Array.isArray(order.users) ? order.users[0] : order.users
+    }))
   }
 
   return (

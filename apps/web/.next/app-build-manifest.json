@@ -58,6 +58,13 @@
       "static/chunks/main-app-e753f845a9fe860d.js",
       "static/chunks/app/become-seller/page-cabc2b28ea8b5d11.js"
     ],
+    "/seller/login/page": [
+      "static/chunks/webpack-163a2522e5bd282f.js",
+      "static/css/ba338a7c19303bb4.css",
+      "static/chunks/vendors-5093cf64db4768ef.js",
+      "static/chunks/main-app-e753f845a9fe860d.js",
+      "static/chunks/app/seller/login/page-404732cf6a06f6bf.js"
+    ],
     "/page": [
       "static/chunks/webpack-163a2522e5bd282f.js",
       "static/css/ba338a7c19303bb4.css",
@@ -72,13 +79,6 @@
       "static/chunks/vendors-5093cf64db4768ef.js",
       "static/chunks/main-app-e753f845a9fe860d.js",
       "static/chunks/app/seller/dashboard/page-e30af05ecb2cf375.js"
-    ],
-    "/seller/login/page": [
-      "static/chunks/webpack-163a2522e5bd282f.js",
-      "static/css/ba338a7c19303bb4.css",
-      "static/chunks/vendors-5093cf64db4768ef.js",
-      "static/chunks/main-app-e753f845a9fe860d.js",
-      "static/chunks/app/seller/login/page-404732cf6a06f6bf.js"
     ]
   }
 }

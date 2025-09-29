@@ -40,13 +40,20 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@prisma/client": "^6.16.2",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.58.0",
+    "bcrypt": "^6.0.0",
+    "next-auth": "^5.0.0-beta.29",
     "react-hot-toast": "^2.6.0",
     "turbo": "^1.12.4"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@turbo/gen": "^1.12.4",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20.11.0",
+    "prisma": "^6.16.2",
     "typescript": "^5.3.3"
   },
   "engines": {

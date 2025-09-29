@@ -7,7 +7,7 @@ import {
   BellIcon, 
   ShieldCheckIcon, 
   CreditCardIcon,
-  DatabaseIcon,
+  CircleStackIcon as DatabaseIcon,
   CloudIcon
 } from '@heroicons/react/24/outline'
 
