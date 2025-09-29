@@ -55,7 +55,6 @@ export async function GET(request: NextRequest) {
       where,
       include,
       orderBy: [
-        { sortOrder: 'asc' },
         { name: 'asc' }
       ]
     });
