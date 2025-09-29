@@ -208,43 +208,22 @@ export const usePerformanceTracking = (componentName: string) => {
 export const trackWebVitals = () => {
   if (typeof window === 'undefined') return;
 
-  // Track Core Web Vitals
-  import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-    getCLS((metric) => {
-      performanceMonitor.track('web_vital_cls', metric.value, 'rate', {
-        id: metric.id,
-        name: metric.name
-      });
+  // Simple performance tracking without web-vitals dependency
+  try {
+    // Track page load time
+    window.addEventListener('load', () => {
+      const loadTime = performance.now();
+      performanceMonitor.track('page_load_time', loadTime, 'duration');
     });
 
-    getFID((metric) => {
-      performanceMonitor.track('web_vital_fid', metric.value, 'duration', {
-        id: metric.id,
-        name: metric.name
-      });
+    // Track DOM content loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      const domTime = performance.now();
+      performanceMonitor.track('dom_content_loaded', domTime, 'duration');
     });
-
-    getFCP((metric) => {
-      performanceMonitor.track('web_vital_fcp', metric.value, 'duration', {
-        id: metric.id,
-        name: metric.name
-      });
-    });
-
-    getLCP((metric) => {
-      performanceMonitor.track('web_vital_lcp', metric.value, 'duration', {
-        id: metric.id,
-        name: metric.name
-      });
-    });
-
-    getTTFB((metric) => {
-      performanceMonitor.track('web_vital_ttfb', metric.value, 'duration', {
-        id: metric.id,
-        name: metric.name
-      });
-    });
-  });
+  } catch (error) {
+    console.warn('Performance tracking error:', error);
+  }
 };
 
 export default performanceMonitor;
