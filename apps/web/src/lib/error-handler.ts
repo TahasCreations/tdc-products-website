@@ -1,6 +1,8 @@
 // TDC Market - Advanced Error Handling System
 // Comprehensive error management for global marketplace
 
+import React from 'react';
+
 interface ErrorContext {
   userId?: string;
   sessionId?: string;
