@@ -80,7 +80,7 @@ export default function HomePage() {
             <div className="text-center lg:text-left">
               <div className="mb-8">
                 <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-fade-in-up">
-                  {t('home.hero.title')}
+                  TDC Market
                 </h1>
               </div>
 
