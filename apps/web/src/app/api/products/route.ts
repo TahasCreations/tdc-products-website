@@ -81,8 +81,7 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               name: true,
-              slug: true,
-              emoji: true
+              slug: true
             }
           },
           variants: {
