@@ -14,6 +14,12 @@ const nextConfig = {
   generateEtags: false,
   
   // Performance optimizations
+  experimental: {
+    scrollRestoration: true,
+    optimizeCss: true,
+  },
+  
+  // Performance optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
