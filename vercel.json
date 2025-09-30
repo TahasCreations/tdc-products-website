@@ -4,7 +4,6 @@
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
   "installCommand": "npm install",
-  "rootDirectory": "apps/web",
   "functions": {
     "apps/web/src/app/api/**/*.ts": {
       "runtime": "nodejs18.x",
@@ -13,11 +12,6 @@
   },
   "env": {
     "NODE_ENV": "production"
-  },
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    }
   },
   "rewrites": [
     {
