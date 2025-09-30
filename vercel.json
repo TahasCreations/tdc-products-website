@@ -1,9 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "cd apps/web && cp package-standalone.json package.json && npm install && npm run build",
-  "outputDirectory": "apps/web/.next",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "cd apps/web && cp package-standalone.json package.json && npm install",
+  "installCommand": "npm install",
   "env": {
     "NODE_ENV": "production"
   },

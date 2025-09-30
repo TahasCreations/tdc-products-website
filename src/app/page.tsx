@@ -1,120 +1,142 @@
-import Link from 'next/link'
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import AnnouncementBar from '../components/home/AnnouncementBar';
+import Hero from '../components/home/Hero';
+import CategoryGrid from '../components/home/CategoryGrid';
+import CollectionStrip from '../components/home/CollectionStrip';
+import CouponBanner from '../components/home/CouponBanner';
+import StoreSpotlight from '../components/home/StoreSpotlight';
+import TrustSection from '../components/home/TrustSection';
+import BlogSection from '../components/home/BlogSection';
+import { seedData } from '../data/seed';
+
+// Analytics event tracking
+const trackEvent = (eventName: string, properties?: Record<string, any>) => {
+  // In a real app, this would send to your analytics service
+  console.log('Analytics Event:', eventName, properties);
+  
+  // Example: Send to Google Analytics
+  if (typeof window !== 'undefined' && (window as any).gtag) {
+    (window as any).gtag('event', eventName, properties);
+  }
+};
 
 export default function HomePage() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">TDC Market</h1>
-            </div>
-            <nav className="flex space-x-8">
-              <Link href="/products" className="text-gray-500 hover:text-gray-900">
-                Ürünler
-              </Link>
-              <Link href="/admin" className="text-gray-500 hover:text-gray-900">
-                Admin
-              </Link>
-            </nav>
-          </div>
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate data loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Event handlers
+  const handleSearch = (query: string) => {
+    trackEvent('home_search_submit', { query });
+    router.push(`/search?q=${encodeURIComponent(query)}`);
+  };
+
+  const handleCategoryClick = (category: any) => {
+    trackEvent('home_category_click', { 
+      category_id: category.id, 
+      category_name: category.name 
+    });
+  };
+
+  const handleProductClick = (product: any) => {
+    trackEvent('product_card_click', { 
+      product_id: product.id, 
+      product_name: product.name,
+      product_price: product.price
+    });
+  };
+
+  const handleCollectionClick = (collection: any) => {
+    trackEvent('home_collection_click', { 
+      collection_id: collection.id, 
+      collection_name: collection.title 
+    });
+  };
+
+  const handleCouponCopy = (coupon: any) => {
+    trackEvent('coupon_copy', { 
+      code: coupon.code,
+      discount: coupon.discount,
+      type: coupon.type
+    });
+  };
+
+  const handleStoreClick = (store: any) => {
+    trackEvent('seller_cta_click', { 
+      store_id: store.id, 
+      store_name: store.name 
+    });
+  };
+
+  const handlePostClick = (post: any) => {
+    trackEvent('blog_post_click', { 
+      post_id: post.id, 
+      post_title: post.title 
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-accent-50">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-gradient-tdc rounded-tdc animate-pulse mx-auto"></div>
+          <p className="text-ink-600 font-medium">TDC Market yükleniyor...</p>
         </div>
-      </header>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Announcement Bar */}
+      <AnnouncementBar />
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-            Modern E-ticaret Platformu
-          </h2>
-          <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-            TDC Market ile ürünlerinizi kolayca yönetin, satışlarınızı artırın ve müşterilerinize mükemmel bir deneyim sunun.
-          </p>
-          <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-            <div className="rounded-md shadow">
-              <Link
-                href="/admin"
-                className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"
-              >
-                Admin Paneline Git
-              </Link>
-            </div>
-            <div className="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-              <Link
-                href="/products"
-                className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
-              >
-                Ürünleri Gör
-              </Link>
-            </div>
-          </div>
-        </div>
+      <Hero onSearch={handleSearch} />
 
-        {/* Features */}
-        <div className="mt-16">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="pt-6">
-              <div className="flow-root bg-white rounded-lg px-6 pb-8">
-                <div className="-mt-6">
-                  <div className="inline-flex items-center justify-center p-3 bg-indigo-500 rounded-md shadow-lg">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Hızlı Performans</h3>
-                  <p className="mt-5 text-base text-gray-500">
-                    Modern teknolojiler ile optimize edilmiş hızlı yükleme süreleri.
-                  </p>
-                </div>
-              </div>
-            </div>
+      {/* Category Discovery */}
+      <CategoryGrid 
+        categories={seedData.categories} 
+        onCategoryClick={handleCategoryClick} 
+      />
 
-            <div className="pt-6">
-              <div className="flow-root bg-white rounded-lg px-6 pb-8">
-                <div className="-mt-6">
-                  <div className="inline-flex items-center justify-center p-3 bg-indigo-500 rounded-md shadow-lg">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Güvenli Sistem</h3>
-                  <p className="mt-5 text-base text-gray-500">
-                    NextAuth.js ile güvenli kimlik doğrulama ve yetkilendirme sistemi.
-                  </p>
-                </div>
-              </div>
-            </div>
+      {/* Curation Strips */}
+      <CollectionStrip 
+        collections={seedData.collections} 
+        onProductClick={handleProductClick}
+        onCollectionClick={handleCollectionClick}
+      />
 
-            <div className="pt-6">
-              <div className="flow-root bg-white rounded-lg px-6 pb-8">
-                <div className="-mt-6">
-                  <div className="inline-flex items-center justify-center p-3 bg-indigo-500 rounded-md shadow-lg">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="mt-8 text-lg font-medium text-gray-900 tracking-tight">Kullanıcı Dostu</h3>
-                  <p className="mt-5 text-base text-gray-500">
-                    Modern ve sezgisel arayüz ile kolay kullanım deneyimi.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+      {/* Coupon Banner */}
+      <CouponBanner 
+        coupons={seedData.coupons} 
+        onCouponCopy={handleCouponCopy} 
+      />
 
-      {/* Footer */}
-      <footer className="bg-white">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <p className="text-base text-gray-400">
-              © 2024 TDC Market. Tüm hakları saklıdır.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Store Spotlight */}
+      <StoreSpotlight 
+        stores={seedData.stores} 
+        onStoreClick={handleStoreClick} 
+      />
+
+      {/* Trust & Support */}
+      <TrustSection />
+
+      {/* Blog & Guide */}
+      <BlogSection 
+        posts={seedData.blogPosts} 
+        onPostClick={handlePostClick} 
+      />
     </div>
-  )
+  );
 }

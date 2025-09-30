@@ -5,19 +5,19 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   
+  // Vercel optimizations
+  output: 'standalone',
+  trailingSlash: false,
+  generateEtags: false,
+  
   // Performance optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
+  // Image optimization
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        port: '',
-        pathname: '/storage/v1/object/public/**',
-      },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
@@ -37,7 +37,6 @@ const nextConfig = {
   
   // Bundle optimization
   webpack: (config, { dev, isServer }) => {
-
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
@@ -60,10 +59,9 @@ const nextConfig = {
   },
   
   experimental: {
-    serverComponentsExternalPackages: ['bcryptjs'],
     scrollRestoration: true,
+    optimizeCss: true,
   },
-  
   
   // Security headers
   async headers() {
