@@ -14,6 +14,9 @@
   ],
   "scripts": {
     "build": "turbo run build",
+    "build:web": "cd apps/web && npm run build",
+    "vercel:build": "bash scripts/vercel-build.sh",
+    "vercel:deploy": "vercel --prod",
     "dev": "turbo run dev",
     "dev:worker": "turbo run dev --filter=@tdc/orders-worker",
     "dev:background": "turbo run dev --filter=@tdc/background-worker",

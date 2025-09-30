@@ -10,6 +10,8 @@ const nextConfig = {
   
   // Vercel optimizations
   output: 'standalone',
+  trailingSlash: false,
+  generateEtags: false,
   
   // Performance optimizations
   compiler: {
