@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import seedData from '../data/seed.json'
+import { seedData } from '../data/seed'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://tdcmarket.com'

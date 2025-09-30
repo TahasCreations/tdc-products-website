@@ -10,7 +10,7 @@ import CouponBanner from '../components/home/CouponBanner';
 import StoreSpotlight from '../components/home/StoreSpotlight';
 import TrustSection from '../components/home/TrustSection';
 import BlogSection from '../components/home/BlogSection';
-import seedData from '../data/seed.json';
+import { seedData } from '../data/seed';
 
 // Analytics event tracking
 const trackEvent = (eventName: string, properties?: Record<string, any>) => {

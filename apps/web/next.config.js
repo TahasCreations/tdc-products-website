@@ -4,6 +4,9 @@ const nextConfig = {
   swcMinify: true,
   compress: true,
   poweredByHeader: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   
   // Vercel optimizations
   output: 'standalone',

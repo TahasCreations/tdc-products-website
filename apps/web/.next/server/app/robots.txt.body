@@ -1,6 +1,25 @@
 User-Agent: *
 Allow: /
-Disallow: /admin
+Disallow: /admin/
 Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+Disallow: /private/
+Disallow: /dashboard/
+Disallow: /seller/
+Disallow: /auth/
 
-Sitemap: https://www.tdc-products.com/sitemap.xml
+User-Agent: GPTBot
+Disallow: /
+
+User-Agent: ChatGPT-User
+Disallow: /
+
+User-Agent: CCBot
+Disallow: /
+
+User-Agent: anthropic-ai
+Disallow: /
+
+Host: https://tdcmarket.com
+Sitemap: https://tdcmarket.com/sitemap.xml

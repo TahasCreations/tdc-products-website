@@ -128,7 +128,7 @@ jest.mock('../components/home/BlogSection', () => {
 });
 
 // Mock seed data
-jest.mock('../data/seed.json', () => ({
+jest.mock('../data/seed', () => ({
   categories: [
     { id: '1', name: '3D Figürler', slug: '3d-figurler' },
     { id: '2', name: 'Masaüstü Aksesuarları', slug: 'masaustu-aksesuarlari' },

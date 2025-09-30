@@ -1,16 +1,17 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/admin/page": "app/admin/page.js",
-  "/api/products/simple/route": "app/api/products/simple/route.js",
+  "/admin/products/page": "app/admin/products/page.js",
   "/api/auth/seller/login/route": "app/api/auth/seller/login/route.js",
   "/api/categories/simple/route": "app/api/categories/simple/route.js",
-  "/admin/products/page": "app/admin/products/page.js",
-  "/become-seller/page": "app/become-seller/page.js",
+  "/api/revalidate/route": "app/api/revalidate/route.js",
+  "/api/products/simple/route": "app/api/products/simple/route.js",
   "/api/sellers/register/route": "app/api/sellers/register/route.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/page": "app/page.js",
-  "/seller/dashboard/page": "app/seller/dashboard/page.js",
   "/robots.txt/route": "app/robots.txt/route.js",
+  "/become-seller/page": "app/become-seller/page.js",
+  "/sitemap.xml/route": "app/sitemap.xml/route.js",
   "/seller/login/page": "app/seller/login/page.js",
-  "/sitemap.xml/route": "app/sitemap.xml/route.js"
+  "/seller/dashboard/page": "app/seller/dashboard/page.js"
 }
