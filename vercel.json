@@ -1,9 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "cd apps/web && npm run build",
+  "buildCommand": "cd apps/web && cp package-standalone.json package.json && npm install && npm run build",
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
-  "installCommand": "npm install --legacy-peer-deps",
+  "installCommand": "cd apps/web && cp package-standalone.json package.json && npm install",
   "env": {
     "NODE_ENV": "production"
   },
