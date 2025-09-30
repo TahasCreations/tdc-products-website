@@ -1,0 +1,251 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* TDC Design System CSS Variables */
+:root {
+  /* TDC Brand Colors */
+  --tdc-primary: #5A63F2;
+  --tdc-primary-dark: #3E46C9;
+  --tdc-accent: #FF7A59;
+  --tdc-success: #2BD9AF;
+  --tdc-warning: #F59E0B;
+  --tdc-ink: #0F172A;
+  --tdc-neutral-100: #F1F5F9;
+  --tdc-surface: #FFFFFF;
+  
+  /* Semantic Colors */
+  --tdc-text-primary: #0F172A;
+  --tdc-text-secondary: #64748b;
+  --tdc-text-muted: #94a3b8;
+  --tdc-border: #e2e8f0;
+  --tdc-border-hover: #cbd5e1;
+  
+  /* Spacing Scale (8pt grid) */
+  --tdc-space-1: 0.25rem;  /* 4px */
+  --tdc-space-2: 0.5rem;   /* 8px */
+  --tdc-space-3: 0.75rem;  /* 12px */
+  --tdc-space-4: 1rem;     /* 16px */
+  --tdc-space-5: 1.25rem;  /* 20px */
+  --tdc-space-6: 1.5rem;   /* 24px */
+  --tdc-space-8: 2rem;     /* 32px */
+  --tdc-space-10: 2.5rem;  /* 40px */
+  --tdc-space-12: 3rem;    /* 48px */
+  --tdc-space-16: 4rem;    /* 64px */
+  --tdc-space-20: 5rem;    /* 80px */
+  --tdc-space-24: 6rem;    /* 96px */
+  
+  /* Typography Scale */
+  --tdc-text-xs: 0.75rem;
+  --tdc-text-sm: 0.875rem;
+  --tdc-text-base: 1rem;
+  --tdc-text-lg: 1.125rem;
+  --tdc-text-xl: 1.25rem;
+  --tdc-text-2xl: 1.5rem;
+  --tdc-text-3xl: 1.875rem;
+  --tdc-text-4xl: 2.25rem;
+  --tdc-text-5xl: 3rem;
+  --tdc-text-6xl: 3.75rem;
+  --tdc-text-7xl: 4.5rem;
+  --tdc-text-8xl: 6rem;
+  --tdc-text-9xl: 8rem;
+  
+  /* Border Radius */
+  --tdc-radius-sm: 0.125rem;
+  --tdc-radius: 0.25rem;
+  --tdc-radius-md: 0.375rem;
+  --tdc-radius-lg: 0.5rem;
+  --tdc-radius-xl: 0.75rem;
+  --tdc-radius-2xl: 1rem;
+  --tdc-radius-3xl: 1.5rem;
+  --tdc-radius-tdc: 1rem; /* 16px - TDC standard */
+  
+  /* Shadows */
+  --tdc-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --tdc-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --tdc-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --tdc-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --tdc-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --tdc-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* Gradients */
+  --tdc-gradient-primary: linear-gradient(135deg, #5A63F2 0%, #FF7A59 100%);
+  --tdc-gradient-primary-reverse: linear-gradient(135deg, #FF7A59 0%, #5A63F2 100%);
+  --tdc-gradient-soft: linear-gradient(135deg, #5A63F2 0%, #FF7A59 50%, #2BD9AF 100%);
+  
+  /* Transitions */
+  --tdc-transition-fast: 150ms ease-in-out;
+  --tdc-transition: 300ms ease-in-out;
+  --tdc-transition-slow: 500ms ease-in-out;
+  
+  /* Z-Index Scale */
+  --tdc-z-dropdown: 1000;
+  --tdc-z-sticky: 1020;
+  --tdc-z-fixed: 1030;
+  --tdc-z-modal-backdrop: 1040;
+  --tdc-z-modal: 1050;
+  --tdc-z-popover: 1060;
+  --tdc-z-tooltip: 1070;
+  --tdc-z-toast: 1080;
+}
+
+/* Dark mode variables */
+.dark {
+  --tdc-text-primary: #f8fafc;
+  --tdc-text-secondary: #cbd5e1;
+  --tdc-text-muted: #94a3b8;
+  --tdc-border: #334155;
+  --tdc-border-hover: #475569;
+  --tdc-surface: #1e293b;
+}
+
+/* Focus Styles */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900;
+}
+
+/* Enhanced Focus Styles for Better Accessibility */
+.focus-visible {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+/* Skip Links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--tdc-primary);
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 1000;
+  border-radius: var(--tdc-radius);
+  transition: top 0.3s ease;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .high-contrast {
+    filter: contrast(150%);
+  }
+  
+  .high-contrast * {
+    border-color: currentColor !important;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-float,
+  .animate-float-delayed,
+  .animate-float-slow,
+  .animate-bounce-slow,
+  .animate-slide-right,
+  .animate-slide-left,
+  .animate-figure-glow,
+  .animate-figure-rotate,
+  .animate-particle-float,
+  .animate-pulse-glow {
+    animation: none !important;
+  }
+}
+
+/* Screen Reader Only Content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus Indicators for Interactive Elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--tdc-primary);
+  outline-offset: 2px;
+}
+
+/* Enhanced Button States */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Form Field Enhancements */
+input[type="text"],
+input[type="email"],
+input[type="search"],
+textarea {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--tdc-primary);
+  box-shadow: 0 0 0 3px rgba(90, 99, 242, 0.1);
+}
+
+/* Loading States */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Error States */
+.error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Success States */
+.success {
+  border-color: var(--tdc-success) !important;
+  box-shadow: 0 0 0 3px rgba(43, 217, 175, 0.1) !important;
+}
