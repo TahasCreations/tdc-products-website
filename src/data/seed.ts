@@ -1,4 +1,3 @@
-// Mock data for homepage
 export const seedData = {
   categories: [
     {
@@ -118,54 +117,6 @@ export const seedData = {
           image: "/images/products/traditional-vase.jpg",
           rating: 4.8,
           reviewCount: 32
-        }
-      ]
-    },
-    {
-      id: "3", 
-      title: "Limited Figürler",
-      description: "Sınırlı sayıda üretilen özel figürler",
-      image: "/images/collections/limited-figures.jpg",
-      products: [
-        {
-          id: "7",
-          name: "Altın Kaplama Ejder",
-          price: 299.99,
-          image: "/images/products/golden-dragon.jpg",
-          rating: 5.0,
-          reviewCount: 12
-        },
-        {
-          id: "8",
-          name: "Kristal Kale",
-          price: 189.00,
-          image: "/images/products/crystal-castle.jpg",
-          rating: 4.9,
-          reviewCount: 8
-        }
-      ]
-    },
-    {
-      id: "4",
-      title: "Hediye Rehberi", 
-      description: "Herkes için mükemmel hediye önerileri",
-      image: "/images/collections/gift-guide.jpg",
-      products: [
-        {
-          id: "9",
-          name: "Kişiselleştirilmiş Figür",
-          price: 149.99,
-          image: "/images/products/personalized-figure.jpg",
-          rating: 4.8,
-          reviewCount: 67
-        },
-        {
-          id: "10",
-          name: "Hediye Kutusu Seti",
-          price: 65.00,
-          image: "/images/products/gift-box-set.jpg",
-          rating: 4.7,
-          reviewCount: 23
         }
       ]
     }

@@ -18,7 +18,6 @@ export default function Hero({ onSearch }: HeroProps) {
     <section className="bg-gradient-to-br from-primary-50 via-white to-accent-50 py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left Column - Content */}
           <div className="space-y-8">
             <div className="space-y-4">
               <h1 className="text-4xl lg:text-6xl font-bold text-ink-900 leading-tight">
@@ -34,7 +33,6 @@ export default function Hero({ onSearch }: HeroProps) {
               </p>
             </div>
 
-            {/* Search Bar */}
             <form onSubmit={handleSearch} className="max-w-lg">
               <div className="relative">
                 <input
@@ -54,7 +52,6 @@ export default function Hero({ onSearch }: HeroProps) {
               </div>
             </form>
 
-            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <button className="bg-primary-500 text-white px-8 py-4 rounded-tdc font-semibold text-lg hover:bg-primary-600 transition-colors shadow-lg">
                 Keşfet
@@ -65,7 +62,6 @@ export default function Hero({ onSearch }: HeroProps) {
             </div>
           </div>
 
-          {/* Right Column - Visual */}
           <div className="relative">
             <div className="bg-gradient-tdc rounded-tdc p-8 text-white">
               <div className="text-center space-y-4">

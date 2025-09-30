@@ -14,10 +14,8 @@ import { seedData } from '../data/seed';
 
 // Analytics event tracking
 const trackEvent = (eventName: string, properties?: Record<string, any>) => {
-  // In a real app, this would send to your analytics service
   console.log('Analytics Event:', eventName, properties);
   
-  // Example: Send to Google Analytics
   if (typeof window !== 'undefined' && (window as any).gtag) {
     (window as any).gtag('event', eventName, properties);
   }
@@ -27,7 +25,6 @@ export default function HomePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
-  // Simulate data loading
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -35,7 +32,6 @@ export default function HomePage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Event handlers
   const handleSearch = (query: string) => {
     trackEvent('home_search_submit', { query });
     router.push(`/search?q=${encodeURIComponent(query)}`);
@@ -98,41 +94,26 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Announcement Bar */}
       <AnnouncementBar />
-
-      {/* Hero Section */}
       <Hero onSearch={handleSearch} />
-
-      {/* Category Discovery */}
       <CategoryGrid 
         categories={seedData.categories} 
         onCategoryClick={handleCategoryClick} 
       />
-
-      {/* Curation Strips */}
       <CollectionStrip 
         collections={seedData.collections} 
         onProductClick={handleProductClick}
         onCollectionClick={handleCollectionClick}
       />
-
-      {/* Coupon Banner */}
       <CouponBanner 
         coupons={seedData.coupons} 
         onCouponCopy={handleCouponCopy} 
       />
-
-      {/* Store Spotlight */}
       <StoreSpotlight 
         stores={seedData.stores} 
         onStoreClick={handleStoreClick} 
       />
-
-      {/* Trust & Support */}
       <TrustSection />
-
-      {/* Blog & Guide */}
       <BlogSection 
         posts={seedData.blogPosts} 
         onPostClick={handlePostClick} 
