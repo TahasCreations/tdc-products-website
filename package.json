@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "TDC Market - Modüler E-ticaret Platformu",
-  "packageManager": "pnpm@8.15.0",
   "engines": {
     "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
+    "npm": ">=8.0.0"
   },
   "workspaces": [
     "apps/*",
