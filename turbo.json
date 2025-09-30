@@ -4,14 +4,11 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"]
     },
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "start": {
-      "dependsOn": ["build"]
     },
     "lint": {
       "dependsOn": ["^build"]
@@ -19,33 +16,24 @@
     "type-check": {
       "dependsOn": ["^build"]
     },
-    "clean": {
-      "cache": false
-    },
     "test": {
       "dependsOn": ["^build"]
     },
-    "prisma:generate": {
-      "cache": false
-    },
-    "prisma:migrate": {
-      "dependsOn": ["prisma:generate"]
-    },
-    "db:seed": {
-      "dependsOn": ["prisma:generate"]
-    },
-    "watch": {
+    "test:watch": {
       "cache": false,
       "persistent": true
     },
-    "pull": {
+    "clean": {
       "cache": false
     },
-    "push": {
+    "db:generate": {
       "cache": false
     },
-    "queue:drain": {
-      "cache": false
+    "db:migrate": {
+      "dependsOn": ["db:generate"]
+    },
+    "db:seed": {
+      "dependsOn": ["db:generate"]
     }
   }
 }

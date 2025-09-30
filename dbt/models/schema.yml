@@ -1,0 +1,138 @@
+version: 2
+
+models:
+  - name: stg_events
+    description: "Staging model for events data with computed fields"
+    columns:
+      - name: event_id
+        description: "Unique event identifier"
+        tests:
+          - unique
+          - not_null
+      - name: event_category
+        description: "Categorized event type (order, product, customer, etc.)"
+      - name: is_business_critical
+        description: "Whether the event is business critical"
+      - name: is_processed
+        description: "Whether the event has been processed"
+        
+  - name: stg_orders
+    description: "Staging model for orders data with computed fields"
+    columns:
+      - name: order_id
+        description: "Unique order identifier"
+        tests:
+          - unique
+          - not_null
+      - name: is_completed
+        description: "Whether the order is completed"
+      - name: is_cancelled
+        description: "Whether the order is cancelled"
+      - name: order_value_tier
+        description: "Order value tier (high_value, medium_value, low_value)"
+      - name: net_revenue
+        description: "Net revenue (GMV - commission)"
+      - name: commission_percentage
+        description: "Commission percentage"
+        
+  - name: fct_gmv_daily
+    description: "Daily GMV fact table with key metrics"
+    columns:
+      - name: tenant_id
+        description: "Tenant identifier"
+        tests:
+          - not_null
+      - name: order_date
+        description: "Order date"
+        tests:
+          - not_null
+      - name: total_gmv
+        description: "Total GMV for the day"
+        tests:
+          - not_null
+      - name: total_commission
+        description: "Total commission for the day"
+      - name: completion_rate
+        description: "Order completion rate"
+      - name: avg_order_value
+        description: "Average order value"
+        
+  - name: fct_take_rate_analysis
+    description: "Take rate analysis fact table"
+    columns:
+      - name: tenant_id
+        description: "Tenant identifier"
+        tests:
+          - not_null
+      - name: seller_id
+        description: "Seller identifier"
+      - name: order_date
+        description: "Order date"
+        tests:
+          - not_null
+      - name: avg_take_rate
+        description: "Average take rate"
+      - name: effective_take_rate
+        description: "Effective take rate (commission / completed GMV)"
+      - name: take_rate_tier
+        description: "Take rate tier (high, medium, low)"
+        
+  - name: dim_tenants
+    description: "Tenant dimension table"
+    columns:
+      - name: tenant_id
+        description: "Tenant identifier"
+        tests:
+          - unique
+          - not_null
+      - name: tenant_tier
+        description: "Tenant tier (enterprise, professional, standard, starter)"
+      - name: tenant_lifecycle_stage
+        description: "Tenant lifecycle stage (mature, established, growing, new)"
+      - name: active_days
+        description: "Number of active days"
+        
+  - name: agg_gmv_monthly
+    description: "Monthly GMV aggregation with growth metrics"
+    columns:
+      - name: tenant_id
+        description: "Tenant identifier"
+        tests:
+          - not_null
+      - name: order_year
+        description: "Order year"
+        tests:
+          - not_null
+      - name: order_month
+        description: "Order month"
+        tests:
+          - not_null
+      - name: monthly_gmv
+        description: "Monthly GMV"
+      - name: gmv_growth_rate
+        description: "Month-over-month GMV growth rate"
+      - name: commission_efficiency
+        description: "Commission efficiency (commission / GMV)"
+        
+  - name: agg_take_rate_trends
+    description: "Take rate trends analysis"
+    columns:
+      - name: tenant_id
+        description: "Tenant identifier"
+        tests:
+          - not_null
+      - name: order_year
+        description: "Order year"
+        tests:
+          - not_null
+      - name: order_month
+        description: "Order month"
+        tests:
+          - not_null
+      - name: monthly_avg_take_rate
+        description: "Monthly average take rate"
+      - name: take_rate_trend
+        description: "Take rate trend (month-over-month change)"
+      - name: take_rate_stability
+        description: "Take rate stability (stable, moderate, volatile)"
+

@@ -1,0 +1,29 @@
+{
+  "name": "@tdc/settlement-worker",
+  "version": "1.0.0",
+  "description": "Settlement processing worker for TDC Market",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@tdc/domain": "workspace:*",
+    "@tdc/infra": "workspace:*",
+    "@tdc/config": "workspace:*",
+    "bullmq": "^4.15.0",
+    "ioredis": "^5.3.2",
+    "node-cron": "^3.0.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}
+

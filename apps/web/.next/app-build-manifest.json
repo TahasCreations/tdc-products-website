@@ -37,13 +37,6 @@
       "static/chunks/main-app-e753f845a9fe860d.js",
       "static/chunks/app/global-error-3439f2d89034deb4.js"
     ],
-    "/admin/products/page": [
-      "static/chunks/webpack-163a2522e5bd282f.js",
-      "static/css/ba338a7c19303bb4.css",
-      "static/chunks/vendors-5093cf64db4768ef.js",
-      "static/chunks/main-app-e753f845a9fe860d.js",
-      "static/chunks/app/admin/products/page-47b236e1d12f56c2.js"
-    ],
     "/admin/page": [
       "static/chunks/webpack-163a2522e5bd282f.js",
       "static/css/ba338a7c19303bb4.css",
@@ -51,19 +44,19 @@
       "static/chunks/main-app-e753f845a9fe860d.js",
       "static/chunks/app/admin/page-b63d5b6dabe96438.js"
     ],
+    "/admin/products/page": [
+      "static/chunks/webpack-163a2522e5bd282f.js",
+      "static/css/ba338a7c19303bb4.css",
+      "static/chunks/vendors-5093cf64db4768ef.js",
+      "static/chunks/main-app-e753f845a9fe860d.js",
+      "static/chunks/app/admin/products/page-47b236e1d12f56c2.js"
+    ],
     "/become-seller/page": [
       "static/chunks/webpack-163a2522e5bd282f.js",
       "static/css/ba338a7c19303bb4.css",
       "static/chunks/vendors-5093cf64db4768ef.js",
       "static/chunks/main-app-e753f845a9fe860d.js",
       "static/chunks/app/become-seller/page-cabc2b28ea8b5d11.js"
-    ],
-    "/seller/login/page": [
-      "static/chunks/webpack-163a2522e5bd282f.js",
-      "static/css/ba338a7c19303bb4.css",
-      "static/chunks/vendors-5093cf64db4768ef.js",
-      "static/chunks/main-app-e753f845a9fe860d.js",
-      "static/chunks/app/seller/login/page-404732cf6a06f6bf.js"
     ],
     "/page": [
       "static/chunks/webpack-163a2522e5bd282f.js",
@@ -79,6 +72,13 @@
       "static/chunks/vendors-5093cf64db4768ef.js",
       "static/chunks/main-app-e753f845a9fe860d.js",
       "static/chunks/app/seller/dashboard/page-e30af05ecb2cf375.js"
+    ],
+    "/seller/login/page": [
+      "static/chunks/webpack-163a2522e5bd282f.js",
+      "static/css/ba338a7c19303bb4.css",
+      "static/chunks/vendors-5093cf64db4768ef.js",
+      "static/chunks/main-app-e753f845a9fe860d.js",
+      "static/chunks/app/seller/login/page-404732cf6a06f6bf.js"
     ]
   }
 }

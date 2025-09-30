@@ -1,0 +1,65 @@
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { domain, storeId } = req.query;
+
+  if (!domain || !storeId) {
+    return res.status(400).json({ error: 'Domain and storeId are required' });
+  }
+
+  try {
+    // Get store information
+    const storeResponse = await fetch(`${process.env.API_GATEWAY_URL}/api/stores/${storeId}?domain=${domain}`);
+    const store = await storeResponse.json();
+
+    if (!store) {
+      return res.status(404).json({ error: 'Store not found' });
+    }
+
+    // Get sitemap entries
+    const sitemapResponse = await fetch(`${process.env.API_GATEWAY_URL}/api/seo/sitemap/${storeId}?domain=${domain}`);
+    const sitemapData = await sitemapResponse.json();
+
+    // Generate sitemap XML
+    const sitemapXml = generateSitemapXml(domain as string, sitemapData.entries || []);
+
+    res.setHeader('Content-Type', 'application/xml');
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+    res.status(200).send(sitemapXml);
+  } catch (error) {
+    console.error('Sitemap generation error:', error);
+    res.status(500).json({ error: 'Failed to generate sitemap' });
+  }
+}
+
+function generateSitemapXml(domain: string, entries: any[]): string {
+  const protocol = domain.includes('localhost') ? 'http' : 'https';
+  const baseUrl = `${protocol}://${domain}`;
+  
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+  // Add homepage
+  xml += '  <url>\n';
+  xml += `    <loc>${baseUrl}</loc>\n`;
+  xml += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
+  xml += '    <changefreq>daily</changefreq>\n';
+  xml += '    <priority>1.0</priority>\n';
+  xml += '  </url>\n';
+
+  // Add sitemap entries
+  entries.forEach(entry => {
+    if (entry.isActive) {
+      xml += '  <url>\n';
+      xml += `    <loc>${entry.url}</loc>\n`;
+      xml += `    <lastmod>${new Date(entry.lastmod).toISOString()}</lastmod>\n`;
+      xml += `    <changefreq>${entry.changefreq.toLowerCase()}</changefreq>\n`;
+      xml += `    <priority>${entry.priority}</priority>\n`;
+      xml += '  </url>\n';
+    }
+  });
+
+  xml += '</urlset>';
+  return xml;
+}
+

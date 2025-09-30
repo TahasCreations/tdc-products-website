@@ -1,0 +1,270 @@
+version: 2
+updates:
+  # Enable version updates for npm packages
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+    ignore:
+      # Ignore major version updates for critical packages
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci"
+
+  # Enable version updates for Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # Enable version updates for apps/web-storefront
+  - package-ecosystem: "npm"
+    directory: "/apps/web-storefront"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps(web-storefront)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "web-storefront"
+
+  # Enable version updates for apps/web-admin
+  - package-ecosystem: "npm"
+    directory: "/apps/web-admin"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps(web-admin)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "web-admin"
+
+  # Enable version updates for apps/api-gateway
+  - package-ecosystem: "npm"
+    directory: "/apps/api-gateway"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps(api-gateway)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "api-gateway"
+
+  # Enable version updates for packages/domain
+  - package-ecosystem: "npm"
+    directory: "/packages/domain"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps(domain)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "domain"
+
+  # Enable version updates for packages/infra
+  - package-ecosystem: "npm"
+    directory: "/packages/infra"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps(infra)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "infra"
+
+  # Enable version updates for packages/ui
+  - package-ecosystem: "npm"
+    directory: "/packages/ui"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps(ui)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "ui"
+
+  # Enable version updates for packages/config
+  - package-ecosystem: "npm"
+    directory: "/packages/config"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps(config)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "config"
+
+  # Enable version updates for packages/contracts
+  - package-ecosystem: "npm"
+    directory: "/packages/contracts"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps(contracts)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "contracts"
+
+  # Enable version updates for services/orders-worker
+  - package-ecosystem: "npm"
+    directory: "/services/orders-worker"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps(orders-worker)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "orders-worker"
+
+  # Enable version updates for services/background-worker
+  - package-ecosystem: "npm"
+    directory: "/services/background-worker"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "tdc-market"
+    assignees:
+      - "tdc-market"
+    commit-message:
+      prefix: "deps(background-worker)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "background-worker"
+

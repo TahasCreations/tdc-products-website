@@ -1,0 +1,2583 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================================
+// MULTI-TENANT SUPPORT
+// ===========================================
+
+model Tenant {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  domain      String?  @unique
+  isActive    Boolean  @default(true)
+  settings    Json?    // Tenant-specific settings
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users       User[]
+  sellers     Seller[]
+  products    Product[]
+  orders      Order[]
+  categories  Category[]
+  commissionRules CommissionRule[]
+
+  @@map("tenants")
+}
+
+// ===========================================
+// USER MANAGEMENT
+// ===========================================
+
+model User {
+  id          String   @id @default(cuid())
+  tenantId    String
+  email       String
+  name        String?
+  phone       String?
+  avatar      String?
+  role        UserRole @default(CUSTOMER)
+  isActive    Boolean  @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orders      Order[]
+  addresses   Address[]
+  wishlist    WishlistItem[]
+
+  @@unique([tenantId, email])
+  @@map("users")
+}
+
+model Address {
+  id          String   @id @default(cuid())
+  userId      String
+  tenantId    String
+  type        AddressType @default(SHIPPING)
+  firstName   String
+  lastName    String
+  company     String?
+  address1    String
+  address2    String?
+  city        String
+  state       String?
+  postalCode  String
+  country     String   @default("TR")
+  phone       String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orders      Order[]
+
+  @@map("addresses")
+}
+
+// ===========================================
+// SELLER MANAGEMENT
+// ===========================================
+
+model Seller {
+  id              String        @id @default(cuid())
+  tenantId        String
+  userId          String        @unique
+  businessName    String
+  sellerType      SellerType    @default(TYPE_B) // TYPE_A: Company, TYPE_B: Individual/IG Seller
+  businessType    BusinessType
+  taxNumber       String?       // Required for TYPE_A sellers
+  taxOffice       String?       // Required for TYPE_A sellers
+  address         String?       // Required for TYPE_A sellers
+  phone           String?
+  email           String?
+  instagramHandle String?       // For TYPE_B sellers
+  bankAccount     String?       // Bank account for payments
+  iban            String?       // IBAN for payments
+  commissionRate  Float         @default(0.0) // Calculated based on seller type
+  isActive        Boolean       @default(true)
+  isVerified      Boolean       @default(false)
+  isInvoiceEligible Boolean     @default(false) // Can issue invoices (TYPE_A only)
+  rating          Float         @default(0.0)
+  totalSales      Float         @default(0.0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products        Product[]
+  orders          Order[]
+  commissionRules CommissionRule[]
+  sellerBalances  SellerBalance[]
+
+  @@map("sellers")
+}
+
+// ===========================================
+// PRODUCT CATALOG
+// ===========================================
+
+model Category {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  slug        String
+  description String?
+  image       String?
+  parentId    String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  products    Product[]
+
+  @@unique([tenantId, slug])
+  @@map("categories")
+}
+
+model Product {
+  id              String        @id @default(cuid())
+  tenantId        String
+  sellerId        String
+  categoryId      String?
+  name            String
+  slug            String
+  description     String?
+  shortDescription String?
+  sku             String?
+  barcode         String?
+  brand           String?
+  model           String?
+  weight          Float?        // in grams
+  dimensions      Json?         // {length, width, height}
+  images          String[]      @default([])
+  tags            String[]      @default([])
+  isActive        Boolean       @default(true)
+  isDigital       Boolean       @default(false)
+  isDownloadable  Boolean       @default(false)
+  downloadUrl     String?
+  seoTitle        String?
+  seoDescription  String?
+  metaKeywords    String[]      @default([])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  seller          Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category        Category?     @relation(fields: [categoryId], references: [id])
+  variants        ProductVariant[]
+  inventory       Inventory[]
+  orderItems      OrderItem[]
+  wishlist        WishlistItem[]
+
+  @@unique([tenantId, slug])
+  @@unique([tenantId, sku])
+  @@map("products")
+}
+
+model ProductVariant {
+  id          String   @id @default(cuid())
+  productId   String
+  name        String
+  sku         String?
+  attributes  Json     // {color: "red", size: "M", material: "plastic"}
+  price       Float
+  comparePrice Float?
+  cost        Float?
+  weight      Float?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  inventory   Inventory[]
+  orderItems  OrderItem[]
+
+  @@unique([productId, sku])
+  @@map("product_variants")
+}
+
+// ===========================================
+// INVENTORY MANAGEMENT
+// ===========================================
+
+model Inventory {
+  id              String        @id @default(cuid())
+  productId       String
+  variantId       String?
+  quantity        Int           @default(0)
+  reserved        Int           @default(0)
+  available       Int           @default(0) // quantity - reserved
+  minQuantity     Int           @default(0)
+  maxQuantity     Int?
+  location        String?       // Warehouse location
+  lastRestockedAt DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  product         Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant         ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, variantId])
+  @@map("inventory")
+}
+
+// ===========================================
+// ORDER MANAGEMENT
+// ===========================================
+
+model Order {
+  id              String        @id @default(cuid())
+  tenantId        String
+  orderNumber     String        @unique
+  customerId      String
+  sellerId        String?
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+  
+  // Pricing
+  subtotal        Float
+  taxAmount       Float         @default(0.0)
+  shippingAmount  Float         @default(0.0)
+  discountAmount  Float         @default(0.0)
+  totalAmount     Float
+  
+  // Customer info
+  customerEmail   String
+  customerPhone   String?
+  customerNote    String?
+  
+  // Shipping
+  shippingAddress Json
+  billingAddress  Json?
+  
+  // Payment
+  paymentMethod   String?
+  paymentReference String?
+  paidAt          DateTime?
+  
+  // Shipping
+  trackingNumber  String?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  
+  // Commission
+  commissionAmount Float        @default(0.0)
+  commissionRate   Float        @default(0.0)
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer        User          @relation(fields: [customerId], references: [id])
+  seller          Seller?       @relation(fields: [sellerId], references: [id])
+  items           OrderItem[]
+  payments        Payment[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String        @id @default(cuid())
+  orderId         String
+  productId       String
+  variantId       String?
+  quantity        Int
+  unitPrice       Float
+  totalPrice      Float
+  taxRate         Float         @default(0.0)
+  taxAmount       Float         @default(0.0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product         Product       @relation(fields: [productId], references: [id])
+  variant         ProductVariant? @relation(fields: [variantId], references: [id])
+
+  @@map("order_items")
+}
+
+// ===========================================
+// PAYMENT MANAGEMENT
+// ===========================================
+
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String
+  amount          Float
+  currency        String        @default("TRY")
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  gateway         String?       // paytr, stripe, etc.
+  transactionId   String?
+  gatewayResponse Json?
+  processedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+// ===========================================
+// COMMISSION SYSTEM
+// ===========================================
+
+model CommissionRule {
+  id              String        @id @default(cuid())
+  tenantId        String
+  sellerId        String?
+  businessType    BusinessType?
+  minAmount       Float?        @default(0.0)
+  maxAmount       Float?
+  rate            Float         // Commission rate as percentage
+  taxRate         Float         @default(18.0) // KDV rate
+  isActive        Boolean       @default(true)
+  effectiveFrom   DateTime      @default(now())
+  effectiveTo     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  seller          Seller?       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@map("commission_rules")
+}
+
+// ===========================================
+// WISHLIST
+// ===========================================
+
+model WishlistItem {
+  id          String   @id @default(cuid())
+  userId      String
+  productId   String
+  variantId   String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant     ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId, variantId])
+  @@map("wishlist_items")
+}
+
+// ===========================================
+// SETTLEMENT SYSTEM
+// ===========================================
+
+model SellerBalance {
+  id                String        @id @default(cuid())
+  tenantId          String
+  sellerId          String
+  orderId           String?       // Optional: specific order balance
+  orderItemId       String?       // Optional: specific order item balance
+  
+  // Balance details
+  grossAmount       Float         @default(0.0) // Order total before commission
+  commissionAmount  Float         @default(0.0) // Commission deducted
+  taxAmount         Float         @default(0.0) // Tax on commission
+  netAmount         Float         @default(0.0) // Amount seller receives
+  
+  // Commission details
+  commissionRate    Float         @default(0.0) // Applied commission rate
+  taxRate           Float         @default(0.18) // Applied tax rate (18% KDV)
+  sellerType        SellerType    @default(TYPE_B)
+  
+  // Status
+  status            BalanceStatus @default(PENDING)
+  isSettled         Boolean       @default(false)
+  settledAt         DateTime?
+  settlementRunId   String?
+  
+  // Metadata
+  description       String?       // Human readable description
+  metadata          Json?         // Additional data
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  seller            Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  order             Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  settlementRun     SettlementRun? @relation(fields: [settlementRunId], references: [id], onDelete: SetNull)
+
+  @@map("seller_balances")
+  @@index([tenantId, sellerId])
+  @@index([status, isSettled])
+  @@index([settlementRunId])
+}
+
+model SettlementRun {
+  id                String        @id @default(cuid())
+  tenantId          String
+  
+  // Run details
+  runType           SettlementRunType @default(MANUAL)
+  status            SettlementStatus @default(PENDING)
+  periodStart       DateTime
+  periodEnd         DateTime
+  
+  // Summary
+  totalSellers      Int           @default(0)
+  totalOrders       Int           @default(0)
+  totalGrossAmount  Float         @default(0.0)
+  totalCommission   Float         @default(0.0)
+  totalTax          Float         @default(0.0)
+  totalNetAmount    Float         @default(0.0)
+  
+  // Processing
+  processedAt       DateTime?
+  completedAt       DateTime?
+  failedAt          DateTime?
+  errorMessage      String?
+  
+  // Metadata
+  description       String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  balances          SellerBalance[]
+  payouts           Payout[]
+
+  @@map("settlement_runs")
+  @@index([tenantId, status])
+  @@index([periodStart, periodEnd])
+}
+
+model Payout {
+  id                String        @id @default(cuid())
+  tenantId          String
+  sellerId          String
+  settlementRunId   String
+  
+  // Payout details
+  amount            Float         @default(0.0)
+  currency          String        @default("TRY")
+  status            PayoutStatus  @default(PENDING)
+  
+  // Payment method
+  paymentMethod     PaymentMethod @default(BANK_TRANSFER)
+  bankAccount       String?       // IBAN or account number
+  bankName          String?
+  accountHolder     String?
+  
+  // Processing
+  processedAt       DateTime?
+  completedAt       DateTime?
+  failedAt          DateTime?
+  failureReason     String?
+  
+  // External references
+  externalId        String?       // External payment system ID
+  transactionId     String?       // Bank transaction ID
+  
+  // Metadata
+  description       String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  seller            Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  settlementRun     SettlementRun @relation(fields: [settlementRunId], references: [id], onDelete: Cascade)
+
+  @@map("payouts")
+  @@index([tenantId, sellerId])
+  @@index([status])
+  @@index([settlementRunId])
+}
+
+// Enums
+enum BalanceStatus {
+  PENDING           // Waiting for settlement
+  SETTLED           // Included in settlement run
+  PAID              // Payout completed
+  FAILED            // Settlement failed
+  CANCELLED         // Settlement cancelled
+}
+
+enum SettlementRunType {
+  MANUAL            // Manual settlement run
+  SCHEDULED         // Scheduled settlement run
+  ORDER_TRIGGERED   // Triggered by order completion
+}
+
+enum SettlementStatus {
+  PENDING           // Settlement run created
+  PROCESSING        // Processing balances
+  COMPLETED         // Settlement completed
+  FAILED            // Settlement failed
+  CANCELLED         // Settlement cancelled
+}
+
+enum PayoutStatus {
+  PENDING           // Payout created
+  PROCESSING        // Being processed
+  COMPLETED         // Payout completed
+  FAILED            // Payout failed
+  CANCELLED         // Payout cancelled
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER     // Bank transfer
+  PAYPAL            // PayPal
+  STRIPE            // Stripe
+  WISE              // Wise
+  CASH              // Cash payment
+}
+
+// ===========================================
+// INVOICE SYSTEM
+// ===========================================
+
+model Invoice {
+  id                String        @id @default(cuid())
+  tenantId          String
+  orderId           String?       // Optional: specific order invoice
+  sellerId          String?       // Optional: seller-specific invoice
+  
+  // Invoice details
+  invoiceNumber     String        @unique
+  invoiceType       InvoiceType   @default(SALES)
+  status            InvoiceStatus @default(DRAFT)
+  
+  // Parties
+  issuerId          String        // Who issues the invoice (company or seller)
+  issuerType        IssuerType    @default(COMPANY)
+  issuerName        String
+  issuerTaxNumber   String
+  issuerAddress     String
+  issuerPhone       String?
+  issuerEmail       String?
+  
+  buyerId           String        // Who receives the invoice
+  buyerType         BuyerType     @default(CUSTOMER)
+  buyerName         String
+  buyerTaxNumber    String?
+  buyerAddress      String
+  buyerPhone        String?
+  buyerEmail        String?
+  
+  // Financial details
+  subtotal          Float         @default(0.0)
+  taxAmount         Float         @default(0.0)
+  totalAmount       Float         @default(0.0)
+  currency          String        @default("TRY")
+  
+  // Dates
+  invoiceDate       DateTime      @default(now())
+  dueDate           DateTime?
+  paidDate          DateTime?
+  
+  // External system integration
+  externalId        String?       // External invoice system ID
+  externalStatus    String?       // External system status
+  externalData      Json?         // External system response data
+  
+  // Payment details
+  paymentMethod     String?
+  paymentReference  String?
+  paymentNotes      String?
+  
+  // Notes and metadata
+  notes             String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  order             Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  seller            Seller?       @relation(fields: [sellerId], references: [id], onDelete: SetNull)
+  items             InvoiceItem[]
+
+  @@map("invoices")
+  @@index([tenantId, invoiceType])
+  @@index([invoiceNumber])
+  @@index([status])
+  @@index([invoiceDate])
+}
+
+model InvoiceItem {
+  id                String        @id @default(cuid())
+  invoiceId         String
+  tenantId          String
+  
+  // Item details
+  productId         String?       // Optional: specific product
+  productName       String
+  productSku        String?
+  description       String?
+  
+  // Quantity and pricing
+  quantity          Float         @default(1.0)
+  unitPrice         Float         @default(0.0)
+  subtotal          Float         @default(0.0)
+  
+  // Tax details
+  taxRate           Float         @default(0.18) // 18% KDV
+  taxAmount         Float         @default(0.0)
+  totalAmount       Float         @default(0.0)
+  
+  // Commission details (for commission invoices)
+  commissionRate    Float?        @default(0.0)
+  commissionAmount  Float?        @default(0.0)
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  invoice           Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product           Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@map("invoice_items")
+  @@index([invoiceId])
+  @@index([tenantId])
+}
+
+// Invoice Enums
+enum InvoiceType {
+  SALES             // Sales invoice (for IG sellers)
+  COMMISSION        // Commission invoice (for company sellers)
+  REFUND            // Refund invoice
+  CREDIT_NOTE       // Credit note
+  DEBIT_NOTE        // Debit note
+}
+
+enum InvoiceStatus {
+  DRAFT             // Draft invoice
+  PENDING           // Pending approval
+  APPROVED          // Approved
+  SENT              // Sent to customer
+  PAID              // Paid
+  OVERDUE           // Overdue
+  CANCELLED         // Cancelled
+  REFUNDED          // Refunded
+}
+
+enum IssuerType {
+  COMPANY           // Company issues invoice
+  SELLER            // Seller issues invoice
+}
+
+enum BuyerType {
+  CUSTOMER          // End customer
+  SELLER            // Seller (for commission invoices)
+  COMPANY           // Company
+}
+
+// ===========================================
+// RISK MANAGEMENT SYSTEM
+// ===========================================
+
+model RiskRule {
+  id                String        @id @default(cuid())
+  tenantId          String
+  
+  // Rule details
+  name              String
+  description       String?
+  ruleType          RiskRuleType
+  category          RiskCategory
+  priority          Int           @default(1) // 1 = highest priority
+  
+  // Rule conditions
+  conditions        Json          // Rule conditions in JSON format
+  threshold         Float?        // Threshold value for scoring rules
+  weight            Float         @default(1.0) // Weight for scoring
+  
+  // Rule actions
+  action            RiskAction    @default(SCORE)
+  actionParams      Json?         // Action parameters
+  
+  // Status
+  isActive          Boolean       @default(true)
+  isEnabled         Boolean       @default(true)
+  
+  // Metadata
+  createdBy         String?       // User who created the rule
+  lastModifiedBy    String?       // User who last modified the rule
+  tags              String[]      @default([])
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  riskScores        RiskScore[]
+
+  @@map("risk_rules")
+  @@index([tenantId, isActive, isEnabled])
+  @@index([ruleType, category])
+}
+
+model RiskScore {
+  id                String        @id @default(cuid())
+  tenantId          String
+  orderId           String?       // Optional: specific order
+  customerId        String?       // Optional: specific customer
+  sellerId          String?       // Optional: specific seller
+  
+  // Score details
+  totalScore        Float         @default(0.0)
+  maxPossibleScore  Float         @default(0.0)
+  riskLevel         RiskLevel     @default(LOW)
+  
+  // Rule scores breakdown
+  ruleScores        Json          // Individual rule scores
+  
+  // Context
+  context           Json?         // Additional context data
+  signals           Json?         // Risk signals collected
+  
+  // Status
+  status            RiskScoreStatus @default(PENDING)
+  reviewedBy        String?       // User who reviewed the score
+  reviewedAt        DateTime?
+  reviewNotes       String?
+  
+  // Actions taken
+  actionsTaken      String[]      @default([])
+  isBlocked         Boolean       @default(false)
+  blockReason       String?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  order             Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  riskEvents        RiskEvent[]
+
+  @@map("risk_scores")
+  @@index([tenantId, orderId])
+  @@index([riskLevel, status])
+  @@index([createdAt])
+}
+
+model RiskEvent {
+  id                String        @id @default(cuid())
+  tenantId          String
+  riskScoreId       String
+  
+  // Event details
+  eventType         RiskEventType
+  eventName         String
+  description       String?
+  
+  // Event data
+  eventData         Json?         // Event-specific data
+  severity          RiskSeverity  @default(MEDIUM)
+  
+  // Context
+  source            String?       // Source of the event
+  sourceId          String?       // ID of the source entity
+  tags              String[]      @default([])
+  
+  // Status
+  isProcessed       Boolean       @default(false)
+  processedAt       DateTime?
+  processedBy       String?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  riskScore         RiskScore     @relation(fields: [riskScoreId], references: [id], onDelete: Cascade)
+
+  @@map("risk_events")
+  @@index([tenantId, eventType])
+  @@index([riskScoreId])
+  @@index([createdAt])
+}
+
+model RiskProfile {
+  id                String        @id @default(cuid())
+  tenantId          String
+  entityId          String        // Customer ID or Seller ID
+  entityType        RiskEntityType
+  
+  // Profile details
+  riskLevel         RiskLevel     @default(LOW)
+  riskScore         Float         @default(0.0)
+  lastCalculatedAt  DateTime?
+  
+  // Risk factors
+  riskFactors       Json?         // Risk factors and their values
+  riskHistory       Json?         // Historical risk data
+  
+  // Flags
+  isBlacklisted     Boolean       @default(false)
+  isWhitelisted     Boolean       @default(false)
+  isHighRisk        Boolean       @default(false)
+  
+  // Review
+  lastReviewedAt    DateTime?
+  reviewedBy        String?
+  reviewNotes       String?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("risk_profiles")
+  @@unique([tenantId, entityId, entityType])
+  @@index([tenantId, entityType])
+  @@index([riskLevel, isBlacklisted])
+}
+
+// Risk Enums
+enum RiskRuleType {
+  SCORING           // Rule that contributes to risk score
+  THRESHOLD         // Rule that checks against thresholds
+  BLACKLIST         // Rule that blocks entities
+  WHITELIST         // Rule that allows entities
+  NOTIFICATION      // Rule that sends notifications
+  AUTO_ACTION       // Rule that takes automatic actions
+}
+
+enum RiskCategory {
+  CUSTOMER          // Customer-related risks
+  SELLER            // Seller-related risks
+  ORDER             // Order-related risks
+  PAYMENT           // Payment-related risks
+  FRAUD             // Fraud-related risks
+  COMPLIANCE        // Compliance-related risks
+  GEOGRAPHIC        // Geographic risks
+  BEHAVIORAL        // Behavioral risks
+  FINANCIAL         // Financial risks
+  TECHNICAL         // Technical risks
+}
+
+enum RiskAction {
+  SCORE             // Add to risk score
+  BLOCK             // Block the entity/order
+  HOLD              // Hold the entity/order
+  NOTIFY            // Send notification
+  REVIEW            // Flag for manual review
+  APPROVE           // Auto-approve
+  ESCALATE          // Escalate to higher level
+}
+
+enum RiskLevel {
+  LOW               // Low risk
+  MEDIUM            // Medium risk
+  HIGH              // High risk
+  CRITICAL          // Critical risk
+}
+
+enum RiskScoreStatus {
+  PENDING           // Score calculation pending
+  CALCULATED        // Score calculated
+  REVIEWED          // Score reviewed by human
+  APPROVED          // Score approved
+  REJECTED          // Score rejected
+  EXPIRED           // Score expired
+}
+
+enum RiskEventType {
+  ORDER_CREATED     // Order creation event
+  PAYMENT_PROCESSED // Payment processing event
+  CUSTOMER_SIGNUP   // Customer signup event
+  SELLER_REGISTER   // Seller registration event
+  LOGIN_ATTEMPT     // Login attempt event
+  ADDRESS_CHANGE    // Address change event
+  PHONE_CHANGE      // Phone number change event
+  EMAIL_CHANGE      // Email change event
+  CARD_CHANGE       // Payment card change event
+  HIGH_VALUE_ORDER  // High value order event
+  RAPID_ORDERS      // Rapid order placement event
+  UNUSUAL_LOCATION  // Unusual location event
+  DEVICE_CHANGE     // Device change event
+  REFUND_REQUEST    // Refund request event
+  CHARGEBACK        // Chargeback event
+  FRAUD_DETECTED    // Fraud detection event
+  MANUAL_REVIEW     // Manual review event
+}
+
+enum RiskSeverity {
+  LOW               // Low severity
+  MEDIUM            // Medium severity
+  HIGH              // High severity
+  CRITICAL          // Critical severity
+}
+
+enum RiskEntityType {
+  CUSTOMER          // Customer entity
+  SELLER            // Seller entity
+  ORDER             // Order entity
+  PAYMENT           // Payment entity
+}
+
+// ===========================================
+// SHIPPING MANAGEMENT SYSTEM
+// ===========================================
+
+model ShippingContract {
+  id                String        @id @default(cuid())
+  tenantId          String
+  
+  // Contract details
+  contractName      String
+  provider          ShippingProvider
+  contractNumber    String        @unique
+  status            ContractStatus @default(ACTIVE)
+  
+  // Provider configuration
+  providerConfig    Json          // Provider-specific configuration
+  apiCredentials    Json          // API credentials (encrypted)
+  
+  // Service configuration
+  services          String[]      @default([]) // Available services
+  zones            String[]      @default([]) // Service zones
+  weightLimits     Json?         // Weight limits per service
+  dimensionLimits  Json?         // Dimension limits per service
+  
+  // Pricing
+  baseRates        Json?         // Base rates per service/zone
+  surcharges       Json?         // Additional charges
+  discounts        Json?         // Discount rules
+  
+  // Contract terms
+  startDate        DateTime
+  endDate          DateTime?
+  autoRenew        Boolean       @default(false)
+  noticePeriod     Int?          // Days notice for termination
+  
+  // Contact information
+  contactName      String?
+  contactEmail     String?
+  contactPhone     String?
+  
+  // Status tracking
+  lastUsedAt       DateTime?
+  usageCount       Int           @default(0)
+  errorCount       Int           @default(0)
+  lastErrorAt      DateTime?
+  lastErrorMessage String?
+  
+  // Metadata
+  description      String?
+  tags             String[]      @default([])
+  metadata         Json?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  // Relations
+  tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  labels           ShippingLabel[]
+
+  @@map("shipping_contracts")
+  @@index([tenantId, status])
+  @@index([provider, status])
+}
+
+model ShippingLabel {
+  id                String        @id @default(cuid())
+  tenantId          String
+  orderId           String
+  contractId        String
+  
+  // Label details
+  labelNumber       String        @unique
+  trackingNumber    String        @unique
+  serviceType       String        // Express, Standard, etc.
+  status            LabelStatus   @default(CREATED)
+  
+  // Package details
+  weight            Float         // in kg
+  dimensions        Json          // {length, width, height} in cm
+  packageType       String        @default("PACKAGE") // PACKAGE, DOCUMENT, etc.
+  
+  // Addresses
+  senderAddress     Json          // Sender address
+  recipientAddress  Json          // Recipient address
+  
+  // Pricing
+  basePrice         Float         @default(0.0)
+  surcharges        Float         @default(0.0)
+  discounts         Float         @default(0.0)
+  totalPrice        Float         @default(0.0)
+  currency          String        @default("TRY")
+  
+  // Provider details
+  providerLabelId   String?       // Provider's internal label ID
+  providerData      Json?         // Provider response data
+  labelUrl          String?       // URL to download label
+  barcodeUrl        String?       // URL to barcode image
+  
+  // Dates
+  createdAt         DateTime      @default(now())
+  printedAt         DateTime?
+  shippedAt         DateTime?
+  deliveredAt       DateTime?
+  cancelledAt       DateTime?
+  
+  // Error handling
+  errorMessage      String?
+  retryCount        Int           @default(0)
+  lastRetryAt       DateTime?
+  
+  // Metadata
+  notes             String?
+  metadata          Json?
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  contract          ShippingContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  tracking          TrackingEvent[]
+
+  @@map("shipping_labels")
+  @@index([tenantId, orderId])
+  @@index([trackingNumber])
+  @@index([status, createdAt])
+}
+
+model TrackingEvent {
+  id                String        @id @default(cuid())
+  labelId           String
+  tenantId          String
+  
+  // Event details
+  eventType         TrackingEventType
+  eventName         String
+  description       String?
+  
+  // Location
+  location          String?
+  city              String?
+  state             String?
+  country           String?
+  postalCode        String?
+  
+  // Status
+  status            String?
+  statusCode        String?
+  
+  // Dates
+  eventDate         DateTime
+  recordedAt        DateTime      @default(now())
+  
+  // Provider data
+  providerEventId   String?
+  providerData      Json?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now()
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  label             ShippingLabel @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@map("tracking_events")
+  @@index([labelId, eventDate])
+  @@index([tenantId, eventType])
+}
+
+model ShippingZone {
+  id                String        @id @default(cuid())
+  tenantId          String
+  
+  // Zone details
+  zoneName          String
+  zoneCode          String        @unique
+  countries         String[]      @default([])
+  regions           String[]      @default([])
+  cities            String[]      @default([])
+  
+  // Service availability
+  availableServices String[]      @default([])
+  
+  // Pricing
+  baseRates         Json?         // Base rates per service
+  surcharges        Json?         // Additional charges
+  discounts         Json?         // Discount rules
+  
+  // Delivery times
+  estimatedDays     Json?         // Estimated delivery days per service
+  
+  // Status
+  isActive          Boolean       @default(true)
+  
+  // Metadata
+  description       String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("shipping_zones")
+  @@index([tenantId, isActive])
+  @@index([zoneCode])
+}
+
+// Shipping Enums
+enum ShippingProvider {
+  PTT              // Turkish Post
+  ARAS             // Aras Kargo
+  MNG              // MNG Kargo
+  YURTICI          // Yurtiçi Kargo
+  SENDEX           // Sendex
+  UPS              // UPS
+  DHL              // DHL
+  FEDEX            // FedEx
+  CUSTOM           // Custom provider
+}
+
+enum ContractStatus {
+  ACTIVE           // Contract is active
+  INACTIVE         // Contract is inactive
+  SUSPENDED        // Contract is suspended
+  EXPIRED          // Contract has expired
+  TERMINATED       // Contract is terminated
+}
+
+enum LabelStatus {
+  CREATED          // Label created
+  PRINTED          // Label printed
+  SHIPPED          // Package shipped
+  IN_TRANSIT       // Package in transit
+  OUT_FOR_DELIVERY // Out for delivery
+  DELIVERED        // Package delivered
+  FAILED           // Delivery failed
+  RETURNED         // Package returned
+  CANCELLED        // Label cancelled
+  ERROR            // Error occurred
+}
+
+enum TrackingEventType {
+  LABEL_CREATED    // Label created
+  PICKED_UP        // Package picked up
+  IN_TRANSIT       // In transit
+  ARRIVED          // Arrived at facility
+  OUT_FOR_DELIVERY // Out for delivery
+  DELIVERED        // Delivered
+  FAILED           // Delivery failed
+  RETURNED         // Returned to sender
+  EXCEPTION        // Exception occurred
+  CANCELLED        // Cancelled
+}
+
+// ===========================================
+// PROMOTION & COUPON SYSTEM
+// ===========================================
+
+model Promotion {
+  id                String        @id @default(cuid())
+  tenantId          String
+  
+  // Basic info
+  name              String
+  description       String?
+  code              String?       @unique // Optional promotion code
+  type              PromotionType
+  status            PromotionStatus @default(ACTIVE)
+  
+  // Discount configuration
+  discountType      DiscountType
+  discountValue     Float         @default(0.0)
+  maxDiscountAmount Float?        // Maximum discount amount
+  minOrderAmount    Float?        // Minimum order amount to apply
+  
+  // Usage limits
+  usageLimit        Int?          // Total usage limit
+  usagePerCustomer  Int?          // Usage limit per customer
+  usageCount        Int           @default(0) // Current usage count
+  
+  // Validity period
+  startDate         DateTime
+  endDate           DateTime?
+  
+  // Priority and stacking
+  priority          Int           @default(1) // Higher number = higher priority
+  stackable         Boolean       @default(false) // Can be combined with other promotions
+  stackableWith     String[]      @default([]) // Specific promotion codes that can be stacked
+  
+  // Eligibility rules
+  eligibilityRules  Json?         // JSON logic rules for eligibility
+  
+  // Target configuration
+  targetType        TargetType    @default(ALL) // ALL, CUSTOMER, PRODUCT, CATEGORY
+  targetIds         String[]      @default([]) // Target customer/product/category IDs
+  
+  // Display configuration
+  displayName       String?       // Display name for customers
+  displayDescription String?      // Display description
+  bannerImage       String?       // Banner image URL
+  iconImage         String?       // Icon image URL
+  
+  // Metadata
+  tags              String[]      @default([])
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  createdBy         String?       // User who created the promotion
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  coupons           Coupon[]
+    usageHistory    PromotionUsage[]
+
+  @@map("promotions")
+  @@index([tenantId, status])
+  @@index([code])
+  @@index([startDate, endDate])
+  @@index([priority])
+}
+
+model Coupon {
+  id                String        @id @default(cuid())
+  tenantId          String
+  promotionId       String
+  
+  // Coupon details
+  code              String        @unique
+  status            CouponStatus  @default(ACTIVE)
+  
+  // Usage limits
+  usageLimit        Int?          // Total usage limit for this coupon
+  usageCount        Int           @default(0) // Current usage count
+  
+  // Validity period
+  startDate         DateTime
+  endDate           DateTime?
+  
+  // Customer assignment
+  assignedTo        String?       // Customer ID if assigned to specific customer
+  assignedBy        String?       // User who assigned the coupon
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  promotion         Promotion     @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  usageHistory      CouponUsage[]
+
+  @@map("coupons")
+  @@index([tenantId, status])
+  @@index([code])
+  @@index([assignedTo])
+  @@index([startDate, endDate])
+}
+
+model PromotionUsage {
+  id                String        @id @default(cuid())
+  tenantId          String
+  promotionId       String
+  orderId           String?
+  customerId        String?
+  
+  // Usage details
+  discountAmount    Float         @default(0.0)
+  originalAmount    Float         @default(0.0)
+  finalAmount       Float         @default(0.0)
+  
+  // Applied items
+  appliedItems      Json?         // Items that the promotion was applied to
+  
+  // Metadata
+  usedAt            DateTime      @default(now())
+  metadata          Json?
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  promotion         Promotion     @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+
+  @@map("promotion_usage")
+  @@index([tenantId, promotionId])
+  @@index([orderId])
+  @@index([customerId])
+  @@index([usedAt])
+}
+
+model CouponUsage {
+  id                String        @id @default(cuid())
+  tenantId          String
+  couponId          String
+  orderId           String?
+  customerId        String?
+  
+  // Usage details
+  discountAmount    Float         @default(0.0)
+  originalAmount    Float         @default(0.0)
+  finalAmount       Float         @default(0.0)
+  
+  // Applied items
+  appliedItems      Json?         // Items that the coupon was applied to
+  
+  // Metadata
+  usedAt            DateTime      @default(now())
+  metadata          Json?
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  coupon            Coupon        @relation(fields: [couponId], references: [id], onDelete: Cascade)
+
+  @@map("coupon_usage")
+  @@index([tenantId, couponId])
+  @@index([orderId])
+  @@index([customerId])
+  @@index([usedAt])
+}
+
+model PromotionConflict {
+  id                String        @id @default(cuid())
+  tenantId          String
+  
+  // Conflict configuration
+  conflictType      ConflictType
+  priority          Int           @default(1)
+  
+  // Conflicting promotions
+  promotionIds      String[]      // IDs of conflicting promotions
+  
+  // Resolution strategy
+  resolutionStrategy ResolutionStrategy
+  resolutionRules   Json?         // JSON logic for conflict resolution
+  
+  // Status
+  isActive          Boolean       @default(true)
+  
+  // Metadata
+  description       String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("promotion_conflicts")
+  @@index([tenantId, isActive])
+  @@index([conflictType])
+}
+
+// Promotion Enums
+enum PromotionType {
+  PERCENTAGE        // Percentage discount
+  FIXED_AMOUNT      // Fixed amount discount
+  FREE_SHIPPING     // Free shipping
+  BUY_X_GET_Y       // Buy X get Y free
+  BUNDLE_DISCOUNT   // Bundle discount
+  CASHBACK          // Cashback
+  GIFT_CARD         // Gift card
+  POINTS            // Loyalty points
+}
+
+enum PromotionStatus {
+  DRAFT             // Draft promotion
+  ACTIVE            // Active promotion
+  INACTIVE          // Inactive promotion
+  EXPIRED           // Expired promotion
+  SUSPENDED         // Suspended promotion
+  ARCHIVED          // Archived promotion
+}
+
+enum DiscountType {
+  PERCENTAGE        // Percentage discount
+  FIXED_AMOUNT      // Fixed amount discount
+  FREE_SHIPPING     // Free shipping
+  BUY_X_GET_Y       // Buy X get Y free
+  BUNDLE_DISCOUNT   // Bundle discount
+}
+
+enum TargetType {
+  ALL               // All customers/products
+  CUSTOMER          // Specific customers
+  PRODUCT           // Specific products
+  CATEGORY          // Specific categories
+  BRAND             // Specific brands
+  SELLER            // Specific sellers
+  CUSTOMER_SEGMENT  // Customer segments
+}
+
+enum CouponStatus {
+  ACTIVE            // Active coupon
+  INACTIVE          // Inactive coupon
+  EXPIRED           // Expired coupon
+  USED_UP           // Usage limit reached
+  SUSPENDED         // Suspended coupon
+}
+
+enum ConflictType {
+  MUTUALLY_EXCLUSIVE // Promotions cannot be used together
+  PRIORITY_BASED     // Higher priority promotion wins
+  RULE_BASED         // Custom rules determine resolution
+  CUSTOMER_CHOICE    // Customer chooses which promotion to use
+}
+
+enum ResolutionStrategy {
+  HIGHEST_PRIORITY   // Use highest priority promotion
+  HIGHEST_DISCOUNT   // Use promotion with highest discount
+  FIRST_APPLIED      // Use first applied promotion
+  CUSTOMER_CHOICE    // Let customer choose
+  CUSTOM_RULES       // Use custom resolution rules
+}
+
+// ===========================================
+// ADVERTISING CAMPAIGN SYSTEM
+// ===========================================
+
+model AdCampaign {
+  id                String        @id @default(cuid())
+  tenantId          String
+  
+  // Campaign details
+  name              String
+  description       String?
+  status            AdCampaignStatus @default(DRAFT)
+  
+  // Campaign type and targeting
+  campaignType      AdCampaignType
+  targetingType     AdTargetingType @default(KEYWORD)
+  targetKeywords    String[]       @default([])
+  targetCategories  String[]       @default([])
+  targetLocations   String[]       @default([])
+  targetAudiences   String[]       @default([])
+  
+  // Budget and bidding
+  dailyBudget       Float          @default(0.0)
+  totalBudget       Float?         // Optional total budget limit
+  bidType           AdBidType      @default(CPC)
+  bidAmount         Float          @default(0.0)
+  maxBidAmount      Float?         // Maximum bid per click/impression
+  
+  // Campaign settings
+  startDate         DateTime
+  endDate           DateTime?
+  isActive          Boolean        @default(false)
+  isPaused          Boolean        @default(false)
+  
+  // Performance tracking
+  impressions       Int            @default(0)
+  clicks            Int            @default(0)
+  conversions       Int            @default(0)
+  spend             Float          @default(0.0)
+  revenue           Float          @default(0.0)
+  
+  // Quality metrics
+  qualityScore      Float?         // 0-10 quality score
+  ctr               Float?         // Click-through rate
+  cpc               Float?         // Cost per click
+  cpm               Float?         // Cost per mille
+  roas              Float?         // Return on ad spend
+  
+  // Owner and permissions
+  sellerId          String?        // If campaign belongs to seller
+  createdBy         String?        // User who created the campaign
+  approvedBy        String?        // User who approved the campaign
+  approvedAt        DateTime?
+  
+  // Metadata
+  tags              String[]       @default([])
+  metadata          Json?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  // Relations
+  tenant            Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  seller            Seller?        @relation(fields: [sellerId], references: [id], onDelete: SetNull)
+  adGroups          AdGroup[]
+  impressions       AdImpression[]
+  clicks            AdClick[]
+  budgets           AdBudget[]
+
+  @@map("ad_campaigns")
+  @@index([tenantId, status])
+  @@index([sellerId])
+  @@index([startDate, endDate])
+  @@index([campaignType, targetingType])
+}
+
+model AdGroup {
+  id                String        @id @default(cuid())
+  tenantId          String
+  campaignId        String
+  
+  // Group details
+  name              String
+  description       String?
+  status            AdGroupStatus @default(ACTIVE)
+  
+  // Targeting
+  keywords          String[]      @default([])
+  negativeKeywords  String[]      @default([])
+  categories        String[]      @default([])
+  locations         String[]      @default([])
+  
+  // Bidding
+  bidType           AdBidType
+  bidAmount         Float
+  maxBidAmount      Float?
+  
+  // Performance
+  impressions       Int           @default(0)
+  clicks            Int           @default(0)
+  conversions       Int           @default(0)
+  spend             Float         @default(0.0)
+  
+  // Quality metrics
+  qualityScore      Float?
+  ctr               Float?
+  cpc               Float?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaign          AdCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  ads               Ad[]
+
+  @@map("ad_groups")
+  @@index([tenantId, campaignId])
+  @@index([status])
+}
+
+model Ad {
+  id                String        @id @default(cuid())
+  tenantId          String
+  campaignId        String
+  adGroupId         String
+  productId         String?       // If promoting a specific product
+  
+  // Ad details
+  title             String
+  description       String?
+  headline          String?
+  callToAction      String?
+  
+  // Creative assets
+  imageUrl          String?
+  videoUrl          String?
+  logoUrl           String?
+  
+  // Landing page
+  landingPageUrl    String
+  finalUrl          String?       // Final URL after redirects
+  
+  // Status and settings
+  status            AdStatus      @default(PAUSED)
+  isActive          Boolean       @default(false)
+  priority          Int           @default(1)
+  
+  // Performance
+  impressions       Int           @default(0)
+  clicks            Int           @default(0)
+  conversions       Int           @default(0)
+  spend             Float         @default(0.0)
+  
+  // Quality metrics
+  qualityScore      Float?
+  ctr               Float?
+  cpc               Float?
+  relevanceScore    Float?
+  
+  // Approval
+  isApproved        Boolean       @default(false)
+  approvedBy        String?
+  approvedAt        DateTime?
+  rejectionReason   String?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaign          AdCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  adGroup           AdGroup       @relation(fields: [adGroupId], references: [id], onDelete: Cascade)
+  product           Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+  impressions       AdImpression[]
+  clicks            AdClick[]
+
+  @@map("ads")
+  @@index([tenantId, campaignId, adGroupId])
+  @@index([status, isActive])
+  @@index([productId])
+}
+
+model AdBudget {
+  id                String        @id @default(cuid())
+  tenantId          String
+  campaignId        String
+  
+  // Budget details
+  budgetType        AdBudgetType
+  amount            Float
+  currency          String        @default("TRY")
+  
+  // Budget period
+  startDate         DateTime
+  endDate           DateTime?
+  isRecurring       Boolean       @default(false)
+  recurringType     AdRecurringType?
+  
+  // Usage tracking
+  usedAmount        Float         @default(0.0)
+  remainingAmount   Float         @default(0.0)
+  
+  // Status
+  status            AdBudgetStatus @default(ACTIVE)
+  isExhausted       Boolean       @default(false)
+  
+  // Metadata
+  description       String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaign          AdCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("ad_budgets")
+  @@index([tenantId, campaignId])
+  @@index([budgetType, status])
+  @@index([startDate, endDate])
+}
+
+model AdImpression {
+  id                String        @id @default(cuid())
+  tenantId          String
+  campaignId        String
+  adId              String
+  
+  // Impression details
+  impressionType    AdImpressionType
+  slot              AdSlotType
+  position          Int           // Position in slot (1, 2, 3, etc.)
+  
+  // User and session
+  userId            String?       // Anonymous or logged-in user
+  sessionId         String?
+  deviceType        String?       // mobile, desktop, tablet
+  browser           String?
+  os                String?
+  
+  // Location and context
+  ipAddress         String?
+  country           String?
+  city              String?
+  region            String?
+  
+  // Search context
+  searchQuery       String?
+  searchCategory    String?
+  searchFilters     Json?
+  
+  // Product context
+  productId         String?
+  categoryId        String?
+  sellerId          String?
+  
+  // Performance
+  isVisible         Boolean       @default(true)
+  viewTime          Int?          // Time in milliseconds
+  viewPercentage    Float?        // Percentage of ad viewed
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaign          AdCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  ad                Ad            @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@map("ad_impressions")
+  @@index([tenantId, campaignId, adId])
+  @@index([slot, position])
+  @@index([createdAt])
+  @@index([userId, sessionId])
+}
+
+model AdClick {
+  id                String        @id @default(cuid())
+  tenantId          String
+  campaignId        String
+  adId              String
+  impressionId      String?       // Link to impression if available
+  
+  // Click details
+  clickType         AdClickType
+  slot              AdSlotType
+  position          Int
+  
+  // User and session
+  userId            String?
+  sessionId         String?
+  deviceType        String?
+  browser           String?
+  os                String?
+  
+  // Location and context
+  ipAddress         String?
+  country           String?
+  city              String?
+  region            String?
+  
+  // Search context
+  searchQuery       String?
+  searchCategory    String?
+  searchFilters     Json?
+  
+  // Product context
+  productId         String?
+  categoryId        String?
+  sellerId          String?
+  
+  // Click behavior
+  clickPosition     Json?         // X, Y coordinates of click
+  timeOnPage        Int?          // Time spent on landing page
+  bounceRate        Boolean?      // Did user bounce immediately
+  
+  // Conversion tracking
+  isConversion      Boolean       @default(false)
+  conversionValue   Float?        // Value of conversion
+  conversionType    String?       // purchase, signup, etc.
+  
+  // Cost and billing
+  cost              Float         @default(0.0)
+  currency          String        @default("TRY")
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now()
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaign          AdCampaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  ad                Ad            @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@map("ad_clicks")
+  @@index([tenantId, campaignId, adId])
+  @@index([slot, position])
+  @@index([createdAt])
+  @@index([userId, sessionId])
+  @@index([isConversion])
+}
+
+model SellerWallet {
+  id                String        @id @default(cuid())
+  tenantId          String
+  sellerId          String
+  
+  // Wallet details
+  balance           Float         @default(0.0)
+  currency          String        @default("TRY")
+  isActive          Boolean       @default(true)
+  
+  // Spending limits
+  dailySpendLimit   Float?
+  monthlySpendLimit Float?
+  totalSpendLimit   Float?
+  
+  // Usage tracking
+  totalSpent        Float         @default(0.0)
+  totalDeposited    Float         @default(0.0)
+  lastSpentAt       DateTime?
+  lastDepositedAt   DateTime?
+  
+  // Status
+  status            WalletStatus  @default(ACTIVE)
+  isSuspended       Boolean       @default(false)
+  suspensionReason  String?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  seller            Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  transactions      WalletTransaction[]
+
+  @@map("seller_wallets")
+  @@index([tenantId, sellerId])
+  @@index([status])
+}
+
+model WalletTransaction {
+  id                String        @id @default(cuid())
+  tenantId          String
+  walletId          String
+  sellerId          String
+  
+  // Transaction details
+  type              WalletTransactionType
+  amount            Float
+  currency          String        @default("TRY")
+  balanceBefore     Float
+  balanceAfter      Float
+  
+  // Transaction context
+  description       String?
+  reference         String?       // External reference (payment ID, etc.)
+  campaignId        String?       // If related to ad campaign
+  adId              String?       // If related to specific ad
+  
+  // Payment details
+  paymentMethod     String?       // credit_card, bank_transfer, etc.
+  paymentId         String?       // External payment system ID
+  paymentStatus     String?       // pending, completed, failed
+  
+  // Status
+  status            TransactionStatus @default(PENDING)
+  processedAt       DateTime?
+  failedAt          DateTime?
+  failureReason     String?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  wallet            SellerWallet  @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  seller            Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@map("wallet_transactions")
+  @@index([tenantId, walletId, sellerId])
+  @@index([type, status])
+  @@index([createdAt])
+  @@index([campaignId, adId])
+}
+
+model PromotedListingSlot {
+  id                String        @id @default(cuid())
+  tenantId          String
+  
+  // Slot details
+  name              String
+  description       String?
+  slotType          AdSlotType
+  position          Int           // Position in listing (1, 2, 3, etc.)
+  
+  // Slot configuration
+  isActive          Boolean       @default(true)
+  maxAds            Int           @default(1) // Maximum ads in this slot
+  minBidAmount      Float         @default(0.0)
+  reservePrice      Float?        // Minimum reserve price
+  
+  // Targeting
+  targetCategories  String[]      @default([])
+  targetKeywords    String[]      @default([])
+  targetLocations   String[]      @default([])
+  
+  // Performance
+  totalImpressions  Int           @default(0)
+  totalClicks       Int           @default(0)
+  totalRevenue      Float         @default(0.0)
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("promoted_listing_slots")
+  @@index([tenantId, slotType, position])
+  @@index([isActive])
+}
+
+// Ad Enums
+enum AdCampaignStatus {
+  DRAFT             // Campaign is being created
+  PENDING_APPROVAL  // Waiting for approval
+  ACTIVE            // Campaign is running
+  PAUSED            // Campaign is paused
+  COMPLETED         // Campaign has ended
+  REJECTED          // Campaign was rejected
+  SUSPENDED         // Campaign is suspended
+  ARCHIVED          // Campaign is archived
+}
+
+enum AdCampaignType {
+  SEARCH            // Search ads
+  DISPLAY           // Display ads
+  SHOPPING          // Shopping ads
+  VIDEO             // Video ads
+  SOCIAL            // Social media ads
+  RETARGETING       // Retargeting ads
+  BRAND             // Brand awareness ads
+}
+
+enum AdTargetingType {
+  KEYWORD           // Keyword targeting
+  CATEGORY          // Category targeting
+  PRODUCT           // Product targeting
+  AUDIENCE          // Audience targeting
+  LOCATION          // Location targeting
+  DEMOGRAPHIC       // Demographic targeting
+  BEHAVIORAL        // Behavioral targeting
+  LOOKALIKE         // Lookalike targeting
+}
+
+enum AdBidType {
+  CPC               // Cost per click
+  CPM               // Cost per mille (impression)
+  CPA               // Cost per acquisition
+  CPV               // Cost per view
+  CPE               // Cost per engagement
+  CPO               // Cost per order
+}
+
+enum AdGroupStatus {
+  ACTIVE            // Ad group is active
+  PAUSED            // Ad group is paused
+  ARCHIVED          // Ad group is archived
+}
+
+enum AdStatus {
+  DRAFT             // Ad is being created
+  PENDING_APPROVAL  // Waiting for approval
+  ACTIVE            // Ad is running
+  PAUSED            // Ad is paused
+  REJECTED          // Ad was rejected
+  ARCHIVED          // Ad is archived
+}
+
+enum AdBudgetType {
+  DAILY             // Daily budget
+  MONTHLY           // Monthly budget
+  TOTAL             // Total campaign budget
+  LIFETIME          // Lifetime budget
+}
+
+enum AdRecurringType {
+  DAILY             // Recurring daily
+  WEEKLY            // Recurring weekly
+  MONTHLY           // Recurring monthly
+}
+
+enum AdBudgetStatus {
+  ACTIVE            // Budget is active
+  EXHAUSTED         // Budget is exhausted
+  PAUSED            // Budget is paused
+  COMPLETED         // Budget period completed
+}
+
+enum AdImpressionType {
+  SEARCH            // Search result impression
+  DISPLAY           // Display ad impression
+  SHOPPING          // Shopping ad impression
+  VIDEO             // Video ad impression
+  SOCIAL            // Social media impression
+  RETARGETING       // Retargeting impression
+}
+
+enum AdClickType {
+  SEARCH            // Search result click
+  DISPLAY           // Display ad click
+  SHOPPING          // Shopping ad click
+  VIDEO             // Video ad click
+  SOCIAL            // Social media click
+  RETARGETING       // Retargeting click
+}
+
+enum AdSlotType {
+  SEARCH_TOP        // Top of search results
+  SEARCH_SIDE       // Side of search results
+  SEARCH_BOTTOM     // Bottom of search results
+  CATEGORY_TOP      // Top of category page
+  CATEGORY_SIDE     // Side of category page
+  PRODUCT_TOP       // Top of product page
+  PRODUCT_SIDE      // Side of product page
+  HOME_BANNER       // Home page banner
+  HOME_SIDEBAR      // Home page sidebar
+  CHECKOUT_TOP      // Top of checkout page
+  CART_SIDEBAR      // Cart sidebar
+}
+
+enum WalletStatus {
+  ACTIVE            // Wallet is active
+  SUSPENDED         // Wallet is suspended
+  CLOSED            // Wallet is closed
+}
+
+enum WalletTransactionType {
+  DEPOSIT           // Money deposited
+  WITHDRAWAL        // Money withdrawn
+  SPEND             // Money spent on ads
+  REFUND            // Refund received
+  BONUS             // Bonus received
+  PENALTY           // Penalty charged
+}
+
+enum TransactionStatus {
+  PENDING           // Transaction is pending
+  PROCESSING        // Transaction is processing
+  COMPLETED         // Transaction completed
+  FAILED            // Transaction failed
+  CANCELLED         // Transaction cancelled
+  REFUNDED          // Transaction refunded
+}
+
+// ===========================================
+// SELLER CRM SYSTEM
+// ===========================================
+
+model CustomerSegment {
+  id                String        @id @default(cuid())
+  tenantId          String
+  sellerId          String
+  
+  // Segment details
+  name              String
+  description       String?
+  segmentType       SegmentType   @default(MANUAL)
+  status            SegmentStatus @default(ACTIVE)
+  
+  // Segment criteria
+  criteria          Json?         // JSON logic for segment criteria
+  filters           Json?         // Additional filters
+  
+  // Customer count
+  customerCount     Int           @default(0)
+  lastCalculatedAt  DateTime?
+  
+  // Segment settings
+  isDynamic         Boolean       @default(false) // Auto-update based on criteria
+  updateFrequency   UpdateFrequency @default(DAILY)
+  
+  // Metadata
+  tags              String[]      @default([])
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  seller            Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  customers         SegmentCustomer[]
+  campaigns         Campaign[]
+
+  @@map("customer_segments")
+  @@index([tenantId, sellerId])
+  @@index([segmentType, status])
+}
+
+model SegmentCustomer {
+  id                String        @id @default(cuid())
+  tenantId          String
+  segmentId         String
+  customerId        String
+  
+  // Assignment details
+  assignedAt        DateTime      @default(now())
+  assignedBy        String?       // User who assigned
+  assignmentReason  String?       // Reason for assignment
+  
+  // Status
+  status            AssignmentStatus @default(ACTIVE)
+  lastActivityAt    DateTime?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  segment           CustomerSegment @relation(fields: [segmentId], references: [id], onDelete: Cascade)
+  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("segment_customers")
+  @@index([tenantId, segmentId])
+  @@index([customerId])
+  @@unique([segmentId, customerId])
+}
+
+model Campaign {
+  id                String        @id @default(cuid())
+  tenantId          String
+  sellerId          String
+  segmentId         String?
+  
+  // Campaign details
+  name              String
+  description       String?
+  campaignType      CampaignType
+  status            CampaignStatus @default(DRAFT)
+  
+  // Campaign settings
+  startDate         DateTime?
+  endDate           DateTime?
+  isScheduled       Boolean       @default(false)
+  scheduledAt       DateTime?
+  
+  // Target settings
+  targetSegments    String[]      @default([]) // Segment IDs
+  targetCustomers   String[]      @default([]) // Individual customer IDs
+  targetCount       Int?          // Expected target count
+  
+  // Message settings
+  messageType       MessageType
+  subject           String?       // For email campaigns
+  content           String        // Message content
+  templateId        String?       // Template reference
+  
+  // Media and attachments
+  attachments       String[]      @default([]) // File URLs
+  images            String[]      @default([]) // Image URLs
+  
+  // Delivery settings
+  deliveryMethod    DeliveryMethod
+  priority          CampaignPriority @default(NORMAL)
+  batchSize         Int           @default(100) // Messages per batch
+  delayBetweenBatches Int         @default(60) // Seconds between batches
+  
+  // Coupon settings (if applicable)
+  couponId          String?       // Coupon to attach
+  couponCode        String?       // Coupon code
+  
+  // Performance tracking
+  totalSent         Int           @default(0)
+  totalDelivered    Int           @default(0)
+  totalOpened       Int           @default(0)
+  totalClicked      Int           @default(0)
+  totalConverted    Int           @default(0)
+  totalBounced      Int           @default(0)
+  totalUnsubscribed Int           @default(0)
+  
+  // Performance metrics
+  deliveryRate      Float?        // Delivered / Sent
+  openRate          Float?        // Opened / Delivered
+  clickRate         Float?        // Clicked / Delivered
+  conversionRate    Float?        // Converted / Delivered
+  bounceRate        Float?        // Bounced / Sent
+  
+  // Owner and permissions
+  createdBy         String?       // User who created
+  approvedBy        String?       // User who approved
+  approvedAt        DateTime?
+  
+  // Metadata
+  tags              String[]      @default([])
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  seller            Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  segment           CustomerSegment? @relation(fields: [segmentId], references: [id], onDelete: SetNull)
+  messages          Message[]
+  coupon            Coupon?       @relation(fields: [couponId], references: [id], onDelete: SetNull)
+
+  @@map("campaigns")
+  @@index([tenantId, sellerId])
+  @@index([campaignType, status])
+  @@index([startDate, endDate])
+  @@index([isScheduled, scheduledAt])
+}
+
+model Message {
+  id                String        @id @default(cuid())
+  tenantId          String
+  campaignId        String
+  customerId        String
+  
+  // Message details
+  messageType       MessageType
+  deliveryMethod    DeliveryMethod
+  recipient         String        // Email or phone number
+  subject           String?       // For email
+  content           String        // Message content
+  
+  // Delivery status
+  status            MessageStatus @default(PENDING)
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  openedAt          DateTime?
+  clickedAt         DateTime?
+  convertedAt       DateTime?
+  bouncedAt         DateTime?
+  unsubscribedAt    DateTime?
+  
+  // Delivery details
+  providerId        String?       // Provider message ID
+  providerResponse  Json?         // Provider response
+  errorMessage      String?       // Error details
+  retryCount        Int           @default(0)
+  maxRetries        Int           @default(3)
+  
+  // Tracking
+  trackingId        String?       // Unique tracking ID
+  openTracking      Boolean       @default(true)
+  clickTracking     Boolean       @default(true)
+  
+  // Performance data
+  openCount          Int           @default(0)
+  clickCount         Int           @default(0)
+  conversionValue    Float?        // Value of conversion
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campaign          Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+  @@index([tenantId, campaignId])
+  @@index([customerId])
+  @@index([status, createdAt])
+  @@index([deliveryMethod, status])
+  @@index([trackingId])
+}
+
+model CommunicationTemplate {
+  id                String        @id @default(cuid())
+  tenantId          String
+  sellerId          String
+  
+  // Template details
+  name              String
+  description       String?
+  templateType      TemplateType
+  messageType       MessageType
+  deliveryMethod    DeliveryMethod
+  
+  // Template content
+  subject           String?       // For email templates
+  content           String        // Template content
+  variables         String[]      @default([]) // Available variables
+  
+  // Template settings
+  isActive          Boolean       @default(true)
+  isDefault         Boolean       @default(false)
+  
+  // Usage tracking
+  usageCount        Int           @default(0)
+  lastUsedAt        DateTime?
+  
+  // Metadata
+  tags              String[]      @default([])
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  seller            Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@map("communication_templates")
+  @@index([tenantId, sellerId])
+  @@index([templateType, messageType])
+  @@index([isActive])
+}
+
+model CommunicationProvider {
+  id                String        @id @default(cuid())
+  tenantId          String
+  
+  // Provider details
+  name              String
+  providerType      ProviderType
+  status            ProviderStatus @default(ACTIVE)
+  
+  // Configuration
+  config            Json          // Provider-specific configuration
+  credentials       Json          // Encrypted credentials
+  
+  // Limits and quotas
+  dailyLimit        Int?          // Daily message limit
+  monthlyLimit      Int?          // Monthly message limit
+  rateLimit         Int?          // Messages per minute
+  
+  // Usage tracking
+  dailyUsage        Int           @default(0)
+  monthlyUsage      Int           @default(0)
+  lastResetAt       DateTime?
+  
+  // Performance
+  successRate       Float?        // Success rate percentage
+  averageLatency    Int?          // Average delivery time in ms
+  
+  // Metadata
+  description       String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("communication_providers")
+  @@index([tenantId, providerType])
+  @@index([status])
+}
+
+// CRM Enums
+enum SegmentType {
+  MANUAL            // Manually created segment
+  DYNAMIC           // Auto-updating segment
+  BEHAVIORAL        // Based on customer behavior
+  DEMOGRAPHIC       // Based on demographics
+  GEOGRAPHIC        // Based on location
+  PURCHASE          // Based on purchase history
+  ENGAGEMENT        // Based on engagement level
+}
+
+enum SegmentStatus {
+  ACTIVE            // Segment is active
+  INACTIVE          // Segment is inactive
+  ARCHIVED          // Segment is archived
+}
+
+enum UpdateFrequency {
+  REAL_TIME         // Update in real-time
+  HOURLY            // Update every hour
+  DAILY             // Update daily
+  WEEKLY            // Update weekly
+  MONTHLY           // Update monthly
+}
+
+enum AssignmentStatus {
+  ACTIVE            // Customer is actively in segment
+  INACTIVE          // Customer removed from segment
+  PENDING           // Assignment pending
+}
+
+enum CampaignType {
+  EMAIL             // Email campaign
+  SMS               // SMS campaign
+  WHATSAPP          // WhatsApp campaign
+  PUSH              // Push notification
+  COUPON            // Coupon campaign
+  PROMOTIONAL       // Promotional campaign
+  TRANSACTIONAL     // Transactional campaign
+  WELCOME           // Welcome campaign
+  ABANDONED_CART    // Abandoned cart campaign
+  BIRTHDAY          // Birthday campaign
+  ANNIVERSARY       // Anniversary campaign
+}
+
+enum CampaignStatus {
+  DRAFT             // Campaign is being created
+  PENDING_APPROVAL  // Waiting for approval
+  SCHEDULED         // Scheduled for future
+  RUNNING           // Campaign is running
+  PAUSED            // Campaign is paused
+  COMPLETED         // Campaign completed
+  CANCELLED         // Campaign cancelled
+  FAILED            // Campaign failed
+}
+
+enum MessageType {
+  EMAIL             // Email message
+  SMS               // SMS message
+  WHATSAPP          // WhatsApp message
+  PUSH              // Push notification
+  COUPON            // Coupon message
+  PROMOTIONAL       // Promotional message
+  TRANSACTIONAL     // Transactional message
+}
+
+enum DeliveryMethod {
+  EMAIL             // Email delivery
+  SMS               // SMS delivery
+  WHATSAPP          // WhatsApp delivery
+  PUSH              // Push notification
+  IN_APP            // In-app message
+}
+
+enum CampaignPriority {
+  LOW               // Low priority
+  NORMAL            // Normal priority
+  HIGH              // High priority
+  URGENT            // Urgent priority
+}
+
+enum MessageStatus {
+  PENDING           // Message pending
+  QUEUED            // Message queued
+  SENDING           // Message being sent
+  SENT              // Message sent
+  DELIVERED         // Message delivered
+  OPENED            // Message opened
+  CLICKED           // Message clicked
+  CONVERTED         // Message converted
+  BOUNCED           // Message bounced
+  FAILED            // Message failed
+  UNSUBSCRIBED      // User unsubscribed
+  CANCELLED         // Message cancelled
+}
+
+enum TemplateType {
+  EMAIL             // Email template
+  SMS               // SMS template
+  WHATSAPP          // WhatsApp template
+  PUSH              // Push notification template
+  COUPON            // Coupon template
+  WELCOME           // Welcome template
+  ABANDONED_CART    // Abandoned cart template
+  BIRTHDAY          // Birthday template
+  ANNIVERSARY       // Anniversary template
+}
+
+enum ProviderType {
+  EMAIL             // Email provider
+  SMS               // SMS provider
+  WHATSAPP          // WhatsApp provider
+  PUSH              // Push notification provider
+}
+
+enum ProviderStatus {
+  ACTIVE            // Provider is active
+  INACTIVE          // Provider is inactive
+  SUSPENDED         // Provider is suspended
+  MAINTENANCE       // Provider under maintenance
+}
+
+// ===========================================
+// TRANSACTIONAL OUTBOX PATTERN
+// ===========================================
+
+model EventOutbox {
+  id            String    @id @default(cuid())
+  aggregateId   String    // ID of the aggregate that generated the event
+  aggregateType String    // Type of aggregate (User, Order, Product, etc.)
+  eventType     String    // Type of event (UserCreated, OrderPlaced, etc.)
+  eventVersion  Int       @default(1)
+  payload       Json      // Event data
+  metadata      Json?     // Additional metadata
+  processed     Boolean   @default(false)
+  processedAt   DateTime?
+  retryCount    Int       @default(0)
+  lastError     String?
+  createdAt     DateTime  @default(now())
+
+  @@index([processed, createdAt])
+  @@index([aggregateType, aggregateId])
+  @@map("event_outbox")
+}
+
+// ===========================================
+// ENUMS
+// ===========================================
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum AddressType {
+  SHIPPING
+  BILLING
+}
+
+enum SellerType {
+  TYPE_A  // Company with tax number - 7% + KDV commission
+  TYPE_B  // Individual/IG seller - 10% + KDV commission, invoicing by platform
+}
+
+enum BusinessType {
+  INDIVIDUAL
+  COMPANY
+  CORPORATE
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  SHIPPED
+  DELIVERED
+  RETURNED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  DIGITAL_WALLET
+  CASH_ON_DELIVERY
+  OTHER
+}

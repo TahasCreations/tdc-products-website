@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tdc-market
+  labels:
+    name: tdc-market
+

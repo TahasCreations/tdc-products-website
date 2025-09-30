@@ -1,0 +1,80 @@
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { domain, storeId } = req.query;
+
+  if (!domain || !storeId) {
+    return res.status(400).json({ error: 'Domain and storeId are required' });
+  }
+
+  try {
+    // Get store information
+    const storeResponse = await fetch(`${process.env.API_GATEWAY_URL}/api/stores/${storeId}?domain=${domain}`);
+    const store = await storeResponse.json();
+
+    if (!store) {
+      return res.status(404).json({ error: 'Store not found' });
+    }
+
+    // Generate robots.txt
+    const robotsTxt = generateRobotsTxt(domain as string, store);
+
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+    res.status(200).send(robotsTxt);
+  } catch (error) {
+    console.error('Robots.txt generation error:', error);
+    res.status(500).json({ error: 'Failed to generate robots.txt' });
+  }
+}
+
+function generateRobotsTxt(domain: string, store: any): string {
+  const protocol = domain.includes('localhost') ? 'http' : 'https';
+  const baseUrl = `${protocol}://${domain}`;
+  
+  let robotsTxt = '';
+
+  // User-agent rules
+  robotsTxt += 'User-agent: *\n';
+  
+  // Allow all by default
+  robotsTxt += 'Allow: /\n';
+  
+  // Disallow admin and private areas
+  robotsTxt += 'Disallow: /admin/\n';
+  robotsTxt += 'Disallow: /api/\n';
+  robotsTxt += 'Disallow: /_next/\n';
+  robotsTxt += 'Disallow: /private/\n';
+  robotsTxt += 'Disallow: /checkout/\n';
+  robotsTxt += 'Disallow: /account/\n';
+  
+  // Disallow search and filter pages
+  robotsTxt += 'Disallow: /search?*\n';
+  robotsTxt += 'Disallow: /filter?*\n';
+  robotsTxt += 'Disallow: /sort?*\n';
+  
+  // Disallow cart and wishlist
+  robotsTxt += 'Disallow: /cart\n';
+  robotsTxt += 'Disallow: /wishlist\n';
+  
+  // Disallow duplicate content
+  robotsTxt += 'Disallow: /*?utm_*\n';
+  robotsTxt += 'Disallow: /*?ref=*\n';
+  robotsTxt += 'Disallow: /*?fbclid=*\n';
+  robotsTxt += 'Disallow: /*?gclid=*\n';
+  
+  // Crawl delay
+  robotsTxt += 'Crawl-delay: 1\n\n';
+  
+  // Sitemap
+  robotsTxt += `Sitemap: ${baseUrl}/api/sitemap.xml?domain=${domain}&storeId=${store.id}\n`;
+  
+  // Custom robots.txt from store settings
+  if (store.robotsTxt) {
+    robotsTxt += '\n# Custom robots.txt content\n';
+    robotsTxt += store.robotsTxt;
+  }
+
+  return robotsTxt;
+}
+

@@ -1,0 +1,70 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw data from BigQuery"
+    database: "{{ env_var('GOOGLE_CLOUD_PROJECT_ID') }}"
+    schema: "{{ env_var('BIGQUERY_DATASET_ID', 'tdc_analytics') }}"
+    tables:
+      - name: events
+        description: "Raw events data from webhook system"
+        columns:
+          - name: event_id
+            description: "Unique event identifier"
+            tests:
+              - unique
+              - not_null
+          - name: tenant_id
+            description: "Tenant identifier"
+            tests:
+              - not_null
+          - name: event_type
+            description: "Type of event (e.g., order.created, product.updated)"
+            tests:
+              - not_null
+          - name: event_date
+            description: "Date of the event"
+            tests:
+              - not_null
+          - name: created_at
+            description: "Event creation timestamp"
+            tests:
+              - not_null
+              
+      - name: orders
+        description: "Raw orders data"
+        columns:
+          - name: order_id
+            description: "Unique order identifier"
+            tests:
+              - unique
+              - not_null
+          - name: tenant_id
+            description: "Tenant identifier"
+            tests:
+              - not_null
+          - name: customer_id
+            description: "Customer identifier"
+            tests:
+              - not_null
+          - name: seller_id
+            description: "Seller identifier"
+            tests:
+              - not_null
+          - name: total_amount
+            description: "Total order amount"
+            tests:
+              - not_null
+          - name: commission_amount
+            description: "Commission amount"
+            tests:
+              - not_null
+          - name: gmv
+            description: "Gross Merchandise Value"
+            tests:
+              - not_null
+          - name: order_date
+            description: "Order date"
+            tests:
+              - not_null
+

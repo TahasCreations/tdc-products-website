@@ -2,63 +2,57 @@
   "name": "@tdc/monorepo",
   "version": "1.0.0",
   "private": true,
-  "description": "TDC Market - Modüler E-ticaret Platformu with Real-time Sync",
+  "description": "TDC Market - Modüler E-ticaret Platformu",
+  "packageManager": "pnpm@8.15.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo run dev",
-    "dev:web": "turbo run dev --filter=@tdc/web",
-    "dev:agent": "turbo run dev --filter=@tdc/agent",
-    "dev:sync": "turbo run dev --filter=@tdc/sync-protocol",
     "build": "turbo run build",
-    "build:web": "turbo run build --filter=@tdc/web",
-    "build:agent": "turbo run build --filter=@tdc/agent",
-    "build:sync": "turbo run build --filter=@tdc/sync-protocol",
-    "start": "turbo run start",
-    "start:web": "turbo run start --filter=@tdc/web",
-    "start:agent": "turbo run start --filter=@tdc/agent",
+    "dev": "turbo run dev",
+    "dev:worker": "turbo run dev --filter=@tdc/orders-worker",
+    "dev:background": "turbo run dev --filter=@tdc/background-worker",
+    "dev:settlement": "turbo run dev --filter=@tdc/settlement-worker",
     "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
     "type-check": "turbo run type-check",
     "clean": "turbo run clean && rm -rf .turbo",
-    "test": "turbo run test",
-    "test:sync": "turbo run test --filter=@tdc/sync-protocol",
-    "sync:watch": "turbo run watch --filter=@tdc/agent",
-    "sync:pull": "turbo run pull --filter=@tdc/agent",
-    "sync:push": "turbo run push --filter=@tdc/agent",
-    "queue:drain": "turbo run queue:drain --filter=@tdc/agent",
-    "deploy": "turbo run build && turbo run deploy",
-    "deploy:vercel": "cd apps/web && vercel --prod",
-    "prisma:generate": "turbo run prisma:generate",
-    "prisma:migrate": "turbo run prisma:migrate",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=!@tdc/docs && changeset publish",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
+    "db:migrate:deploy": "turbo run db:migrate:deploy",
+    "db:migrate:reset": "turbo run db:migrate:reset",
     "db:seed": "turbo run db:seed",
+    "db:studio": "turbo run db:studio",
+    "db:push": "turbo run db:push",
     "docker:build": "docker-compose build",
     "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "setup": "npm install && npm run build:sync && npm run prisma:generate"
-  },
-  "dependencies": {
-    "@heroicons/react": "^2.2.0",
-    "@prisma/client": "^6.16.2",
-    "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.58.0",
-    "bcrypt": "^6.0.0",
-    "next-auth": "^5.0.0-beta.29",
-    "react-hot-toast": "^2.6.0",
-    "turbo": "^1.12.4"
+    "docker:down": "docker-compose down"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@turbo/gen": "^1.12.4",
-    "@types/bcrypt": "^6.0.0",
     "@types/node": "^20.11.0",
-    "prisma": "^6.16.2",
+    "prettier": "^3.2.5",
+    "turbo": "^1.12.4",
     "typescript": "^5.3.3"
   },
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
-  },
-  "packageManager": "npm@10.0.0"
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^18.3.3",
+      "@types/react-dom": "^18.3.0",
+      "react": "^18.3.1",
+      "react-dom": "^18.3.1"
+    }
+  }
 }

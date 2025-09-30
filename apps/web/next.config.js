@@ -5,6 +5,9 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   
+  // Vercel optimizations
+  output: 'standalone',
+  
   // Performance optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
@@ -37,7 +40,6 @@ const nextConfig = {
   
   // Bundle optimization
   webpack: (config, { dev, isServer }) => {
-
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
@@ -63,7 +65,6 @@ const nextConfig = {
     serverComponentsExternalPackages: ['bcryptjs'],
     scrollRestoration: true,
   },
-  
   
   // Security headers
   async headers() {

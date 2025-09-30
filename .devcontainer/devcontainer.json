@@ -1,0 +1,92 @@
+{
+  "name": "TDC Market Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "postCreateCommand": "pnpm install && pnpm build",
+  "postStartCommand": "echo '🚀 TDC Market Dev Container Ready!'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "prisma.prisma",
+        "github.copilot",
+        "github.copilot-chat",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        "ms-vscode.vscode-docker",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "ms-vscode.vscode-github-actions",
+        "ms-vscode.vscode-turbo"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "typescript.suggest.autoImports": true,
+        "emmet.includeLanguages": {
+          "typescript": "html",
+          "typescriptreact": "html"
+        },
+        "files.associations": {
+          "*.css": "tailwindcss"
+        },
+        "tailwindCSS.includeLanguages": {
+          "typescript": "html",
+          "typescriptreact": "html"
+        }
+      }
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "forwardPorts": [3000, 3001, 3002, 5432, 6379],
+  "portsAttributes": {
+    "3000": {
+      "label": "Web Storefront",
+      "onAutoForward": "notify"
+    },
+    "3001": {
+      "label": "Web Admin",
+      "onAutoForward": "notify"
+    },
+    "3002": {
+      "label": "API Gateway",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    }
+  },
+  "remoteUser": "node",
+  "containerEnv": {
+    "NODE_ENV": "development",
+    "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/tdc_market",
+    "REDIS_URL": "redis://localhost:6379"
+  },
+  "mounts": [
+    "source=tdc-market-node-modules,target=/workspace/node_modules,type=volume",
+    "source=tdc-market-pnpm-cache,target=/home/node/.local/share/pnpm,type=volume"
+  ],
+  "lifecycleScripts": {
+    "postCreate": "echo '🎉 Dev container created successfully!'",
+    "postStart": "echo '🚀 Starting TDC Market development environment...'"
+  }
+}
+

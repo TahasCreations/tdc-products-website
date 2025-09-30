@@ -1,0 +1,76 @@
+# <type>(<scope>): <subject>
+#
+# <body>
+#
+# <footer>
+
+# Type should be one of the following:
+# * feat: A new feature
+# * fix: A bug fix
+# * docs: Documentation only changes
+# * style: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+# * refactor: A code change that neither fixes a bug nor adds a feature
+# * perf: A code change that improves performance
+# * test: Adding missing tests or correcting existing tests
+# * chore: Changes to the build process or auxiliary tools and libraries such as documentation generation
+# * ci: Changes to our CI configuration files and scripts
+# * build: Changes that affect the build system or external dependencies
+# * revert: Reverts a previous commit
+
+# Scope should be one of the following:
+# * web-storefront: Changes to the web storefront app
+# * web-admin: Changes to the web admin app
+# * api-gateway: Changes to the API gateway
+# * domain: Changes to the domain package
+# * infra: Changes to the infrastructure package
+# * ui: Changes to the UI package
+# * config: Changes to the config package
+# * contracts: Changes to the contracts package
+# * orders-worker: Changes to the orders worker service
+# * background-worker: Changes to the background worker service
+# * docker: Changes to Docker configuration
+# * ci: Changes to CI/CD configuration
+# * docs: Changes to documentation
+
+# Subject should be:
+# * imperative, present tense: "change" not "changed" nor "changes"
+# * not capitalized: "add feature" not "Add feature"
+# * no period (.) at the end
+
+# Body should be:
+# * imperative, present tense
+# * include motivation for the change and contrast with previous behavior
+# * wrap at 72 characters
+# * use blank line to separate from subject
+
+# Footer should be:
+# * reference any issues that this commit closes
+# * include any breaking changes
+# * include any migration notes
+
+# Examples:
+# feat(api-gateway): add rate limiting middleware
+#
+# Add express-rate-limit middleware to prevent abuse of API endpoints.
+# Configure different rate limits for different routes based on their
+# sensitivity and expected usage patterns.
+#
+# Closes #123
+# Breaking change: API rate limits are now enforced
+
+# fix(web-storefront): resolve product image loading issue
+#
+# Fix issue where product images were not loading due to incorrect
+# URL construction in the image component. The issue was caused by
+# missing base URL configuration in the image loader.
+#
+# Closes #456
+
+# docs(readme): update installation instructions
+#
+# Update README with new installation steps for the monorepo setup.
+# Include information about required environment variables and
+# database setup process.
+#
+# Closes #789
+

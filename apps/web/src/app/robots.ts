@@ -6,9 +6,35 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/api/"],
+        disallow: [
+          "/admin/",
+          "/api/",
+          "/_next/",
+          "/static/",
+          "/private/",
+          "/dashboard/",
+          "/seller/",
+          "/auth/",
+        ],
+      },
+      {
+        userAgent: "GPTBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "ChatGPT-User",
+        disallow: "/",
+      },
+      {
+        userAgent: "CCBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "anthropic-ai",
+        disallow: "/",
       },
     ],
-    sitemap: "https://www.tdc-products.com/sitemap.xml",
+    sitemap: "https://tdcmarket.com/sitemap.xml",
+    host: "https://tdcmarket.com",
   };
 }

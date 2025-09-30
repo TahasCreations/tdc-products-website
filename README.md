@@ -1,263 +1,515 @@
-# TDC Market - Modüler E-ticaret Platformu
+# 🚀 TDC Market - Modern E-ticaret Platformu
 
-TDC Market, modüler plug-in mimarisine sahip gelişmiş bir e-ticaret platformudur. Her modül bağımsız olarak geliştirilebilir, test edilebilir ve başka projelere entegre edilebilir.
+**Turborepo + pnpm** ile yönetilen, **Clean Architecture** prensiplerine uygun, modüler e-ticaret platformu.
 
-[![Build Status](https://github.com/tdc/market/workflows/CI/badge.svg)](https://github.com/tdc/market/actions)
-[![Coverage](https://codecov.io/gh/tdc/market/branch/main/graph/badge.svg)](https://codecov.io/gh/tdc/market)
-[![TypeScript](https://img.shields.io/badge/TypeScript-100%25-blue.svg)](https://www.typescriptlang.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## 🏗️ Mimari Özeti
 
-## 🚀 Özellikler
+### **Clean Architecture + Port & Adapter Pattern**
+- **Domain Layer**: İş kuralları, entity'ler, use case'ler (Pure functions)
+- **Infrastructure Layer**: Database, cache, storage, payment adapters
+- **Application Layer**: API Gateway, web uygulamaları
+- **Presentation Layer**: UI bileşenleri, admin paneli
 
-- **Modüler Mimari**: Her özellik bağımsız modül olarak geliştirilebilir
-- **Plug-in Sistemi**: Modüller runtime'da yüklenebilir ve kaldırılabilir
-- **TypeScript**: Tam tip güvenliği
-- **Next.js 14**: App Router ile modern React framework
-- **Prisma + PostgreSQL**: Modern ORM ve veritabanı
-- **NextAuth.js**: Google OAuth + Credentials authentication
-- **Tailwind CSS**: Modern ve responsive UI
-- **Monorepo**: pnpm + Turborepo ile hızlı geliştirme
+### **Multi-Tenant Architecture**
+- Tenant bazlı veri izolasyonu
+- Seller tipi bazlı komisyon sistemi (TYPE_A: %7+KDV, TYPE_B: %10+KDV)
+- Event-driven architecture (Transactional Outbox Pattern)
+
+### **Serverless-First Design**
+- Vercel deployment optimizasyonu
+- Background job queue sistemi (BullMQ)
+- Rate limiting ve WAF koruması
+- Sentry error tracking
 
 ## 📁 Proje Yapısı
 
 ```
 tdc-market/
-├── apps/
-│   ├── web/                 # Ana web uygulaması (localhost:3000)
-│   └── admin/               # Admin paneli (localhost:3001)
-├── packages/
-│   ├── core/                # Çekirdek modül sistemi
-│   ├── ui/                  # Ortak UI bileşenleri
-│   ├── sdk/                 # SDK ve API client'ları
-│   ├── shared/              # Paylaşılan tipler ve utilities
-│   └── feature-*/           # Özellik modülleri
-│       ├── feature-pricing/     # Fiyat yönetimi
-│       ├── feature-accounting/  # Muhasebe
-│       ├── feature-loyalty/     # Sadakat programı
-│       └── feature-automation/  # Otomasyon
-├── docs/                    # Dokümantasyon
-└── database/               # Veritabanı şemaları
+├── apps/                          # Uygulamalar
+│   ├── web-storefront/            # Next.js 14 - Müşteri arayüzü
+│   ├── web-admin/                 # Next.js 14 - Admin paneli (AI önerileri)
+│   └── api-gateway/               # Express BFF - API Gateway
+├── packages/                      # Paylaşılan paketler
+│   ├── domain/                    # İş kuralları ve port arayüzleri
+│   │   ├── entities/              # Domain entities
+│   │   ├── use-cases/             # Business logic
+│   │   ├── ports/                 # Interface definitions
+│   │   ├── services/              # Domain services (commission, AI)
+│   │   └── ai/                    # AI pure functions
+│   ├── infra/                     # Infrastructure adapters
+│   │   ├── database/              # Prisma adapters
+│   │   ├── payment/               # PayTR adapter
+│   │   ├── storage/               # S3-compatible adapter
+│   │   ├── search/                # MeiliSearch adapter
+│   │   ├── queue/                 # BullMQ adapter
+│   │   ├── security/              # Rate limiting, WAF
+│   │   └── monitoring/            # Sentry integration
+│   ├── ui/                        # Paylaşılan UI bileşenleri
+│   ├── config/                    # Environment validation (Zod)
+│   └── contracts/                 # API contracts
+├── services/                      # Background services
+│   ├── orders-worker/             # Event processing worker
+│   └── background-worker/         # Generic job processor
+├── .github/workflows/             # CI/CD pipelines
+├── .devcontainer/                 # VS Code Dev Container
+└── docs/                          # Dokümantasyon
 ```
 
-## 🛠️ Kurulum
+## 🛠️ Teknoloji Stack
 
-### Gereksinimler
+### **Frontend**
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Icons**: Heroicons
+- **State**: React Hooks + Context
 
-- Node.js >= 18.0.0
-- npm veya pnpm
-- PostgreSQL database (local veya Neon)
-- Google OAuth credentials (opsiyonel)
+### **Backend**
+- **API Gateway**: Express.js
+- **Database**: PostgreSQL + Prisma ORM
+- **Cache**: Redis
+- **Queue**: BullMQ
+- **Search**: MeiliSearch
+- **Storage**: S3-compatible (Wasabi/R2)
 
-### Hızlı Başlangıç
+### **DevOps & Tools**
+- **Monorepo**: Turborepo + pnpm
+- **Testing**: Vitest
+- **Linting**: ESLint + Prettier
+- **CI/CD**: GitHub Actions
+- **Deployment**: Vercel + Docker
+- **Monitoring**: Sentry
+- **Development**: VS Code Dev Container
 
-1. **Repository'yi klonlayın:**
+### **AI & Analytics**
+- **AI Functions**: Pure functions (price, tag, SEO suggestions)
+- **Payment**: PayTR integration
+- **Multi-tenancy**: Tenant-based data isolation
+- **Event System**: Transactional outbox pattern
+
+## 🚀 Hızlı Başlangıç
+
+### **Gereksinimler**
+- Node.js >= 20.0.0
+- pnpm >= 8.0.0
+- PostgreSQL >= 14
+- Redis >= 6
+
+### **Kurulum**
 ```bash
-git clone https://github.com/tdc/market.git
-cd market
-```
+# Repository'yi klonla
+git clone https://github.com/your-org/tdc-market.git
+cd tdc-market
 
-2. **Bağımlılıkları yükleyin:**
-```bash
+# Bağımlılıkları yükle
 pnpm install
-```
 
-3. **Environment variables'ları ayarlayın:**
-```bash
+# Environment variables ayarla
 cp env.example .env.local
-# .env.local dosyasını düzenleyin
-```
 
-4. **Veritabanını kurun:**
-```bash
+# Veritabanını kur
 pnpm db:migrate
 pnpm db:seed
-```
 
-5. **Uygulamaları başlatın:**
-```bash
+# Geliştirme sunucularını başlat
 pnpm dev
 ```
 
-Uygulamalar şu adreslerde çalışacak:
-- Web: http://localhost:3000
-- Admin: http://localhost:3001
+### **Uygulamalar**
+- **Storefront**: http://localhost:3000
+- **Admin Panel**: http://localhost:3001 (AI önerileri ile)
+- **API Gateway**: http://localhost:3002
+- **Background Workers**: Otomatik başlar
 
-## 📦 Mevcut Modüller
+## 📦 Modüller
 
-### 🏷️ Pricing Module (@tdc/feature-pricing)
-- Fiyat önerileri ve optimizasyonu
-- Rakip fiyat takibi
-- Fiyat simülasyonu
-- Otomatik fiyat uyarıları
+### **@tdc/domain** - İş Kuralları
+```typescript
+// Entities
+import { User, Product, Order, Seller } from '@tdc/domain';
 
-### 💰 Accounting Module (@tdc/feature-accounting)
-- Fatura yönetimi
-- Mali raporlar
-- Gelir-gider takibi
-- Vergi hesaplamaları
+// Use Cases
+import { CreateUserUseCase, CreateOrderUseCase } from '@tdc/domain';
 
-### 🎁 Loyalty Module (@tdc/feature-loyalty)
-- Müşteri sadakat programı
-- Puan sistemi
-- Ödül yönetimi
-- Kampanya takibi
+// Services
+import { calculateCommission, suggestPrice, suggestTags } from '@tdc/domain';
 
-### ⚙️ Automation Module (@tdc/feature-automation)
-- İş süreçleri otomasyonu
-- Workflow yönetimi
-- Trigger sistemi
-- Zamanlanmış görevler
+// AI Functions
+import { seoTitleDescription } from '@tdc/domain';
+```
 
-## 🚀 Komutlar
+**Özellikler:**
+- Pure functions (testable, predictable)
+- Commission calculation (TYPE_A/TYPE_B sellers)
+- AI suggestions (price, tags, SEO)
+- Business rules validation
 
-### Geliştirme
+### **@tdc/infra** - Infrastructure
+```typescript
+// Database
+import { PrismaAdapter, UserRepository } from '@tdc/infra';
+
+// External Services
+import { PayTRAdapter, S3Adapter, MeiliAdapter } from '@tdc/infra';
+
+// Queue & Jobs
+import { BullMQAdapter, JobService } from '@tdc/infra';
+
+// Security
+import { rateLimiter, wafMiddleware } from '@tdc/infra';
+```
+
+**Özellikler:**
+- Prisma ORM with multi-tenancy
+- PayTR payment integration
+- S3-compatible storage
+- MeiliSearch integration
+- BullMQ job processing
+- Rate limiting & WAF
+
+### **@tdc/config** - Konfigürasyon
+```typescript
+// Environment validation
+import { validateEnv, safeValidateEnv } from '@tdc/config';
+
+// Feature flags
+import { isFeatureEnabled } from '@tdc/config';
+```
+
+**Özellikler:**
+- Zod-based environment validation
+- Feature flags system
+- Development/production configs
+- Error handling with detailed messages
+
+### **@tdc/ui** - UI Bileşenleri
+```typescript
+// Shared components
+import { Button, Modal, Form } from '@tdc/ui';
+
+// AI components
+import { AiSuggestionButtons } from '@tdc/ui';
+```
+
+**Özellikler:**
+- Reusable UI components
+- AI suggestion interfaces
+- Responsive design
+- Accessibility support
+
+## 🔧 Komutlar
+
+### **Geliştirme**
 ```bash
 # Tüm uygulamaları başlat
 pnpm dev
 
-# Sadece web uygulamasını başlat
-pnpm --filter @tdc/web dev
+# Belirli uygulamayı başlat
+pnpm dev --filter=@tdc/web-storefront
+pnpm dev --filter=@tdc/web-admin
+pnpm dev --filter=@tdc/api-gateway
 
-# Sadece admin uygulamasını başlat
-pnpm --filter @tdc/admin dev
-
-# Sadece core paketini build et
-pnpm --filter @tdc/core build
+# Background workers
+pnpm dev:worker        # Orders worker
+pnpm dev:background    # Background jobs worker
 ```
 
-### Build ve Deploy
-```bash
-# Tüm paketleri build et
-pnpm build
-
-# Production build
-pnpm build:production
-
-# Vercel'e deploy
-pnpm deploy:vercel
-```
-
-### Veritabanı
-```bash
-# Migration'ları çalıştır
-pnpm db:migrate
-
-# Demo verileri yükle
-pnpm db:seed
-
-# Demo verileri temizle
-pnpm clean:demo
-
-# Tüm verileri temizle
-pnpm clean:all
-```
-
-### Test
+### **Test**
 ```bash
 # Tüm testleri çalıştır
 pnpm test
 
+# Watch mode
+pnpm test:watch
+
+# Belirli paketi test et
+pnpm test --filter=@tdc/domain
+
+# Coverage raporu
+pnpm test:coverage
+
+# AI functions test
+node test-ai-functions.js
+```
+
+### **Build**
+```bash
+# Tüm paketleri build et
+pnpm build
+
+# Belirli paketi build et
+pnpm build --filter=@tdc/domain
+
+# Production build
+pnpm build:prod
+```
+
+### **Database**
+```bash
+# Migration oluştur
+pnpm db:migrate:create
+
+# Migration çalıştır
+pnpm db:migrate
+
+# Seed data
+pnpm db:seed
+
+# Reset database
+pnpm db:reset
+```
+
+### **Linting & Formatting**
+```bash
+# Lint check
+pnpm lint
+
+# Lint fix
+pnpm lint:fix
+
+# Format code
+pnpm format
+
 # Type check
 pnpm type-check
-
-# Lint
-pnpm lint
 ```
 
-## 🔧 Yeni Modül Ekleme
+## 🌍 Environment Variables
 
-1. **Modül dizinini oluşturun:**
+### **Database**
 ```bash
-mkdir packages/feature-your-module
-cd packages/feature-your-module
+DATABASE_URL="postgresql://user:password@localhost:5432/tdc_market"
+REDIS_URL="redis://localhost:6379"
 ```
 
-2. **Temel dosyaları oluşturun:**
+### **Storage (S3-compatible)**
 ```bash
-# package.json, tsconfig.json, plugin.manifest.json
-# src/index.ts, src/components/, src/api/
+S3_ENDPOINT="https://s3.wasabisys.com"
+S3_BUCKET="tdc-market"
+S3_KEY="your-access-key"
+S3_SECRET="your-secret-key"
 ```
 
-3. **Modülü admin'e ekleyin:**
-```typescript
-// apps/admin/src/modules.ts
-export const activeModules = [
-  'pricing',
-  'accounting',
-  'loyalty',
-  'automation',
-  'your-module' // Yeni modülünüzü ekleyin
-];
+### **Payment (PayTR)**
+```bash
+PAYMENT_MERCHANT_ID="your-merchant-id"
+PAYMENT_KEY="your-payment-key"
+PAYMENT_SECRET="your-payment-secret"
 ```
 
-Detaylı rehber için [Modüler Mimari Dokümantasyonu](docs/modular-architecture.md) dosyasını inceleyin.
-
-## 🔌 Plugin Mimarisi
-
-TDC Market, güçlü bir plugin mimarisi ile donatılmıştır:
-
-### Core Plugin System
-- **Plugin Interface**: Standart plugin arayüzü
-- **Plugin Registry**: Plugin keşfi ve yönetimi
-- **Configuration Management**: Zod şemaları ile tip güvenli konfigürasyon
-- **Dependency Resolution**: Otomatik bağımlılık çözümleme
-- **Hot Reload**: Geliştirme sırasında canlı yeniden yükleme
-
-### Mevcut Plugin'ler
-- **E-commerce Plugin**: Ürün yönetimi, kategori sistemi, sipariş takibi
-- **Pricing Plugin**: Dinamik fiyat hesaplama, vergi hesaplamaları
-- **Logger Plugin**: Merkezi log yönetimi ve hata takibi
-
-### Plugin Geliştirme
-```typescript
-import { Plugin } from '@tdc/plugin-system';
-
-const myPlugin: Plugin = {
-  meta: { name: 'my-plugin', version: '1.0.0' },
-  validateConfig: (config) => ({ valid: true }),
-  init: async (context, config) => { /* ... */ },
-  getPublicAPI: () => ({ /* ... */ })
-};
+### **Search (MeiliSearch)**
+```bash
+MEILI_HOST="http://localhost:7700"
+MEILI_KEY="your-meili-key"
 ```
 
-Detaylı bilgi için [Plugin Kılavuzu](docs/PLUGIN_GUIDE.md) ve [Plugin Kataloğu](docs/PLUGIN_CATALOG.md) dosyalarını inceleyin.
+### **Authentication**
+```bash
+NEXTAUTH_SECRET="your-nextauth-secret"
+JWT_SECRET="your-jwt-secret"
+```
+
+### **API & Security**
+```bash
+API_KEY="your-api-key"
+SENTRY_DSN="your-sentry-dsn"
+NEXT_PUBLIC_SENTRY_DSN="your-public-sentry-dsn"
+```
+
+### **Development**
+```bash
+NODE_ENV="development"
+LOG_LEVEL="debug"
+```
+
+## 🚀 Vercel Deploy
+
+### **1. Vercel CLI Kurulumu**
+```bash
+npm i -g vercel
+vercel login
+```
+
+### **2. Environment Variables**
+Vercel dashboard'da environment variables ayarla:
+```bash
+# Production
+DATABASE_URL=postgresql://...
+REDIS_URL=redis://...
+S3_ENDPOINT=https://...
+# ... diğer değişkenler
+```
+
+### **3. Deploy Komutları**
+```bash
+# Storefront deploy
+vercel --prod --cwd apps/web-storefront
+
+# Admin deploy
+vercel --prod --cwd apps/web-admin
+
+# API Gateway deploy
+vercel --prod --cwd apps/api-gateway
+```
+
+### **4. GitHub Actions (Otomatik)**
+```yaml
+# .github/workflows/ci.yml
+- name: Deploy to Vercel
+  if: github.ref == 'refs/heads/main'
+  run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+```
+
+### **5. Background Workers**
+```bash
+# Railway/Render'da deploy et
+# services/orders-worker
+# services/background-worker
+```
+
+## 🗺️ Yol Haritası (Next Steps)
+
+### **Phase 1: Core Features** ✅
+- [x] Monorepo setup (Turborepo + pnpm)
+- [x] Clean Architecture implementation
+- [x] Database schema (multi-tenant)
+- [x] Commission system (TYPE_A/TYPE_B)
+- [x] AI suggestion functions
+- [x] Web admin with AI buttons
+- [x] CI/CD pipelines
+
+### **Phase 2: E-commerce Features** 🚧
+- [ ] Product catalog (CRUD)
+- [ ] Shopping cart & checkout
+- [ ] Order management
+- [ ] Payment integration (PayTR)
+- [ ] Inventory management
+- [ ] Seller dashboard
+
+### **Phase 3: Advanced Features** 📋
+- [ ] Real-time notifications
+- [ ] Advanced search & filters
+- [ ] Recommendation engine
+- [ ] Analytics dashboard
+- [ ] Mobile app (React Native)
+- [ ] Multi-language support
+
+### **Phase 4: Scale & Performance** 📋
+- [ ] CDN integration
+- [ ] Image optimization
+- [ ] Caching strategies
+- [ ] Database optimization
+- [ ] Load balancing
+- [ ] Kubernetes deployment
+
+### **Phase 5: AI & ML** 📋
+- [ ] Product recommendation ML
+- [ ] Price optimization AI
+- [ ] Fraud detection
+- [ ] Customer behavior analysis
+- [ ] Automated marketing
+
+## 🧪 Test Coverage
+
+### **Unit Tests**
+- Domain functions (commission, AI)
+- Repository methods
+- Utility functions
+- API endpoints
+
+### **Integration Tests**
+- Database operations
+- External service integrations
+- Queue processing
+- Authentication flows
+
+### **E2E Tests**
+- User journeys
+- Admin workflows
+- Payment flows
+- AI suggestions
+
+## 📊 Performance Metrics
+
+### **Build Times**
+- Full build: ~2-3 minutes
+- Incremental build: ~30 seconds
+- Test suite: ~1 minute
+
+### **Bundle Sizes**
+- Storefront: ~500KB (gzipped)
+- Admin: ~600KB (gzipped)
+- API Gateway: ~200KB
+
+### **Database Performance**
+- Query response: <100ms
+- Migration time: <30 seconds
+- Seed data: <10 seconds
+
+## 🔒 Security
+
+### **Authentication**
+- NextAuth.js integration
+- JWT tokens
+- Session management
+- Role-based access
+
+### **API Security**
+- Rate limiting (express-rate-limit)
+- WAF protection
+- Input validation (Zod)
+- CORS configuration
+
+### **Data Protection**
+- Multi-tenant isolation
+- Encrypted sensitive data
+- Audit logging
+- GDPR compliance
 
 ## 📚 Dokümantasyon
 
-- [Plugin Kılavuzu](docs/PLUGIN_GUIDE.md) - Plugin geliştirme rehberi
-- [Plugin Kataloğu](docs/PLUGIN_CATALOG.md) - Mevcut plugin'ler
-- [Cross-Site Integration](examples/cross-site-integration/) - Entegrasyon örnekleri
-- [API Referansı](docs/API_REFERENCE.md) - Plugin API dokümantasyonu
-- [Migration Notes](docs/MIGRATION_NOTES.md) - Geçiş notları
-- [QA Report](docs/QA_REPORT.md) - Kalite raporu
+- [Architecture Guide](./docs/ARCHITECTURE.md)
+- [Commission System](./docs/COMMISSION_SYSTEM.md)
+- [AI Functions Guide](./docs/AI_FUNCTIONS.md)
+- [Deployment Guide](./docs/DEPLOYMENT.md)
+- [API Documentation](./docs/API.md)
+- [Contributing Guide](./docs/CONTRIBUTING.md)
 
 ## 🤝 Katkıda Bulunma
 
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Commit yapın (`git commit -m 'Add amazing feature'`)
-4. Push yapın (`git push origin feature/amazing-feature`)
-5. Pull Request oluşturun
+### **Development Setup**
+```bash
+# Dev Container kullan (önerilen)
+# VS Code'da "Reopen in Container"
+
+# Veya manuel setup
+pnpm install
+pnpm db:migrate
+pnpm db:seed
+pnpm dev
+```
+
+### **Commit Convention**
+```bash
+# Conventional Commits
+feat: add AI price suggestion
+fix: resolve commission calculation bug
+docs: update README
+refactor: improve domain functions
+```
+
+### **Pull Request Process**
+1. Feature branch oluştur
+2. Tests yaz
+3. Lint/format kontrolü
+4. PR oluştur
+5. Code review
+6. Merge to main
 
 ## 📄 Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasını inceleyin.
-
-## 🆘 Destek
-
-- GitHub Issues: [Sorun bildir](https://github.com/tdc/market/issues)
-- Dokümantasyon: [docs/](docs/)
-- Email: support@tdc.com
-
-## 🏗️ Roadmap
-
-- [ ] Daha fazla e-ticaret modülü
-- [ ] Mobile app desteği
-- [ ] Multi-tenant mimari
-- [ ] Advanced analytics
-- [ ] AI/ML entegrasyonları
-- [ ] Third-party entegrasyonlar
+MIT License - detaylar için [LICENSE](LICENSE) dosyasına bakın.
 
 ---
 
-**TDC Market** - Modüler e-ticaret platformu ile işinizi büyütün! 🚀
+**TDC Market** - Modern, scalable, AI-powered e-commerce platform 🚀

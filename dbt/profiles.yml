@@ -1,0 +1,27 @@
+tdc_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GOOGLE_CLOUD_PROJECT_ID') }}"
+      dataset: "{{ env_var('BIGQUERY_DATASET_ID', 'tdc_analytics') }}"
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
+      location: "{{ env_var('BIGQUERY_LOCATION', 'US') }}"
+      threads: 4
+      timeout_seconds: 300
+      priority: interactive
+      retries: 1
+      
+    prod:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GOOGLE_CLOUD_PROJECT_ID') }}"
+      dataset: "{{ env_var('BIGQUERY_DATASET_ID', 'tdc_analytics') }}"
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
+      location: "{{ env_var('BIGQUERY_LOCATION', 'US') }}"
+      threads: 8
+      timeout_seconds: 600
+      priority: batch
+      retries: 3
+
