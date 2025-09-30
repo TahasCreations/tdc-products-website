@@ -60,7 +60,6 @@ const nextConfig = {
   
   experimental: {
     scrollRestoration: true,
-    optimizeCss: true,
   },
   
   // Security headers

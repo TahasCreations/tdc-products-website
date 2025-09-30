@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
@@ -17,13 +19,39 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@tdc/domain": ["./packages/domain/src"],
-      "@tdc/infra": ["./packages/infra/src"],
-      "@tdc/ui": ["./packages/ui/src"],
-      "@tdc/config": ["./packages/config/src"],
-      "@tdc/contracts": ["./packages/contracts/src"]
-    }
+      "@tdc/domain": [
+        "./packages/domain/src"
+      ],
+      "@tdc/infra": [
+        "./packages/infra/src"
+      ],
+      "@tdc/ui": [
+        "./packages/ui/src"
+      ],
+      "@tdc/config": [
+        "./packages/config/src"
+      ],
+      "@tdc/contracts": [
+        "./packages/contracts/src"
+      ]
+    },
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": [],
-  "exclude": ["node_modules", "dist", "build", ".next"]
+  "include": [
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    ".next"
+  ]
 }
