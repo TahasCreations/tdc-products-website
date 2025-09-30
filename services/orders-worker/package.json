@@ -19,7 +19,7 @@
     "@tdc/infra": "workspace:*",
     "bullmq": "^5.0.0",
     "ioredis": "^5.3.2",
-    "cron": "^3.1.6",
+    "cron": "^4.3.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {
