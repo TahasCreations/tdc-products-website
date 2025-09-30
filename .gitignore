@@ -130,3 +130,12 @@ ehthumbs.db
 
 # Prisma
 prisma/migrations/
+
+# Test files
+test-*.js
+*.test.js
+*.spec.js
+
+# Backup files
+*backup*
+*backup*
