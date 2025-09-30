@@ -4,9 +4,6 @@ const nextConfig = {
   swcMinify: true,
   compress: true,
   poweredByHeader: false,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   
   // Vercel optimizations
   output: 'standalone',
@@ -18,14 +15,9 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   
+  // Image optimization
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        port: '',
-        pathname: '/storage/v1/object/public/**',
-      },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
@@ -67,7 +59,6 @@ const nextConfig = {
   },
   
   experimental: {
-    serverComponentsExternalPackages: ['bcryptjs'],
     scrollRestoration: true,
     optimizeCss: true,
   },
