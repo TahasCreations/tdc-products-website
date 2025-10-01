@@ -67,6 +67,11 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
+  // Disable TypeScript errors during build
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  
   
   // Security headers
   async headers() {
