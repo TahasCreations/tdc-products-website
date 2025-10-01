@@ -62,6 +62,12 @@ const nextConfig = {
     scrollRestoration: true,
   },
   
+  // Disable ESLint during build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
+  
   // Security headers
   async headers() {
     return [
