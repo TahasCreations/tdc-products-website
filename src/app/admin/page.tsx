@@ -11,7 +11,24 @@ export default function AdminLoginPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [savedCredentials, setSavedCredentials] = useState<{email: string, password: string} | null>(null);
   const router = useRouter();
+
+  // Load saved credentials on component mount
+  useEffect(() => {
+    const saved = localStorage.getItem('adminCredentials');
+    if (saved) {
+      try {
+        const credentials = JSON.parse(saved);
+        setSavedCredentials(credentials);
+        setFormData(credentials);
+        setRememberMe(true);
+      } catch (error) {
+        console.error('Error loading saved credentials:', error);
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +42,14 @@ export default function AdminLoginPage() {
       if (formData.email === 'admin@tdcproducts.com' && formData.password === 'admin123') {
         // Store admin session in cookie
         document.cookie = 'adminAuth=true; path=/; max-age=86400'; // 24 hours
+        
+        // Save credentials if remember me is checked
+        if (rememberMe) {
+          localStorage.setItem('adminCredentials', JSON.stringify(formData));
+        } else {
+          localStorage.removeItem('adminCredentials');
+        }
+        
         router.push('/admin/dashboard');
       } else {
         setError('Geçersiz e-posta veya şifre');
@@ -121,6 +146,37 @@ export default function AdminLoginPage() {
                 required
                 disabled={isLoading}
               />
+            </div>
+
+            {/* Remember Me Checkbox */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  disabled={isLoading}
+                />
+                <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
+                  Bilgilerimi kaydet
+                </label>
+              </div>
+              {savedCredentials && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.removeItem('adminCredentials');
+                    setSavedCredentials(null);
+                    setRememberMe(false);
+                    setFormData({ email: '', password: '' });
+                  }}
+                  className="text-sm text-red-600 hover:text-red-800 transition-colors"
+                >
+                  Kayıtlı bilgileri sil
+                </button>
+              )}
             </div>
 
             {error && (
