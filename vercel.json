@@ -1,10 +1,20 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "rm -rf .next && rm -rf node_modules && rm -rf .vercel && rm -rf .git && rm -rf .turbo && rm -rf dist && rm -rf out && npm ci --force && npm run build",
   "outputDirectory": ".next",
-  "installCommand": "npm install",
+  "installCommand": "npm ci --force",
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
     "NODE_ENV": "production"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  },
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30
+    }
   }
 }

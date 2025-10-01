@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "test-build": "node test-build.js"
+    "test-build": "node test-build.js",
+    "deploy:vercel": "bash scripts/deploy-vercel.sh",
+    "clean": "rm -rf .next && rm -rf node_modules && rm -rf .vercel && rm -rf .turbo && rm -rf dist && rm -rf out",
+    "fresh-install": "npm run clean && npm ci --force"
   },
   "dependencies": {
     "@capacitor/cli": "^7.4.3",
