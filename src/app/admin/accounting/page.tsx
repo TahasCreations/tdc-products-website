@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import TDCMarketAdminLayout from '@/components/admin/TDCMarketAdminLayout';
+import ModernAdminLayout from '@/components/admin/ModernAdminLayout';
 
 export default function AccountingDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState('current');
@@ -72,7 +72,7 @@ export default function AccountingDashboard() {
   };
 
   return (
-    <TDCMarketAdminLayout>
+    <ModernAdminLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -320,6 +320,6 @@ export default function AccountingDashboard() {
           </div>
         </motion.div>
       </div>
-    </TDCMarketAdminLayout>
+    </ModernAdminLayout>
   );
 }

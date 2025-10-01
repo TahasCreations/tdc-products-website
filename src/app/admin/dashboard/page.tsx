@@ -2,18 +2,28 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import ModernAdminLayout from '@/components/admin/ModernAdminLayout';
 // Icons replaced with emojis
 
 export default function ModernDashboard() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [timeRange, setTimeRange] = useState('7d');
+  const router = useRouter();
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    // Check admin authentication
+    const adminAuth = document.cookie.includes('adminAuth=true');
+    if (adminAuth) {
+      setIsAuthenticated(true);
+      // Simulate loading
+      const timer = setTimeout(() => setIsLoading(false), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      router.push('/admin');
+    }
+  }, [router]);
 
   const stats = [
     {
@@ -116,6 +126,10 @@ export default function ModernDashboard() {
       default: return 'Bilinmiyor';
     }
   };
+
+  if (!isAuthenticated) {
+    return null; // Will redirect to /admin
+  }
 
   if (isLoading) {
     return (
