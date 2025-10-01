@@ -4,25 +4,6 @@ const nextConfig = {
   swcMinify: true,
   poweredByHeader: false,
   
-  // Image optimization
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'via.placeholder.com',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-    formats: ['image/webp', 'image/avif'],
-  },
-  
   // Disable ESLint during build
   eslint: {
     ignoreDuringBuilds: true,
