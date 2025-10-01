@@ -16,6 +16,22 @@ const nextConfig = {
     };
     return config;
   },
+  generateBuildId: async () => {
+    return `tdc-market-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
   async rewrites() {
     return [
       {
