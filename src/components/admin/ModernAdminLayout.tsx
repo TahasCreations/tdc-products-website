@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-// Icons will be replaced with emojis for now
 
 interface ModernAdminLayoutProps {
   children: React.ReactNode;
@@ -64,7 +63,7 @@ const moduleGroups = [
       { id: 'coupons', title: 'Kuponlar', href: '/admin/marketing/coupons', icon: '🎫', badge: '45', description: 'Kupon yönetimi' },
       { id: 'ads', title: 'Reklamlar', href: '/admin/marketing/ads', icon: '📺', description: 'Promoted listings' },
       { id: 'crm', title: 'CRM', href: '/admin/marketing/crm', icon: '👥', description: 'Müşteri ilişkileri' },
-      { id: 'campaigns', title: 'Kampanyalar', href: '/admin/marketing/campaigns', icon: '📧', description: 'E-posta kampanyaları' },
+      { id: 'campaigns', title: 'Kampanyalar', href: '/admin/marketing/campaigns', icon: '📧', description: 'E-posta/SMS kampanyaları' },
       { id: 'ab-tests', title: 'A/B Testleri', href: '/admin/marketing/ab-tests', icon: '🧪', description: 'Deney tasarımı' },
       { id: 'segments', title: 'Müşteri Segmentleri', href: '/admin/marketing/segments', icon: '🎭', description: 'Segmentasyon' },
       { id: 'analytics', title: 'Pazarlama Analitiği', href: '/admin/marketing/analytics', icon: '📊', description: 'Pazarlama metrikleri' }
@@ -96,34 +95,131 @@ const moduleGroups = [
       { id: 'roles', title: 'Roller', href: '/admin/roles', icon: '🔐', description: 'Yetki yönetimi' },
       { id: 'settings', title: 'Ayarlar', href: '/admin/settings', icon: '⚙️', description: 'Sistem ayarları' },
       { id: 'security', title: 'Güvenlik', href: '/admin/security', icon: '🛡️', description: 'Güvenlik ayarları' },
-      { id: 'backup', title: 'Yedekleme', href: '/admin/backup', icon: '💾', description: 'Veri yedekleme' },
-      { id: 'logs', title: 'Loglar', href: '/admin/logs', icon: '📝', description: 'Sistem logları' }
+      { id: 'backup', title: 'Yedekleme', href: '/admin/backup', icon: '💾', description: 'Veritabanı yedekleri' },
+      { id: 'logs', title: 'Loglar', href: '/admin/logs', icon: '📄', description: 'Sistem logları' }
     ]
   }
 ];
 
 export default function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [notifications, setNotifications] = useState(5);
+  const [notifications] = useState(5);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    // Close sidebar on route change for mobile
+    if (isSidebarOpen && window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
+  }, [pathname, isSidebarOpen]);
 
   const handleLogout = () => {
     document.cookie = 'adminAuth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     router.push('/admin');
   };
 
-  const filteredModules = moduleGroups.flatMap(group => 
-    group.modules.filter(module => 
+  const filteredGroups = moduleGroups.map(group => ({
+    ...group,
+    modules: group.modules.filter(module =>
       module.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       module.description.toLowerCase().includes(searchQuery.toLowerCase())
     )
-  );
+  })).filter(group => group.modules.length > 0);
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex lg:flex-col lg:w-80 lg:bg-white lg:shadow-xl lg:border-r lg:border-gray-200">
+        <div className="flex h-full flex-col">
+          {/* Sidebar Header */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-coral-500 rounded-xl flex items-center justify-center">
+                <span className="text-white font-bold text-lg">T</span>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">TDC Admin</h1>
+                <p className="text-sm text-gray-500">Yönetim Paneli</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="p-6 border-b border-gray-200">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Modül ara..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+              <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex-1 overflow-y-auto">
+            <nav className="p-6 space-y-6">
+              {filteredGroups.map((group) => (
+                <div key={group.id}>
+                  <div className="flex items-center space-x-2 mb-4">
+                    <span className="text-2xl">{group.icon}</span>
+                    <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                      {group.title}
+                    </h3>
+                  </div>
+                  <div className="space-y-1">
+                    {group.modules.map((module) => (
+                      <Link
+                        key={module.id}
+                        href={module.href}
+                        className={`flex items-center justify-between p-3 rounded-lg transition-colors group ${
+                          pathname === module.href
+                            ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <span className="text-lg">{module.icon}</span>
+                          <div>
+                            <p className="font-medium">{module.title}</p>
+                            <p className="text-xs text-gray-500">{module.description}</p>
+                          </div>
+                        </div>
+                        {module.badge && (
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                            module.badge === 'NEW' 
+                              ? 'bg-purple-100 text-purple-700' 
+                              : 'bg-blue-100 text-blue-700'
+                          }`}>
+                            {module.badge}
+                          </span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </nav>
+          </div>
+
+          {/* Sidebar Footer */}
+          <div className="p-6 border-t border-gray-200">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center space-x-3 p-3 text-gray-700 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors"
+            >
+              <span>🚪</span>
+              <span className="font-medium">Çıkış Yap</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Mobile Sidebar */}
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.aside
@@ -131,7 +227,7 @@ export default function ModernAdminLayout({ children }: ModernAdminLayoutProps) 
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -300, opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl lg:static lg:translate-x-0"
+            className="fixed inset-y-0 left-0 z-50 w-80 bg-white shadow-xl lg:hidden"
           >
             <div className="flex h-full flex-col">
               {/* Sidebar Header */}
@@ -147,7 +243,7 @@ export default function ModernAdminLayout({ children }: ModernAdminLayoutProps) 
                 </div>
                 <button
                   onClick={() => setIsSidebarOpen(false)}
-                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <span className="text-gray-600">✕</span>
                 </button>
@@ -156,7 +252,6 @@ export default function ModernAdminLayout({ children }: ModernAdminLayoutProps) 
               {/* Search */}
               <div className="p-6 border-b border-gray-200">
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
                   <input
                     type="text"
                     placeholder="Modül ara..."
@@ -164,16 +259,17 @@ export default function ModernAdminLayout({ children }: ModernAdminLayoutProps) 
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   />
+                  <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
                 </div>
               </div>
 
               {/* Navigation */}
-              <div className="flex-1 overflow-y-auto p-6">
-                <nav className="space-y-2">
-                  {moduleGroups.map((group) => (
-                    <div key={group.id} className="mb-6">
-                      <div className="flex items-center space-x-2 mb-3">
-                        <span className="text-lg">{group.icon}</span>
+              <div className="flex-1 overflow-y-auto">
+                <nav className="p-6 space-y-6">
+                  {filteredGroups.map((group) => (
+                    <div key={group.id}>
+                      <div className="flex items-center space-x-2 mb-4">
+                        <span className="text-2xl">{group.icon}</span>
                         <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
                           {group.title}
                         </h3>
@@ -186,7 +282,7 @@ export default function ModernAdminLayout({ children }: ModernAdminLayoutProps) 
                             className={`flex items-center justify-between p-3 rounded-lg transition-colors group ${
                               pathname === module.href
                                 ? 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                                : 'hover:bg-gray-50 text-gray-700'
+                                : 'text-gray-700 hover:bg-gray-100'
                             }`}
                           >
                             <div className="flex items-center space-x-3">
@@ -299,6 +395,7 @@ export default function ModernAdminLayout({ children }: ModernAdminLayoutProps) 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
