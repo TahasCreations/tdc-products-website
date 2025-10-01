@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useTheme } from '@/contexts/ThemeContext';
+import { useTheme } from '../contexts/ThemeContext';
 
 export default function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();

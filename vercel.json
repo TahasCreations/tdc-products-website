@@ -1,5 +1,5 @@
 {
-  "buildCommand": "rm -rf .next && rm -rf node_modules/.cache && rm -rf .vercel && npm run build",
+  "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "framework": "nextjs",
