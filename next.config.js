@@ -31,7 +31,19 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'no-cache, no-store, must-revalidate',
           },
+          {
+            key: 'X-Build-ID',
+            value: `tdc-market-${Date.now()}`,
+          },
         ],
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/(.*)',
+        destination: '/',
       },
     ];
   },
