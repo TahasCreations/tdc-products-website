@@ -65,26 +65,26 @@ export default function Header() {
             : 'bg-white/80 backdrop-blur-sm'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+          <div className="flex justify-between items-center h-16 sm:h-20">
             {/* Logo */}
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="flex-shrink-0"
             >
-              <Link href="/" className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-coral-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-2xl">T</span>
+              <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-coral-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-xl sm:text-2xl">T</span>
                 </div>
-                <div className="hidden sm:block">
-                  <span className="text-2xl font-bold text-ink-900 font-serif">TDC Market</span>
-                  <p className="text-xs text-ink-600 -mt-1">Özel figürlerden elektroniğe</p>
+                <div className="hidden xs:block">
+                  <span className="text-lg sm:text-2xl font-bold text-ink-900 font-serif">TDC Market</span>
+                  <p className="text-xs text-ink-600 -mt-1 hidden sm:block">Özel figürlerden elektroniğe</p>
                 </div>
               </Link>
             </motion.div>
 
             {/* Search Bar */}
-            <div className="hidden md:flex flex-1 max-w-md mx-8">
+            <div className="hidden md:flex flex-1 max-w-md mx-4 lg:mx-8">
               <form onSubmit={handleSearch} className="w-full">
                 <div className="relative">
                   <input
@@ -92,18 +92,18 @@ export default function Header() {
                     placeholder="Ürün, kategori veya marka ara..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-3 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 pl-10 sm:pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
                   />
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
                   <button
                     type="submit"
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center"
+                    className="absolute inset-y-0 right-0 pr-3 sm:pr-4 flex items-center"
                   >
-                    <svg className="h-5 w-5 text-indigo-500 hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-500 hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                     </svg>
                   </button>
@@ -112,14 +112,14 @@ export default function Header() {
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1 sm:space-x-3">
               {/* Mobile Search Button */}
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="md:hidden p-2 text-ink-600 hover:text-indigo-600 transition-colors"
+                className="md:hidden p-2 text-ink-600 hover:text-indigo-600 transition-colors touch-manipulation"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </motion.button>
@@ -128,16 +128,18 @@ export default function Header() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="relative p-2 text-ink-600 hover:text-indigo-600 transition-colors"
+                className="relative p-2 text-ink-600 hover:text-indigo-600 transition-colors touch-manipulation"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
                 </svg>
-                <span className="absolute -top-1 -right-1 bg-coral-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                <span className="absolute -top-1 -right-1 bg-coral-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center text-xs">0</span>
               </motion.button>
 
               {/* Theme Toggle */}
-              <ThemeToggle />
+              <div className="hidden sm:block">
+                <ThemeToggle />
+              </div>
 
               {/* User Menu */}
               <div className="relative">
@@ -145,12 +147,12 @@ export default function Header() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleAuthClick('user')}
-                  className="flex items-center space-x-2 px-4 py-2 text-ink-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-gray-50"
+                  className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 text-ink-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-gray-50 touch-manipulation"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  <span className="hidden sm:block font-medium">Giriş</span>
+                  <span className="hidden sm:block font-medium text-sm">Giriş</span>
                 </motion.button>
               </div>
 
@@ -159,21 +161,21 @@ export default function Header() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleAuthClick('seller')}
-                className="hidden sm:flex items-center space-x-2 px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium transition-all duration-300 hover:bg-indigo-600"
+                className="hidden sm:flex items-center space-x-2 px-3 sm:px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium transition-all duration-300 hover:bg-indigo-600 text-sm touch-manipulation"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
-                <span>Satıcı Ol</span>
+                <span className="hidden lg:block">Satıcı Ol</span>
               </motion.button>
 
               {/* Mobile Menu Button */}
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden p-2 text-ink-600 hover:text-indigo-600 transition-colors"
+                className="lg:hidden p-2 text-ink-600 hover:text-indigo-600 transition-colors touch-manipulation"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </motion.button>
