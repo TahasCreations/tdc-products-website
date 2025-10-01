@@ -1,6 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
+// TDC Market - Complete Database Schema
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,2368 +8,969 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
+// ===== CORE USER MANAGEMENT =====
 model User {
   id        String   @id @default(cuid())
+  email     String   @unique
   name      String?
-  email     String?  @unique
-  password  String?  // sadece Credentials (admin) için
-  role      Role     @default(USER)
-  accounts  Account[]
-  sessions  Session[]
+  avatar    String?
+  role      UserRole @default(CUSTOMER)
+  storeId   String?  // Multi-tenant support
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  profile     UserProfile?
+  blogPosts   BlogPost[]
+  blogLikes   BlogLike[]
+  blogSaves   BlogSave[]
+  blogViews   BlogView[]
+  blogComments BlogComment[]
+  follows     FollowAuthor[] @relation("Follower")
+  followers   FollowAuthor[] @relation("Following")
+  reports     ContentReport[]
+  orders      Order[]
+  cartItems   CartItem[]
+  products    Product[]
+  reviews     Review[]
+  qnaQuestions QnaQuestion[]
+  qnaAnswers  QnaAnswer[]
+  auditLogs   AuditLog[]
+  eventOutbox EventOutbox[]
 
   @@map("users")
 }
 
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+model UserProfile {
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  handle      String  @unique
+  displayName String
+  bio         String?
+  avatarUrl   String?
+  linksJson   String? // JSON string for social links
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
+enum UserRole {
+  ADMIN
+  FINANCE
+  OPS
+  MARKETING
+  AI_ANALYST
+  SELLER
+  CUSTOMER
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+// ===== UGC BLOG SYSTEM =====
+model BlogTopic {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@unique([identifier, token])
-  @@map("verification_tokens")
+  posts       BlogPost[]
+  follows     FollowTopic[]
+
+  @@map("blog_topics")
 }
 
-model Category {
+model BlogPost {
+  id          String      @id @default(cuid())
+  authorId    String
+  title       String
+  slug        String      @unique
+  contentJson String      // JSON string for rich content
+  topicId     String
+  tagsJson    String?     // JSON array of tags
+  coverUrl    String?
+  readingTime Int         @default(0)
+  status      PostStatus  @default(DRAFT)
+  storeId     String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  publishedAt DateTime?
+
+  author   User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  topic    BlogTopic    @relation(fields: [topicId], references: [id])
+  media    BlogMedia[]
+  likes    BlogLike[]
+  saves    BlogSave[]
+  views    BlogView[]
+  comments BlogComment[]
+  reports  ContentReport[]
+
+  @@map("blog_posts")
+}
+
+model BlogMedia {
+  id       String @id @default(cuid())
+  postId   String
+  url      String
+  width    Int?
+  height   Int?
+  bytes    Int?
+  mime     String?
+  alt      String?
+  storeId  String?
+  createdAt DateTime @default(now())
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("blog_media")
+}
+
+model BlogLike {
+  id      String   @id @default(cuid())
+  postId  String
+  userId  String
+  storeId String?
+  createdAt DateTime @default(now())
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("blog_likes")
+}
+
+model BlogSave {
+  id      String   @id @default(cuid())
+  postId  String
+  userId  String
+  storeId String?
+  createdAt DateTime @default(now())
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("blog_saves")
+}
+
+model BlogView {
+  id      String   @id @default(cuid())
+  postId  String
+  userId  String?
+  ipHash  String?
+  storeId String?
+  createdAt DateTime @default(now())
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("blog_views")
+}
+
+model BlogComment {
   id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  enabled   Boolean  @default(true)
-  products  Product[]
+  postId    String
+  userId    String
+  parentId  String?
+  contentJson String
+  status    CommentStatus @default(APPROVED)
+  storeId   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  post   BlogPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent BlogComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies BlogComment[] @relation("CommentReplies")
+
+  @@map("blog_comments")
+}
+
+enum PostStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ===== FOLLOW SYSTEM =====
+model FollowTopic {
+  id      String   @id @default(cuid())
+  userId  String
+  topicId String
+  storeId String?
+  createdAt DateTime @default(now())
+
+  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic BlogTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId])
+  @@map("follow_topics")
+}
+
+model FollowAuthor {
+  id         String   @id @default(cuid())
+  followerId String
+  authorId   String
+  storeId    String?
+  createdAt  DateTime @default(now())
+
+  follower User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  author   User @relation("Following", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, authorId])
+  @@map("follow_authors")
+}
+
+// ===== CONTENT REPORTING =====
+model ContentReport {
+  id         String      @id @default(cuid())
+  entityType EntityType
+  entityId   String
+  reporterId String
+  reason     ReportReason
+  notes      String?
+  status     ReportStatus @default(PENDING)
+  storeId    String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  reporter User @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@map("content_reports")
+}
+
+enum EntityType {
+  POST
+  COMMENT
+  PRODUCT
+  REVIEW
+}
+
+enum ReportReason {
+  SPAM
+  HATE_SPEECH
+  PERSONAL_DATA
+  COPYRIGHT
+  INAPPROPRIATE
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+// ===== NEWSLETTER =====
+model NewsletterSubscriber {
+  id             String    @id @default(cuid())
+  userId         String?
+  email          String    @unique
+  topicsJson     String?   // JSON array of topic IDs
+  doubleOptIn    Boolean   @default(false)
+  unsubscribedAt DateTime?
+  storeId        String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("newsletter_subscribers")
+}
+
+// ===== IMPORT/ONBOARDING SYSTEM =====
+model ImportJob {
+  id          String        @id @default(cuid())
+  sellerId    String
+  fileName    String
+  fileSize    Int
+  status      ImportStatus  @default(UPLOADING)
+  progress    Int           @default(0)
+  errorLog    String?
+  storeId     String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  items ImportItem[]
+
+  @@map("import_jobs")
+}
+
+model ImportItem {
+  id          String   @id @default(cuid())
+  importJobId String
+  rowNumber   Int
+  dataJson    String   // Raw CSV/Excel row data
+  status      ImportItemStatus @default(PENDING)
+  errorMsg    String?
+  productId   String?
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  importJob ImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  product   Product?  @relation(fields: [productId], references: [id])
+
+  @@map("import_items")
+}
+
+enum ImportStatus {
+  UPLOADING
+  MAPPING
+  VALIDATING
+  IMPORTING
+  DONE
+  FAILED
+}
+
+enum ImportItemStatus {
+  PENDING
+  MAPPED
+  VALIDATED
+  IMPORTED
+  FAILED
+}
+
+// ===== E-COMMERCE =====
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  parentId    String?
+  image       String?
+  isActive    Boolean  @default(true)
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+  products Product[]
 
   @@map("categories")
 }
 
 model Product {
   id          String   @id @default(cuid())
-  tenantId    String
-  storeId     String?
-  sellerId    String?
-  title       String
-  slug        String
+  name        String
+  slug        String   @unique
   description String?
   price       Decimal  @db.Decimal(10, 2)
-  categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id])
+  comparePrice Decimal? @db.Decimal(10, 2)
+  sku         String?  @unique
   stock       Int      @default(0)
-  images      String[] @default([])
-  enabled     Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  categoryId  String
+  sellerId    String?
+  storeId     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  store             Store?        @relation(fields: [storeId], references: [id], onDelete: SetNull)
-  seller            Seller?       @relation(fields: [sellerId], references: [id], onDelete: SetNull)
-  productAnalytics ProductAnalytics[]
-  moderationCases ModerationCase[]
-  imageHashes     ImageHash[]
+  category    Category      @relation(fields: [categoryId], references: [id])
+  seller      User?         @relation(fields: [sellerId], references: [id])
+  variants    ProductVariant[]
+  images      ProductImage[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  reviews     Review[]
+  qnaQuestions QnaQuestion[]
+  importItems ImportItem[]
 
   @@map("products")
-  @@index([tenantId, slug])
-  @@unique([tenantId, storeId, slug])
 }
 
-model Seller {
-  id        String   @id @default(cuid())
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
   name      String
-  email     String   @unique
-  phone     String?
-  address   String?
-  city      String?
-  country   String?
-  type      String   @default("TYPE_A") // TYPE_A or TYPE_B
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  dailySnapshots     DailySnapshot[]
-  productAnalytics   ProductAnalytics[]
-  competitorAnalyses CompetitorAnalysis[]
-  subscriptions      Subscription[]
-  subscriptionInvoices SubscriptionInvoice[]
-  moderationCases    ModerationCase[]
-
-  @@map("sellers")
-}
-
-model Tenant {
-  id        String   @id @default(cuid())
-  name      String
-  domain    String   @unique
-  settings  Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  loyaltyPoints      LoyaltyPoint[]
-  loyaltyTiers       LoyaltyTier[]
-  loyaltyTransactions LoyaltyTransaction[]
-  loyaltyRedemptions LoyaltyRedemption[]
-  dailySnapshots     DailySnapshot[]
-  productAnalytics   ProductAnalytics[]
-  competitorAnalyses CompetitorAnalysis[]
-  subscriptions      Subscription[]
-  subscriptionPlans  SubscriptionPlan[]
-  subscriptionInvoices SubscriptionInvoice[]
-  moderationCases    ModerationCase[]
-  imageHashes        ImageHash[]
-  roles              Role[]
-  permissions        Permission[]
-  userRoles          UserRole[]
-  auditLogs          AuditLog[]
-  webhookSubscriptions WebhookSubscription[]
-  webhookDeliveries  WebhookDelivery[]
-  webhookEvents      WebhookEvent[]
-  webhookLogs        WebhookLog[]
-  stores             Store[]
-  storeDomains       StoreDomain[]
-  storeThemes        StoreTheme[]
-  themeTemplates     ThemeTemplate[]
-  storePages         StorePage[]
-    subscriptions      Subscription[]
-    entitlements       Entitlement[]
-    subscriptionPlans  SubscriptionPlan[]
-    mediaQuotas        MediaQuota[]
-  sitemapEntries     SitemapEntry[]
-  seoMetadata        SeoMetadata[]
-  mediaFiles         MediaFile[]
-  mediaQuotas        MediaQuota[]
-  // VAT Module Relations
-  vatPeriods         VatPeriod[]
-  invoices           Invoice[]
-  receipts           Receipt[]
-  deductibilityRules DeductibilityRule[]
-  aiSuggestions      AiSuggestion[]
-  whatIfScenarios    WhatIfScenario[]
-  fxRates            FxRate[]
-
-  @@map("tenants")
-}
-
-model Customer {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  firstName String?
-  lastName  String?
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  loyaltyPoints      LoyaltyPoint[]
-  loyaltyTransactions LoyaltyTransaction[]
-  loyaltyRedemptions LoyaltyRedemption[]
-  assignedModerationCases ModerationCase[]
-  userRoles          UserRole[]
-  assignedRoles      UserRole[] @relation("RoleAssignment")
-  auditLogs          AuditLog[]
-  webhookLogs        WebhookLog[]
-
-  @@map("customers")
-}
-
-model Order {
-  id        String   @id @default(cuid())
-  tenantId  String
-  customerId String
-  sellerId  String?
+  sku       String? @unique
+  price     Decimal @db.Decimal(10, 2)
+  stock     Int     @default(0)
+  attributes Json?  // JSON object for variant attributes
   storeId   String?
-  amount    Decimal  @db.Decimal(10, 2)
-  status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  seller            Seller?       @relation(fields: [sellerId], references: [id], onDelete: SetNull)
-  store             Store?        @relation(fields: [storeId], references: [id], onDelete: SetNull)
-  loyaltyTransactions LoyaltyTransaction[]
-  loyaltyRedemptions  LoyaltyRedemption[]
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_variants")
+}
+
+model ProductImage {
+  id        String @id @default(cuid())
+  productId String
+  url       String
+  alt       String?
+  order     Int    @default(0)
+  storeId   String?
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+// ===== SHOPPING CART =====
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  storeId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("cart_items")
+}
+
+// ===== ORDERS & PAYMENTS =====
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  orderNumber String      @unique
+  status      OrderStatus @default(PENDING)
+  total       Decimal     @db.Decimal(10, 2)
+  subtotal    Decimal     @db.Decimal(10, 2)
+  tax         Decimal     @db.Decimal(10, 2)
+  shipping    Decimal     @db.Decimal(10, 2)
+  commission  Decimal     @db.Decimal(10, 2) // Platform commission
+  storeId     String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user      User        @relation(fields: [userId], references: [id])
+  items     OrderItem[]
+  shipping  ShippingAddress?
+  payment   Payment?
 
   @@map("orders")
 }
 
-// ===========================================
-// LOYALTY POINTS SYSTEM
-// ===========================================
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
+  commission Decimal @db.Decimal(10, 2) // Item-level commission
+  storeId   String?
 
-model LoyaltyPoint {
-  id                String        @id @default(cuid())
-  tenantId          String
-  customerId        String
-  
-  // Point details
-  points            Int           @default(0)
-  totalEarned       Int           @default(0)
-  totalRedeemed     Int           @default(0)
-  totalExpired      Int           @default(0)
-  
-  // Tier information
-  currentTierId     String?
-  tierPoints        Int           @default(0) // Points in current tier
-  nextTierId        String?
-  nextTierPoints    Int?          // Points needed for next tier
-  
-  // Status and dates
-  status            LoyaltyStatus @default(ACTIVE)
-  lastEarnedAt      DateTime?
-  lastRedeemedAt    DateTime?
-  lastExpiredAt     DateTime?
-  tierUpgradedAt    DateTime?
-  tierDowngradedAt  DateTime?
-  
-  // Expiration settings
-  pointsExpire      Boolean       @default(true)
-  expirationDays    Int?          // Days until points expire
-  nextExpirationAt  DateTime?     // Next batch of points to expire
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  currentTier       LoyaltyTier?  @relation("CurrentTier", fields: [currentTierId], references: [id])
-  nextTier          LoyaltyTier?  @relation("NextTier", fields: [nextTierId], references: [id])
-  transactions      LoyaltyTransaction[]
-  redemptions       LoyaltyRedemption[]
-
-  @@map("loyalty_points")
-  @@index([tenantId, customerId])
-  @@index([status])
-  @@index([currentTierId])
+  @@map("order_items")
 }
 
-model LoyaltyTier {
-  id                String        @id @default(cuid())
-  tenantId          String
-  
-  // Tier details
-  name              String
-  description       String?
-  level             Int           @unique // 1, 2, 3, etc.
-  color             String?       // Hex color for UI
-  icon              String?       // Icon name or URL
-  
-  // Point requirements
-  minPoints         Int           @default(0)
-  maxPoints         Int?          // null for highest tier
-  
-  // Benefits
-  benefits          Json?         // Array of benefits
-  discountRate      Float?        // Percentage discount
-  freeShipping      Boolean       @default(false)
-  prioritySupport   Boolean       @default(false)
-  exclusiveAccess   Boolean       @default(false)
-  
-  // Earning multipliers
-  earningMultiplier Float         @default(1.0) // Points multiplier for this tier
-  bonusCategories   String[]      @default([]) // Categories with bonus points
-  
-  // Redemption benefits
-  redemptionRate    Float?        // Points to currency conversion rate
-  maxRedemptionRate Float?        // Maximum percentage of order that can be paid with points
-  
-  // Status
-  isActive          Boolean       @default(true)
-  isDefault         Boolean       @default(false) // Default tier for new customers
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+model ShippingAddress {
+  id        String  @id @default(cuid())
+  orderId   String  @unique
+  firstName String
+  lastName  String
+  company   String?
+  address1  String
+  address2  String?
+  city      String
+  state     String?
+  zipCode   String
+  country   String
+  phone     String?
+  storeId   String?
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  customers         LoyaltyPoint[] @relation("CurrentTier")
-  nextTierCustomers LoyaltyPoint[] @relation("NextTier")
-  transactions      LoyaltyTransaction[]
-  redemptions       LoyaltyRedemption[]
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  @@map("loyalty_tiers")
-  @@index([tenantId, level])
-  @@index([isActive])
+  @@map("shipping_addresses")
 }
 
-model LoyaltyTransaction {
-  id                String        @id @default(cuid())
-  tenantId          String
-  customerId        String
-  loyaltyPointId    String
-  tierId            String?
-  
-  // Transaction details
-  type              LoyaltyTransactionType
-  points            Int           // Positive for earned, negative for redeemed/expired
-  description       String
-  reference         String?       // Order ID, promotion ID, etc.
-  
-  // Order context (if applicable)
-  orderId           String?
-  orderAmount       Decimal?      @db.Decimal(10, 2)
-  orderItems        Json?         // Order items for context
-  
-  // Promotion context (if applicable)
-  promotionId       String?
-  promotionCode     String?
-  multiplier        Float?        // Points multiplier applied
-  
-  // Expiration context (if applicable)
-  expiresAt         DateTime?
-  expiredAt         DateTime?
-  
-  // Status
-  status            LoyaltyTransactionStatus @default(COMPLETED)
-  processedAt       DateTime      @default(now())
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
+model Payment {
+  id            String        @id @default(cuid())
+  orderId       String        @unique
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  amount        Decimal       @db.Decimal(10, 2)
+  transactionId String?
+  storeId       String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  loyaltyPoint      LoyaltyPoint  @relation(fields: [loyaltyPointId], references: [id], onDelete: Cascade)
-  tier              LoyaltyTier?  @relation(fields: [tierId], references: [id])
-  order             Order?        @relation(fields: [orderId], references: [id])
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  @@map("loyalty_transactions")
-  @@index([tenantId, customerId])
-  @@index([type, status])
-  @@index([orderId])
-  @@index([promotionId])
-  @@index([expiresAt])
+  @@map("payments")
 }
 
-model LoyaltyRedemption {
-  id                String        @id @default(cuid())
-  tenantId          String
-  customerId        String
-  loyaltyPointId    String
-  tierId            String?
-  
-  // Redemption details
-  pointsUsed        Int
-  discountAmount    Decimal       @db.Decimal(10, 2)
-  discountRate      Float         // Percentage of order covered
-  
-  // Order context
-  orderId           String
-  orderAmount       Decimal       @db.Decimal(10, 2)
-  orderItems        Json?         // Order items for context
-  
-  // Redemption rules
-  maxRedemptionRate Float?        // Maximum percentage allowed
-  minOrderAmount    Decimal?      @db.Decimal(10, 2) // Minimum order for redemption
-  applicableItems   String[]      @default([]) // Product categories that can use points
-  
-  // Status
-  status            LoyaltyRedemptionStatus @default(COMPLETED)
-  processedAt       DateTime      @default(now())
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  loyaltyPoint      LoyaltyPoint  @relation(fields: [loyaltyPointId], references: [id], onDelete: Cascade)
-  tier              LoyaltyTier?  @relation(fields: [tierId], references: [id])
-  order             Order         @relation(fields: [orderId], references: [id])
-
-  @@map("loyalty_redemptions")
-  @@index([tenantId, customerId])
-  @@index([orderId])
-  @@index([status])
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
 }
 
-// Loyalty Enums
-enum LoyaltyStatus {
-  ACTIVE            // Points are active
-  SUSPENDED         // Points are suspended
-  EXPIRED           // Points have expired
-  CANCELLED         // Points are cancelled
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  IYZICO
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
 }
 
-enum LoyaltyTransactionType {
-  EARNED            // Points earned from purchase
-  REDEEMED          // Points redeemed for discount
-  EXPIRED           // Points expired
-  ADJUSTED          // Manual adjustment
-  BONUS             // Bonus points from promotion
-  REFUNDED          // Points refunded due to order cancellation
-  TRANSFERRED       // Points transferred between accounts
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
 }
 
-enum LoyaltyTransactionStatus {
-  PENDING           // Transaction pending
-  COMPLETED         // Transaction completed
-  FAILED            // Transaction failed
-  CANCELLED         // Transaction cancelled
+// ===== COMMISSION & SETTLEMENT =====
+model CommissionRule {
+  id          String   @id @default(cuid())
+  name        String
+  type        CommissionType
+  rate        Decimal  @db.Decimal(5, 4) // 0.0700 = 7%
+  categoryId  String?
+  sellerId    String?
+  isActive    Boolean  @default(true)
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("commission_rules")
 }
 
-enum LoyaltyRedemptionStatus {
-  PENDING           // Redemption pending
-  COMPLETED         // Redemption completed
-  FAILED            // Redemption failed
-  CANCELLED         // Redemption cancelled
-  REFUNDED          // Redemption refunded
+enum CommissionType {
+  STANDARD
+  PREMIUM
+  CATEGORY_SPECIFIC
+  SELLER_SPECIFIC
 }
 
-// ===========================================
-// INSIGHTS & ANALYTICS SYSTEM
-// ===========================================
+model SellerBalance {
+  id          String   @id @default(cuid())
+  sellerId    String   @unique
+  balance     Decimal  @db.Decimal(10, 2) @default(0)
+  pending     Decimal  @db.Decimal(10, 2) @default(0)
+  totalEarned Decimal  @db.Decimal(10, 2) @default(0)
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-model DailySnapshot {
-  id                String        @id @default(cuid())
-  tenantId          String
-  sellerId          String?
-  
-  // Snapshot details
-  snapshotDate      DateTime      @db.Date
-  snapshotType      SnapshotType
-  status            SnapshotStatus @default(PENDING)
-  
-  // Product analytics
-  totalProducts     Int           @default(0)
-  activeProducts    Int           @default(0)
-  newProducts       Int           @default(0)
-  updatedProducts   Int           @default(0)
-  
-  // Sales analytics
-  totalOrders       Int           @default(0)
-  totalRevenue      Decimal       @db.Decimal(12, 2) @default(0)
-  averageOrderValue Decimal       @db.Decimal(10, 2) @default(0)
-  conversionRate    Float         @default(0)
-  
-  // Top products
-  topProducts       Json?         // Array of top selling products
-  topCategories     Json?         // Array of top categories
-  topPriceRanges    Json?         // Array of top price ranges
-  topTags           Json?         // Array of top tags
-  
-  // Performance metrics
-  pageViews         Int           @default(0)
-  uniqueVisitors    Int           @default(0)
-  bounceRate        Float         @default(0)
-  sessionDuration   Float         @default(0) // in seconds
-  
-  // Competitor analysis (Pro only)
-  competitorData    Json?         // Competitor analysis data
-  marketShare       Float?        // Market share percentage
-  priceComparison   Json?         // Price comparison data
-  
-  // Processing details
-  processedAt       DateTime?
-  processingTime    Int?          // Processing time in milliseconds
-  errorMessage      String?
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  payouts Payout[]
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  seller            Seller?       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-
-  @@map("daily_snapshots")
-  @@index([tenantId, snapshotDate])
-  @@index([sellerId, snapshotDate])
-  @@index([snapshotType, status])
-  @@unique([tenantId, sellerId, snapshotDate, snapshotType])
+  @@map("seller_balances")
 }
 
-model ProductAnalytics {
-  id                String        @id @default(cuid())
-  tenantId          String
-  sellerId          String?
-  productId         String
-  
-  // Time period
-  periodStart       DateTime      @db.Date
-  periodEnd         DateTime      @db.Date
-  periodType        PeriodType    @default(DAILY)
-  
-  // Product metrics
-  views             Int           @default(0)
-  clicks            Int           @default(0)
-  orders            Int           @default(0)
-  revenue           Decimal       @db.Decimal(12, 2) @default(0)
-  conversionRate    Float         @default(0)
-  
-  // Ranking data
-  categoryRank      Int?
-  overallRank       Int?
-  searchRank        Int?
-  
-  // Price analytics
-  averagePrice      Decimal       @db.Decimal(10, 2) @default(0)
-  priceChanges      Int           @default(0)
-  discountRate      Float         @default(0)
-  
-  // Tag performance
-  topTags           String[]      @default([])
-  tagPerformance    Json?         // Tag performance metrics
-  
-  // Competitor data (Pro only)
-  competitorPrices  Json?         // Competitor price data
-  marketPosition    String?       // Market position (leader, challenger, etc.)
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+model SettlementRun {
+  id          String   @id @default(cuid())
+  periodStart DateTime
+  periodEnd   DateTime
+  status      SettlementStatus @default(PENDING)
+  totalAmount Decimal  @db.Decimal(10, 2)
+  totalOrders Int
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  seller            Seller?       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  product           Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  payouts Payout[]
 
-  @@map("product_analytics")
-  @@index([tenantId, productId])
-  @@index([sellerId, periodStart, periodEnd])
-  @@index([periodType, periodStart])
+  @@map("settlement_runs")
 }
 
-model CompetitorAnalysis {
-  id                String        @id @default(cuid())
-  tenantId          String
-  sellerId          String?
-  
-  // Competitor details
-  competitorName    String
-  competitorUrl     String?
-  competitorType    CompetitorType @default(DIRECT)
-  
-  // Analysis period
-  analysisDate      DateTime      @db.Date
-  periodStart       DateTime      @db.Date
-  periodEnd         DateTime      @db.Date
-  
-  // Market data
-  marketShare       Float?        // Market share percentage
-  totalProducts     Int           @default(0)
-  averagePrice      Decimal       @db.Decimal(10, 2) @default(0)
-  priceRange        Json?         // Min/max price range
-  
-  // Product comparison
-  commonProducts    Int           @default(0)
-  priceAdvantage    Float?        // Our price advantage percentage
-  featureAdvantage  Json?         // Feature comparison data
-  
-  // Performance metrics
-  trafficEstimate   Int?          // Estimated monthly traffic
-  conversionRate    Float?        // Estimated conversion rate
-  customerSatisfaction Float?     // Customer satisfaction score
-  
-  // Pricing strategy
-  pricingStrategy   String?       // Competitor pricing strategy
-  discountPattern   Json?         // Discount patterns and frequency
-  
-  // Status
-  status            AnalysisStatus @default(ACTIVE)
-  lastUpdated       DateTime      @default(now())
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  seller            Seller?       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-
-  @@map("competitor_analyses")
-  @@index([tenantId, sellerId])
-  @@index([competitorName, analysisDate])
-  @@index([status, lastUpdated])
+enum SettlementStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
-// ===========================================
-// SUBSCRIPTION SYSTEM
-// ===========================================
+model Payout {
+  id              String   @id @default(cuid())
+  sellerId        String
+  settlementRunId String?
+  amount          Decimal  @db.Decimal(10, 2)
+  status          PayoutStatus @default(PENDING)
+  paidAt          DateTime?
+  storeId         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-model Subscription {
-  id                String        @id @default(cuid())
-  tenantId          String
-  sellerId          String?
-  
-  // Subscription details
-  planId            String
-  planName          String
-  planType          SubscriptionType
-  status            SubscriptionStatus @default(ACTIVE)
-  
-  // Billing
-  billingCycle      BillingCycle  @default(MONTHLY)
-  amount            Decimal       @db.Decimal(10, 2)
-  currency          String        @default("TRY")
-  
-  // Dates
-  startDate         DateTime
-  endDate           DateTime?
-  trialEndDate      DateTime?
-  nextBillingDate   DateTime?
-  
-  // Payment provider
-  provider          PaymentProvider
-  providerId        String        // External provider subscription ID
-  providerData      Json?         // Provider-specific data
-  
-  // Features
-  features          String[]      @default([]) // Enabled features
-  limits            Json?         // Usage limits
-  
-  // Status tracking
-  lastPaymentDate   DateTime?
-  lastPaymentAmount Decimal?      @db.Decimal(10, 2)
-  failedPayments    Int           @default(0)
-  cancellationReason String?
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  sellerBalance   SellerBalance @relation(fields: [sellerId], references: [sellerId])
+  settlementRun   SettlementRun? @relation(fields: [settlementRunId], references: [id])
+  lines           PayoutLine[]
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  seller            Seller?       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  plan              SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
-  invoices          SubscriptionInvoice[]
-
-  @@map("subscriptions")
-  @@index([tenantId, sellerId])
-  @@index([status, nextBillingDate])
-  @@index([provider, providerId])
+  @@map("payouts")
 }
 
-model SubscriptionPlan {
-  id                String        @id @default(cuid())
-  tenantId          String
-  
-  // Plan details
-  name              String
-  description       String?
-  planType          SubscriptionType
-  isActive          Boolean       @default(true)
-  isDefault         Boolean       @default(false)
-  
-  // Pricing
-  amount            Decimal       @db.Decimal(10, 2)
-  currency          String        @default("TRY")
-  billingCycle      BillingCycle  @default(MONTHLY)
-  
-  // Features and limits
-  features          String[]      @default([])
-  limits            Json?         // Usage limits
-  maxProducts       Int?
-  maxOrders         Int?
-  maxStorage        Int?          // Storage in MB
-  maxUsers          Int?
-  
-  // Trial settings
-  trialDays         Int?          // Trial period in days
-  trialFeatures     String[]      @default([])
-  
-  // Status
-  status            PlanStatus    @default(ACTIVE)
-  sortOrder         Int           @default(0)
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  subscriptions     Subscription[]
-
-  @@map("subscription_plans")
-  @@index([tenantId, planType])
-  @@index([isActive, status])
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
-model SubscriptionInvoice {
-  id                String        @id @default(cuid())
-  subscriptionId    String
-  tenantId          String
-  sellerId          String?
-  
-  // Invoice details
-  invoiceNumber     String        @unique
-  amount            Decimal       @db.Decimal(10, 2)
-  currency          String        @default("TRY")
-  taxAmount         Decimal       @db.Decimal(10, 2) @default(0)
-  totalAmount       Decimal       @db.Decimal(10, 2)
-  
-  // Billing period
-  periodStart       DateTime
-  periodEnd         DateTime
-  
-  // Payment provider
-  provider          PaymentProvider
-  providerId        String?       // External provider invoice ID
-  providerUrl       String?       // Payment URL
-  
-  // Status
-  status            InvoiceStatus @default(PENDING)
-  paidAt            DateTime?
-  dueDate           DateTime
-  
-  // Payment details
-  paymentMethod     String?
-  transactionId     String?
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+model PayoutLine {
+  id        String  @id @default(cuid())
+  payoutId  String
+  orderId   String
+  amount    Decimal @db.Decimal(10, 2)
+  commission Decimal @db.Decimal(10, 2)
+  storeId   String?
+  createdAt DateTime @default(now())
 
-  // Relations
-  subscription      Subscription  @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  seller            Seller?       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  payout Payout @relation(fields: [payoutId], references: [id], onDelete: Cascade)
 
-  @@map("subscription_invoices")
-  @@index([subscriptionId])
-  @@index([status, dueDate])
-  @@index([provider, providerId])
+  @@map("payout_lines")
 }
 
-// Insights Enums
-enum SnapshotType {
-  DAILY             // Daily snapshot
-  WEEKLY            // Weekly snapshot
-  MONTHLY           // Monthly snapshot
-  CUSTOM            // Custom period snapshot
+// ===== RMA/RETURNS =====
+model ReturnRequest {
+  id          String        @id @default(cuid())
+  orderId     String
+  userId      String
+  reason      String
+  status      ReturnStatus  @default(PENDING)
+  slaDeadline DateTime?
+  storeId     String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  evidence ReturnEvidence[]
+
+  @@map("return_requests")
 }
 
-enum SnapshotStatus {
-  PENDING           // Snapshot pending
-  PROCESSING        // Snapshot being processed
-  COMPLETED         // Snapshot completed
-  FAILED            // Snapshot failed
-  CANCELLED         // Snapshot cancelled
+model ReturnEvidence {
+  id              String @id @default(cuid())
+  returnRequestId String
+  type            EvidenceType
+  url             String
+  description     String?
+  storeId         String?
+  createdAt       DateTime @default(now())
+
+  returnRequest ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+
+  @@map("return_evidence")
 }
 
-enum PeriodType {
-  DAILY             // Daily period
-  WEEKLY            // Weekly period
-  MONTHLY           // Monthly period
-  QUARTERLY         // Quarterly period
-  YEARLY            // Yearly period
+enum ReturnStatus {
+  PENDING
+  NEED_EVIDENCE
+  APPROVED
+  REJECTED
+  REFUNDED
 }
 
-enum CompetitorType {
-  DIRECT            // Direct competitor
-  INDIRECT          // Indirect competitor
-  MARKETPLACE       // Marketplace competitor
-  BRAND             // Brand competitor
+enum EvidenceType {
+  PHOTO
+  VIDEO
+  DOCUMENT
 }
 
-enum AnalysisStatus {
-  ACTIVE            // Analysis is active
-  INACTIVE          // Analysis is inactive
-  ARCHIVED          // Analysis is archived
+// ===== ADVERTISING =====
+model AdCampaign {
+  id          String   @id @default(cuid())
+  name        String
+  budget      Decimal  @db.Decimal(10, 2)
+  spent       Decimal  @db.Decimal(10, 2) @default(0)
+  status      AdStatus @default(DRAFT)
+  startDate   DateTime
+  endDate     DateTime?
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  budgets AdBudget[]
+
+  @@map("ad_campaigns")
 }
 
-// Subscription Enums
-enum SubscriptionType {
-  FREE              // Free plan
-  BASIC             // Basic plan
-  PRO               // Pro plan
-  ENTERPRISE        // Enterprise plan
-  CUSTOM            // Custom plan
+model AdBudget {
+  id         String @id @default(cuid())
+  campaignId String
+  amount     Decimal @db.Decimal(10, 2)
+  spent      Decimal @db.Decimal(10, 2) @default(0)
+  storeId    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  campaign AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("ad_budgets")
 }
 
-enum SubscriptionStatus {
-  ACTIVE            // Subscription is active
-  INACTIVE          // Subscription is inactive
-  TRIALING          // Subscription is in trial
-  PAST_DUE          // Subscription is past due
-  CANCELLED         // Subscription is cancelled
-  UNPAID            // Subscription is unpaid
-  SUSPENDED         // Subscription is suspended
+model AdImpression {
+  id        String   @id @default(cuid())
+  campaignId String
+  productId String?
+  position  Int
+  storeId   String?
+  createdAt DateTime @default(now())
+
+  @@map("ad_impressions")
 }
 
-enum BillingCycle {
-  DAILY             // Daily billing
-  WEEKLY            // Weekly billing
-  MONTHLY           // Monthly billing
-  QUARTERLY         // Quarterly billing
-  YEARLY            // Yearly billing
+model AdClick {
+  id         String   @id @default(cuid())
+  campaignId String
+  productId  String?
+  ipHash     String
+  userAgent  String?
+  storeId    String?
+  createdAt  DateTime @default(now())
+
+  @@map("ad_clicks")
 }
 
-enum PaymentProvider {
-  STRIPE            // Stripe payment provider
-  IYZICO            // Iyzico payment provider
-  PAYPAL            // PayPal payment provider
-  MANUAL            // Manual payment
+enum AdStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
 }
 
-enum PlanStatus {
-  ACTIVE            // Plan is active
-  INACTIVE          // Plan is inactive
-  ARCHIVED          // Plan is archived
+// ===== SEARCH TELEMETRY =====
+model SearchLog {
+  id        String   @id @default(cuid())
+  query     String
+  filters   String?  // JSON filters
+  clickedId String?
+  position  Int?
+  storeId   String?
+  createdAt DateTime @default(now())
+
+  @@map("search_logs")
 }
 
-enum InvoiceStatus {
-  DRAFT             // Invoice is draft
-  PENDING           // Invoice is pending
-  PAID              // Invoice is paid
-  OVERDUE           // Invoice is overdue
-  CANCELLED         // Invoice is cancelled
-  REFUNDED          // Invoice is refunded
+// ===== REVIEWS & Q&A =====
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  rating    Int      // 1-5
+  title     String?
+  content   String
+  images    String?  // JSON array of image URLs
+  isVerified Boolean @default(false)
+  storeId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, userId])
+  @@map("reviews")
 }
 
-// ===========================================
-// MODERATION SYSTEM
-// ===========================================
+model QnaQuestion {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String
+  question  String
+  storeId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-model ModerationCase {
-  id                String        @id @default(cuid())
-  tenantId          String
-  productId         String?
-  sellerId          String?
-  
-  // Case details
-  caseType          ModerationType
-  status            ModerationStatus @default(PENDING)
-  priority          ModerationPriority @default(MEDIUM)
-  
-  // Content details
-  title             String?
-  description       String?
-  imageUrl          String?
-  imageHash         String?       // pHash for image similarity
-  imageHashType     String?       @default("pHash")
-  
-  // Similarity detection
-  similarCases      Json?         // Array of similar case IDs with similarity scores
-  similarityScore   Float?        // Highest similarity score found
-  similarityThreshold Float       @default(0.8) // Threshold for flagging
-  
-  // AI/ML analysis
-  aiAnalysis        Json?         // AI analysis results
-  confidenceScore   Float?        // AI confidence score
-  detectedIssues    String[]      @default([]) // Detected issues (spam, inappropriate, etc.)
-  
-  // Manual review
-  assignedTo        String?       // Moderator user ID
-  reviewedAt        DateTime?
-  reviewNotes       String?
-  reviewDecision    ModerationDecision?
-  
-  // Resolution
-  resolvedAt        DateTime?
-  resolutionNotes   String?
-  actionTaken       String?       // Action taken (approve, reject, modify, etc.)
-  
-  // Metadata
-  source            String?       // Source of the case (upload, report, etc.)
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  product Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers QnaAnswer[]
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  product           Product?      @relation(fields: [productId], references: [id], onDelete: Cascade)
-  seller            Seller?       @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  assignedModerator User?         @relation(fields: [assignedTo], references: [id], onDelete: SetNull)
-
-  @@map("moderation_cases")
-  @@index([tenantId, status])
-  @@index([productId])
-  @@index([sellerId])
-  @@index([caseType, status])
-  @@index([assignedTo, status])
-  @@index([imageHash])
+  @@map("qna_questions")
 }
 
-model ImageHash {
-  id                String        @id @default(cuid())
-  tenantId          String
-  productId         String?
-  
-  // Image details
-  imageUrl          String
-  imageHash         String        // pHash value
-  hashType          String        @default("pHash")
-  hashLength        Int           @default(64) // pHash length
-  
-  // Image metadata
-  width             Int?
-  height            Int?
-  fileSize          Int?
-  format            String?       // jpg, png, webp, etc.
-  
-  // Processing details
-  processedAt       DateTime      @default(now())
-  processingTime    Int?          // Processing time in milliseconds
-  
-  // Status
-  isActive          Boolean       @default(true)
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+model QnaAnswer {
+  id         String   @id @default(cuid())
+  questionId String
+  userId     String
+  answer     String
+  isSeller   Boolean  @default(false)
+  storeId    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  product           Product?      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  question QnaQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("image_hashes")
-  @@index([tenantId, imageHash])
-  @@index([productId])
-  @@index([hashType, isActive])
-  @@unique([tenantId, imageUrl, hashType])
+  @@map("qna_answers")
 }
 
-// Moderation Enums
-enum ModerationType {
-  IMAGE_SIMILARITY  // Image similarity detection
-  CONTENT_REVIEW    // Content review (text, description)
-  SPAM_DETECTION    // Spam detection
-  INAPPROPRIATE     // Inappropriate content
-  COPYRIGHT         // Copyright violation
-  TRADEMARK         // Trademark violation
-  COUNTERFEIT       // Counterfeit product
-  MANUAL_REPORT     // Manual user report
-  AUTOMATED_FLAG    // Automated system flag
+// ===== BANKING & ACCOUNTING =====
+model BankAccount {
+  id          String   @id @default(cuid())
+  name        String
+  accountNumber String
+  bankName    String
+  currency    String   @default("TRY")
+  isActive    Boolean  @default(true)
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  statements BankStmt[]
+
+  @@map("bank_accounts")
 }
 
-enum ModerationStatus {
-  PENDING           // Pending review
-  IN_REVIEW         // Currently under review
-  APPROVED          // Approved
-  REJECTED          // Rejected
-  FLAGGED           // Flagged for further review
-  RESOLVED          // Resolved
-  CANCELLED         // Cancelled
+model BankStmt {
+  id            String   @id @default(cuid())
+  bankAccountId String
+  date          DateTime
+  balance       Decimal  @db.Decimal(10, 2)
+  storeId       String?
+  createdAt     DateTime @default(now())
+
+  bankAccount BankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
+  transactions BankTxn[]
+
+  @@map("bank_statements")
 }
 
-enum ModerationPriority {
-  LOW               // Low priority
-  MEDIUM            // Medium priority
-  HIGH              // High priority
-  URGENT            // Urgent priority
+model BankTxn {
+  id          String   @id @default(cuid())
+  statementId String
+  date        DateTime
+  description String
+  amount      Decimal  @db.Decimal(10, 2)
+  balance     Decimal  @db.Decimal(10, 2)
+  reference   String?
+  storeId     String?
+  createdAt   DateTime @default(now())
+
+  statement BankStmt @relation(fields: [statementId], references: [id], onDelete: Cascade)
+
+  @@map("bank_transactions")
 }
 
-enum ModerationDecision {
-  APPROVE           // Approve the content
-  REJECT            // Reject the content
-  MODIFY            // Request modifications
-  ESCALATE          // Escalate to higher authority
-  IGNORE            // Ignore the case
-}
-
-  // ===========================================
-  // STORE DOMAINS SYSTEM
-  // ===========================================
-
-  model StoreDomain {
-    id                String        @id @default(cuid())
-    tenantId          String
-    storeId           String
-    domain            String        // e.g., "mystore.com", "www.mystore.com"
-    isPrimary         Boolean       @default(false)
-    status            DomainStatus  @default(PENDING)
-    verificationToken String?       // Token for domain verification
-    
-    // Vercel integration
-    vercelDomainId    String?       // Vercel domain ID
-    vercelProjectId   String?       // Vercel project ID
-    vercelConfig      Json?         // Vercel domain configuration
-    
-    // DNS verification
-    dnsRecords        Json?         // Required DNS records
-    dnsVerified       Boolean       @default(false)
-    dnsVerifiedAt     DateTime?
-    
-    // SSL/TLS
-    sslEnabled        Boolean       @default(false)
-    sslCertificate    String?       // SSL certificate details
-    sslExpiresAt      DateTime?
-    
-    // Analytics
-    lastCheckedAt     DateTime?
-    checkCount        Int           @default(0)
-    errorCount        Int           @default(0)
-    lastError         String?
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    store             Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-    @@map("store_domains")
-    @@index([tenantId, domain])
-    @@index([storeId, isPrimary])
-    @@index([status])
-    @@index([verificationToken])
-    @@unique([tenantId, domain])
-  }
-
-  model Store {
-    id                String        @id @default(cuid())
-    tenantId          String
-    name              String
-    slug              String        // URL slug for the store
-    description       String?
-    
-    // Store settings
-    logo              String?
-    favicon           String?
-    theme             String?       // Store theme configuration
-    settings          Json?         // Store-specific settings
-    
-    // Status
-    status            StoreStatus   @default(ACTIVE)
-    isPublished       Boolean       @default(false)
-    
-    // SEO
-    metaTitle         String?
-    metaDescription   String?
-    metaKeywords      String[]
-    canonicalDomain   String?       // Primary domain for canonical URLs
-    
-    // Analytics
-    viewCount         Int           @default(0)
-    lastViewedAt      DateTime?
-    ga4MeasurementId  String?       // Google Analytics 4 Measurement ID
-    metaPixelId       String?       // Meta Pixel ID
-    googleTagManager  String?       // Google Tag Manager ID
-    hotjarId          String?       // Hotjar ID
-    mixpanelToken     String?       // Mixpanel Token
-    
-    // Sitemap & Robots
-    sitemapUrl        String?       // Custom sitemap URL
-    robotsTxt         String?       // Custom robots.txt content
-    sitemapLastMod    DateTime?     // Last sitemap modification
-    robotsLastMod     DateTime?     // Last robots.txt modification
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    domains           StoreDomain[]
-    themes            StoreTheme[]
-    pages             StorePage[]
-    products          Product[]
-    orders            Order[]
-    sitemapEntries    SitemapEntry[]
-    seoMetadata       SeoMetadata[]
-    mediaFiles        MediaFile[]
-    mediaQuotas       MediaQuota[]
-
-    @@map("stores")
-    @@index([tenantId, slug])
-    @@index([status])
-    @@unique([tenantId, slug])
-  }
-
-  // Store Domain Enums
-  enum DomainStatus {
-    PENDING           // Domain added but not verified
-    VERIFYING         // Domain verification in progress
-    VERIFIED          // Domain verified and active
-    FAILED            // Domain verification failed
-    SUSPENDED         // Domain suspended
-    EXPIRED           // Domain expired
-  }
-
-  enum StoreStatus {
-    ACTIVE            // Store is active
-    INACTIVE          // Store is inactive
-    SUSPENDED         // Store is suspended
-    MAINTENANCE       // Store is in maintenance mode
-  }
-
-  model StoreTheme {
-    id                String        @id @default(cuid())
-    tenantId          String
-    storeId           String
-    name              String        // Theme name
-    description       String?       // Theme description
-    
-    // Theme configuration
-    colors            Json          // Color palette configuration
-    typography        Json          // Font and typography settings
-    spacing           Json          // Spacing and layout settings
-    components        Json          // Component-specific settings
-    
-    // Branding
-    logo              String?       // Store logo URL
-    favicon           String?       // Store favicon URL
-    backgroundImage   String?       // Background image URL
-    
-    // Layout configuration
-    layoutJson        Json?         // PageBuilder layout configuration
-    headerConfig      Json?         // Header configuration
-    footerConfig      Json?         // Footer configuration
-    
-    // Status
-    isActive          Boolean       @default(false)
-    isDefault         Boolean       @default(false)
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    store             Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-    @@map("store_themes")
-    @@index([tenantId, storeId])
-    @@index([isActive])
-    @@unique([tenantId, storeId, isActive])
-  }
-
-  model ThemeTemplate {
-    id                String        @id @default(cuid())
-    tenantId          String
-    name              String        // Template name
-    description       String?       // Template description
-    category          String        // Template category (e.g., 'ecommerce', 'portfolio', 'blog')
-    
-    // Template configuration
-    colors            Json          // Default color palette
-    typography        Json          // Default typography settings
-    spacing           Json          // Default spacing settings
-    components        Json          // Default component settings
-    
-    // Preview
-    previewImage      String?       // Template preview image
-    thumbnailImage    String?       // Template thumbnail image
-    
-    // Layout
-    layoutJson        Json          // Default layout configuration
-    headerConfig      Json?         // Default header configuration
-    footerConfig      Json?         // Default footer configuration
-    
-    // Status
-    isPublic          Boolean       @default(true)
-    isPremium         Boolean       @default(false)
-    
-    // Usage statistics
-    usageCount        Int           @default(0)
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-    @@map("theme_templates")
-    @@index([tenantId, category])
-    @@index([isPublic, isPremium])
-  }
-
-  model StorePage {
-    id                String        @id @default(cuid())
-    tenantId          String
-    storeId           String
-    path              String        // URL path (e.g., '/campaigns/black-friday')
-    title             String        // Page title
-    description       String?       // Page description
-    
-    // Content
-    content           Json?         // Page content (rich text, blocks, etc.)
-    layoutJson        Json?         // PageBuilder layout configuration
-    themeId           String?       // Custom theme for this page
-    
-    // SEO
-    metaTitle         String?       // SEO title
-    metaDescription   String?       // SEO description
-    metaKeywords      String[]      // SEO keywords
-    ogImage           String?       // Open Graph image URL
-    ogTitle           String?       // Open Graph title
-    ogDescription     String?       // Open Graph description
-    
-    // Publishing
-    status            PageStatus    @default(DRAFT)
-    isPublished       Boolean       @default(false)
-    startAt           DateTime?     // Publication start date
-    endAt             DateTime?     // Publication end date
-    
-    // Campaign settings
-    isCampaign        Boolean       @default(false)
-    campaignType      CampaignType? // Type of campaign
-    discountCode      String?       // Associated discount code
-    priority          Int           @default(0) // Higher number = higher priority
-    
-    // Analytics
-    viewCount         Int           @default(0)
-    lastViewedAt      DateTime?
-    
-    // Cache settings
-    cacheTtl          Int           @default(3600) // Cache TTL in seconds
-    revalidateAt      DateTime?     // Next revalidation time
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    store             Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
-    theme             StoreTheme?   @relation(fields: [themeId], references: [id], onDelete: SetNull)
-
-    @@map("store_pages")
-    @@index([tenantId, storeId, path])
-    @@index([status, isPublished])
-    @@index([startAt, endAt])
-    @@index([isCampaign, priority])
-    @@index([revalidateAt])
-    @@unique([storeId, path])
-  }
-
-  // Store Page Enums
-  enum PageStatus {
-    DRAFT             // Page is in draft
-    SCHEDULED         // Page is scheduled for publication
-    PUBLISHED         // Page is published
-    UNPUBLISHED       // Page is unpublished
-    ARCHIVED          // Page is archived
-  }
-
-  enum CampaignType {
-    SALE              // Sale campaign
-    PROMOTION         // Promotion campaign
-    EVENT             // Event campaign
-    SEASONAL          // Seasonal campaign
-    FLASH             // Flash sale campaign
-    CLEARANCE         // Clearance campaign
-  }
-
-  model Subscription {
-    id                String        @id @default(cuid())
-    tenantId          String
-    customerId        String?       // Optional customer ID for external billing
-    planId            String        // Subscription plan ID
-    planName          String        // Plan name (e.g., 'CustomDomainPro')
-    status            SubscriptionStatus @default(ACTIVE)
-    
-    // Billing
-    billingCycle      BillingCycle  @default(MONTHLY)
-    price             Decimal       // Price in cents
-    currency          String        @default("USD")
-    
-    // Dates
-    startDate         DateTime      @default(now())
-    endDate           DateTime?     // Null for active subscriptions
-    trialEndDate      DateTime?     // Trial period end
-    nextBillingDate   DateTime?     // Next billing date
-    
-    // External provider
-    provider          String        // Payment provider (stripe, iyzico, etc.)
-    providerId        String?       // External subscription ID
-    providerData      Json?         // Provider-specific data
-    
-    // Features
-    features          Json?         // Enabled features
-    limits            Json?         // Usage limits
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    entitlements      Entitlement[]
-
-    @@map("subscriptions")
-    @@index([tenantId, status])
-    @@index([provider, providerId])
-    @@index([planId])
-  }
-
-  model Entitlement {
-    id                String        @id @default(cuid())
-    tenantId          String
-    subscriptionId    String
-    feature           String        // Feature name (e.g., 'custom_domains', 'page_builder')
-    enabled           Boolean       @default(true)
-    limit             Int?          // Usage limit (null = unlimited)
-    used              Int           @default(0) // Current usage
-    
-    // Feature-specific data
-    config            Json?         // Feature configuration
-    expiresAt         DateTime?     // Feature expiration
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    subscription      Subscription  @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-
-    @@map("entitlements")
-    @@index([tenantId, feature])
-    @@index([subscriptionId])
-    @@unique([tenantId, subscriptionId, feature])
-  }
-
-  model SubscriptionPlan {
-    id                String        @id @default(cuid())
-    tenantId          String?       // Null for global plans
-    name              String        // Plan name
-    displayName       String        // Display name
-    description       String?       // Plan description
-    
-    // Pricing
-    price             Decimal       // Price in cents
-    currency          String        @default("USD")
-    billingCycle      BillingCycle  @default(MONTHLY)
-    
-    // Features
-    features          Json          // Plan features
-    limits            Json          // Usage limits
-    
-    // Status
-    isActive          Boolean       @default(true)
-    isPublic          Boolean       @default(true)
-    isTrial           Boolean       @default(false)
-    trialDays         Int?          // Trial period in days
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant?       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-    @@map("subscription_plans")
-    @@index([tenantId, isActive])
-    @@index([isPublic])
-  }
-
-  // Subscription Enums
-  enum SubscriptionStatus {
-    ACTIVE            // Subscription is active
-    TRIALING          // In trial period
-    PAST_DUE          // Payment failed
-    CANCELED          // Canceled by user
-    UNPAID            // Unpaid
-    INCOMPLETE        // Incomplete setup
-    INCOMPLETE_EXPIRED // Incomplete and expired
-    PAUSED            // Paused
-  }
-
-  enum BillingCycle {
-    MONTHLY           // Monthly billing
-    YEARLY            // Yearly billing
-    WEEKLY            // Weekly billing
-    DAILY             // Daily billing
-    ONE_TIME          // One-time payment
-  }
-
-  model SitemapEntry {
-    id                String        @id @default(cuid())
-    tenantId          String
-    storeId           String
-    url               String        // Full URL
-    path              String        // URL path
-    type              SitemapType   @default(PAGE)
-    priority          Float         @default(0.5) // 0.0 to 1.0
-    changefreq        ChangeFreq    @default(WEEKLY)
-    lastmod           DateTime      @default(now())
-    isActive          Boolean       @default(true)
-    
-    // Content references
-    productId         String?       // If type is PRODUCT
-    pageId            String?       // If type is PAGE
-    categoryId        String?       // If type is CATEGORY
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    store             Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-    @@map("sitemap_entries")
-    @@index([tenantId, storeId, type])
-    @@index([isActive, lastmod])
-    @@unique([storeId, url])
-  }
-
-  model SeoMetadata {
-    id                String        @id @default(cuid())
-    tenantId          String
-    storeId           String
-    pageType          String        // 'home', 'product', 'category', 'page'
-    pageId            String?       // Reference to specific page/product
-    path              String?       // URL path
-    
-    // SEO fields
-    title             String?       // Page title
-    description       String?       // Meta description
-    keywords          String[]      // Meta keywords
-    canonicalUrl      String?       // Canonical URL
-    ogTitle           String?       // Open Graph title
-    ogDescription     String?       // Open Graph description
-    ogImage           String?       // Open Graph image
-    ogType            String?       // Open Graph type
-    twitterCard       String?       // Twitter card type
-    twitterTitle      String?       // Twitter title
-    twitterDescription String?      // Twitter description
-    twitterImage      String?       // Twitter image
-    
-    // Structured data
-    structuredData    Json?         // JSON-LD structured data
-    breadcrumbs       Json?         // Breadcrumb structured data
-    
-    // Status
-    isActive          Boolean       @default(true)
-    lastUpdated       DateTime      @default(now())
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    store             Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-    @@map("seo_metadata")
-    @@index([tenantId, storeId, pageType])
-    @@index([isActive, lastUpdated])
-    @@unique([storeId, pageType, pageId])
-  }
-
-  // Sitemap Enums
-  enum SitemapType {
-    PAGE              // Static page
-    PRODUCT           // Product page
-    CATEGORY          // Category page
-    BLOG              // Blog post
-    CUSTOM            // Custom page
-  }
-
-  enum ChangeFreq {
-    ALWAYS            // Always changes
-    HOURLY            // Changes hourly
-    DAILY             // Changes daily
-    WEEKLY            // Changes weekly
-    MONTHLY           // Changes monthly
-    YEARLY            // Changes yearly
-    NEVER             // Never changes
-  }
-
-  model MediaFile {
-    id                String        @id @default(cuid())
-    tenantId          String
-    storeId           String
-    userId            String?       // Uploader user ID
-    
-    // File information
-    filename          String        // Original filename
-    originalName      String        // Original filename with extension
-    mimeType          String        // MIME type
-    fileSize          BigInt        // File size in bytes
-    fileExtension     String        // File extension
-    
-    // Storage information
-    storageProvider   String        // 's3', 'local', 'cloudinary', etc.
-    storagePath       String        // Path in storage
-    storageUrl        String        // Public URL
-    storageBucket     String?       // S3 bucket name
-    storageRegion     String?       // S3 region
-    
-    // Image processing
-    width             Int?          // Image width
-    height            Int?          // Image height
-    aspectRatio       Float?        // Width/Height ratio
-    colorSpace        String?       // Color space (RGB, CMYK, etc.)
-    hasAlpha          Boolean       @default(false) // Has transparency
-    
-    // Thumbnails and variants
-    thumbnails        Json?         // Thumbnail variants (small, medium, large)
-    webpUrl           String?       // WebP version URL
-    avifUrl           String?       // AVIF version URL
-    blurDataUrl       String?       // Base64 blur placeholder
-    
-    // Processing status
-    processingStatus  ProcessingStatus @default(PENDING)
-    processingError   String?       // Processing error message
-    processingStarted DateTime?
-    processingCompleted DateTime?
-    
-    // Usage tracking
-    usageCount        Int           @default(0) // How many times used
-    lastUsedAt        DateTime?
-    
-    // Metadata
-    altText           String?       // Alt text for accessibility
-    caption           String?       // Image caption
-    tags              String[]      // Tags for organization
-    metadata          Json?         // Additional metadata
-    
-    // Status
-    isActive          Boolean       @default(true)
-    isPublic          Boolean       @default(true)
-    
-    // Timestamps
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    store             Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-    @@map("media_files")
-    @@index([tenantId, storeId])
-    @@index([storageProvider, storagePath])
-    @@index([mimeType])
-    @@index([processingStatus])
-    @@index([isActive, isPublic])
-    @@index([createdAt])
-  }
-
-  model MediaQuota {
-    id                String        @id @default(cuid())
-    tenantId          String
-    storeId           String
-    subscriptionId    String?       // Related subscription
-    
-    // Quota limits
-    maxStorageBytes   BigInt        // Maximum storage in bytes
-    maxFiles          Int           // Maximum number of files
-    maxFileSize       BigInt        // Maximum file size in bytes
-    allowedMimeTypes  String[]      // Allowed MIME types
-    
-    // Current usage
-    usedStorageBytes  BigInt        @default(0) // Used storage in bytes
-    usedFiles         Int           @default(0) // Used number of files
-    
-    // Warning thresholds
-    storageWarningThreshold Float   @default(0.8) // 80% warning
-    filesWarningThreshold   Float   @default(0.8) // 80% warning
-    
-    // Status
-    isActive          Boolean       @default(true)
-    lastResetAt       DateTime?     // Last quota reset
-    nextResetAt       DateTime?     // Next quota reset
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    store             Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
-    subscription      Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
-
-    @@map("media_quotas")
-    @@index([tenantId, storeId])
-    @@index([subscriptionId])
-    @@unique([storeId])
-  }
-
-  // Media Processing Enums
-  enum ProcessingStatus {
-    PENDING           // Waiting to be processed
-    PROCESSING        // Currently being processed
-    COMPLETED         // Processing completed successfully
-    FAILED            // Processing failed
-    CANCELLED         // Processing was cancelled
-  }
-
-  enum MediaType {
-    IMAGE             // Image files
-    VIDEO             // Video files
-    AUDIO             // Audio files
-    DOCUMENT          // Document files
-    ARCHIVE           // Archive files
-    OTHER             // Other file types
-  }
-
-  enum ThumbnailSize {
-    SMALL             // 150x150
-    MEDIUM            // 300x300
-    LARGE             // 600x600
-    XLARGE            // 1200x1200
-    ORIGINAL          // Original size
-  }
-
-  // ===========================================
-  // WEBHOOK SYSTEM
-  // ===========================================
-
-  model WebhookSubscription {
-    id                String        @id @default(cuid())
-    tenantId          String
-    name              String        // Subscription name
-    description       String?
-    
-    // Webhook configuration
-    url               String        // Target webhook URL
-    secret            String        // HMAC secret for signature verification
-    events            String[]      // Array of event types to subscribe to
-    
-    // Security settings
-    verifySsl         Boolean       @default(true)
-    includeHeaders    Boolean       @default(true)
-    customHeaders     Json?         // Custom headers to include
-    
-    // Retry configuration
-    maxRetries        Int           @default(3)
-    retryDelay        Int           @default(1000) // Initial delay in ms
-    retryBackoff      Float         @default(2.0) // Exponential backoff multiplier
-    timeout           Int           @default(30000) // Request timeout in ms
-    
-    // Status and health
-    isActive          Boolean       @default(true)
-    isHealthy         Boolean       @default(true)
-    lastDeliveryAt    DateTime?
-    lastSuccessAt     DateTime?
-    lastFailureAt     DateTime?
-    consecutiveFailures Int         @default(0)
-    
-    // Statistics
-    totalDeliveries   Int           @default(0)
-    successfulDeliveries Int        @default(0)
-    failedDeliveries  Int           @default(0)
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    deliveries        WebhookDelivery[]
-
-    @@map("webhook_subscriptions")
-    @@index([tenantId, isActive])
-    @@index([events])
-    @@index([isHealthy])
-  }
-
-  model WebhookDelivery {
-    id                String        @id @default(cuid())
-    subscriptionId    String
-    tenantId          String
-    
-    // Delivery details
-    eventType         String        // Event type that triggered the webhook
-    eventId           String        // Unique event identifier
-    payload           Json          // Event payload
-    headers           Json?         // Request headers
-    
-    // Delivery status
-    status            WebhookStatus @default(PENDING)
-    httpStatus        Int?          // HTTP response status
-    responseBody      String?       // Response body
-    responseHeaders   Json?         // Response headers
-    
-    // Retry information
-    attemptCount      Int           @default(0)
-    maxRetries        Int           @default(3)
-    nextRetryAt       DateTime?
-    
-    // Timing
-    startedAt         DateTime?
-    completedAt       DateTime?
-    duration          Int?          // Duration in milliseconds
-    
-    // Error information
-    errorMessage      String?
-    errorCode         String?
-    errorDetails      Json?
-    
-    // Security
-    signature         String?       // HMAC signature
-    signatureMethod   String?       @default("sha256")
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    subscription      WebhookSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-    @@map("webhook_deliveries")
-    @@index([subscriptionId, status])
-    @@index([tenantId, eventType])
-    @@index([status, nextRetryAt])
-    @@index([createdAt])
-  }
-
-  model WebhookEvent {
-    id                String        @id @default(cuid())
-    tenantId          String
-    
-    // Event details
-    eventType         String        // e.g., "order.created", "product.updated"
-    eventVersion      String        @default("1.0")
-    source            String        // Source system/component
-    
-    // Event data
-    data              Json          // Event payload
-    metadata          Json?         // Additional metadata
-    
-    // Processing status
-    status            EventStatus   @default(PENDING)
-    processedAt       DateTime?
-    errorMessage      String?
-    
-    // Webhook delivery
-    webhookDeliveries WebhookDelivery[]
-    
-    // Metadata
-    createdAt         DateTime      @default(now())
-    updatedAt         DateTime      @updatedAt
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-    @@map("webhook_events")
-    @@index([tenantId, eventType])
-    @@index([status, createdAt])
-    @@index([eventType, status])
-  }
-
-  model WebhookLog {
-    id                String        @id @default(cuid())
-    tenantId          String
-    subscriptionId    String?
-    deliveryId        String?
-    
-    // Log details
-    level             LogLevel      @default(INFO)
-    message           String
-    context           Json?         // Additional context data
-    
-    // Request/Response details
-    requestUrl        String?
-    requestMethod     String?
-    requestHeaders    Json?
-    requestBody       String?
-    responseStatus    Int?
-    responseHeaders   Json?
-    responseBody      String?
-    
-    // Error details
-    errorCode         String?
-    errorMessage      String?
-    stackTrace        String?
-    
-    // Performance
-    duration          Int?          // Duration in milliseconds
-    
-    // Metadata
-    metadata          Json?
-    createdAt         DateTime      @default(now())
-
-    // Relations
-    tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-    subscription      WebhookSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
-    delivery          WebhookDelivery? @relation(fields: [deliveryId], references: [id], onDelete: SetNull)
-
-    @@map("webhook_logs")
-    @@index([tenantId, level])
-    @@index([subscriptionId, createdAt])
-    @@index([level, createdAt])
-  }
-
-  // Webhook Enums
-  enum WebhookStatus {
-    PENDING           // Waiting to be sent
-    SENDING           // Currently being sent
-    DELIVERED         // Successfully delivered
-    FAILED            // Failed to deliver
-    RETRYING          // Retrying after failure
-    CANCELLED         // Cancelled
-    EXPIRED           // Expired (max retries reached)
-  }
-
-  enum EventStatus {
-    PENDING           // Event pending processing
-    PROCESSING        // Event being processed
-    PROCESSED         // Event processed successfully
-    FAILED            // Event processing failed
-    CANCELLED         // Event cancelled
-  }
-
-  enum LogLevel {
-    DEBUG             // Debug information
-    INFO              // General information
-    WARN              // Warning messages
-    ERROR             // Error messages
-    FATAL             // Fatal errors
-  }
-
-  // ===========================================
-  // RBAC (ROLE-BASED ACCESS CONTROL) SYSTEM
-  // ===========================================
-
-model Role {
-  id                String        @id @default(cuid())
-  tenantId          String
-  name              String        // e.g., "admin", "seller_owner", "seller_staff", "moderator"
-  displayName       String        // e.g., "Administrator", "Seller Owner", "Seller Staff"
-  description       String?
-  isSystem          Boolean       @default(false) // System roles cannot be deleted
-  isActive          Boolean       @default(true)
-  
-  // Role hierarchy
-  parentRoleId      String?
-  parentRole        Role?         @relation("RoleHierarchy", fields: [parentRoleId], references: [id])
-  childRoles        Role[]        @relation("RoleHierarchy")
-  
-  // Permissions
-  permissions       RolePermission[]
-  
-  // Users with this role
-  userRoles         UserRole[]
-  
-  // Metadata
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@map("roles")
-  @@index([tenantId, name])
-  @@index([isSystem, isActive])
-  @@unique([tenantId, name])
-}
-
-model Permission {
-  id                String        @id @default(cuid())
-  tenantId          String
-  resource          String        // e.g., "products", "orders", "analytics", "moderation"
-  action            String        // e.g., "create", "read", "update", "delete", "manage"
-  scope             String        @default("own") // "own", "tenant", "global"
-  description       String?
-  isActive          Boolean       @default(true)
-  
-  // Permission combinations
-  rolePermissions   RolePermission[]
-  
-  // Metadata
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@map("permissions")
-  @@index([tenantId, resource, action])
-  @@index([isActive])
-  @@unique([tenantId, resource, action, scope])
-}
-
-model RolePermission {
-  id                String        @id @default(cuid())
-  roleId            String
-  permissionId      String
-  isGranted         Boolean       @default(true) // true = grant, false = deny
-  conditions        Json?         // Additional conditions (e.g., sellerId must match)
-  
-  // Metadata
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  role              Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission        Permission    @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-
-  @@map("role_permissions")
-  @@index([roleId, permissionId])
-  @@unique([roleId, permissionId])
-}
-
-model UserRole {
-  id                String        @id @default(cuid())
-  userId            String
-  roleId            String
-  tenantId          String
-  
-  // Role context (for seller roles)
-  sellerId          String?       // For seller_owner/seller_staff roles
-  isActive          Boolean       @default(true)
-  
-  // Role assignment metadata
-  assignedBy        String?       // User who assigned this role
-  assignedAt        DateTime      @default(now())
-  expiresAt         DateTime?     // Optional role expiration
-  
-  // Metadata
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role              Role          @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  assignedByUser    User?         @relation("RoleAssignment", fields: [assignedBy], references: [id])
-
-  @@map("user_roles")
-  @@index([userId, tenantId])
-  @@index([roleId, isActive])
-  @@index([sellerId, isActive])
-  @@unique([userId, roleId, tenantId, sellerId])
-}
-
-model AuditLog {
-  id                String        @id @default(cuid())
-  tenantId          String
-  userId            String?       // User who performed the action
-  sessionId         String?       // Session identifier
-  action            String        // e.g., "create_product", "update_order", "delete_user"
-  resource          String        // e.g., "products", "orders", "users"
-  resourceId        String?       // ID of the affected resource
-  oldValues         Json?         // Previous values (for updates/deletes)
-  newValues         Json?         // New values (for creates/updates)
-  
-  // Request context
-  ipAddress         String?
-  userAgent         String?
-  requestId         String?       // Unique request identifier
-  endpoint          String?       // API endpoint
-  method            String?       // HTTP method
-  
-  // Result
-  success           Boolean       @default(true)
-  errorMessage      String?
-  statusCode        Int?
-  
-  // Metadata
-  metadata          Json?         // Additional context data
-  createdAt         DateTime      @default(now())
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user              User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@map("audit_logs")
-  @@index([tenantId, userId])
-  @@index([action, resource])
-  @@index([createdAt])
-  @@index([success, statusCode])
-}
-
-// RBAC Enums
-enum RoleType {
-  SYSTEM            // System roles (admin, super_admin)
-  TENANT            // Tenant-specific roles
-  SELLER            // Seller-specific roles
-  CUSTOM            // Custom roles
-}
-
-enum PermissionScope {
-  OWN               // Can only access own resources
-  TENANT            // Can access tenant resources
-  GLOBAL            // Can access global resources
-}
-
-enum AuditAction {
-  CREATE            // Resource creation
-  READ              // Resource access
-  UPDATE            // Resource modification
-  DELETE            // Resource deletion
-  LOGIN             // User login
-  LOGOUT            // User logout
-  PERMISSION_DENIED // Permission denied
-  ROLE_ASSIGNED     // Role assignment
-  ROLE_REVOKED      // Role revocation
-  PASSWORD_CHANGE   // Password change
-  PROFILE_UPDATE    // Profile update
-}
-
-// ===========================================
-// AI VAT ASSISTANT & PROFIT OPTIMIZER MODULE
-// ===========================================
-
+// ===== AI & VAT ASSISTANT =====
 model VatPeriod {
-  id                String        @id @default(cuid())
-  tenantId          String
-  periodKey         String        // YYYY-MM format
-  startDate         DateTime      @db.Date
-  endDate           DateTime      @db.Date
-  status            VatPeriodStatus @default(OPEN)
-  
-  // VAT calculations
-  projectedOutputVat Decimal     @db.Decimal(12, 2) @default(0)
-  projectedInputVat  Decimal     @db.Decimal(12, 2) @default(0)
-  netVat             Decimal     @db.Decimal(12, 2) @default(0)
-  
-  // Capacity analysis
-  capacityMin        Decimal     @db.Decimal(12, 2) @default(0)
-  capacityMax        Decimal     @db.Decimal(12, 2) @default(0)
-  capacityCurrent    Decimal     @db.Decimal(12, 2) @default(0)
-  capacityProjected  Decimal     @db.Decimal(12, 2) @default(0)
-  
-  // Processing status
-  processedAt        DateTime?
-  lockedAt           DateTime?
-  closedAt           DateTime?
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  startDate   DateTime
+  endDate     DateTime
+  isClosed    Boolean  @default(false)
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  invoices          Invoice[]
-  receipts          Receipt[]
-  aiSuggestions     AiSuggestion[]
-  whatIfScenarios   WhatIfScenario[]
+  invoices Invoice[]
 
   @@map("vat_periods")
-  @@index([tenantId, periodKey])
-  @@index([status])
-  @@unique([tenantId, periodKey])
 }
 
 model Invoice {
-  id                String        @id @default(cuid())
-  tenantId          String
-  periodId          String?
-  number            String
-  date              DateTime      @db.Date
-  supplier          String
-  currency          String        @default("TRY")
-  
-  // Amounts
-  net               Decimal       @db.Decimal(12, 2)
-  tax               Decimal       @db.Decimal(12, 2)
-  gross             Decimal       @db.Decimal(12, 2)
-  taxRate           Float         @default(0.18) // 18% default
-  taxCode           String?
-  
-  // Classification
-  category          String
-  countryCode       String        @default("TR")
-  source            String        @default("manual") // manual, ocr, api
-  
-  // Status
-  status            InvoiceStatus @default(PENDING)
-  confidence        Float?        // OCR confidence score
-  processedAt       DateTime?
-  
-  // OCR data
-  ocrJson           Json?         // Raw OCR results
-  ocrConfidence     Float?        // OCR confidence
-  ocrProcessedAt    DateTime?
-  
-  // Deductibility
-  deductibility     DeductibilityRule?
-  deductibilityId   String?
-  deductibilityResult DeductibilityResult?
-  deductibilityConfidence Float?  // AI confidence for deductibility
-  
-  // Conflicts
-  conflicts         Json?         // Array of conflict objects
-  hasConflicts      Boolean       @default(false)
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  id          String   @id @default(cuid())
+  periodId    String
+  type        InvoiceType
+  number      String
+  amount      Decimal  @db.Decimal(10, 2)
+  vatRate     Decimal  @db.Decimal(5, 4)
+  vatAmount   Decimal  @db.Decimal(10, 2)
+  deductibility DeductibilityType
+  partialRate Decimal? @db.Decimal(5, 4)
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  period            VatPeriod?    @relation(fields: [periodId], references: [id], onDelete: SetNull)
-  deductibilityRule DeductibilityRule? @relation(fields: [deductibilityId], references: [id])
+  period VatPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
 
   @@map("invoices")
-  @@index([tenantId, periodId])
-  @@index([number, supplier])
-  @@index([status, processedAt])
-  @@index([category, countryCode])
-  @@index([hasConflicts])
 }
 
-model Receipt {
-  id                String        @id @default(cuid())
-  tenantId          String
-  periodId          String?
-  date              DateTime      @db.Date
-  supplier          String
-  currency          String        @default("TRY")
-  
-  // Amounts
-  net               Decimal       @db.Decimal(12, 2)
-  tax               Decimal       @db.Decimal(12, 2)
-  gross             Decimal       @db.Decimal(12, 2)
-  category          String
-  
-  // OCR data
-  ocrJson           Json?         // Raw OCR results
-  confidence        Float?        // OCR confidence score
-  processedAt       DateTime?
-  
-  // Status
-  status            ReceiptStatus @default(PENDING)
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  period            VatPeriod?    @relation(fields: [periodId], references: [id], onDelete: SetNull)
-
-  @@map("receipts")
-  @@index([tenantId, periodId])
-  @@index([status, processedAt])
-  @@index([category])
-}
-
-model DeductibilityRule {
-  id                String        @id @default(cuid())
-  tenantId          String
-  countryCode       String        @default("TR")
-  category          String
-  taxCode           String?
-  
-  // Rule definition
-  ruleType          DeductibilityType @default(FULL)
-  partialRate       Float?        // For PARTIAL rules (0.0 to 1.0)
-  notes             String?
-  
-  // Conditions
-  conditions        Json?         // Additional conditions
-  isActive          Boolean       @default(true)
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  invoices          Invoice[]
-
-  @@map("deductibility_rules")
-  @@index([tenantId, countryCode, category])
-  @@index([ruleType, isActive])
-  @@unique([tenantId, countryCode, category, taxCode])
-}
-
-model AiSuggestion {
-  id                String        @id @default(cuid())
-  tenantId          String
-  periodId          String?
-  type              SuggestionType
-  status            SuggestionStatus @default(PENDING)
-  
-  // Suggestion data
-  payloadJson       Json          // Suggestion payload
-  impactJson        Json?         // Impact analysis
-  confidence        Float         // AI confidence (0.0 to 1.0)
-  
-  // Application
-  appliedAt         DateTime?
-  appliedBy         String?       // User who applied
-  applicationResult Json?         // Application result
-  
-  // Metadata
-  createdBy         String?       // User who created
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  period            VatPeriod?    @relation(fields: [periodId], references: [id], onDelete: SetNull)
-
-  @@map("ai_suggestions")
-  @@index([tenantId, type, status])
-  @@index([periodId, type])
-  @@index([confidence, status])
-}
-
-model WhatIfScenario {
-  id                String        @id @default(cuid())
-  tenantId          String
-  periodId          String?
-  title             String
-  description       String?
-  
-  // Scenario inputs
-  inputsJson        Json          // Scenario input parameters
-  resultsJson       Json?         // Calculated results
-  
-  // Impact analysis
-  vatImpact         Decimal?      @db.Decimal(12, 2)
-  cashImpact        Decimal?      @db.Decimal(12, 2)
-  profitImpact      Decimal?      @db.Decimal(12, 2)
-  confidence        Float?        // AI confidence
-  
-  // Status
-  status            ScenarioStatus @default(DRAFT)
-  appliedAt         DateTime?
-  appliedBy         String?
-  
-  // Metadata
-  createdBy         String?
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  period            VatPeriod?    @relation(fields: [periodId], references: [id], onDelete: SetNull)
-
-  @@map("what_if_scenarios")
-  @@index([tenantId, periodId])
-  @@index([status, confidence])
-}
-
-model FxRate {
-  id                String        @id @default(cuid())
-  tenantId          String
-  base              String        // Base currency (e.g., "TRY")
-  quote             String        // Quote currency (e.g., "USD")
-  date              DateTime      @db.Date
-  rate              Decimal       @db.Decimal(12, 6) // Exchange rate
-  
-  // Source information
-  source            String        @default("ECB") // ECB, Central Bank, etc.
-  sourceUrl         String?
-  
-  // Metadata
-  metadata          Json?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@map("fx_rates")
-  @@index([tenantId, base, quote, date])
-  @@index([date, base, quote])
-  @@unique([tenantId, base, quote, date])
-}
-
-// VAT Module Enums
-enum VatPeriodStatus {
-  OPEN              // Period is open for processing
-  LOCKED            // Period is locked (no new entries)
-  CLOSED            // Period is closed and finalized
-  ARCHIVED          // Period is archived
-}
-
-enum InvoiceStatus {
-  PENDING           // Invoice pending processing
-  PROCESSING        // Invoice being processed
-  PROCESSED         // Invoice processed successfully
-  CONFLICT          // Invoice has conflicts
-  FAILED            // Invoice processing failed
-  APPROVED          // Invoice approved for deduction
-  REJECTED          // Invoice rejected
-}
-
-enum ReceiptStatus {
-  PENDING           // Receipt pending processing
-  PROCESSING        // Receipt being processed
-  PROCESSED         // Receipt processed successfully
-  FAILED            // Receipt processing failed
+enum InvoiceType {
+  SALES
+  PURCHASE
+  EXPENSE
 }
 
 enum DeductibilityType {
-  FULL              // Fully deductible
-  PARTIAL           // Partially deductible
-  NONE              // Not deductible
+  FULL
+  PARTIAL
+  NONE
+}
+
+model AiSuggestion {
+  id          String   @id @default(cuid())
+  type        SuggestionType
+  title       String
+  description String
+  impactJson  String   // JSON impact data
+  confidence  Decimal  @db.Decimal(3, 2) // 0.00-1.00
+  isApplied   Boolean  @default(false)
+  storeId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("ai_suggestions")
 }
 
 enum SuggestionType {
-  VAT_OPTIMIZATION  // VAT optimization suggestion
-  PROFIT_OPTIMIZATION // Profit optimization suggestion
-  CASH_FLOW         // Cash flow optimization
-  DEDUCTIBILITY     // Deductibility improvement
-  EARLY_PAYMENT     // Early payment discount
-  INVENTORY_VALUATION // Inventory valuation method
-  DEPRECIATION      // Depreciation method
-  EXPENSE_CAPITALIZATION // Expense vs capitalization
+  PRICING
+  SEO
+  INVENTORY
+  MARKETING
+  VAT
 }
 
-enum SuggestionStatus {
-  PENDING           // Suggestion pending review
-  APPROVED          // Suggestion approved
-  REJECTED          // Suggestion rejected
-  APPLIED           // Suggestion applied
-  EXPIRED           // Suggestion expired
+// ===== AUDIT & EVENTS =====
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String
+  oldValues String?  // JSON old values
+  newValues String?  // JSON new values
+  metaJson  String?  // JSON additional metadata
+  storeId   String?
+  createdAt DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@map("audit_logs")
 }
 
-enum ScenarioStatus {
-  DRAFT             // Scenario in draft
-  CALCULATED        // Scenario calculated
-  APPLIED           // Scenario applied
-  ARCHIVED          // Scenario archived
+model EventOutbox {
+  id          String    @id @default(cuid())
+  eventType   String
+  payloadJson String
+  processedAt DateTime?
+  storeId     String?
+  createdAt   DateTime  @default(now())
+
+  @@map("event_outbox")
+}
+
+// ===== FX RATES =====
+model FxRate {
+  id        String   @id @default(cuid())
+  fromCurrency String
+  toCurrency   String
+  rate      Decimal  @db.Decimal(10, 6)
+  date      DateTime
+  storeId   String?
+  createdAt DateTime @default(now())
+
+  @@unique([fromCurrency, toCurrency, date])
+  @@map("fx_rates")
 }

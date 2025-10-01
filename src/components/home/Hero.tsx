@@ -87,18 +87,26 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-center lg:text-left"
           >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="mb-4"
+            >
+              <span className="inline-block px-4 py-2 bg-gradient-to-r from-indigo-100 to-coral-100 text-indigo-700 rounded-full text-sm font-medium">
+                🏪 TDC Market
+              </span>
+            </motion.div>
+
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-5xl sm:text-6xl lg:text-7xl font-bold text-ink-900 mb-6 font-serif leading-tight"
             >
-              <span className="block">TDC Products</span>
+              <span className="block">TDC Market —</span>
               <span className="block bg-gradient-to-r from-indigo-600 to-coral-500 bg-clip-text text-transparent">
-                Figür & Koleksiyon
-              </span>
-              <span className="block text-3xl sm:text-4xl lg:text-5xl text-ink-600 font-normal mt-2">
-                Dünyası
+                Özel figürlerden elektroniğe, tasarımdan ev yaşamına
               </span>
             </motion.h1>
 
@@ -108,9 +116,7 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="text-xl text-ink-600 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
             >
-              El işçiliği + yüksek kalite, global vizyon. 
-              <br />
-              Premium figür koleksiyonları ve sanat eserleri.
+              El yapımı & koleksiyon ürünlerinden moda ve teknolojiye; hepsi TDC Market'te.
             </motion.p>
 
             {/* Search Bar */}
@@ -126,7 +132,7 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Koleksiyon veya figür ara..."
+                  placeholder="Ürün, kategori veya marka ara..."
                   className="w-full px-6 py-4 pr-12 rounded-2xl border-2 border-ink-200 focus:border-indigo-500 focus:outline-none transition-colors text-lg"
                 />
                 <button
@@ -154,7 +160,7 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
               >
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-600 to-coral-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <span className="relative z-10 flex items-center justify-center">
-                  Koleksiyonu Keşfet
+                  Keşfet
                   <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
@@ -169,9 +175,9 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
               >
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-50 to-coral-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <span className="relative z-10 flex items-center justify-center">
-                  Satıcı Portalı
+                  Özel Figürler
                   <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </span>
               </motion.button>
@@ -185,15 +191,15 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
               className="mt-12 grid grid-cols-3 gap-8 max-w-md mx-auto lg:mx-0"
             >
               <div className="text-center">
-                <div className="text-3xl font-bold text-indigo-600 mb-1">500+</div>
-                <div className="text-sm text-ink-600">Koleksiyon</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-coral-500 mb-1">50+</div>
-                <div className="text-sm text-ink-600">Sanatçı</div>
-              </div>
-              <div className="text-center">
                 <div className="text-3xl font-bold text-indigo-600 mb-1">10K+</div>
+                <div className="text-sm text-ink-600">Ürün</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-coral-500 mb-1">500+</div>
+                <div className="text-sm text-ink-600">Satıcı</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-indigo-600 mb-1">50K+</div>
                 <div className="text-sm text-ink-600">Müşteri</div>
               </div>
             </motion.div>

@@ -1,46 +1,15 @@
 {
-  "name": "TDC Products - E-ticaret Platformu",
-  "short_name": "TDC Products",
-  "description": "Modern e-ticaret platformu - Ürünler, kampanyalar ve gelişmiş ödeme seçenekleri",
+  "name": "TDC Market - Figür & Koleksiyon Dünyası",
+  "short_name": "TDC Market",
+  "description": "Özel figürlerden elektroniğe, tasarımdan ev yaşamına - TDC Market'te keşfet!",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#f97316",
+  "background_color": "#FFFFFF",
+  "theme_color": "#5A63F2",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "tr",
-  "dir": "ltr",
-  "categories": ["shopping", "business", "productivity"],
-  "screenshots": [
-    {
-      "src": "/screenshots/desktop-1.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Ana sayfa - Desktop görünümü"
-    },
-    {
-      "src": "/screenshots/mobile-1.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Ana sayfa - Mobil görünümü"
-    },
-    {
-      "src": "/screenshots/desktop-2.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Ürün listesi - Desktop görünümü"
-    },
-    {
-      "src": "/screenshots/mobile-2.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Ürün listesi - Mobil görünümü"
-    }
-  ],
+  "categories": ["shopping", "lifestyle", "entertainment"],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -91,118 +60,66 @@
       "purpose": "maskable any"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "TDC Market Ana Sayfa"
+    },
+    {
+      "src": "/screenshots/mobile-home.png",
+      "sizes": "375x667",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "TDC Market Mobil Görünüm"
+    }
+  ],
   "shortcuts": [
     {
-      "name": "Ana Sayfa",
-      "short_name": "Ana Sayfa",
-      "description": "Ana sayfaya git",
-      "url": "/",
+      "name": "Blog Yaz",
+      "short_name": "Yaz",
+      "description": "Yeni blog yazısı oluştur",
+      "url": "/blog/write",
       "icons": [
         {
-          "src": "/icons/shortcut-home.png",
-          "sizes": "96x96",
-          "type": "image/png"
+          "src": "/icons/shortcut-blog.png",
+          "sizes": "96x96"
         }
       ]
     },
     {
-      "name": "Ürünler",
-      "short_name": "Ürünler",
-      "description": "Ürünleri görüntüle",
-      "url": "/products",
+      "name": "Admin Panel",
+      "short_name": "Admin",
+      "description": "Yönetim paneline git",
+      "url": "/admin",
       "icons": [
         {
-          "src": "/icons/shortcut-products.png",
-          "sizes": "96x96",
-          "type": "image/png"
+          "src": "/icons/shortcut-admin.png",
+          "sizes": "96x96"
         }
       ]
     },
     {
-      "name": "Sepet",
+      "name": "Sepetim",
       "short_name": "Sepet",
-      "description": "Sepetimi görüntüle",
+      "description": "Alışveriş sepetini görüntüle",
       "url": "/cart",
       "icons": [
         {
           "src": "/icons/shortcut-cart.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Profil",
-      "short_name": "Profil",
-      "description": "Profilimi görüntüle",
-      "url": "/profile",
-      "icons": [
-        {
-          "src": "/icons/shortcut-profile.png",
-          "sizes": "96x96",
-          "type": "image/png"
+          "sizes": "96x96"
         }
       ]
     }
   ],
-  "share_target": {
-    "action": "/share",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url",
-      "files": [
-        {
-          "name": "file",
-          "accept": ["image/*", "text/*"]
-        }
-      ]
-    }
-  },
-  "protocol_handlers": [
-    {
-      "protocol": "web+tdcproducts",
-      "url": "/product?id=%s"
-    }
-  ],
-  "file_handlers": [
-    {
-      "action": "/upload",
-      "accept": {
-        "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp"],
-        "text/*": [".txt", ".md"]
-      }
-    }
-  ],
-  "related_applications": [
-    {
-      "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=com.tdcproducts.app",
-      "id": "com.tdcproducts.app"
-    },
-    {
-      "platform": "itunes",
-      "url": "https://apps.apple.com/app/tdc-products/id123456789"
-    }
-  ],
+  "related_applications": [],
   "prefer_related_applications": false,
   "edge_side_panel": {
     "preferred_width": 400
   },
   "launch_handler": {
     "client_mode": "navigate-existing"
-  },
-  "handle_links": "preferred",
-  "capture_links": "new-client",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "window_controls_overlay": {
-    "title_bar_area": {
-      "x": 0,
-      "y": 0,
-      "width": 0,
-      "height": 33
-    }
   }
 }

@@ -98,7 +98,31 @@ const moduleGroups = [
       { id: 'backup', title: 'Yedekleme', href: '/admin/backup', icon: '💾', description: 'Veritabanı yedekleri' },
       { id: 'logs', title: 'Loglar', href: '/admin/logs', icon: '📄', description: 'Sistem logları' }
     ]
-  }
+  },
+        {
+          id: 'developer',
+          title: 'Developer Tools',
+          icon: '🛠️',
+          color: 'indigo',
+          modules: [
+            { id: 'api-docs', title: 'API Dokümantasyonu', href: '/admin/developer/api-docs', icon: '📚', description: 'API referansı ve test araçları' },
+            { id: 'webhooks', title: 'Webhook Yönetimi', href: '/admin/developer/webhooks', icon: '🔗', description: 'Webhook konfigürasyonu' },
+            { id: 'plugins', title: 'Eklenti Sistemi', href: '/admin/developer/plugins', icon: '🧩', description: 'Eklenti yönetimi' },
+            { id: 'workflows', title: 'İş Akışları', href: '/admin/developer/workflows', icon: '⚡', description: 'Otomasyon kuralları' }
+          ]
+        },
+        {
+          id: 'content',
+          title: 'İçerik Yönetimi',
+          icon: '📝',
+          color: 'teal',
+          modules: [
+            { id: 'blog-moderasyon', title: 'Blog Kontrolü', href: '/admin/blog-moderasyon', icon: '📝', description: 'UGC blog moderasyonu', badge: 'NEW' },
+            { id: 'content-approval', title: 'İçerik Onayı', href: '/admin/content-approval', icon: '✅', description: 'İçerik onay süreçleri' },
+            { id: 'user-content', title: 'Kullanıcı İçerikleri', href: '/admin/user-content', icon: '👥', description: 'Kullanıcı üretimi içerikler' },
+            { id: 'reports', title: 'Raporlar', href: '/admin/content-reports', icon: '🚨', description: 'İçerik raporları' }
+          ]
+        }
 ];
 
 export default function ModernAdminLayout({ children }: ModernAdminLayoutProps) {

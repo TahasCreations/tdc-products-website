@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import AdminLayout from '@/components/admin/AdminLayout';
+import ModernAdminLayout from '@/components/admin/ModernAdminLayout';
 
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState('30d');
@@ -83,8 +83,8 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
+    <ModernAdminLayout>
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -323,6 +323,6 @@ export default function AnalyticsPage() {
           </div>
         </motion.div>
       </div>
-    </AdminLayout>
+    </ModernAdminLayout>
   );
 }

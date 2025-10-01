@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Hero from '@/components/home/Hero';
+import CategoryStrip from '@/components/home/CategoryStrip';
+import CollectionStrip from '@/components/home/CollectionStrip';
+import MixedProductGrid from '@/components/home/MixedProductGrid';
 import FeaturedCollections from '@/components/home/FeaturedCollections';
 import MediaShowcase from '@/components/home/MediaShowcase';
 import QualitySection from '@/components/home/QualitySection';
@@ -75,6 +78,15 @@ export default function HomePage() {
           onSearch={handleSearch}
           onCollectionClick={handleCollectionClick}
         />
+        
+        {/* Category Strip */}
+        <CategoryStrip />
+        
+        {/* Collection Strip */}
+        <CollectionStrip />
+        
+        {/* Mixed Product Grid */}
+        <MixedProductGrid />
         
         {/* Featured Collections */}
         <FeaturedCollections 

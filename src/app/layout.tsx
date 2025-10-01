@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter, Manrope } from 'next/font/google'
 import './globals.css'
+import { ThemeProvider } from '@/contexts/ThemeContext'
+import PWAInstaller from '@/components/PWAInstaller'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -81,13 +83,19 @@ export default function RootLayout({
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#5A63F2" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="TDC Admin" />
       </head>
       <body className={`${inter.className} antialiased`}>
         <div id="root">
-          {children}
+          <ThemeProvider>
+            {children}
+            <PWAInstaller />
+          </ThemeProvider>
         </div>
       </body>
     </html>

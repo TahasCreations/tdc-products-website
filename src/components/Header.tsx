@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthModal from './AuthModal';
+import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -100,6 +101,8 @@ export default function Header() {
 
             {/* Auth Buttons */}
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
+              
               {/* User Login Button */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
