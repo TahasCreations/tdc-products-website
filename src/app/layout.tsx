@@ -86,9 +86,6 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <a href="#main" className="skip-link">
-          Ana içeriğe geç
-        </a>
         <div id="root">
           {children}
         </div>

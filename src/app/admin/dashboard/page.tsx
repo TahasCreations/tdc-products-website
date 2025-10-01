@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import AdminLayout from '@/components/admin/AdminLayout';
+import TDCMarketAdminLayout from '@/components/admin/TDCMarketAdminLayout';
 
 export default function AdminDashboard() {
 
@@ -19,7 +19,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <AdminLayout>
+    <TDCMarketAdminLayout>
       <div className="space-y-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -159,6 +159,6 @@ export default function AdminDashboard() {
           </div>
         </motion.div>
       </div>
-    </AdminLayout>
+    </TDCMarketAdminLayout>
   );
 }

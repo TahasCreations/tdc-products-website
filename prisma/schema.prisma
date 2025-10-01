@@ -175,6 +175,14 @@ model Tenant {
   seoMetadata        SeoMetadata[]
   mediaFiles         MediaFile[]
   mediaQuotas        MediaQuota[]
+  // VAT Module Relations
+  vatPeriods         VatPeriod[]
+  invoices           Invoice[]
+  receipts           Receipt[]
+  deductibilityRules DeductibilityRule[]
+  aiSuggestions      AiSuggestion[]
+  whatIfScenarios    WhatIfScenario[]
+  fxRates            FxRate[]
 
   @@map("tenants")
 }
@@ -2040,4 +2048,330 @@ enum AuditAction {
   ROLE_REVOKED      // Role revocation
   PASSWORD_CHANGE   // Password change
   PROFILE_UPDATE    // Profile update
+}
+
+// ===========================================
+// AI VAT ASSISTANT & PROFIT OPTIMIZER MODULE
+// ===========================================
+
+model VatPeriod {
+  id                String        @id @default(cuid())
+  tenantId          String
+  periodKey         String        // YYYY-MM format
+  startDate         DateTime      @db.Date
+  endDate           DateTime      @db.Date
+  status            VatPeriodStatus @default(OPEN)
+  
+  // VAT calculations
+  projectedOutputVat Decimal     @db.Decimal(12, 2) @default(0)
+  projectedInputVat  Decimal     @db.Decimal(12, 2) @default(0)
+  netVat             Decimal     @db.Decimal(12, 2) @default(0)
+  
+  // Capacity analysis
+  capacityMin        Decimal     @db.Decimal(12, 2) @default(0)
+  capacityMax        Decimal     @db.Decimal(12, 2) @default(0)
+  capacityCurrent    Decimal     @db.Decimal(12, 2) @default(0)
+  capacityProjected  Decimal     @db.Decimal(12, 2) @default(0)
+  
+  // Processing status
+  processedAt        DateTime?
+  lockedAt           DateTime?
+  closedAt           DateTime?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoices          Invoice[]
+  receipts          Receipt[]
+  aiSuggestions     AiSuggestion[]
+  whatIfScenarios   WhatIfScenario[]
+
+  @@map("vat_periods")
+  @@index([tenantId, periodKey])
+  @@index([status])
+  @@unique([tenantId, periodKey])
+}
+
+model Invoice {
+  id                String        @id @default(cuid())
+  tenantId          String
+  periodId          String?
+  number            String
+  date              DateTime      @db.Date
+  supplier          String
+  currency          String        @default("TRY")
+  
+  // Amounts
+  net               Decimal       @db.Decimal(12, 2)
+  tax               Decimal       @db.Decimal(12, 2)
+  gross             Decimal       @db.Decimal(12, 2)
+  taxRate           Float         @default(0.18) // 18% default
+  taxCode           String?
+  
+  // Classification
+  category          String
+  countryCode       String        @default("TR")
+  source            String        @default("manual") // manual, ocr, api
+  
+  // Status
+  status            InvoiceStatus @default(PENDING)
+  confidence        Float?        // OCR confidence score
+  processedAt       DateTime?
+  
+  // OCR data
+  ocrJson           Json?         // Raw OCR results
+  ocrConfidence     Float?        // OCR confidence
+  ocrProcessedAt    DateTime?
+  
+  // Deductibility
+  deductibility     DeductibilityRule?
+  deductibilityId   String?
+  deductibilityResult DeductibilityResult?
+  deductibilityConfidence Float?  // AI confidence for deductibility
+  
+  // Conflicts
+  conflicts         Json?         // Array of conflict objects
+  hasConflicts      Boolean       @default(false)
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  period            VatPeriod?    @relation(fields: [periodId], references: [id], onDelete: SetNull)
+  deductibilityRule DeductibilityRule? @relation(fields: [deductibilityId], references: [id])
+
+  @@map("invoices")
+  @@index([tenantId, periodId])
+  @@index([number, supplier])
+  @@index([status, processedAt])
+  @@index([category, countryCode])
+  @@index([hasConflicts])
+}
+
+model Receipt {
+  id                String        @id @default(cuid())
+  tenantId          String
+  periodId          String?
+  date              DateTime      @db.Date
+  supplier          String
+  currency          String        @default("TRY")
+  
+  // Amounts
+  net               Decimal       @db.Decimal(12, 2)
+  tax               Decimal       @db.Decimal(12, 2)
+  gross             Decimal       @db.Decimal(12, 2)
+  category          String
+  
+  // OCR data
+  ocrJson           Json?         // Raw OCR results
+  confidence        Float?        // OCR confidence score
+  processedAt       DateTime?
+  
+  // Status
+  status            ReceiptStatus @default(PENDING)
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  period            VatPeriod?    @relation(fields: [periodId], references: [id], onDelete: SetNull)
+
+  @@map("receipts")
+  @@index([tenantId, periodId])
+  @@index([status, processedAt])
+  @@index([category])
+}
+
+model DeductibilityRule {
+  id                String        @id @default(cuid())
+  tenantId          String
+  countryCode       String        @default("TR")
+  category          String
+  taxCode           String?
+  
+  // Rule definition
+  ruleType          DeductibilityType @default(FULL)
+  partialRate       Float?        // For PARTIAL rules (0.0 to 1.0)
+  notes             String?
+  
+  // Conditions
+  conditions        Json?         // Additional conditions
+  isActive          Boolean       @default(true)
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoices          Invoice[]
+
+  @@map("deductibility_rules")
+  @@index([tenantId, countryCode, category])
+  @@index([ruleType, isActive])
+  @@unique([tenantId, countryCode, category, taxCode])
+}
+
+model AiSuggestion {
+  id                String        @id @default(cuid())
+  tenantId          String
+  periodId          String?
+  type              SuggestionType
+  status            SuggestionStatus @default(PENDING)
+  
+  // Suggestion data
+  payloadJson       Json          // Suggestion payload
+  impactJson        Json?         // Impact analysis
+  confidence        Float         // AI confidence (0.0 to 1.0)
+  
+  // Application
+  appliedAt         DateTime?
+  appliedBy         String?       // User who applied
+  applicationResult Json?         // Application result
+  
+  // Metadata
+  createdBy         String?       // User who created
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  period            VatPeriod?    @relation(fields: [periodId], references: [id], onDelete: SetNull)
+
+  @@map("ai_suggestions")
+  @@index([tenantId, type, status])
+  @@index([periodId, type])
+  @@index([confidence, status])
+}
+
+model WhatIfScenario {
+  id                String        @id @default(cuid())
+  tenantId          String
+  periodId          String?
+  title             String
+  description       String?
+  
+  // Scenario inputs
+  inputsJson        Json          // Scenario input parameters
+  resultsJson       Json?         // Calculated results
+  
+  // Impact analysis
+  vatImpact         Decimal?      @db.Decimal(12, 2)
+  cashImpact        Decimal?      @db.Decimal(12, 2)
+  profitImpact      Decimal?      @db.Decimal(12, 2)
+  confidence        Float?        // AI confidence
+  
+  // Status
+  status            ScenarioStatus @default(DRAFT)
+  appliedAt         DateTime?
+  appliedBy         String?
+  
+  // Metadata
+  createdBy         String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  period            VatPeriod?    @relation(fields: [periodId], references: [id], onDelete: SetNull)
+
+  @@map("what_if_scenarios")
+  @@index([tenantId, periodId])
+  @@index([status, confidence])
+}
+
+model FxRate {
+  id                String        @id @default(cuid())
+  tenantId          String
+  base              String        // Base currency (e.g., "TRY")
+  quote             String        // Quote currency (e.g., "USD")
+  date              DateTime      @db.Date
+  rate              Decimal       @db.Decimal(12, 6) // Exchange rate
+  
+  // Source information
+  source            String        @default("ECB") // ECB, Central Bank, etc.
+  sourceUrl         String?
+  
+  // Metadata
+  metadata          Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("fx_rates")
+  @@index([tenantId, base, quote, date])
+  @@index([date, base, quote])
+  @@unique([tenantId, base, quote, date])
+}
+
+// VAT Module Enums
+enum VatPeriodStatus {
+  OPEN              // Period is open for processing
+  LOCKED            // Period is locked (no new entries)
+  CLOSED            // Period is closed and finalized
+  ARCHIVED          // Period is archived
+}
+
+enum InvoiceStatus {
+  PENDING           // Invoice pending processing
+  PROCESSING        // Invoice being processed
+  PROCESSED         // Invoice processed successfully
+  CONFLICT          // Invoice has conflicts
+  FAILED            // Invoice processing failed
+  APPROVED          // Invoice approved for deduction
+  REJECTED          // Invoice rejected
+}
+
+enum ReceiptStatus {
+  PENDING           // Receipt pending processing
+  PROCESSING        // Receipt being processed
+  PROCESSED         // Receipt processed successfully
+  FAILED            // Receipt processing failed
+}
+
+enum DeductibilityType {
+  FULL              // Fully deductible
+  PARTIAL           // Partially deductible
+  NONE              // Not deductible
+}
+
+enum SuggestionType {
+  VAT_OPTIMIZATION  // VAT optimization suggestion
+  PROFIT_OPTIMIZATION // Profit optimization suggestion
+  CASH_FLOW         // Cash flow optimization
+  DEDUCTIBILITY     // Deductibility improvement
+  EARLY_PAYMENT     // Early payment discount
+  INVENTORY_VALUATION // Inventory valuation method
+  DEPRECIATION      // Depreciation method
+  EXPENSE_CAPITALIZATION // Expense vs capitalization
+}
+
+enum SuggestionStatus {
+  PENDING           // Suggestion pending review
+  APPROVED          // Suggestion approved
+  REJECTED          // Suggestion rejected
+  APPLIED           // Suggestion applied
+  EXPIRED           // Suggestion expired
+}
+
+enum ScenarioStatus {
+  DRAFT             // Scenario in draft
+  CALCULATED        // Scenario calculated
+  APPLIED           // Scenario applied
+  ARCHIVED          // Scenario archived
 }

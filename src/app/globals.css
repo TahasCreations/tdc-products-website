@@ -190,22 +190,6 @@ a:hover {
   outline-offset: 2px;
 }
 
-/* Skip link for accessibility */
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 6px;
-  background: var(--color-primary-500);
-  color: white;
-  padding: 8px;
-  text-decoration: none;
-  border-radius: var(--radius-md);
-  z-index: 1000;
-}
-
-.skip-link:focus {
-  top: 6px;
-}
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
