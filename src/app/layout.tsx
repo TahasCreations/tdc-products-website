@@ -1,82 +1,57 @@
-import type { Metadata, Viewport } from "next";
-import { Inter, Manrope } from "next/font/google";
-import "./globals.css";
-import "remixicon/fonts/remixicon.css";
-import dynamic from "next/dynamic";
+import type { Metadata } from 'next'
+import { Inter, Manrope } from 'next/font/google'
+import './globals.css'
 
-const Header = dynamic(() => import("../components/Header"), { ssr: false });
-const Footer = dynamic(() => import("../components/Footer"), { ssr: false });
-
-const inter = Inter({ 
-  subsets: ["latin"],
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
   display: 'swap',
-  variable: '--font-inter'
-});
+})
 
-const manrope = Manrope({ 
-  subsets: ["latin"],
+const manrope = Manrope({
+  subsets: ['latin'],
+  variable: '--font-manrope',
   display: 'swap',
-  variable: '--font-manrope'
-});
+})
 
 export const metadata: Metadata = {
-  title: {
-    default: 'TDC Market - Türkiye\'nin Tasarım & Figür Pazarı',
-    template: '%s | TDC Market'
-  },
-  description: 'AI destekli arama, özel domainli mağazalar, düşük komisyon. El yapımı sıcaklığı ile AI güvencesini buluşturan platform.',
-  keywords: [
-    '3D figür',
-    'dekoratif obje',
-    'el yapımı',
-    'tasarım',
-    'hediye',
-    'koleksiyon',
-    '3D yazıcı',
-    'figür',
-    'dekorasyon',
-    'e-ticaret'
-  ],
-  authors: [{ name: 'TDC Market' }],
-  creator: 'TDC Market',
-  publisher: 'TDC Market',
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "TDC Market",
-  },
+  title: 'TDC Products - Premium Figür & Koleksiyon Dünyası',
+  description: 'El işçiliği ve yüksek kalite ile üretilen premium figür koleksiyonları. Sanat ve koleksiyon tutkunları için özel tasarım figürler.',
+  keywords: 'figür, koleksiyon, anime, premium, el işçiliği, sanat, TDC Products',
+  authors: [{ name: 'TDC Products' }],
+  creator: 'TDC Products',
+  publisher: 'TDC Products',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://tdcmarket.com'),
+  metadataBase: new URL('https://tdcproducts.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    type: "website",
-    locale: 'tr_TR',
-    url: 'https://tdcmarket.com',
-    siteName: "TDC Market",
-    title: "TDC Market - Türkiye'nin Tasarım & Figür Pazarı",
-    description: "AI destekli arama, özel domainli mağazalar, düşük komisyon. El yapımı sıcaklığı ile AI güvencesini buluşturan platform.",
+    title: 'TDC Products - Premium Figür & Koleksiyon Dünyası',
+    description: 'El işçiliği ve yüksek kalite ile üretilen premium figür koleksiyonları.',
+    url: 'https://tdcproducts.com',
+    siteName: 'TDC Products',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'TDC Market - 3D Figür Pazarı',
+        alt: 'TDC Products - Premium Figür Koleksiyonları',
       },
     ],
+    locale: 'tr_TR',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "TDC Market - Türkiye'nin Tasarım & Figür Pazarı",
-    description: "AI destekli arama, özel domainli mağazalar, düşük komisyon.",
-    images: ['/og-image.jpg'],
-    creator: '@tdcmarket',
+    card: 'summary_large_image',
+    title: 'TDC Products - Premium Figür & Koleksiyon Dünyası',
+    description: 'El işçiliği ve yüksek kalite ile üretilen premium figür koleksiyonları.',
+    images: ['/twitter-image.jpg'],
+    creator: '@tdcproducts',
   },
   robots: {
     index: true,
@@ -91,45 +66,33 @@ export const metadata: Metadata = {
   },
   verification: {
     google: 'your-google-verification-code',
-    yandex: 'your-yandex-verification-code',
   },
-};
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: "#3b82f6",
-};
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="tr" suppressHydrationWarning>
+    <html lang="tr" className={`${inter.variable} ${manrope.variable}`}>
       <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#3b82f6" />
-        <link rel="apple-touch-icon" href="/icon-192x192.png" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="TDC Market" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <meta name="theme-color" content="#5A63F2" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
-      <body className={`${inter.className} ${manrope.variable} transition-colors duration-300`}>
-        <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-          <a href="#main-content" className="skip-link">
-            Ana içeriğe geç
-          </a>
-          <Header />
-          <main id="main-content" className="flex-grow">
-            {children}
-          </main>
-          <Footer />
+      <body className={`${inter.className} antialiased`}>
+        <a href="#main" className="skip-link">
+          Ana içeriğe geç
+        </a>
+        <div id="root">
+          {children}
         </div>
       </body>
     </html>
-  );
+  )
 }

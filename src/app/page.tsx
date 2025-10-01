@@ -1,123 +1,101 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import AnnouncementBar from '../components/home/AnnouncementBar';
-import Hero from '../components/home/Hero';
-import CategoryGrid from '../components/home/CategoryGrid';
-import CollectionStrip from '../components/home/CollectionStrip';
-import CouponBanner from '../components/home/CouponBanner';
-import StoreSpotlight from '../components/home/StoreSpotlight';
-import TrustSection from '../components/home/TrustSection';
-import BlogSection from '../components/home/BlogSection';
-import { seedData } from '../data/seed';
-
-// Analytics event tracking
-const trackEvent = (eventName: string, properties?: Record<string, any>) => {
-  console.log('Analytics Event:', eventName, properties);
-  
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    (window as any).gtag('event', eventName, properties);
-  }
-};
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Hero from '@/components/home/Hero';
+import FeaturedCollections from '@/components/home/FeaturedCollections';
+import MediaShowcase from '@/components/home/MediaShowcase';
+import QualitySection from '@/components/home/QualitySection';
+import CommunitySection from '@/components/home/CommunitySection';
+import CtaStrip from '@/components/home/CtaStrip';
 
 export default function HomePage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
-
+  // Event handlers
   const handleSearch = (query: string) => {
-    trackEvent('home_search_submit', { query });
+    console.log('Search query:', query);
     router.push(`/search?q=${encodeURIComponent(query)}`);
   };
 
   const handleCategoryClick = (category: any) => {
-    trackEvent('home_category_click', { 
-      category_id: category.id, 
-      category_name: category.name 
-    });
+    console.log('Category clicked:', category);
+    router.push(`/collections/${category.slug}`);
   };
 
   const handleProductClick = (product: any) => {
-    trackEvent('product_card_click', { 
-      product_id: product.id, 
-      product_name: product.name,
-      product_price: product.price
-    });
+    console.log('Product clicked:', product);
+    router.push(`/products/${product.slug}`);
   };
 
   const handleCollectionClick = (collection: any) => {
-    trackEvent('home_collection_click', { 
-      collection_id: collection.id, 
-      collection_name: collection.title 
-    });
+    console.log('Collection clicked:', collection);
+    router.push(`/collections/${collection.slug}`);
   };
 
   const handleCouponCopy = (coupon: any) => {
-    trackEvent('coupon_copy', { 
-      code: coupon.code,
-      discount: coupon.discount,
-      type: coupon.type
-    });
+    console.log('Coupon copied:', coupon);
+    // Copy to clipboard functionality
+    navigator.clipboard.writeText(coupon.code);
+    // Show toast notification
+    alert(`Kupon kodu kopyalandı: ${coupon.code}`);
   };
 
   const handleStoreClick = (store: any) => {
-    trackEvent('seller_cta_click', { 
-      store_id: store.id, 
-      store_name: store.name 
-    });
+    console.log('Store clicked:', store);
+    router.push(`/stores/${store.slug}`);
   };
 
   const handlePostClick = (post: any) => {
-    trackEvent('blog_post_click', { 
-      post_id: post.id, 
-      post_title: post.title 
-    });
+    console.log('Post clicked:', post);
+    router.push(`/blog/${post.slug}`);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-accent-50">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 bg-gradient-tdc rounded-tdc animate-pulse mx-auto"></div>
-          <p className="text-ink-600 font-medium">TDC Market yükleniyor...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleAuthSuccess = (type: 'user' | 'seller') => {
+    console.log(`${type} authentication successful`);
+    // Redirect based on user type
+    if (type === 'seller') {
+      router.push('/seller/dashboard');
+    } else {
+      router.push('/user/dashboard');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
-      <AnnouncementBar />
-      <Hero onSearch={handleSearch} />
-      <CategoryGrid 
-        categories={seedData.categories} 
-        onCategoryClick={handleCategoryClick} 
-      />
-      <CollectionStrip 
-        collections={seedData.collections} 
-        onProductClick={handleProductClick}
-        onCollectionClick={handleCollectionClick}
-      />
-      <CouponBanner 
-        coupons={seedData.coupons} 
-        onCouponCopy={handleCouponCopy} 
-      />
-      <StoreSpotlight 
-        stores={seedData.stores} 
-        onStoreClick={handleStoreClick} 
-      />
-      <TrustSection />
-      <BlogSection 
-        posts={seedData.blogPosts} 
-        onPostClick={handlePostClick} 
-      />
+      <Header />
+      
+      <main>
+        {/* Hero Section */}
+        <Hero 
+          onSearch={handleSearch}
+          onCollectionClick={handleCollectionClick}
+        />
+        
+        {/* Featured Collections */}
+        <FeaturedCollections 
+          onCollectionClick={handleCollectionClick}
+          onProductClick={handleProductClick}
+        />
+        
+        {/* Media Showcase */}
+        <MediaShowcase />
+        
+        {/* Quality Section */}
+        <QualitySection />
+        
+        {/* Community Section */}
+        <CommunitySection />
+        
+        {/* CTA Strip */}
+        <CtaStrip onAuthSuccess={handleAuthSuccess} />
+      </main>
+      
+      <Footer />
     </div>
   );
 }
