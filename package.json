@@ -6,12 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "type-check": "tsc --noEmit",
-    "test-build": "node test-build.js",
-    "deploy:vercel": "vercel --prod",
-    "clean": "rm -rf .next .vercel .turbo dist out || true",
-    "fresh-install": "npm run clean && npm ci --force"
+    "lint": "next lint"
   },
   "dependencies": {
     "@capacitor/cli": "^7.4.3",
