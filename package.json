@@ -45,15 +45,11 @@
     "@playwright/test": "^1.55.1",
     "@testing-library/jest-dom": "^6.9.0",
     "@testing-library/react": "^16.3.0",
-    "@types/node": "^20.19.19",
-    "@types/react": "^18.3.25",
-    "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
     "eslint": "^9.36.0",
     "jest": "^30.2.0",
-    "jest-environment-jsdom": "^30.2.0",
-    "typescript": "^5.9.3"
+    "jest-environment-jsdom": "^30.2.0"
   },
   "dependencies": {
     "@capacitor/cli": "^7.4.3",
@@ -67,6 +63,9 @@
     "@tiptap/extension-placeholder": "^3.6.2",
     "@tiptap/react": "^3.6.2",
     "@tiptap/starter-kit": "^3.6.2",
+    "@types/node": "^20.19.19",
+    "@types/react": "^18.3.25",
+    "@types/react-dom": "^18.3.0",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "autoprefixer": "^10.4.19",
@@ -84,10 +83,8 @@
     "remixicon-react": "^1.0.0",
     "stripe": "^19.0.0",
     "tailwindcss": "^3.4.7",
-    "zod": "^4.1.11",
     "typescript": "^5.9.3",
-    "@types/react": "^18.3.25",
-    "@types/node": "^20.19.19"
+    "zod": "^4.1.11"
   },
   "engines": {
     "node": ">=18.0.0",
