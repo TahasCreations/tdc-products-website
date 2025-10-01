@@ -139,3 +139,4 @@ test-*.js
 # Backup files
 *backup*
 *backup*
+.vercel
