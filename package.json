@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prebuild:clean": "rimraf .next",
+    "verify:build": "node scripts/verify-next-build.js"
   },
   "dependencies": {
     "@capacitor/cli": "^7.4.3",
@@ -49,7 +51,8 @@
     "@typescript-eslint/parser": "^8.45.0",
     "eslint": "^9.36.0",
     "jest": "^30.2.0",
-    "jest-environment-jsdom": "^30.2.0"
+    "jest-environment-jsdom": "^30.2.0",
+    "rimraf": "^5.0.5"
   },
   "dependencies": {
     "@capacitor/cli": "^7.4.3",
