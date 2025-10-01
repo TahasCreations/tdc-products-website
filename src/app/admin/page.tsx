@@ -44,29 +44,40 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="w-full h-full" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat'
+        }}></div>
+      </div>
+      
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
-        <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
+        <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
           {/* Header */}
           <div className="text-center mb-8">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-coral-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              className="w-20 h-20 bg-gradient-to-r from-indigo-500 to-coral-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
             >
-              <span className="text-white font-bold text-2xl">A</span>
+              <span className="text-white font-bold text-3xl">T</span>
             </motion.div>
-            <h1 className="text-3xl font-bold text-white mb-2 font-serif">
-              Admin Panel
+            <h1 className="text-4xl font-bold text-gray-900 mb-2 font-serif">
+              TDC Admin
             </h1>
-            <p className="text-white/80">
-              TDC Products Yönetim Paneli
+            <p className="text-gray-600 text-lg">
+              Yönetim Paneli
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Figür & Koleksiyon Dünyası
             </p>
           </div>
 
@@ -79,8 +90,8 @@ export default function AdminLoginPage() {
             className="space-y-6"
           >
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white/90 mb-2">
-                E-posta
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                E-posta Adresi
               </label>
               <input
                 type="email"
@@ -88,7 +99,7 @@ export default function AdminLoginPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                 placeholder="admin@tdcproducts.com"
                 required
                 disabled={isLoading}
@@ -96,7 +107,7 @@ export default function AdminLoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-white/90 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Şifre
               </label>
               <input
@@ -105,7 +116,7 @@ export default function AdminLoginPage() {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                 placeholder="••••••••"
                 required
                 disabled={isLoading}
@@ -116,7 +127,7 @@ export default function AdminLoginPage() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-200 text-sm"
+                className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm"
               >
                 {error}
               </motion.div>
@@ -127,7 +138,7 @@ export default function AdminLoginPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-indigo-500 to-coral-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-indigo-600 hover:to-coral-600 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-indigo-500 to-coral-500 text-white py-4 px-6 rounded-xl font-semibold hover:from-indigo-600 hover:to-coral-600 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-lg"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -147,15 +158,22 @@ export default function AdminLoginPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-8 p-4 bg-white/5 rounded-lg border border-white/10"
+            className="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-coral-50 rounded-xl border border-indigo-200"
           >
-            <h3 className="text-sm font-semibold text-white/90 mb-2">Demo Giriş Bilgileri:</h3>
-            <p className="text-xs text-white/70">
-              E-posta: <span className="font-mono">admin@tdcproducts.com</span>
-            </p>
-            <p className="text-xs text-white/70">
-              Şifre: <span className="font-mono">admin123</span>
-            </p>
+            <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+              <span className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+              Demo Giriş Bilgileri
+            </h3>
+            <div className="space-y-2">
+              <p className="text-sm text-gray-700">
+                <span className="font-medium">E-posta:</span> 
+                <span className="font-mono bg-gray-100 px-2 py-1 rounded ml-2">admin@tdcproducts.com</span>
+              </p>
+              <p className="text-sm text-gray-700">
+                <span className="font-medium">Şifre:</span> 
+                <span className="font-mono bg-gray-100 px-2 py-1 rounded ml-2">admin123</span>
+              </p>
+            </div>
           </motion.div>
 
           {/* Back to Home */}
@@ -167,9 +185,10 @@ export default function AdminLoginPage() {
           >
             <button
               onClick={() => router.push('/')}
-              className="text-white/70 hover:text-white text-sm transition-colors"
+              className="text-gray-600 hover:text-gray-900 text-sm transition-colors flex items-center justify-center space-x-2"
             >
-              ← Ana Sayfaya Dön
+              <span>←</span>
+              <span>Ana Sayfaya Dön</span>
             </button>
           </motion.div>
         </div>
