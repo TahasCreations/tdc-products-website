@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:vercel": "if exist .next rmdir /s /q .next && npm run build"
   },
   "dependencies": {
     "@capacitor/cli": "^7.4.3",

@@ -9,12 +9,18 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    optimizeCss: false,
+  },
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
     };
     return config;
+  },
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
   },
 };
 
