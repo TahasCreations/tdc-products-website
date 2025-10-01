@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import Header from '../../src/components/Header';
+import Footer from '../../src/components/Footer';
+import { ThemeProvider } from '../../src/contexts/ThemeContext';
 
 export const metadata: Metadata = {
   title: {

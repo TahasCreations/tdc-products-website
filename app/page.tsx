@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
-import Hero from '../../src/components/home/Hero';
-import CategoryStrip from '../../src/components/home/CategoryStrip';
-import CollectionStrip from '../../src/components/home/CollectionStrip';
-import MixedProductGrid from '../../src/components/home/MixedProductGrid';
+import Hero from '../src/components/home/Hero';
+import CategoryStrip from '../src/components/home/CategoryStrip';
+import CollectionStrip from '../src/components/home/CollectionStrip';
+import MixedProductGrid from '../src/components/home/MixedProductGrid';
+import Header from '../src/components/Header';
+import Footer from '../src/components/Footer';
 import { revalidateTag } from 'next/cache';
 
 export const metadata: Metadata = {
@@ -35,18 +37,22 @@ export default async function HomePage() {
   revalidateTag('blog');
 
   return (
-    <main className="min-h-screen">
-      {/* Hero Section */}
-      <Hero />
-      
-      {/* Category Strip */}
-      <CategoryStrip />
-      
-      {/* Collection Strips */}
-      <CollectionStrip />
-      
-      {/* Mixed Product Grid */}
-      <MixedProductGrid />
-    </main>
+    <div className="min-h-screen">
+      <Header />
+      <main>
+        {/* Hero Section */}
+        <Hero />
+        
+        {/* Category Strip */}
+        <CategoryStrip />
+        
+        {/* Collection Strips */}
+        <CollectionStrip />
+        
+        {/* Mixed Product Grid */}
+        <MixedProductGrid />
+      </main>
+      <Footer />
+    </div>
   );
 }
