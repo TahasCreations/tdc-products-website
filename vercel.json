@@ -1,5 +1,5 @@
 {
-  "buildCommand": "rm -rf .next && rm -rf node_modules && rm -rf .vercel && rm -rf .git && rm -rf .turbo && rm -rf dist && rm -rf out && npm ci --force && npm run build",
+  "buildCommand": "npm ci --force && npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm ci --force",
   "framework": "nextjs",
@@ -16,5 +16,11 @@
     "src/app/api/**/*.ts": {
       "maxDuration": 30
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
 }

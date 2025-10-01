@@ -9,9 +9,11 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test-build": "node test-build.js",
-    "deploy:vercel": "bash scripts/deploy-vercel.sh",
-    "clean": "rm -rf .next && rm -rf node_modules && rm -rf .vercel && rm -rf .turbo && rm -rf dist && rm -rf out",
-    "fresh-install": "npm run clean && npm ci --force"
+    "deploy:vercel": "vercel --prod",
+    "clean": "if exist .next rmdir /s /q .next && if exist .vercel rmdir /s /q .vercel && if exist .turbo rmdir /s /q .turbo && if exist dist rmdir /s /q dist && if exist out rmdir /s /q out",
+    "fresh-install": "npm run clean && npm ci --force",
+    "prebuild": "npm run clean",
+    "postbuild": "echo Build completed successfully!"
   },
   "dependencies": {
     "@capacitor/cli": "^7.4.3",
