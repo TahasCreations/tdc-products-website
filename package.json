@@ -10,10 +10,8 @@
     "type-check": "tsc --noEmit",
     "test-build": "node test-build.js",
     "deploy:vercel": "vercel --prod",
-    "clean": "if exist .next rmdir /s /q .next && if exist .vercel rmdir /s /q .vercel && if exist .turbo rmdir /s /q .turbo && if exist dist rmdir /s /q dist && if exist out rmdir /s /q out",
-    "fresh-install": "npm run clean && npm ci --force",
-    "prebuild": "npm run clean",
-    "postbuild": "echo Build completed successfully!"
+    "clean": "rm -rf .next .vercel .turbo dist out || true",
+    "fresh-install": "npm run clean && npm ci --force"
   },
   "dependencies": {
     "@capacitor/cli": "^7.4.3",
