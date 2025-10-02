@@ -8,6 +8,7 @@ export default function AdminLoginPage() {
 	const router = useRouter();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [rememberMe, setRememberMe] = useState(false);
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -24,7 +25,8 @@ export default function AdminLoginPage() {
 		await new Promise(resolve => setTimeout(resolve, 1000));
 		
 		// Demo auth: accept any non-empty credentials
-		document.cookie = 'adminAuth=true; path=/; max-age=86400';
+		const maxAge = rememberMe ? 86400 * 30 : 86400; // 30 days if remember me, else 1 day
+		document.cookie = `adminAuth=true; path=/; max-age=${maxAge}`;
 		router.push('/admin/dashboard');
 	};
 
@@ -98,7 +100,7 @@ export default function AdminLoginPage() {
 
 						<div className="space-y-4">
 							<div>
-								<label className="block text-sm font-medium text-gray-700 mb-2">
+								<label className="block text-sm font-semibold text-gray-800 mb-2">
 									E-posta Adresi
 								</label>
 								<input
@@ -106,13 +108,13 @@ export default function AdminLoginPage() {
 									placeholder="admin@tdcmarket.com"
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-									className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50"
+									className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-500"
 									disabled={isLoading}
 								/>
 							</div>
 
 							<div>
-								<label className="block text-sm font-medium text-gray-700 mb-2">
+								<label className="block text-sm font-semibold text-gray-800 mb-2">
 									Şifre
 								</label>
 								<input
@@ -120,9 +122,23 @@ export default function AdminLoginPage() {
 									placeholder="••••••••"
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
-									className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50"
+									className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-500"
 									disabled={isLoading}
 								/>
+							</div>
+
+							<div className="flex items-center">
+								<input
+									id="remember-me"
+									type="checkbox"
+									checked={rememberMe}
+									onChange={(e) => setRememberMe(e.target.checked)}
+									className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+									disabled={isLoading}
+								/>
+								<label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-gray-700">
+									Beni hatırla (30 gün)
+								</label>
 							</div>
 						</div>
 
