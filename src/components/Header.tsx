@@ -45,12 +45,15 @@ export default function Header() {
   };
 
   const navItems = [
+    { href: '/products', label: 'Tüm Ürünler' },
     { href: '/categories/figur-koleksiyon', label: 'Figür & Koleksiyon' },
     { href: '/categories/moda-aksesuar', label: 'Moda & Aksesuar' },
     { href: '/categories/elektronik', label: 'Elektronik' },
     { href: '/categories/ev-yasam', label: 'Ev & Yaşam' },
     { href: '/categories/sanat-hobi', label: 'Sanat & Hobi' },
-    { href: '/categories/hediyelik', label: 'Hediyelik' }
+    { href: '/categories/hediyelik', label: 'Hediyelik' },
+    { href: '/blog', label: 'Blog' },
+    { href: '/about', label: 'Hakkımızda' }
   ];
 
   return (
@@ -124,18 +127,6 @@ export default function Header() {
                 </svg>
               </motion.button>
 
-              {/* Cart Button */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative p-2 text-ink-600 hover:text-indigo-600 transition-colors touch-manipulation"
-              >
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
-                </svg>
-                <span className="absolute -top-1 -right-1 bg-coral-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center text-xs">0</span>
-              </motion.button>
-
               {/* Theme Toggle */}
               <div className="hidden sm:block">
                 <ThemeToggle />
@@ -178,6 +169,18 @@ export default function Header() {
                 <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
+              </motion.button>
+
+              {/* Cart Button - move to the far right */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative p-2 text-ink-600 hover:text-indigo-600 transition-colors touch-manipulation"
+              >
+                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+                </svg>
+                <span className="absolute -top-1 -right-1 bg-coral-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center text-xs">0</span>
               </motion.button>
             </div>
           </div>

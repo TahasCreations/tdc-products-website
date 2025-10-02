@@ -13,6 +13,7 @@ import MediaShowcase from '@/components/home/MediaShowcase';
 import QualitySection from '@/components/home/QualitySection';
 import CommunitySection from '@/components/home/CommunitySection';
 import CtaStrip from '@/components/home/CtaStrip';
+import ShippingReturns from '@/components/home/ShippingReturns';
 
 export default function MarketingHome() {
   const router = useRouter();
@@ -55,6 +56,9 @@ export default function MarketingHome() {
 
         {/* Quality Section */}
         <QualitySection />
+
+        {/* Shipping & Returns */}
+        <ShippingReturns />
 
         {/* Community Section */}
         <CommunitySection />
