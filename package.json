@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "prebuild:clean": "rimraf .next",
-    "verify:build": "node scripts/verify-next-build.js"
+    "verify:manifest": "node scripts/verify-next-build.js"
   },
   "dependencies": {
     "@capacitor/cli": "^7.4.3",
@@ -90,7 +90,7 @@
     "zod": "^4.1.11"
   },
   "engines": {
-    "node": "22.x",
+    "node": ">=20 <21",
     "npm": ">=10.0.0"
   }
 }

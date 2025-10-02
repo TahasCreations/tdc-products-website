@@ -29,8 +29,8 @@ export default function MarketingHome() {
     router.push('/figures');
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (query: string) => {
+    console.log('Search query:', query);
     // Search functionality will be implemented
   };
 
@@ -41,9 +41,8 @@ export default function MarketingHome() {
       <main className="relative">
         {/* Hero Section */}
         <Hero 
-          onCollectionExplore={handleCollectionExplore}
-          onSellerPortal={handleSellerPortal}
           onSearch={handleSearch}
+          onCollectionClick={handleCollectionExplore}
         />
 
         {/* Category Strip */}
