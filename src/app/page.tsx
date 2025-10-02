@@ -6,11 +6,9 @@ export const metadata: Metadata = {
   description: 'Çok kategorili pazar yeri — TDC Market',
 };
 
-// Statik+ISR istiyorsan:
-export const revalidate = 300;
-// Tam dinamik istersen yukarıdaki yerine:
-// export const dynamic = 'force-dynamic';
+// Tam statik olsun
+export const dynamic = 'force-static';
 
-export default function Page() {
+export default function HomePage() {
   return <MarketingHome />;
 }
