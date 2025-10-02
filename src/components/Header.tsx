@@ -132,19 +132,57 @@ export default function Header() {
                 <ThemeToggle />
               </div>
 
-              {/* User Menu */}
-              <div className="relative">
+              {/* User Profile Menu */}
+              <div className="relative group">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => handleAuthClick('user')}
-                  className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 text-ink-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-gray-50 touch-manipulation"
+                  className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-2 text-ink-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-gray-50 touch-manipulation"
                 >
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                    <span className="text-indigo-600 font-semibold text-xs sm:text-sm">AY</span>
+                  </div>
+                  <span className="hidden sm:block font-medium text-sm">Ahmet</span>
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
-                  <span className="hidden sm:block font-medium text-sm">Giriş</span>
                 </motion.button>
+                
+                {/* Dropdown Menu */}
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="py-2">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <div className="text-sm font-semibold text-gray-900">Ahmet Yılmaz</div>
+                      <div className="text-xs text-gray-500">ahmet@example.com</div>
+                    </div>
+                    <a href="/profile" className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                      <span>👤</span>
+                      <span>Profilim</span>
+                    </a>
+                    <a href="/profile?tab=orders" className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                      <span>📦</span>
+                      <span>Siparişlerim</span>
+                    </a>
+                    <a href="/profile?tab=addresses" className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                      <span>📍</span>
+                      <span>Adreslerim</span>
+                    </a>
+                    <a href="/profile?tab=reviews" className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                      <span>⭐</span>
+                      <span>Değerlendirmelerim</span>
+                    </a>
+                    <a href="/profile?tab=author" className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                      <span>✍️</span>
+                      <span>Yazar Profilim</span>
+                    </a>
+                    <div className="border-t border-gray-100 mt-2 pt-2">
+                      <button className="flex items-center space-x-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                        <span>🚪</span>
+                        <span>Çıkış Yap</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Seller Button */}
