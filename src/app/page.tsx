@@ -6,8 +6,8 @@ export const metadata: Metadata = {
   description: 'Çok kategorili pazar yeri — TDC Market',
 };
 
-// Tam statik olsun
-export const dynamic = 'force-static';
+// Dinamik olsun (client component var)
+export const dynamic = 'force-dynamic';
 
 export default function HomePage() {
   return <MarketingHome />;

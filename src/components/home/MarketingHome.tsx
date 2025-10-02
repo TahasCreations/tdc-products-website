@@ -1,3 +1,7 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Hero from '@/components/home/Hero';
@@ -11,13 +15,28 @@ import CommunitySection from '@/components/home/CommunitySection';
 import CtaStrip from '@/components/home/CtaStrip';
 
 export default function MarketingHome() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSearch = (query: string) => {
+    console.log('Search query:', query);
+    router.push(`/search?q=${encodeURIComponent(query)}`);
+  };
+
+  const handleCollectionClick = (collection: any) => {
+    console.log('Collection clicked:', collection);
+    router.push(`/collections/${collection?.slug || 'all'}`);
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-ink-50 to-ink-100">
       <Header />
       
       <main className="relative">
         {/* Hero Section */}
-        <Hero />
+        <Hero 
+          onSearch={handleSearch}
+          onCollectionClick={handleCollectionClick}
+        />
 
         {/* Category Strip */}
         <CategoryStrip />
