@@ -4,6 +4,7 @@ import CategoryStrip from '../../src/components/home/CategoryStrip';
 import CollectionStrip from '../../src/components/home/CollectionStrip';
 import MixedProductGrid from '../../src/components/home/MixedProductGrid';
 import { revalidateTag } from 'next/cache';
+import ClientShim from './ClientShim';
 
 export const metadata: Metadata = {
   title: 'TDC Market — Özel figürlerden elektroniğe, tasarımdan ev yaşamına',
@@ -36,6 +37,7 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen">
+      <ClientShim />
       {/* Hero Section */}
       <Hero />
       
