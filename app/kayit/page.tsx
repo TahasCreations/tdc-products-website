@@ -172,6 +172,7 @@ export default function KayitPage() {
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                 placeholder="En az 6 karakter"
+                style={{ color: 'black', WebkitTextSecurity: 'disc' }}
               />
             </div>
 
@@ -187,6 +188,7 @@ export default function KayitPage() {
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                 placeholder="Şifrenizi tekrar girin"
+                style={{ color: 'black', WebkitTextSecurity: 'disc' }}
               />
             </div>
 
