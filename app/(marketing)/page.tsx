@@ -4,7 +4,7 @@ import Hero from '../../src/components/home/Hero';
 import CategoryStrip from '../../src/components/home/CategoryStrip';
 import CollectionStrip from '../../src/components/home/CollectionStrip';
 import MixedProductGrid from '../../src/components/home/MixedProductGrid';
-import { revalidateTag } from 'next/cache';
+// Note: Avoid revalidateTag in RSC to prevent runtime errors on home
 import ClientShim from './ClientShim';
 
 export const dynamic = 'force-dynamic';
@@ -29,14 +29,9 @@ export const metadata: Metadata = {
   },
 };
 
-// Revalidate every hour
-export const revalidate = 3600;
+// Dynamic page; do not schedule ISR here to avoid conflicts
 
 export default async function HomePage() {
-  // Revalidate tags for fresh data
-  revalidateTag('home');
-  revalidateTag('products');
-  revalidateTag('blog');
 
   // Get user session
   const session = await auth();
