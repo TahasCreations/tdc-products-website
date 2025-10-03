@@ -1,11 +1,15 @@
+"use client";
 import { Suspense } from 'react';
 import ProductFilters from '../../src/components/products/ProductFilters';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ProductGrid from '../../src/components/products/ProductGrid';
 import ProductSorting from '../../src/components/products/ProductSorting';
 import Breadcrumb from '../../src/components/ui/Breadcrumb';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
 
-export const metadata = {
+// Note: metadata cannot be exported from a Client Component; moved to head via JSON-LD only.
+const pageMeta = {
   title: 'Tüm Ürünler - TDC Market',
   description: 'TDC Market\'te tüm ürünleri keşfedin. Figürlerden elektroniğe, modadan hediyeliğe kadar geniş ürün yelpazesi.',
   openGraph: {
@@ -273,6 +277,7 @@ export default function ProductsPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const sortBy = (searchParams.sort as string) || 'recommended';
   const category = searchParams.category as string;
   const seller = searchParams.seller as string;
@@ -363,8 +368,21 @@ export default function ProductsPage({
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <div className="lg:w-64 flex-shrink-0">
+          {/* Mobile Filters Trigger */}
+          <div className="lg:hidden -mt-2 mb-2">
+            <button
+              onClick={() => setIsFiltersOpen(true)}
+              className="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              Kategoriler & Filtreler
+            </button>
+          </div>
+
+          {/* Desktop Filters Sidebar */}
+          <div className="hidden lg:block lg:w-64 flex-shrink-0">
             <ProductFilters
               categories={mockCategories}
               sellers={mockSellers}
@@ -378,10 +396,71 @@ export default function ProductsPage({
             />
           </div>
 
+          {/* Mobile Slide-over Filters */}
+          <AnimatePresence>
+            {isFiltersOpen && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-40 bg-black/40 lg:hidden"
+                onClick={() => setIsFiltersOpen(false)}
+              >
+                <motion.div
+                  initial={{ x: '-100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '-100%' }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                  className="absolute left-0 top-0 h-full w-full max-w-sm bg-white shadow-xl"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-4 border-b flex items-center justify-between">
+                    <div className="flex items-center">
+                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                      </svg>
+                      <h2 className="text-base font-semibold text-gray-900">Kategoriler & Filtreler</h2>
+                    </div>
+                    <button onClick={() => setIsFiltersOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="p-4 overflow-y-auto h-[calc(100%-56px)]">
+                    <ProductFilters
+                      categories={mockCategories}
+                      sellers={mockSellers}
+                      currentFilters={{
+                        category,
+                        seller,
+                        minPrice,
+                        maxPrice,
+                        inStock
+                      }}
+                      isOpen
+                      onClose={() => setIsFiltersOpen(false)}
+                    />
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Main Content */}
           <div className="flex-1">
             {/* Sorting */}
-            <div className="mb-6">
+            <div className="mb-6 flex items-center justify-between">
+              {/* Inline mobile trigger (right) */}
+              <button
+                onClick={() => setIsFiltersOpen(true)}
+                className="lg:hidden inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                Filtreler
+              </button>
               <ProductSorting currentSort={sortBy} />
             </div>
 
