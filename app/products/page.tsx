@@ -354,7 +354,96 @@ export default function ProductsPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex">
+        {/* Desktop Filters Sidebar - Fixed Left */}
+        <div className="hidden lg:block lg:w-64 flex-shrink-0 bg-white border-r border-gray-200 sticky top-0 h-screen overflow-y-auto">
+          <div className="p-4">
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Filtreler</h3>
+            
+            {/* Categories */}
+            <div className="mb-6">
+              <h4 className="text-xs font-medium text-gray-700 mb-3">Kategoriler</h4>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {[
+                  { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', subcategories: ['Anime Figürleri', 'Film/TV Figürleri', 'Dioramalar', 'Koleksiyon Arabaları', 'Maket & Kitler', 'Limited Edition'] },
+                  { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', subcategories: ['Tişört', 'Hoodie', 'Şapka', 'Takı & Bileklik', 'Çanta & Cüzdan', 'Ayakkabı'] },
+                  { name: 'Elektronik', href: '/products?category=elektronik', subcategories: ['Kulaklık', 'Akıllı Ev', 'Aydınlatma', 'Hobi Elektroniği', '3D Yazıcı', 'Bilgisayar Aksesuarları'] },
+                  { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', subcategories: ['Dekor', 'Mutfak', 'Düzenleme', 'Banyo', 'Tekstil'] },
+                  { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', subcategories: ['Boya & Fırça', 'Tuval', '3D Baskı', 'El Sanatları', 'Kırtasiye', 'Model & Maket'] },
+                  { name: 'Hediyelik', href: '/products?category=hediyelik', subcategories: ['Kişiye Özel', 'Doğum Günü', 'Özel Gün Setleri', 'Kart & Aksesuar', 'Kurumsal Hediyeler'] }
+                ].map((cat) => (
+                  <div key={cat.name} className="space-y-1">
+                    <a
+                      href={cat.href}
+                      className={`block px-3 py-2 rounded text-xs font-medium transition-colors ${
+                        category === cat.name.toLowerCase().replace(/\s+/g, '-')
+                          ? 'bg-indigo-50 text-indigo-700'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {cat.name}
+                    </a>
+                    {/* Subcategories */}
+                    <div className="ml-4 space-y-1">
+                      {cat.subcategories.slice(0, 3).map((subcat, index) => (
+                        <a
+                          key={index}
+                          href={`${cat.href}&subcategory=${subcat.toLowerCase().replace(/\s+/g, '-')}`}
+                          className="block text-xs text-gray-600 hover:text-indigo-600 transition-colors py-1"
+                        >
+                          {subcat}
+                        </a>
+                      ))}
+                      {cat.subcategories.length > 3 && (
+                        <span className="text-xs text-gray-400">+{cat.subcategories.length - 3} daha</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Range */}
+            <div className="mb-4">
+              <h4 className="text-xs font-medium text-gray-700 mb-2">Fiyat Aralığı</h4>
+              <div className="space-y-2">
+                <input
+                  type="number"
+                  placeholder="Min ₺"
+                  defaultValue={minPrice || ''}
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-transparent"
+                />
+                <input
+                  type="number"
+                  placeholder="Max ₺"
+                  defaultValue={maxPrice || ''}
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Stock Filter */}
+            <div className="mb-4">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  defaultChecked={inStock}
+                  className="w-3 h-3 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                />
+                <span className="text-xs text-gray-700">Stokta olanlar</span>
+              </label>
+            </div>
+
+            {/* Clear Filters */}
+            <button className="w-full text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+              Filtreleri Temizle
+            </button>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 min-w-0">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <Breadcrumb items={breadcrumbItems} />
 
@@ -369,105 +458,18 @@ export default function ProductsPage({
         </div>
 
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Mobile Filters Trigger */}
-          <div className="lg:hidden mb-4">
-            <button
-              onClick={() => setIsFiltersOpen(true)}
-              className="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
-              </svg>
-              Gelişmiş Filtreler
-            </button>
-          </div>
-
-          {/* Desktop Filters Sidebar - Enhanced Version */}
-          <div className="hidden lg:block lg:w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-4">Filtreler</h3>
-              
-              {/* Categories */}
-              <div className="mb-6">
-                <h4 className="text-xs font-medium text-gray-700 mb-3">Kategoriler</h4>
-                <div className="space-y-2 max-h-64 overflow-y-auto">
-                  {[
-                    { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', subcategories: ['Anime Figürleri', 'Film/TV Figürleri', 'Dioramalar', 'Koleksiyon Arabaları', 'Maket & Kitler', 'Limited Edition'] },
-                    { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', subcategories: ['Tişört', 'Hoodie', 'Şapka', 'Takı & Bileklik', 'Çanta & Cüzdan', 'Ayakkabı'] },
-                    { name: 'Elektronik', href: '/products?category=elektronik', subcategories: ['Kulaklık', 'Akıllı Ev', 'Aydınlatma', 'Hobi Elektroniği', '3D Yazıcı', 'Bilgisayar Aksesuarları'] },
-                    { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', subcategories: ['Dekor', 'Mutfak', 'Düzenleme', 'Banyo', 'Tekstil'] },
-                    { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', subcategories: ['Boya & Fırça', 'Tuval', '3D Baskı', 'El Sanatları', 'Kırtasiye', 'Model & Maket'] },
-                    { name: 'Hediyelik', href: '/products?category=hediyelik', subcategories: ['Kişiye Özel', 'Doğum Günü', 'Özel Gün Setleri', 'Kart & Aksesuar', 'Kurumsal Hediyeler'] }
-                  ].map((cat) => (
-                    <div key={cat.name} className="space-y-1">
-                      <a
-                        href={cat.href}
-                        className={`block px-3 py-2 rounded text-xs font-medium transition-colors ${
-                          category === cat.name.toLowerCase().replace(/\s+/g, '-')
-                            ? 'bg-indigo-50 text-indigo-700'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        {cat.name}
-                      </a>
-                      {/* Subcategories */}
-                      <div className="ml-4 space-y-1">
-                        {cat.subcategories.slice(0, 3).map((subcat, index) => (
-                          <a
-                            key={index}
-                            href={`${cat.href}&subcategory=${subcat.toLowerCase().replace(/\s+/g, '-')}`}
-                            className="block text-xs text-gray-600 hover:text-indigo-600 transition-colors py-1"
-                          >
-                            {subcat}
-                          </a>
-                        ))}
-                        {cat.subcategories.length > 3 && (
-                          <span className="text-xs text-gray-400">+{cat.subcategories.length - 3} daha</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div className="mb-4">
-                <h4 className="text-xs font-medium text-gray-700 mb-2">Fiyat Aralığı</h4>
-                <div className="space-y-2">
-                  <input
-                    type="number"
-                    placeholder="Min ₺"
-                    defaultValue={minPrice || ''}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max ₺"
-                    defaultValue={maxPrice || ''}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Stock Filter */}
-              <div className="mb-4">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    defaultChecked={inStock}
-                    className="w-3 h-3 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                  />
-                  <span className="text-xs text-gray-700">Stokta olanlar</span>
-                </label>
-              </div>
-
-              {/* Clear Filters */}
-              <button className="w-full text-xs text-indigo-600 hover:text-indigo-700 font-medium">
-                Filtreleri Temizle
-              </button>
-            </div>
-          </div>
+        {/* Mobile Filters Trigger */}
+        <div className="lg:hidden mb-4">
+          <button
+            onClick={() => setIsFiltersOpen(true)}
+            className="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+            </svg>
+            Gelişmiş Filtreler
+          </button>
+        </div>
 
           {/* Mobile Slide-over Filters */}
           <AnimatePresence>
@@ -520,10 +522,8 @@ export default function ProductsPage({
             )}
           </AnimatePresence>
 
-          {/* Main Content */}
-          <div className="flex-1">
-            {/* Results Header & Sorting */}
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Results Header & Sorting */}
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <h2 className="text-lg font-semibold text-gray-900">
                   {filteredProducts.length} ürün
@@ -582,17 +582,17 @@ export default function ProductsPage({
               </div>
             </div>
 
-            {/* Products Grid */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <Suspense fallback={<ProductGridSkeleton />}>
-                <ProductGrid 
-                  products={paginatedProducts}
-                  currentPage={page}
-                  totalPages={totalPages}
-                  totalProducts={filteredProducts.length}
-                />
-              </Suspense>
-            </div>
+        {/* Products Grid */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <Suspense fallback={<ProductGridSkeleton />}>
+            <ProductGrid 
+              products={paginatedProducts}
+              currentPage={page}
+              totalPages={totalPages}
+              totalProducts={filteredProducts.length}
+            />
+          </Suspense>
+        </div>
           </div>
         </div>
       </div>
