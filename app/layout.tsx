@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Inter, Manrope } from 'next/font/google'
 import '../src/app/globals.css'
 import { ThemeProvider } from '../src/contexts/ThemeContext'
+import { CartProvider } from '../src/contexts/CartContext'
+import { WishlistProvider } from '../src/contexts/WishlistContext'
 import SessionProviderWrapper from '../src/components/providers/SessionProviderWrapper'
 import PWAInstaller from '../src/components/PWAInstaller'
 
@@ -95,8 +97,12 @@ export default function RootLayout({
         <div id="root">
           <SessionProviderWrapper>
             <ThemeProvider>
-              {children}
-              <PWAInstaller />
+              <CartProvider>
+                <WishlistProvider>
+                  {children}
+                  <PWAInstaller />
+                </WishlistProvider>
+              </CartProvider>
             </ThemeProvider>
           </SessionProviderWrapper>
         </div>

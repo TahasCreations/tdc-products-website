@@ -4,6 +4,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
+import { useCompare } from '@/contexts/CompareContext';
 
 interface Product {
   id: string;
@@ -22,9 +25,12 @@ interface Product {
   seller?: {
     name: string;
     rating: number;
+    badges?: string[]; // ['verified', 'top-rated', 'fast-shipping', 'new-seller']
   };
   rating?: number;
   reviewCount?: number;
+  isSponsored?: boolean;
+  adLabel?: string;
 }
 
 interface ProductCardProps {
@@ -35,18 +41,51 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, showSeller = false, className = '' }: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addItem } = useCart();
+  const { has, toggle } = useWishlist();
+  const { addItem: addToCompare, isInCompare, removeItem: removeFromCompare } = useCompare();
+  const isWishlisted = has(product.id);
+  const isInCompareList = isInCompare(product.id);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
+    toggle({ id: product.id, title: product.title, slug: product.slug, image: product.image });
+  };
+
+  const handleCompareToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isInCompareList) {
+      removeFromCompare(product.id);
+    } else {
+      addToCompare({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        slug: product.slug,
+        category: product.category,
+        rating: product.rating,
+        reviewCount: product.reviewCount
+      });
+    }
   };
 
   const discountPercentage = product.listPrice && product.listPrice > product.price 
     ? Math.round(((product.listPrice - product.price) / product.listPrice) * 100)
     : 0;
+
+  const getBadgeInfo = (badge: string) => {
+    const badges = {
+      'verified': { text: 'Doğrulanmış', color: 'bg-blue-100 text-blue-800', icon: '✓' },
+      'top-rated': { text: 'En İyi Satıcı', color: 'bg-yellow-100 text-yellow-800', icon: '⭐' },
+      'fast-shipping': { text: 'Hızlı Kargo', color: 'bg-green-100 text-green-800', icon: '🚚' },
+      'new-seller': { text: 'Yeni Satıcı', color: 'bg-purple-100 text-purple-800', icon: '🆕' }
+    };
+    return badges[badge as keyof typeof badges] || { text: badge, color: 'bg-gray-100 text-gray-800', icon: '🏷️' };
+  };
 
   return (
     <motion.div
@@ -95,25 +134,54 @@ export default function ProductCard({ product, showSeller = false, className = '
                 Stokta Yok
               </div>
             )}
+
+            {/* Sponsored Badge */}
+            {product.isSponsored && (
+              <div className="absolute bottom-3 left-3 bg-indigo-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                {product.adLabel || 'Sponsorlu'}
+              </div>
+            )}
             
-            {/* Wishlist Button */}
-            <motion.button
-              onClick={handleWishlistToggle}
-              className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-all duration-300 opacity-0 group-hover:opacity-100"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <svg 
-                className={`w-4 h-4 transition-colors duration-300 ${
-                  isWishlisted ? 'text-red-500 fill-current' : 'text-gray-400'
-                }`} 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
+            {/* Action Buttons */}
+            <div className="absolute top-3 right-3 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+              {/* Wishlist Button */}
+              <motion.button
+                onClick={handleWishlistToggle}
+                className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-all duration-300"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </motion.button>
+                <svg 
+                  className={`w-4 h-4 transition-colors duration-300 ${
+                    isWishlisted ? 'text-red-500 fill-current' : 'text-gray-400'
+                  }`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </motion.button>
+
+              {/* Compare Button */}
+              <motion.button
+                onClick={handleCompareToggle}
+                className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-all duration-300"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <svg 
+                  className={`w-4 h-4 transition-colors duration-300 ${
+                    isInCompareList ? 'text-indigo-500 fill-current' : 'text-gray-400'
+                  }`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </motion.button>
+            </div>
 
             {/* Quick View Overlay */}
             <motion.div
@@ -162,19 +230,44 @@ export default function ProductCard({ product, showSeller = false, className = '
 
             {/* Seller Info */}
             {showSeller && product.seller && (
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">
-                    {product.seller.name.charAt(0).toUpperCase()}
-                  </span>
+              <div className="mb-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">
+                      {product.seller.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="text-sm text-gray-600">{product.seller.name}</span>
+                  <div className="flex items-center space-x-1">
+                    <svg className="w-3 h-3 text-yellow-400 fill-current" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    <span className="text-xs text-gray-500">{product.seller.rating.toFixed(1)}</span>
+                  </div>
                 </div>
-                <span className="text-sm text-gray-600">{product.seller.name}</span>
-                <div className="flex items-center space-x-1">
-                  <svg className="w-3 h-3 text-yellow-400 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                  <span className="text-xs text-gray-500">{product.seller.rating.toFixed(1)}</span>
-                </div>
+                
+                {/* Seller Badges */}
+                {product.seller.badges && product.seller.badges.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {product.seller.badges.slice(0, 3).map((badge, index) => {
+                      const badgeInfo = getBadgeInfo(badge);
+                      return (
+                        <span
+                          key={index}
+                          className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${badgeInfo.color}`}
+                        >
+                          <span>{badgeInfo.icon}</span>
+                          <span>{badgeInfo.text}</span>
+                        </span>
+                      );
+                    })}
+                    {product.seller.badges.length > 3 && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                        +{product.seller.badges.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -214,6 +307,12 @@ export default function ProductCard({ product, showSeller = false, className = '
                   ? 'bg-gray-300 cursor-not-allowed' 
                   : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
               }`}
+              onClick={(e) => {
+                e.preventDefault();
+                if (product.stock > 0) {
+                  addItem({ id: product.id, title: product.title, price: product.price, image: product.image }, 1);
+                }
+              }}
             >
               {product.stock === 0 ? 'Stokta Yok' : 'Sepete Ekle'}
             </motion.button>

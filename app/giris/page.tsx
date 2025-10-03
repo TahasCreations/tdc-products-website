@@ -25,6 +25,20 @@ export default function LoginPage() {
           {/* Login Form */}
           <div className="space-y-6">
             <GoogleLoginButton />
+            <div className="space-y-3">
+              <a
+                href="/auth/signin"
+                className="block w-full text-center px-4 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-50"
+              >
+                E‑posta ile Giriş Yap
+              </a>
+              <a
+                href="/auth/signup"
+                className="block w-full text-center px-4 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+              >
+                Kayıt Ol
+              </a>
+            </div>
             
             <div className="relative">
               <div className="absolute inset-0 flex items-center">

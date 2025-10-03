@@ -6,6 +6,7 @@ import CollectionStrip from '../../src/components/home/CollectionStrip';
 import MixedProductGrid from '../../src/components/home/MixedProductGrid';
 // Note: Avoid revalidateTag in RSC to prevent runtime errors on home
 import ClientShim from './ClientShim';
+import nextDynamic from 'next/dynamic';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -79,6 +80,8 @@ export default async function HomePage() {
       
       {/* Mixed Product Grid */}
       <MixedProductGrid />
+      {/* Cart Drawer (client) */}
+      {nextDynamic(() => import('../../src/components/cart/CartDrawer'), { ssr: false })({})}
     </main>
   );
 }

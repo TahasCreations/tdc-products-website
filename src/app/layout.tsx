@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { Inter, Manrope } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { CartProvider } from '@/contexts/CartContext'
+import { WishlistProvider } from '@/contexts/WishlistContext'
+import { CompareProvider } from '@/contexts/CompareContext'
 import PWAInstaller from '@/components/PWAInstaller'
 
 const inter = Inter({
@@ -93,8 +96,14 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased`}>
         <div id="root">
           <ThemeProvider>
-            {children}
-            <PWAInstaller />
+            <CartProvider>
+              <WishlistProvider>
+                <CompareProvider>
+                  {children}
+                  <PWAInstaller />
+                </CompareProvider>
+              </WishlistProvider>
+            </CartProvider>
           </ThemeProvider>
         </div>
       </body>

@@ -7,13 +7,16 @@ import { useSession } from 'next-auth/react';
 import { GoogleLoginButton } from './auth/GoogleLoginButton';
 import { LogoutButton } from './auth/LogoutButton';
 import ThemeToggle from './ThemeToggle';
+import { useCart } from '../contexts/CartContext';
 
 export default function Header() {
   const { data: session, status } = useSession();
+  const { count, toggleCart } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const megaMenuRef = useRef<HTMLDivElement>(null);
@@ -56,6 +59,17 @@ export default function Header() {
     }
   };
 
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (!q) { setSuggestions([]); return; }
+    const ctrl = new AbortController();
+    fetch(`/api/search/suggest?q=${encodeURIComponent(q)}&limit=6`, { signal: ctrl.signal })
+      .then(r => r.json())
+      .then(data => setSuggestions((data?.items || []).map((i: any) => i.label)))
+      .catch(() => {});
+    return () => ctrl.abort();
+  }, [searchQuery]);
+
   const navItems = [
     { href: '/products', key: 'all', label: 'Tüm Ürünler', hasMegaMenu: false },
     { href: '/products?category=figur-koleksiyon', key: 'figur-koleksiyon', label: 'Figür & Koleksiyon', hasMegaMenu: true },
@@ -77,7 +91,9 @@ export default function Header() {
         { name: 'Film/TV Figürleri', href: '/products?category=film-tv-figurleri', icon: 'film' },
         { name: 'Dioramalar', href: '/products?category=dioramalar', icon: 'layers' },
         { name: 'Koleksiyon Arabaları', href: '/products?category=koleksiyon-arabalari', icon: 'car' },
-        { name: 'Maket & Kitler', href: '/products?category=maket-kitler', icon: 'package' }
+        { name: 'Maket & Kitler', href: '/products?category=maket-kitler', icon: 'package' },
+        { name: 'Limited Edition', href: '/products?category=limited-edition', icon: 'star' },
+        { name: 'Aksesuar & Stand', href: '/products?category=figur-aksesuar', icon: 'box' }
       ],
       featured: [
         { name: 'Naruto Uzumaki Figürü', href: '/products/naruto-uzumaki-figuru-shippuden', price: '₺299.99', image: 'https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=Naruto' },
@@ -91,7 +107,9 @@ export default function Header() {
         { name: 'Tişört', href: '/products?category=tisort', icon: 'shirt' },
         { name: 'Hoodie', href: '/products?category=hoodie', icon: 'shirt' },
         { name: 'Şapka', href: '/products?category=sapka', icon: 'hat' },
-        { name: 'Takı & Bileklik', href: '/products?category=taki-bileklik', icon: 'gem' }
+        { name: 'Takı & Bileklik', href: '/products?category=taki-bileklik', icon: 'gem' },
+        { name: 'Çanta & Cüzdan', href: '/products?category=canta-cuzdan', icon: 'bag' },
+        { name: 'Ayakkabı', href: '/products?category=ayakkabi', icon: 'shoe' }
       ],
       featured: [
         { name: 'Anime Tişört - Naruto', href: '/products/anime-tisort-naruto-collection', price: '₺89.99', image: 'https://via.placeholder.com/150x150/4ECDC4/FFFFFF?text=Naruto+T' }
@@ -105,7 +123,9 @@ export default function Header() {
         { name: 'Akıllı Ev', href: '/products?category=akilli-ev', icon: 'home' },
         { name: 'Aydınlatma', href: '/products?category=aydinlatma', icon: 'lightbulb' },
         { name: 'Hobi Elektroniği', href: '/products?category=hobi-elektronigi', icon: 'cpu' },
-        { name: '3D Yazıcı Aksesuarları', href: '/products?category=3d-yazici-aksesuarlari', icon: 'printer' }
+        { name: '3D Yazıcı Aksesuarları', href: '/products?category=3d-yazici-aksesuarlari', icon: 'printer' },
+        { name: 'Bilgisayar Aksesuarları', href: '/products?category=pc-aksesuar', icon: 'keyboard' },
+        { name: 'Giyilebilir Teknoloji', href: '/products?category=giyilebilir', icon: 'watch' }
       ],
       featured: [
         { name: 'Kablosuz Kulaklık', href: '/products/kablosuz-kulaklik-noise-cancelling', price: '₺899.99', image: 'https://via.placeholder.com/150x150/2C3E50/FFFFFF?text=Headphones' }
@@ -117,7 +137,9 @@ export default function Header() {
       categories: [
         { name: 'Dekor', href: '/products?category=dekor', icon: 'sparkles' },
         { name: 'Mutfak', href: '/products?category=mutfak', icon: 'utensils' },
-        { name: 'Düzenleme', href: '/products?category=duzenleme', icon: 'box' }
+        { name: 'Düzenleme', href: '/products?category=duzenleme', icon: 'box' },
+        { name: 'Banyo', href: '/products?category=banyo', icon: 'droplet' },
+        { name: 'Tekstil', href: '/products?category=ev-tekstil', icon: 'fabric' }
       ],
       featured: [
         { name: 'LED Aydınlatma Seti', href: '/products/led-aydinlatma-seti-rgb', price: '₺149.99', image: 'https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=LED' }
@@ -130,7 +152,9 @@ export default function Header() {
         { name: 'Boya & Fırça', href: '/products?category=boya-firca', icon: 'brush' },
         { name: 'Tuval', href: '/products?category=tuval', icon: 'square' },
         { name: '3D Baskı Malzemeleri', href: '/products?category=3d-baski-malzemeleri', icon: 'package' },
-        { name: 'El Sanatları', href: '/products?category=el-sanatlari', icon: 'scissors' }
+        { name: 'El Sanatları', href: '/products?category=el-sanatlari', icon: 'scissors' },
+        { name: 'Kırtasiye', href: '/products?category=kirtasiye', icon: 'pen' },
+        { name: 'Model & Maket', href: '/products?category=model-maket', icon: 'cube' }
       ],
       featured: [
         { name: 'Akrilik Boya Seti', href: '/products/akrilik-boya-seti-24-renk', price: '₺199.99', image: 'https://via.placeholder.com/150x150/FF9F43/FFFFFF?text=Paint' }
@@ -142,7 +166,9 @@ export default function Header() {
       categories: [
         { name: 'Kişiye Özel', href: '/products?category=kisiye-ozel', icon: 'user' },
         { name: 'Doğum Günü', href: '/products?category=dogum-gunu', icon: 'cake' },
-        { name: 'Özel Gün Setleri', href: '/products?category=ozel-gun-setleri', icon: 'gift' }
+        { name: 'Özel Gün Setleri', href: '/products?category=ozel-gun-setleri', icon: 'gift' },
+        { name: 'Kart & Aksesuar', href: '/products?category=hediye-kart-aksesuar', icon: 'credit-card' },
+        { name: 'Kurumsal Hediyeler', href: '/products?category=kurumsal-hediye', icon: 'briefcase' }
       ],
       featured: [
         { name: 'Kişiye Özel Çerçeve', href: '/products/kisiye-ozel-fotograf-cercevesi', price: '₺79.99', image: 'https://via.placeholder.com/150x150/8E44AD/FFFFFF?text=Frame' },
@@ -206,6 +232,22 @@ export default function Header() {
                     </svg>
                   </button>
                 </div>
+                {suggestions.length > 0 && (
+                  <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-lg border z-40">
+                    <ul className="py-2">
+                      {suggestions.map((s) => (
+                        <li key={s}>
+                          <button
+                            onClick={() => (window.location.href = `/search?q=${encodeURIComponent(s)}`)}
+                            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
+                          >
+                            {s}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </form>
             </div>
 
@@ -306,12 +348,14 @@ export default function Header() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={toggleCart}
                 className="relative p-2 text-ink-600 hover:text-indigo-600 transition-colors touch-manipulation"
+                aria-label="Sepeti Aç"
               >
                 <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
                 </svg>
-                <span className="absolute -top-1 -right-1 bg-coral-500 text-white text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center text-xs">0</span>
+                <span className="absolute -top-1 -right-1 bg-coral-500 text-white rounded-full h-4 min-w-[16px] px-1 sm:h-5 sm:min-w-[20px] flex items-center justify-center text-[10px] sm:text-xs">{count}</span>
               </motion.button>
             </div>
           </div>
@@ -480,6 +524,14 @@ export default function Header() {
 
                             return (
                               <div className="grid grid-cols-12 gap-8">
+                                {/* Quick Links */}
+                                <div className="col-span-12 mb-2">
+                                  <div className="flex items-center justify-center gap-3">
+                                    <a href={`${item.href}&sort=newest`} className="px-3 py-1.5 text-xs rounded-full bg-gray-100 hover:bg-gray-200">Yeni Gelenler</a>
+                                    <a href={`${item.href}&sort=best-selling`} className="px-3 py-1.5 text-xs rounded-full bg-gray-100 hover:bg-gray-200">En Çok Satanlar</a>
+                                    <a href={`${item.href}&discount=true`} className="px-3 py-1.5 text-xs rounded-full bg-gray-100 hover:bg-gray-200">İndirimler</a>
+                                  </div>
+                                </div>
                                 {/* Categories Column */}
                                 <div className="col-span-8">
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4">{menuData.title}</h3>
