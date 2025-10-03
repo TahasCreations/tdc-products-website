@@ -11,8 +11,8 @@ export async function searchProducts(query: string, limit = 24) {
   const organic = await prisma.product.findMany({
     where: {
       OR: [
-        { title: { contains: queryStr, mode: "insensitive" } },
-        { category: { contains: queryStr, mode: "insensitive" } }
+        { title: { contains: queryStr } },
+        { category: { contains: queryStr } }
       ],
       stock: { gt: 0 }
     },

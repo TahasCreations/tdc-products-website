@@ -10,7 +10,7 @@ export async function serveAdsForQuery(query: string, k = 3) {
   const campaigns = await prisma.adCampaign.findMany({
     where: { 
       status: "ACTIVE", 
-      keywords: { hasSome: [kw] } 
+      keywords: { contains: kw }
     },
     include: {
       adTargets: {
