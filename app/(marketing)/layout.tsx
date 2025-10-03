@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import Header from '../../src/components/Header';
 import Footer from '../../src/components/Footer';
-import { ThemeProvider } from '../../src/contexts/ThemeContext';
 import TenantHeaderBar from '../../src/components/tenant/TenantHeaderBar';
+import ClientThemeProvider from '../../src/components/ClientThemeProvider';
 
 export const metadata: Metadata = {
   title: {
@@ -34,7 +34,7 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ThemeProvider>
+    <ClientThemeProvider>
       <div className="min-h-screen flex flex-col">
         <Header />
         <TenantHeaderBar />
@@ -43,6 +43,6 @@ export default function MarketingLayout({
         </main>
         <Footer />
       </div>
-    </ThemeProvider>
+    </ClientThemeProvider>
   );
 }

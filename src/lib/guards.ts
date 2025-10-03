@@ -6,12 +6,12 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 // Plan → entitlement haritası
-const PLAN_ENTITLEMENTS = {
+const PLAN_ENTITLEMENTS: Record<string, string[]> = {
   FREE:    [],
   STARTER: ["analytics-lite"],
   GROWTH:  ["analytics-lite","keyword-tool"],
   PRO:     ["analytics-lite","keyword-tool","bulk-upload"],
-} as const;
+};
 
 export async function requireUser() {
   const session = await auth();

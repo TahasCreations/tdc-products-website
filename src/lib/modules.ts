@@ -1,6 +1,6 @@
-import { MODULES } from "@/src/lib/permissions";
-import { auth } from "@/src/lib/auth";
-import { getActivePlanForUser } from "@/lib/guards";
+import { MODULES } from "./permissions";
+import { auth } from "./auth";
+import { getActivePlanForUser } from "./guards";
 
 // Plan → entitlement haritası
 const PLAN_ENTITLEMENTS = {
@@ -26,10 +26,10 @@ export async function getVisibleModules() {
     const plan = await getActivePlanForUser(session.user.id as string);
     const allowed = new Set(PLAN_ENTITLEMENTS[plan] || []);
     
-    return MODULES.filter(m => 
-      m.roles.includes("SELLER") && 
-      (!m.entitlements || m.entitlements.every(e => allowed.has(e)))
-    );
+  return MODULES.filter(m => 
+    m.roles.includes("SELLER") && 
+    (!m.entitlements || m.entitlements.every(e => allowed.has(e as any)))
+  );
   }
 
   return [];

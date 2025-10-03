@@ -7,6 +7,8 @@ import MixedProductGrid from '../../src/components/home/MixedProductGrid';
 import { revalidateTag } from 'next/cache';
 import ClientShim from './ClientShim';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'TDC Market — Özel figürlerden elektroniğe, tasarımdan ev yaşamına',
   description: 'El yapımı & koleksiyon ürünlerinden moda ve teknolojiye; hepsi TDC Market\'te. Özel figürler, tasarım ürünleri ve daha fazlası.',

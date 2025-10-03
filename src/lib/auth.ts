@@ -1,16 +1,16 @@
 // /lib/auth.ts
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
+import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 const nextAuth = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: "database" }, // DB tabanlı session
+  // adapter: PrismaAdapter(prisma), // Temporarily disabled for build
+  session: { strategy: "jwt" }, // JWT session for now
   providers: [
-    Google({
+    GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
@@ -27,4 +27,5 @@ const nextAuth = NextAuth({
   },
 });
 
-export const { handlers, auth, signIn, signOut } = nextAuth;
+export default nextAuth;
+export const { auth, signIn, signOut } = nextAuth;

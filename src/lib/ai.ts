@@ -24,7 +24,7 @@ export async function aiGenerateText(
     });
 
     const response = await result.response;
-    return response.text();
+    return response.candidates?.[0]?.content?.parts?.[0]?.text || '';
   } catch (error) {
     console.error('AI text generation error:', error);
     throw new Error('AI text generation failed');
@@ -45,7 +45,7 @@ export async function aiEmbed(texts: string[]) {
         });
 
         const response = await result.response;
-        return response.text();
+        return response.candidates?.[0]?.content?.parts?.[0]?.text || '';
       })
     );
 

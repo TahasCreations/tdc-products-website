@@ -136,9 +136,16 @@ export interface SubscriptionData {
 
 export async function getActiveSubscription(userId: string): Promise<SubscriptionData | null> {
   try {
+    // First get the seller profile for this user
+    const sellerProfile = await prisma.sellerProfile.findUnique({
+      where: { userId }
+    });
+    
+    if (!sellerProfile) return null;
+    
     const subscription = await prisma.subscription.findFirst({
       where: {
-        userId,
+        sellerId: sellerProfile.id,
         status: 'active'
       },
       orderBy: {
@@ -150,14 +157,14 @@ export async function getActiveSubscription(userId: string): Promise<Subscriptio
 
     return {
       id: subscription.id,
-      userId: subscription.userId,
-      planId: subscription.planId,
+      userId: userId,
+      planId: subscription.plan,
       status: subscription.status as any,
-      currentPeriodStart: subscription.currentPeriodStart,
-      currentPeriodEnd: subscription.currentPeriodEnd,
-      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-      trialEnd: subscription.trialEnd || undefined,
-      metadata: subscription.metadata as Record<string, any> || {}
+      currentPeriodStart: subscription.periodStart,
+      currentPeriodEnd: subscription.periodEnd,
+      cancelAtPeriodEnd: false, // Not in schema, default to false
+      trialEnd: undefined, // Not in schema
+      metadata: {} // Not in schema
     };
   } catch (error) {
     console.error('Error fetching subscription:', error);
@@ -174,31 +181,35 @@ export async function createSubscription(
     const plan = BILLING_PLANS.find(p => p.id === planId);
     if (!plan) throw new Error('Plan not found');
 
+    // First get the seller profile for this user
+    const sellerProfile = await prisma.sellerProfile.findUnique({
+      where: { userId }
+    });
+    
+    if (!sellerProfile) throw new Error('Seller profile not found');
+
     const subscription = await prisma.subscription.create({
       data: {
-        userId,
-        planId,
+        sellerId: sellerProfile.id,
+        plan: planId as any,
         status: 'active',
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        cancelAtPeriodEnd: false,
-        metadata: {
-          paymentMethodId,
-          createdAt: new Date().toISOString()
-        }
+        periodStart: new Date(),
+        periodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        price: plan.price,
+        currency: plan.currency as any
       }
     });
 
     return {
       id: subscription.id,
-      userId: subscription.userId,
-      planId: subscription.planId,
+      userId: userId,
+      planId: subscription.plan,
       status: subscription.status as any,
-      currentPeriodStart: subscription.currentPeriodStart,
-      currentPeriodEnd: subscription.currentPeriodEnd,
-      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-      trialEnd: subscription.trialEnd || undefined,
-      metadata: subscription.metadata as Record<string, any> || {}
+      currentPeriodStart: subscription.periodStart,
+      currentPeriodEnd: subscription.periodEnd,
+      cancelAtPeriodEnd: false, // Not in schema, default to false
+      trialEnd: undefined, // Not in schema
+      metadata: {} // Not in schema
     };
   } catch (error) {
     console.error('Error creating subscription:', error);
@@ -211,7 +222,6 @@ export async function cancelSubscription(subscriptionId: string): Promise<boolea
     await prisma.subscription.update({
       where: { id: subscriptionId },
       data: {
-        cancelAtPeriodEnd: true,
         status: 'cancelled'
       }
     });

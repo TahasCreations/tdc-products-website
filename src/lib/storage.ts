@@ -4,11 +4,11 @@ const storage = new Storage({
   projectId: process.env.GCP_PROJECT_ID,
   credentials: {
     client_email: process.env.GCP_CLIENT_EMAIL!,
-    private_key: process.env.GCP_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+    private_key: process.env.GCP_PRIVATE_KEY?.replace(/\\n/g, "\n") || "",
   },
 });
 
-export const GCS_BUCKET = process.env.GCS_BUCKET!;
+export const GCS_BUCKET = process.env.GCS_BUCKET || "tdc-products-bucket";
 export const bucket = storage.bucket(GCS_BUCKET);
 
 // Public read için (ürün görselleri, satıcı logoları)

@@ -1,6 +1,9 @@
+'use client';
+
 import { requireAdmin } from '@/lib/guards';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import { useEffect, useState } from 'react';
 
 const data = [
   { name: 'Ocak', sales: 4000, revenue: 2400 },
@@ -20,9 +23,41 @@ const pieData = [
 ];
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
-export default async function AdminDashboard() {
-  // Bu sayfa sadece ADMIN rolüne sahip kullanıcılar tarafından erişilebilir
-  const user = await requireAdmin();
+export default function AdminDashboard() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const userData = await requireAdmin();
+        setUser(userData);
+      } catch (error) {
+        console.error('Auth error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  if (loading) {
+    return <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Yükleniyor...</p>
+      </div>
+    </div>;
+  }
+
+  if (!user) {
+    return <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">Erişim Reddedildi</h1>
+        <p className="text-gray-600">Bu sayfaya erişim yetkiniz bulunmamaktadır.</p>
+      </div>
+    </div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

@@ -2,7 +2,7 @@ export type ModuleDef = {
   id: string;
   label: string;
   path: string;
-  roles: Array<"ADMIN"|"SELLER">;
+  roles: Array<"BUYER"|"ADMIN"|"SELLER">;
   entitlements?: string[];
 };
 
