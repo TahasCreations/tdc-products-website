@@ -1,7 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { serveAdsForQuery } from "./ads";
-
-const prisma = new PrismaClient();
 
 export async function searchProducts(query: string, limit = 24) {
   const queryStr = String(query || "").trim();

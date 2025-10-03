@@ -1,5 +1,7 @@
 import { requireRole, requireEntitlement } from "@/lib/guards";
 
+export const dynamic = 'force-dynamic';
+
 export default async function KeywordToolPage() {
   await requireRole("SELLER", "ADMIN");
   await requireEntitlement("keyword-tool");

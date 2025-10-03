@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function getSalesReport(sellerId: string, startDate: Date, endDate: Date) {
   return await prisma.ledgerEntry.findMany({

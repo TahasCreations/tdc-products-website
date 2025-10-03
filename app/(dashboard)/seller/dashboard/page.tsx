@@ -1,6 +1,8 @@
 import { requireSeller } from '@/lib/guards';
 import { motion } from 'framer-motion';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SellerDashboardPage() {
   // Bu sayfa sadece SELLER veya ADMIN rolüne sahip kullanıcılar tarafından erişilebilir
   const user = await requireSeller();

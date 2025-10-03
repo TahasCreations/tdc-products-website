@@ -1,8 +1,8 @@
 import { requireSeller } from '@/lib/guards';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { motion } from 'framer-motion';
 
-const prisma = new PrismaClient();
+export const dynamic = 'force-dynamic';
 
 export default async function SellerOrdersPage() {
   const user = await requireSeller();

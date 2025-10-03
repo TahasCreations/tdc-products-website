@@ -1,9 +1,7 @@
 // /lib/guards.ts
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 // Plan → entitlement haritası
 const PLAN_ENTITLEMENTS: Record<string, string[]> = {
@@ -109,7 +107,6 @@ export async function requireInfluencer(userId?: string) {
   const session = await auth();
   if (!session?.user) throw new Error("auth_required");
   const uid = userId || (session.user as any).id;
-  const prisma = new PrismaClient();
   const prof = await prisma.influencerProfile.findUnique({ where: { userId: uid } });
   if (!prof || prof.status !== "APPROVED") throw new Error("forbidden");
   return { userId: uid, profileId: prof.id };

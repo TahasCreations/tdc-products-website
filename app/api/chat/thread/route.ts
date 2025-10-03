@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
 import { NextRequest } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   const session = await auth();

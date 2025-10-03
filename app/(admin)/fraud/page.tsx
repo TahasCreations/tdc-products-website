@@ -1,5 +1,7 @@
 import { requireRole } from "@/lib/guards";
 
+export const dynamic = 'force-dynamic';
+
 export default async function FraudDetectionPage() {
   await requireRole("ADMIN");
 

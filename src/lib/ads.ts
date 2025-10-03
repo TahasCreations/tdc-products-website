@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 // Rate limiting için basit in-memory cache
 const clickCache = new Map<string, { count: number; timestamp: number }>();
