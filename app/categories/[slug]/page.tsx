@@ -1,33 +1,46 @@
-export const dynamic = 'force-static'
+import { notFound } from 'next/navigation';
 
-interface Params { params: { slug: string } }
+const mockCategories = {
+  'figur-koleksiyon': {
+    name: 'Figür & Koleksiyon',
+    description: 'Anime figürleri, film karakterleri ve koleksiyon ürünleri'
+  },
+  'moda-aksesuar': {
+    name: 'Moda & Aksesuar',
+    description: 'Tişört, hoodie, şapka ve takı koleksiyonları'
+  },
+  'elektronik': {
+    name: 'Elektronik',
+    description: 'Kulaklık, akıllı ev ürünleri ve elektronik aksesuarlar'
+  },
+  'ev-yasam': {
+    name: 'Ev & Yaşam',
+    description: 'Dekorasyon, aydınlatma ve ev ürünleri'
+  },
+  'sanat-hobi': {
+    name: 'Sanat & Hobi',
+    description: 'Boya, tuval ve el sanatları malzemeleri'
+  },
+  'hediyelik': {
+    name: 'Hediyelik',
+    description: 'Kişiye özel hediyeler ve özel gün setleri'
+  }
+};
 
-export default function CategoryPage({ params }: Params) {
-	const { slug } = params
-	const titleMap: Record<string, string> = {
-		'figur-koleksiyon': 'Figür & Koleksiyon',
-		'moda-aksesuar': 'Moda & Aksesuar',
-		'elektronik': 'Elektronik',
-		'ev-yasam': 'Ev & Yaşam',
-		'sanat-hobi': 'Sanat & Hobi',
-		'hediyelik': 'Hediyelik',
-	}
-	const title = titleMap[slug] || slug
+export default function CategoryPage({ params }: { params: { slug: string } }) {
+  const category = mockCategories[params.slug as keyof typeof mockCategories];
+  
+  if (!category) {
+    notFound();
+  }
 
-	return (
-		<div className="max-w-6xl mx-auto px-4 py-8">
-			<h1 className="text-2xl font-bold mb-4">{title}</h1>
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-				{Array.from({ length: 8 }).map((_, i) => (
-					<a key={i} href={`/product/${slug}-${i+1}`} className="border rounded-lg overflow-hidden hover:shadow-md transition">
-						<div className="bg-gray-100 aspect-square" />
-						<div className="p-3">
-							<div className="font-medium">{title} Ürün {i+1}</div>
-							<div className="text-indigo-600 font-semibold mt-1">{((i+1)*149).toLocaleString('tr-TR')} ₺</div>
-						</div>
-					</a>
-				))}
-			</div>
-		</div>
-	)
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-4">{category.name}</h1>
+      <p className="text-gray-600 mb-8">{category.description}</p>
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <p className="text-gray-700">Bu kategorideki ürünler burada listelenecek.</p>
+      </div>
+    </div>
+  );
 }

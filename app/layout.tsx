@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Manrope } from 'next/font/google'
 import '../src/app/globals.css'
 import { ThemeProvider } from '../src/contexts/ThemeContext'
+import { SessionProvider } from 'next-auth/react'
 import PWAInstaller from '../src/components/PWAInstaller'
 
 const inter = Inter({
@@ -92,10 +93,12 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} antialiased`}>
         <div id="root">
-          <ThemeProvider>
-            {children}
-            <PWAInstaller />
-          </ThemeProvider>
+          <SessionProvider>
+            <ThemeProvider>
+              {children}
+              <PWAInstaller />
+            </ThemeProvider>
+          </SessionProvider>
         </div>
       </body>
     </html>

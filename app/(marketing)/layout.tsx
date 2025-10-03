@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Header from '../../src/components/Header';
 import Footer from '../../src/components/Footer';
 import { ThemeProvider } from '../../src/contexts/ThemeContext';
+import TenantHeaderBar from '../../src/components/tenant/TenantHeaderBar';
 
 export const metadata: Metadata = {
   title: {
@@ -36,6 +37,7 @@ export default function MarketingLayout({
     <ThemeProvider>
       <div className="min-h-screen flex flex-col">
         <Header />
+        <TenantHeaderBar />
         <main className="flex-1">
           {children}
         </main>

@@ -1,18 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import AuthModal from './AuthModal';
+import { useSession } from 'next-auth/react';
+import { GoogleLoginButton } from './auth/GoogleLoginButton';
+import { LogoutButton } from './auth/LogoutButton';
 import ThemeToggle from './ThemeToggle';
 
 export default function Header() {
+  const { data: session, status } = useSession();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authType, setAuthType] = useState<'user' | 'seller'>('user');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeMegaMenu, setActiveMegaMenu] = useState<string | null>(null);
+  const megaMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,20 +25,28 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleAuthClick = (type: 'user' | 'seller') => {
-    setAuthType(type);
-    setIsAuthModalOpen(true);
-  };
+  // Handle keyboard navigation for mega menu
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveMegaMenu(null);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
-  const handleAuthSuccess = (type: 'user' | 'seller') => {
-    console.log(`${type} authentication successful`);
-    // Redirect based on user type
-    if (type === 'seller') {
-      window.location.href = '/seller/dashboard';
-    } else {
-      window.location.href = '/user/dashboard';
-    }
-  };
+  // Close mega menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (megaMenuRef.current && !megaMenuRef.current.contains(event.target as Node)) {
+        setActiveMegaMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,16 +56,99 @@ export default function Header() {
   };
 
   const navItems = [
-    { href: '/products', label: 'Tüm Ürünler' },
-    { href: '/categories/figur-koleksiyon', label: 'Figür & Koleksiyon' },
-    { href: '/categories/moda-aksesuar', label: 'Moda & Aksesuar' },
-    { href: '/categories/elektronik', label: 'Elektronik' },
-    { href: '/categories/ev-yasam', label: 'Ev & Yaşam' },
-    { href: '/categories/sanat-hobi', label: 'Sanat & Hobi' },
-    { href: '/categories/hediyelik', label: 'Hediyelik' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/about', label: 'Hakkımızda' }
+    { href: '/products', label: 'Tüm Ürünler', hasMegaMenu: false },
+    { href: '/categories/figur-koleksiyon', label: 'Figür & Koleksiyon', hasMegaMenu: true },
+    { href: '/categories/moda-aksesuar', label: 'Moda & Aksesuar', hasMegaMenu: true },
+    { href: '/categories/elektronik', label: 'Elektronik', hasMegaMenu: true },
+    { href: '/categories/ev-yasam', label: 'Ev & Yaşam', hasMegaMenu: true },
+    { href: '/categories/sanat-hobi', label: 'Sanat & Hobi', hasMegaMenu: true },
+    { href: '/categories/hediyelik', label: 'Hediyelik', hasMegaMenu: true },
+    { href: '/blog', label: 'Blog', hasMegaMenu: false },
+    { href: '/about', label: 'Hakkımızda', hasMegaMenu: false }
   ];
+
+  const megaMenuData = {
+    'figur-koleksiyon': {
+      title: 'Figür & Koleksiyon',
+      description: 'Anime figürleri, film karakterleri ve koleksiyon ürünleri',
+      categories: [
+        { name: 'Anime Figürleri', href: '/categories/anime-figurleri', icon: 'zap' },
+        { name: 'Film/TV Figürleri', href: '/categories/film-tv-figurleri', icon: 'film' },
+        { name: 'Dioramalar', href: '/categories/dioramalar', icon: 'layers' },
+        { name: 'Koleksiyon Arabaları', href: '/categories/koleksiyon-arabalari', icon: 'car' },
+        { name: 'Maket & Kitler', href: '/categories/maket-kitler', icon: 'package' }
+      ],
+      featured: [
+        { name: 'Naruto Uzumaki Figürü', href: '/products/naruto-uzumaki-figuru-shippuden', price: '₺299.99', image: 'https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=Naruto' },
+        { name: 'One Piece Luffy Figürü', href: '/products/one-piece-luffy-figuru-gear-4', price: '₺459.99', image: 'https://via.placeholder.com/150x150/FF9F43/FFFFFF?text=Luffy' }
+      ]
+    },
+    'moda-aksesuar': {
+      title: 'Moda & Aksesuar',
+      description: 'Tişört, hoodie, şapka ve takı koleksiyonları',
+      categories: [
+        { name: 'Tişört', href: '/categories/tisort', icon: 'shirt' },
+        { name: 'Hoodie', href: '/categories/hoodie', icon: 'shirt' },
+        { name: 'Şapka', href: '/categories/sapka', icon: 'hat' },
+        { name: 'Takı & Bileklik', href: '/categories/taki-bileklik', icon: 'gem' }
+      ],
+      featured: [
+        { name: 'Anime Tişört - Naruto', href: '/products/anime-tisort-naruto-collection', price: '₺89.99', image: 'https://via.placeholder.com/150x150/4ECDC4/FFFFFF?text=Naruto+T' }
+      ]
+    },
+    'elektronik': {
+      title: 'Elektronik',
+      description: 'Kulaklık, akıllı ev ürünleri ve elektronik aksesuarlar',
+      categories: [
+        { name: 'Kulaklık', href: '/categories/kulaklik', icon: 'headphones' },
+        { name: 'Akıllı Ev', href: '/categories/akilli-ev', icon: 'home' },
+        { name: 'Aydınlatma', href: '/categories/aydinlatma', icon: 'lightbulb' },
+        { name: 'Hobi Elektroniği', href: '/categories/hobi-elektronigi', icon: 'cpu' },
+        { name: '3D Yazıcı Aksesuarları', href: '/categories/3d-yazici-aksesuarlari', icon: 'printer' }
+      ],
+      featured: [
+        { name: 'Kablosuz Kulaklık', href: '/products/kablosuz-kulaklik-noise-cancelling', price: '₺899.99', image: 'https://via.placeholder.com/150x150/2C3E50/FFFFFF?text=Headphones' }
+      ]
+    },
+    'ev-yasam': {
+      title: 'Ev & Yaşam',
+      description: 'Dekorasyon, aydınlatma ve ev ürünleri',
+      categories: [
+        { name: 'Dekor', href: '/categories/dekor', icon: 'sparkles' },
+        { name: 'Mutfak', href: '/categories/mutfak', icon: 'utensils' },
+        { name: 'Düzenleme', href: '/categories/duzenleme', icon: 'box' }
+      ],
+      featured: [
+        { name: 'LED Aydınlatma Seti', href: '/products/led-aydinlatma-seti-rgb', price: '₺149.99', image: 'https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=LED' }
+      ]
+    },
+    'sanat-hobi': {
+      title: 'Sanat & Hobi',
+      description: 'Boya, tuval ve el sanatları malzemeleri',
+      categories: [
+        { name: 'Boya & Fırça', href: '/categories/boya-firca', icon: 'brush' },
+        { name: 'Tuval', href: '/categories/tuval', icon: 'square' },
+        { name: '3D Baskı Malzemeleri', href: '/categories/3d-baski-malzemeleri', icon: 'package' },
+        { name: 'El Sanatları', href: '/categories/el-sanatlari', icon: 'scissors' }
+      ],
+      featured: [
+        { name: 'Akrilik Boya Seti', href: '/products/akrilik-boya-seti-24-renk', price: '₺199.99', image: 'https://via.placeholder.com/150x150/FF9F43/FFFFFF?text=Paint' }
+      ]
+    },
+    'hediyelik': {
+      title: 'Hediyelik',
+      description: 'Kişiye özel hediyeler ve özel gün setleri',
+      categories: [
+        { name: 'Kişiye Özel', href: '/categories/kisiye-ozel', icon: 'user' },
+        { name: 'Doğum Günü', href: '/categories/dogum-gunu', icon: 'cake' },
+        { name: 'Özel Gün Setleri', href: '/categories/ozel-gun-setleri', icon: 'gift' }
+      ],
+      featured: [
+        { name: 'Kişiye Özel Çerçeve', href: '/products/kisiye-ozel-fotograf-cercevesi', price: '₺79.99', image: 'https://via.placeholder.com/150x150/8E44AD/FFFFFF?text=Frame' },
+        { name: 'Doğum Günü Seti', href: '/products/dogum-gunu-hediyelik-seti', price: '₺149.99', image: 'https://via.placeholder.com/150x150/E74C3C/FFFFFF?text=Gift+Set' }
+      ]
+    }
+  };
 
   return (
     <>
@@ -185,18 +279,41 @@ export default function Header() {
                 </div>
               </div>
 
-              {/* Seller Button */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleAuthClick('seller')}
-                className="hidden sm:flex items-center space-x-2 px-3 sm:px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium transition-all duration-300 hover:bg-indigo-600 text-sm touch-manipulation"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-                <span className="hidden lg:block">Satıcı Ol</span>
-              </motion.button>
+              {/* Authentication Buttons */}
+              {status === 'loading' ? (
+                <div className="hidden sm:flex items-center space-x-2 px-3 sm:px-4 py-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-600"></div>
+                </div>
+              ) : session ? (
+                <div className="hidden sm:flex items-center space-x-2">
+                {/* User Profile Info */}
+                <div className="flex items-center space-x-2 px-3 py-2 text-gray-700">
+                  <img
+                    src={session.user?.image || 'https://via.placeholder.com/32x32/4F46E5/FFFFFF?text=U'}
+                    alt={session.user?.name || 'User'}
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span className="hidden lg:block text-sm font-medium">{session.user?.name}</span>
+                </div>
+
+                {/* Seller Apply Button (for BUYER role) */}
+                {session.user?.role === 'BUYER' && (
+                  <Link
+                    href="/seller/apply"
+                    className="px-3 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
+                  >
+                    Satıcı Ol
+                  </Link>
+                )}
+
+                {/* Logout Button */}
+                <LogoutButton />
+                </div>
+              ) : (
+                <div className="hidden sm:flex">
+                  <GoogleLoginButton />
+                </div>
+              )}
 
               {/* Mobile Menu Button */}
               <motion.button
@@ -291,31 +408,45 @@ export default function Header() {
                   
                   {/* Mobile Auth Buttons */}
                   <div className="pt-4 border-t border-gray-200 space-y-3">
-                    <motion.button
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 }}
-                      onClick={() => handleAuthClick('user')}
-                      className="w-full flex items-center justify-center space-x-2 px-4 py-3 text-ink-600 hover:text-indigo-600 transition-colors rounded-lg hover:bg-gray-50"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      <span className="font-medium">Giriş Yap</span>
-                    </motion.button>
-                    
-                    <motion.button
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
-                      onClick={() => handleAuthClick('seller')}
-                      className="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-indigo-500 text-white rounded-lg font-medium transition-all duration-300 hover:bg-indigo-600"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                      <span>Satıcı Ol</span>
-                    </motion.button>
+                    {status === 'loading' ? (
+                      <div className="flex items-center justify-center py-3">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+                      </div>
+                    ) : session ? (
+                      <>
+                        <div className="flex items-center space-x-3 px-4 py-3">
+                          <img
+                            src={session.user?.image || 'https://via.placeholder.com/40x40/4F46E5/FFFFFF?text=U'}
+                            alt={session.user?.name || 'User'}
+                            className="w-10 h-10 rounded-full"
+                          />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">{session.user?.name}</p>
+                            <p className="text-xs text-gray-500">{session.user?.email}</p>
+                          </div>
+                        </div>
+
+                        {/* Seller Apply Button (for BUYER role) */}
+                        {session.user?.role === 'BUYER' && (
+                          <div className="px-4 mb-3">
+                            <Link
+                              href="/seller/apply"
+                              className="block w-full px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors text-center"
+                            >
+                              Satıcı Ol
+                            </Link>
+                          </div>
+                        )}
+
+                        <div className="px-4">
+                          <LogoutButton />
+                        </div>
+                      </>
+                    ) : (
+                      <div className="px-4">
+                        <GoogleLoginButton />
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -323,8 +454,8 @@ export default function Header() {
           </AnimatePresence>
         </div>
 
-        {/* Category Navigation Bar */}
-        <div className="hidden lg:block border-t border-gray-200 bg-white/90 backdrop-blur-sm">
+        {/* Category Navigation Bar with Mega Menu */}
+        <div className="hidden lg:block border-t border-gray-200 bg-white/90 backdrop-blur-sm" ref={megaMenuRef}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <nav className="flex items-center justify-center space-x-8 py-3">
               {navItems.map((item, index) => (
@@ -334,12 +465,19 @@ export default function Header() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 + 0.5 }}
                   className="relative"
+                  onMouseEnter={() => item.hasMegaMenu && setActiveMegaMenu(item.href.split('/').pop() || null)}
+                  onMouseLeave={() => setActiveMegaMenu(null)}
                 >
                   <Link
                     href={item.href}
-                    className="relative text-sm text-ink-600 hover:text-indigo-600 transition-colors duration-300 font-medium group py-2"
+                    className="relative text-sm text-ink-600 hover:text-indigo-600 transition-colors duration-300 font-medium group py-2 flex items-center space-x-1"
                   >
-                    {item.label}
+                    <span>{item.label}</span>
+                    {item.hasMegaMenu && (
+                      <svg className="w-3 h-3 text-gray-400 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    )}
                     <motion.div
                       className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 to-coral-500"
                       initial={{ scaleX: 0 }}
@@ -347,6 +485,79 @@ export default function Header() {
                       transition={{ duration: 0.3, ease: 'easeOut' }}
                     />
                   </Link>
+
+                  {/* Mega Menu */}
+                  <AnimatePresence>
+                    {item.hasMegaMenu && activeMegaMenu === item.href.split('/').pop() && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 w-screen bg-white shadow-xl border-t border-gray-200 z-50"
+                        style={{ left: '50%', transform: 'translateX(-50%)' }}
+                      >
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                          {(() => {
+                            const menuKey = item.href.split('/').pop();
+                            const menuData = menuKey ? megaMenuData[menuKey as keyof typeof megaMenuData] : null;
+                            if (!menuData) return null;
+
+                            return (
+                              <div className="grid grid-cols-12 gap-8">
+                                {/* Categories Column */}
+                                <div className="col-span-8">
+                                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{menuData.title}</h3>
+                                  <p className="text-gray-600 mb-6">{menuData.description}</p>
+                                  <div className="grid grid-cols-2 gap-4">
+                                    {menuData.categories.map((category, catIndex) => (
+                                      <Link
+                                        key={category.href}
+                                        href={category.href}
+                                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                                      >
+                                        <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                                          <span className="text-indigo-600 text-sm">📦</span>
+                                        </div>
+                                        <span className="text-gray-700 group-hover:text-indigo-600 transition-colors">{category.name}</span>
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Featured Products Column */}
+                                <div className="col-span-4">
+                                  <h4 className="text-md font-semibold text-gray-900 mb-4">Öne Çıkan Ürünler</h4>
+                                  <div className="space-y-4">
+                                    {menuData.featured.map((product, prodIndex) => (
+                                      <Link
+                                        key={product.href}
+                                        href={product.href}
+                                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                                      >
+                                        <img
+                                          src={product.image}
+                                          alt={product.name}
+                                          className="w-12 h-12 rounded-lg object-cover"
+                                          loading="lazy"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm font-medium text-gray-900 group-hover:text-indigo-600 transition-colors truncate">
+                                            {product.name}
+                                          </p>
+                                          <p className="text-sm text-indigo-600 font-semibold">{product.price}</p>
+                                        </div>
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               ))}
             </nav>
@@ -355,13 +566,6 @@ export default function Header() {
       </motion.header>
 
       {/* Auth Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        type={authType}
-        onTypeChange={setAuthType}
-        onAuthSuccess={handleAuthSuccess}
-      />
     </>
   );
 }

@@ -5,6 +5,8 @@ import { useState } from 'react';
 export default function TrendAnalysisPage() {
 	const [selectedCategory, setSelectedCategory] = useState('all');
 	const [timeRange, setTimeRange] = useState('30d');
+	const [isAnalyzing, setIsAnalyzing] = useState(false);
+	const [results, setResults] = useState<any>(null);
 
 	const trendData = [
 		{
@@ -45,6 +47,35 @@ export default function TrendAnalysisPage() {
 		}
 	];
 
+	const handleAnalyze = async () => {
+		setIsAnalyzing(true);
+		
+		try {
+			const response = await fetch('/api/ai/trend-analysis', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					category: selectedCategory,
+					timeframe: timeRange === '30d' ? '1month' : timeRange === '90d' ? '3months' : '6months',
+					keywords: []
+				})
+			});
+			
+			if (response.ok) {
+				const data = await response.json();
+				setResults(data.data);
+			} else {
+				// Fallback to mock data
+				setResults({ trends: trendData });
+			}
+		} catch (error) {
+			console.error('Trend analysis error:', error);
+			setResults({ trends: trendData });
+		} finally {
+			setIsAnalyzing(false);
+		}
+	};
+
 	const getTrendColor = (trend: string) => {
 		if (trend.startsWith('+')) return 'text-green-600';
 		if (trend.startsWith('-')) return 'text-red-600';
@@ -72,6 +103,17 @@ export default function TrendAnalysisPage() {
 				<h1 className="text-2xl font-bold text-gray-900">AI Trend Analizi</h1>
 				<div className="flex space-x-2">
 					<select 
+						value={selectedCategory}
+						onChange={(e) => setSelectedCategory(e.target.value)}
+						className="border rounded-lg px-3 py-2"
+					>
+						<option value="all">Tüm Kategoriler</option>
+						<option value="figur-koleksiyon">Figür & Koleksiyon</option>
+						<option value="moda-aksesuar">Moda & Aksesuar</option>
+						<option value="elektronik">Elektronik</option>
+						<option value="ev-yasam">Ev & Yaşam</option>
+					</select>
+					<select 
 						value={timeRange}
 						onChange={(e) => setTimeRange(e.target.value)}
 						className="border rounded-lg px-3 py-2"
@@ -81,7 +123,24 @@ export default function TrendAnalysisPage() {
 						<option value="90d">Son 90 Gün</option>
 						<option value="1y">Son 1 Yıl</option>
 					</select>
-					<button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+					<button 
+						onClick={handleAnalyze}
+						disabled={isAnalyzing}
+						className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50 flex items-center space-x-2"
+					>
+						{isAnalyzing ? (
+							<>
+								<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+								<span>Analiz ediliyor...</span>
+							</>
+						) : (
+							<>
+								<span>📊</span>
+								<span>Trend Analizi</span>
+							</>
+						)}
+					</button>
+					<button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
 						Rapor İndir
 					</button>
 				</div>
@@ -106,6 +165,24 @@ export default function TrendAnalysisPage() {
 					<div className="text-sm text-gray-600">Fırsat Skoru</div>
 				</div>
 			</div>
+
+			{/* AI Insights */}
+			{results && (
+				<div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl border border-purple-200">
+					<div className="flex items-center mb-4">
+						<span className="text-2xl mr-2">🤖</span>
+						<h3 className="text-lg font-semibold text-purple-900">AI Trend Öngörüleri</h3>
+					</div>
+					<div className="grid md:grid-cols-2 gap-4 text-sm">
+						{results.insights?.map((insight: any, i: number) => (
+							<div key={i} className="bg-white p-4 rounded-lg">
+								<h4 className="font-semibold text-purple-800 mb-2">{insight.title}</h4>
+								<p className="text-gray-700">{insight.description}</p>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
 
 			{/* Trend Chart */}
 			<div className="bg-white p-6 rounded-xl shadow-sm border">
@@ -162,7 +239,7 @@ export default function TrendAnalysisPage() {
 							</tr>
 						</thead>
 						<tbody className="bg-white divide-y divide-gray-200">
-							{trendData.map((item, i) => (
+							{(results?.trends || trendData).map((item: any, i: number) => (
 								<tr key={i} className="hover:bg-gray-50">
 									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
 										{item.keyword}
@@ -171,21 +248,21 @@ export default function TrendAnalysisPage() {
 										{item.category}
 									</td>
 									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{item.searchVolume.toLocaleString()}
+										{item.searchVolume?.toLocaleString() || 'N/A'}
 									</td>
 									<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">
-										<span className={getTrendColor(item.trend)}>
-											{item.trend}
+										<span className={getTrendColor(item.trend || `+${item.growthRate}%`)}>
+											{item.trend || `+${item.growthRate}%`}
 										</span>
 									</td>
 									<td className="px-6 py-4 whitespace-nowrap">
-										<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCompetitionColor(item.competition)}`}>
-											{item.competition}
+										<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCompetitionColor(item.competition || 'Orta')}`}>
+											{item.competition || 'Orta'}
 										</span>
 									</td>
 									<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">
-										<span className={getOpportunityColor(item.opportunity)}>
-											{item.opportunity}/100
+										<span className={getOpportunityColor(item.opportunity || 50)}>
+											{item.opportunity || 50}/100
 										</span>
 									</td>
 									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

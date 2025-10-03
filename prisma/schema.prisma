@@ -1,4 +1,6 @@
-// TDC Market - Complete Database Schema
+// TDC Market - Prisma Schema
+// Multi-vendor marketplace with NextAuth.js integration
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,969 +10,545 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ===== CORE USER MANAGEMENT =====
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  avatar    String?
-  role      UserRole @default(CUSTOMER)
-  storeId   String?  // Multi-tenant support
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  profile     UserProfile?
-  blogPosts   BlogPost[]
-  blogLikes   BlogLike[]
-  blogSaves   BlogSave[]
-  blogViews   BlogView[]
-  blogComments BlogComment[]
-  follows     FollowAuthor[] @relation("Follower")
-  followers   FollowAuthor[] @relation("Following")
-  reports     ContentReport[]
-  orders      Order[]
-  cartItems   CartItem[]
-  products    Product[]
-  reviews     Review[]
-  qnaQuestions QnaQuestion[]
-  qnaAnswers  QnaAnswer[]
-  auditLogs   AuditLog[]
-  eventOutbox EventOutbox[]
-
-  @@map("users")
-}
-
-model UserProfile {
-  id          String  @id @default(cuid())
-  userId      String  @unique
-  handle      String  @unique
-  displayName String
-  bio         String?
-  avatarUrl   String?
-  linksJson   String? // JSON string for social links
-  storeId     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_profiles")
-}
-
-enum UserRole {
-  ADMIN
-  FINANCE
-  OPS
-  MARKETING
-  AI_ANALYST
+// === USER MANAGEMENT ===
+enum Role {
+  BUYER
   SELLER
-  CUSTOMER
+  ADMIN
 }
 
-// ===== UGC BLOG SYSTEM =====
-model BlogTopic {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  slug        String   @unique
-  description String?
-  storeId     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  posts       BlogPost[]
-  follows     FollowTopic[]
-
-  @@map("blog_topics")
+enum Plan {
+  FREE
+  STARTER
+  GROWTH
+  PRO
 }
 
-model BlogPost {
-  id          String      @id @default(cuid())
-  authorId    String
-  title       String
-  slug        String      @unique
-  contentJson String      // JSON string for rich content
-  topicId     String
-  tagsJson    String?     // JSON array of tags
-  coverUrl    String?
-  readingTime Int         @default(0)
-  status      PostStatus  @default(DRAFT)
-  storeId     String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  publishedAt DateTime?
-
-  author   User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  topic    BlogTopic    @relation(fields: [topicId], references: [id])
-  media    BlogMedia[]
-  likes    BlogLike[]
-  saves    BlogSave[]
-  views    BlogView[]
-  comments BlogComment[]
-  reports  ContentReport[]
-
-  @@map("blog_posts")
+model User {
+  id            String   @id @default(cuid())
+  name          String?
+  email         String?  @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role     @default(BUYER)
+  isActive      Boolean  @default(true)
+  
+  // Seller profili (opsiyonel ilişki)
+  sellerProfile SellerProfile?
+  
+  // Influencer profili (opsiyonel ilişki)
+  influencerProfile InfluencerProfile?
+  
+  // NextAuth relations
+  accounts      Account[]
+  sessions      Session[]
+  
+  // E-ticaret relations
+  orders        Order[]
+  addresses     Address[]
+  wishlistItems WishlistItem[]
+  reviews       Review[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
-model BlogMedia {
-  id       String @id @default(cuid())
-  postId   String
-  url      String
-  width    Int?
-  height   Int?
-  bytes    Int?
-  mime     String?
-  alt      String?
-  storeId  String?
-  createdAt DateTime @default(now())
-
-  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@map("blog_media")
+model SellerProfile {
+  id             String  @id @default(cuid())
+  userId         String  @unique
+  storeName      String
+  storeSlug      String  @unique
+  description    String?
+  taxNumber      String? // VKN/TCKN
+  iban           String?
+  status         String  @default("pending") // pending|approved|rejected
+  logoUrl        String?
+  policiesJson   Json?   // shipping, returns, etc.
+  rating         Float   @default(0)
+  totalSales     Int     @default(0)
+  
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products       Product[]
+  payouts        Payout[]
+  subscriptions  Subscription[]
+  domains        StoreDomain[]
+  theme          StoreTheme?
+  adCampaigns    AdCampaign[]
+  domainAllowances DomainAllowance[]
+  collaborations Collaboration[]
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
-model BlogLike {
-  id      String   @id @default(cuid())
-  postId  String
-  userId  String
-  storeId String?
-  createdAt DateTime @default(now())
-
-  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-  @@map("blog_likes")
+enum BillingCycle {
+  MONTHLY
+  YEARLY
 }
 
-model BlogSave {
-  id      String   @id @default(cuid())
-  postId  String
-  userId  String
-  storeId String?
-  createdAt DateTime @default(now())
-
-  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([postId, userId])
-  @@map("blog_saves")
+model Subscription {
+  id           String       @id @default(cuid())
+  sellerId     String
+  plan         Plan         @default(FREE)
+  status       String       @default("active") // active|inactive|cancelled|past_due
+  billingCycle BillingCycle @default(MONTHLY)
+  price        Decimal?     @db.Decimal(12,2) // vergisiz aylık fiyat (MONTHLY) ya da YILLIK toplam (YEARLY ise total)
+  currency     Currency     @default(TRY)
+  periodStart  DateTime     @default(now())
+  periodEnd    DateTime
+  
+  seller       SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
-model BlogView {
-  id      String   @id @default(cuid())
-  postId  String
-  userId  String?
-  ipHash  String?
-  storeId String?
-  createdAt DateTime @default(now())
-
-  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("blog_views")
-}
-
-model BlogComment {
-  id        String   @id @default(cuid())
-  postId    String
-  userId    String
-  parentId  String?
-  contentJson String
-  status    CommentStatus @default(APPROVED)
-  storeId   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  post   BlogPost     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  parent BlogComment? @relation("CommentReplies", fields: [parentId], references: [id])
-  replies BlogComment[] @relation("CommentReplies")
-
-  @@map("blog_comments")
-}
-
-enum PostStatus {
-  DRAFT
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-enum CommentStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-// ===== FOLLOW SYSTEM =====
-model FollowTopic {
-  id      String   @id @default(cuid())
-  userId  String
-  topicId String
-  storeId String?
-  createdAt DateTime @default(now())
-
-  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topic BlogTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, topicId])
-  @@map("follow_topics")
-}
-
-model FollowAuthor {
-  id         String   @id @default(cuid())
-  followerId String
-  authorId   String
-  storeId    String?
-  createdAt  DateTime @default(now())
-
-  follower User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
-  author   User @relation("Following", fields: [authorId], references: [id], onDelete: Cascade)
-
-  @@unique([followerId, authorId])
-  @@map("follow_authors")
-}
-
-// ===== CONTENT REPORTING =====
-model ContentReport {
-  id         String      @id @default(cuid())
-  entityType EntityType
-  entityId   String
-  reporterId String
-  reason     ReportReason
-  notes      String?
-  status     ReportStatus @default(PENDING)
-  storeId    String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-
-  reporter User @relation(fields: [reporterId], references: [id], onDelete: Cascade)
-
-  @@map("content_reports")
-}
-
-enum EntityType {
-  POST
-  COMMENT
-  PRODUCT
-  REVIEW
-}
-
-enum ReportReason {
-  SPAM
-  HATE_SPEECH
-  PERSONAL_DATA
-  COPYRIGHT
-  INAPPROPRIATE
-  OTHER
-}
-
-enum ReportStatus {
-  PENDING
-  REVIEWED
-  RESOLVED
-  DISMISSED
-}
-
-// ===== NEWSLETTER =====
-model NewsletterSubscriber {
-  id             String    @id @default(cuid())
-  userId         String?
-  email          String    @unique
-  topicsJson     String?   // JSON array of topic IDs
-  doubleOptIn    Boolean   @default(false)
-  unsubscribedAt DateTime?
-  storeId        String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("newsletter_subscribers")
-}
-
-// ===== IMPORT/ONBOARDING SYSTEM =====
-model ImportJob {
-  id          String        @id @default(cuid())
-  sellerId    String
-  fileName    String
-  fileSize    Int
-  status      ImportStatus  @default(UPLOADING)
-  progress    Int           @default(0)
-  errorLog    String?
-  storeId     String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  items ImportItem[]
-
-  @@map("import_jobs")
-}
-
-model ImportItem {
-  id          String   @id @default(cuid())
-  importJobId String
-  rowNumber   Int
-  dataJson    String   // Raw CSV/Excel row data
-  status      ImportItemStatus @default(PENDING)
-  errorMsg    String?
-  productId   String?
-  storeId     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  importJob ImportJob @relation(fields: [importJobId], references: [id], onDelete: Cascade)
-  product   Product?  @relation(fields: [productId], references: [id])
-
-  @@map("import_items")
-}
-
-enum ImportStatus {
-  UPLOADING
-  MAPPING
-  VALIDATING
-  IMPORTING
-  DONE
-  FAILED
-}
-
-enum ImportItemStatus {
-  PENDING
-  MAPPED
-  VALIDATED
-  IMPORTED
-  FAILED
-}
-
-// ===== E-COMMERCE =====
-model Category {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  slug        String   @unique
-  description String?
-  parentId    String?
-  image       String?
-  isActive    Boolean  @default(true)
-  storeId     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
-  children Category[] @relation("CategoryHierarchy")
-  products Product[]
-
-  @@map("categories")
-}
-
+// === PRODUCT MANAGEMENT ===
 model Product {
   id          String   @id @default(cuid())
-  name        String
+  title       String
   slug        String   @unique
   description String?
-  price       Decimal  @db.Decimal(10, 2)
-  comparePrice Decimal? @db.Decimal(10, 2)
-  sku         String?  @unique
+  category    String   // Ana kategori (figur-koleksiyon, moda-aksesuar, etc.)
+  subcategory String?  // Alt kategori
+  price       Float
+  listPrice   Float? // İndirimli fiyat için
+  currency    String   @default("TRY")
   stock       Int      @default(0)
+  images      String[] @db.Text
+  attributes  Json?    // Renk, beden, malzeme vb.
+  tags        String[] @db.Text
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
   isActive    Boolean  @default(true)
-  categoryId  String
-  sellerId    String?
-  storeId     String?
+  
+  sellerId    String
+  seller      SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  wishlistItems WishlistItem[]
+  orderItems    OrderItem[]
+  reviews       Review[]
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  category    Category      @relation(fields: [categoryId], references: [id])
-  seller      User?         @relation(fields: [sellerId], references: [id])
-  variants    ProductVariant[]
-  images      ProductImage[]
-  cartItems   CartItem[]
-  orderItems  OrderItem[]
-  reviews     Review[]
-  qnaQuestions QnaQuestion[]
-  importItems ImportItem[]
-
-  @@map("products")
 }
 
-model ProductVariant {
-  id        String  @id @default(cuid())
-  productId String
-  name      String
-  sku       String? @unique
-  price     Decimal @db.Decimal(10, 2)
-  stock     Int     @default(0)
-  attributes Json?  // JSON object for variant attributes
-  storeId   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@map("product_variants")
-}
-
-model ProductImage {
-  id        String @id @default(cuid())
-  productId String
-  url       String
-  alt       String?
-  order     Int    @default(0)
-  storeId   String?
-  createdAt DateTime @default(now())
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@map("product_images")
-}
-
-// ===== SHOPPING CART =====
-model CartItem {
-  id        String   @id @default(cuid())
-  userId    String
-  productId String
-  quantity  Int      @default(1)
-  storeId   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, productId])
-  @@map("cart_items")
-}
-
-// ===== ORDERS & PAYMENTS =====
+// === ORDER MANAGEMENT ===
 model Order {
-  id          String      @id @default(cuid())
-  userId      String
-  orderNumber String      @unique
-  status      OrderStatus @default(PENDING)
-  total       Decimal     @db.Decimal(10, 2)
-  subtotal    Decimal     @db.Decimal(10, 2)
-  tax         Decimal     @db.Decimal(10, 2)
-  shipping    Decimal     @db.Decimal(10, 2)
-  commission  Decimal     @db.Decimal(10, 2) // Platform commission
-  storeId     String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-
-  user      User        @relation(fields: [userId], references: [id])
-  items     OrderItem[]
-  shipping  ShippingAddress?
-  payment   Payment?
-
-  @@map("orders")
+  id           String   @id @default(cuid())
+  orderNumber  String   @unique
+  userId       String
+  total        Float
+  currency     String   @default("TRY")
+  status       String   @default("pending") // pending|paid|shipped|delivered|refunded|cancelled
+  paymentRef   String?  // Ödeme sağlayıcı referansı
+  shippingAddress Json? // JSON olarak saklanan adres bilgileri
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items        OrderItem[]
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
+  id         String   @id @default(cuid())
+  orderId    String
+  productId  String
+  sellerId   String
+  title      String
+  unitPrice  Float
+  qty        Int
+  subtotal   Float
+  
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+// === PAYOUT MANAGEMENT ===
+model Payout {
+  id         String   @id @default(cuid())
+  sellerId   String?
+  influencerId String?
+  collabId   String?
+  amount     Float
+  currency   String   @default("TRY")
+  status     String   @default("scheduled") // scheduled|processing|paid|failed
+  meta       Json?    // Banka bilgileri, transfer detayları
+  processedAt DateTime?
+  
+  seller     SellerProfile? @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  collaboration Collaboration? @relation(fields: [collabId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+}
+
+// === USER ADDRESSES ===
+model Address {
+  id          String      @id @default(cuid())
+  userId      String
+  type        String      @default("shipping") // shipping|billing
+  firstName   String
+  lastName    String
+  company     String?
+  address1    String
+  address2    String?
+  city        String
+  state       String?
+  postalCode  String
+  country     String      @default("Turkey")
+  phone       String?
+  isDefault   Boolean     @default(false)
+  
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now())
+}
+
+// === WISHLIST ===
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
   productId String
-  quantity  Int
-  price     Decimal @db.Decimal(10, 2)
-  commission Decimal @db.Decimal(10, 2) // Item-level commission
-  storeId   String?
+  createdAt DateTime @default(now())
 
-  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@map("order_items")
+  @@unique([userId, productId])
 }
 
-model ShippingAddress {
-  id        String  @id @default(cuid())
-  orderId   String  @unique
-  firstName String
-  lastName  String
-  company   String?
-  address1  String
-  address2  String?
-  city      String
-  state     String?
-  zipCode   String
-  country   String
-  phone     String?
-  storeId   String?
-
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  @@map("shipping_addresses")
+// === REVIEWS ===
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  rating    Int      // 1-5
+  comment   String?
+  isVerified Boolean @default(false)
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  
+  @@unique([userId, productId])
 }
 
-model Payment {
-  id            String        @id @default(cuid())
-  orderId       String        @unique
-  method        PaymentMethod
-  status        PaymentStatus @default(PENDING)
-  amount        Decimal       @db.Decimal(10, 2)
-  transactionId String?
-  storeId       String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  @@map("payments")
+// === WEBHOOK EVENTS ===
+model WebhookEvent {
+  id        String   @id @default(cuid())
+  provider  String   // payment, shipping, etc.
+  type      String   // event type
+  payload   Json
+  processed Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
 }
 
-enum OrderStatus {
+// === NextAuth.js TABLES ===
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?  @db.Text
+  access_token      String?  @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?  @db.Text
+  session_state     String?
+  
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// === ADVERTISING & DOMAIN MANAGEMENT ===
+enum AdStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+enum DomainStatus {
   PENDING
-  CONFIRMED
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-  REFUNDED
+  VERIFYING
+  ACTIVE
+  REJECTED
 }
 
-enum PaymentMethod {
-  CREDIT_CARD
-  DEBIT_CARD
-  PAYPAL
-  IYZICO
-  BANK_TRANSFER
-  CASH_ON_DELIVERY
+enum LedgerType {
+  ORDER_PAID
+  ORDER_REFUND
+  PLATFORM_FEE
+  AD_SPEND
+  PAYOUT
+  ADJUSTMENT
 }
 
-enum PaymentStatus {
-  PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
-  REFUNDED
+enum Currency {
+  TRY
+  USD
+  EUR
 }
 
-// ===== COMMISSION & SETTLEMENT =====
-model CommissionRule {
+model StoreDomain {
+  id        String       @id @default(cuid())
+  sellerId  String
+  hostname  String       @unique
+  status    DomainStatus @default(PENDING)
+  dnsTarget String?      // örn: cname.vercel-dns.com veya <proje>.vercel.app
+  verifiedAt DateTime?
+  createdAt DateTime     @default(now())
+  seller    SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+model StoreTheme {
+  id            String   @id @default(cuid())
+  sellerId      String   @unique
+  logoUrl       String?
+  primaryColor  String?  // hex
+  heroImageUrls String[] @db.Text
+  headerLayout  String?  // "logo-left-under-header" vb.
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  seller        SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+model AdCampaign {
+  id         String   @id @default(cuid())
+  sellerId   String
+  name       String
+  dailyBudget Decimal @db.Decimal(12,2)
+  cpcMax     Decimal  @db.Decimal(12,2) // max teklif
+  keywords   String[] @db.Text          // hedef anahtar kelimeler
+  status     AdStatus @default(DRAFT)
+  spentToday Decimal  @db.Decimal(12,2) @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  seller     SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([sellerId, status])
+}
+
+model AdClick {
+  id         String  @id @default(cuid())
+  campaignId String
+  productId  String
+  cost       Decimal @db.Decimal(12,2)
+  ip         String?
+  ua         String?
+  createdAt  DateTime @default(now())
+}
+
+model KeywordRank {
+  id           String   @id @default(cuid())
+  productId    String
+  keyword      String
+  organicScore Float
+  updatedAt    DateTime @default(now())
+
+  @@index([keyword, organicScore])
+}
+
+model LedgerEntry {
+  id       String     @id @default(cuid())
+  sellerId String?
+  type     LedgerType
+  amount   Decimal    @db.Decimal(12,2)
+  currency Currency   @default(TRY)
+  meta     Json?
+  createdAt DateTime  @default(now())
+}
+
+model Invoice {
   id          String   @id @default(cuid())
-  name        String
-  type        CommissionType
-  rate        Decimal  @db.Decimal(5, 4) // 0.0700 = 7%
-  categoryId  String?
-  sellerId    String?
-  isActive    Boolean  @default(true)
-  storeId     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("commission_rules")
-}
-
-enum CommissionType {
-  STANDARD
-  PREMIUM
-  CATEGORY_SPECIFIC
-  SELLER_SPECIFIC
-}
-
-model SellerBalance {
-  id          String   @id @default(cuid())
-  sellerId    String   @unique
-  balance     Decimal  @db.Decimal(10, 2) @default(0)
-  pending     Decimal  @db.Decimal(10, 2) @default(0)
-  totalEarned Decimal  @db.Decimal(10, 2) @default(0)
-  storeId     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  payouts Payout[]
-
-  @@map("seller_balances")
-}
-
-model SettlementRun {
-  id          String   @id @default(cuid())
+  sellerId    String
   periodStart DateTime
   periodEnd   DateTime
-  status      SettlementStatus @default(PENDING)
-  totalAmount Decimal  @db.Decimal(10, 2)
-  totalOrders Int
-  storeId     String?
+  total       Decimal  @db.Decimal(12,2)
+  pdfUrl      String?
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  payouts Payout[]
-
-  @@map("settlement_runs")
 }
 
-enum SettlementStatus {
+model AdTarget {
+  id         String @id @default(cuid())
+  campaignId String
+  productId  String
+  weight     Int    @default(1)
+
+  @@index([campaignId, productId])
+}
+
+model DomainAllowance {
+  id            String   @id @default(cuid())
+  sellerId      String
+  years         Int      @default(1)  // kaç yıl domain hakkı
+  consumed      Boolean  @default(false)
+  grantedBySubId String?
+  createdAt     DateTime @default(now())
+  consumedAt    DateTime?
+
+  seller SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([sellerId, consumed])
+}
+
+enum InfluencerStatus {
   PENDING
-  PROCESSING
-  COMPLETED
-  FAILED
+  APPROVED
+  REJECTED
+  SUSPENDED
 }
 
-model Payout {
-  id              String   @id @default(cuid())
-  sellerId        String
-  settlementRunId String?
-  amount          Decimal  @db.Decimal(10, 2)
-  status          PayoutStatus @default(PENDING)
-  paidAt          DateTime?
-  storeId         String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+enum RateType {
+  POST
+  STORY
+  REEL
+  TIKTOK_VIDEO
+  LIVE
+  OTHER
+}
 
-  sellerBalance   SellerBalance @relation(fields: [sellerId], references: [sellerId])
-  settlementRun   SettlementRun? @relation(fields: [settlementRunId], references: [id])
-  lines           PayoutLine[]
-
-  @@map("payouts")
+enum CollabStatus {
+  REQUESTED
+  ACCEPTED
+  IN_PROGRESS
+  DELIVERED
+  DISPUTED
+  COMPLETED
+  CANCELED
 }
 
 enum PayoutStatus {
   PENDING
   PROCESSING
-  COMPLETED
+  PAID
   FAILED
 }
 
-model PayoutLine {
-  id        String  @id @default(cuid())
-  payoutId  String
-  orderId   String
-  amount    Decimal @db.Decimal(10, 2)
-  commission Decimal @db.Decimal(10, 2)
-  storeId   String?
-  createdAt DateTime @default(now())
-
-  payout Payout @relation(fields: [payoutId], references: [id], onDelete: Cascade)
-
-  @@map("payout_lines")
+enum MsgAuthor {
+  SELLER
+  INFLUENCER
+  ADMIN
 }
 
-// ===== RMA/RETURNS =====
-model ReturnRequest {
-  id          String        @id @default(cuid())
-  orderId     String
+model InfluencerApplication {
+  id          String   @id @default(cuid())
   userId      String
-  reason      String
-  status      ReturnStatus  @default(PENDING)
-  slaDeadline DateTime?
-  storeId     String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  evidence ReturnEvidence[]
-
-  @@map("return_requests")
-}
-
-model ReturnEvidence {
-  id              String @id @default(cuid())
-  returnRequestId String
-  type            EvidenceType
-  url             String
-  description     String?
-  storeId         String?
-  createdAt       DateTime @default(now())
-
-  returnRequest ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
-
-  @@map("return_evidence")
-}
-
-enum ReturnStatus {
-  PENDING
-  NEED_EVIDENCE
-  APPROVED
-  REJECTED
-  REFUNDED
-}
-
-enum EvidenceType {
-  PHOTO
-  VIDEO
-  DOCUMENT
-}
-
-// ===== ADVERTISING =====
-model AdCampaign {
-  id          String   @id @default(cuid())
-  name        String
-  budget      Decimal  @db.Decimal(10, 2)
-  spent       Decimal  @db.Decimal(10, 2) @default(0)
-  status      AdStatus @default(DRAFT)
-  startDate   DateTime
-  endDate     DateTime?
-  storeId     String?
+  platforms   String[] @db.Text
+  profileLinks String[] @db.Text
+  followers   Int?
+  engagement  Float?   // % olarak
+  niches      String[] @db.Text
+  note        String?
+  status      InfluencerStatus @default(PENDING)
+  reviewedBy  String?
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  budgets AdBudget[]
-
-  @@map("ad_campaigns")
 }
 
-model AdBudget {
-  id         String @id @default(cuid())
-  campaignId String
-  amount     Decimal @db.Decimal(10, 2)
-  spent      Decimal @db.Decimal(10, 2) @default(0)
-  storeId    String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model InfluencerProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  displayName  String
+  avatarUrl    String?
+  bio          String?
+  platforms    String[] @db.Text
+  profileLinks String[] @db.Text
+  followers    Int?
+  engagement   Float?
+  status       InfluencerStatus @default(APPROVED)
+  visible      Boolean  @default(true)
+  basePrice    Decimal? @db.Decimal(12,2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  campaign AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-
-  @@map("ad_budgets")
+  rates        InfluencerRate[]
+  collaborations Collaboration[]
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model AdImpression {
-  id        String   @id @default(cuid())
-  campaignId String
-  productId String?
-  position  Int
-  storeId   String?
-  createdAt DateTime @default(now())
-
-  @@map("ad_impressions")
-}
-
-model AdClick {
-  id         String   @id @default(cuid())
-  campaignId String
-  productId  String?
-  ipHash     String
-  userAgent  String?
-  storeId    String?
-  createdAt  DateTime @default(now())
-
-  @@map("ad_clicks")
-}
-
-enum AdStatus {
-  DRAFT
-  ACTIVE
-  PAUSED
-  COMPLETED
-  CANCELLED
-}
-
-// ===== SEARCH TELEMETRY =====
-model SearchLog {
-  id        String   @id @default(cuid())
-  query     String
-  filters   String?  // JSON filters
-  clickedId String?
-  position  Int?
-  storeId   String?
-  createdAt DateTime @default(now())
-
-  @@map("search_logs")
-}
-
-// ===== REVIEWS & Q&A =====
-model Review {
-  id        String   @id @default(cuid())
-  productId String
-  userId    String
-  rating    Int      // 1-5
-  title     String?
-  content   String
-  images    String?  // JSON array of image URLs
-  isVerified Boolean @default(false)
-  storeId   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([productId, userId])
-  @@map("reviews")
-}
-
-model QnaQuestion {
-  id        String   @id @default(cuid())
-  productId String
-  userId    String
-  question  String
-  storeId   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  product Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  answers QnaAnswer[]
-
-  @@map("qna_questions")
-}
-
-model QnaAnswer {
-  id         String   @id @default(cuid())
-  questionId String
-  userId     String
-  answer     String
-  isSeller   Boolean  @default(false)
-  storeId    String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  question QnaQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("qna_answers")
-}
-
-// ===== BANKING & ACCOUNTING =====
-model BankAccount {
-  id          String   @id @default(cuid())
-  name        String
-  accountNumber String
-  bankName    String
-  currency    String   @default("TRY")
-  isActive    Boolean  @default(true)
-  storeId     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  statements BankStmt[]
-
-  @@map("bank_accounts")
-}
-
-model BankStmt {
+model InfluencerRate {
   id            String   @id @default(cuid())
-  bankAccountId String
-  date          DateTime
-  balance       Decimal  @db.Decimal(10, 2)
-  storeId       String?
+  influencerId  String
+  type          RateType
+  price         Decimal  @db.Decimal(12,2)
+  currency      Currency @default(TRY)
+  productId     String?  // ürün bazlı özel fiyat (opsiyonel)
+  influencer    InfluencerProfile @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+
+  @@index([influencerId, type])
+}
+
+model Collaboration {
+  id            String   @id @default(cuid())
+  sellerId      String
+  influencerId  String
+  productId     String
+  title         String
+  description   String?
+  deliverables  String[] @db.Text // "1 Reel + 1 Story" vb.
+  price         Decimal  @db.Decimal(12,2)
+  currency      Currency @default(TRY)
+  platformFeePct Float   @default(0.10)         // %10
+  status        CollabStatus @default(REQUESTED)
+  deadline      DateTime?
+  trackingSlug  String?   @unique
+  promoCode     String?
+  proofUrls     String[] @db.Text
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  bankAccount BankAccount @relation(fields: [bankAccountId], references: [id], onDelete: Cascade)
-  transactions BankTxn[]
+  influencer    InfluencerProfile @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  seller        SellerProfile     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  conversation  Conversation?
+  payouts       Payout[]
 
-  @@map("bank_statements")
+  @@index([status], map: "idx_collab_status")
 }
 
-model BankTxn {
-  id          String   @id @default(cuid())
-  statementId String
-  date        DateTime
-  description String
-  amount      Decimal  @db.Decimal(10, 2)
-  balance     Decimal  @db.Decimal(10, 2)
-  reference   String?
-  storeId     String?
-  createdAt   DateTime @default(now())
-
-  statement BankStmt @relation(fields: [statementId], references: [id], onDelete: Cascade)
-
-  @@map("bank_transactions")
+model Conversation {
+  id            String   @id @default(cuid())
+  collabId      String   @unique
+  sellerId      String
+  influencerId  String
+  createdAt     DateTime @default(now())
+  messages      Message[]
+  
+  collaboration Collaboration @relation(fields: [collabId], references: [id], onDelete: Cascade)
 }
 
-// ===== AI & VAT ASSISTANT =====
-model VatPeriod {
-  id          String   @id @default(cuid())
-  name        String
-  startDate   DateTime
-  endDate     DateTime
-  isClosed    Boolean  @default(false)
-  storeId     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  invoices Invoice[]
-
-  @@map("vat_periods")
-}
-
-model Invoice {
-  id          String   @id @default(cuid())
-  periodId    String
-  type        InvoiceType
-  number      String
-  amount      Decimal  @db.Decimal(10, 2)
-  vatRate     Decimal  @db.Decimal(5, 4)
-  vatAmount   Decimal  @db.Decimal(10, 2)
-  deductibility DeductibilityType
-  partialRate Decimal? @db.Decimal(5, 4)
-  storeId     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  period VatPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
-
-  @@map("invoices")
-}
-
-enum InvoiceType {
-  SALES
-  PURCHASE
-  EXPENSE
-}
-
-enum DeductibilityType {
-  FULL
-  PARTIAL
-  NONE
-}
-
-model AiSuggestion {
-  id          String   @id @default(cuid())
-  type        SuggestionType
-  title       String
-  description String
-  impactJson  String   // JSON impact data
-  confidence  Decimal  @db.Decimal(3, 2) // 0.00-1.00
-  isApplied   Boolean  @default(false)
-  storeId     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("ai_suggestions")
-}
-
-enum SuggestionType {
-  PRICING
-  SEO
-  INVENTORY
-  MARKETING
-  VAT
-}
-
-// ===== AUDIT & EVENTS =====
-model AuditLog {
-  id        String   @id @default(cuid())
-  actorId   String?
-  action    String
-  entity    String
-  entityId  String
-  oldValues String?  // JSON old values
-  newValues String?  // JSON new values
-  metaJson  String?  // JSON additional metadata
-  storeId   String?
-  createdAt DateTime @default(now())
-
-  actor User? @relation(fields: [actorId], references: [id])
-
-  @@map("audit_logs")
-}
-
-model EventOutbox {
-  id          String    @id @default(cuid())
-  eventType   String
-  payloadJson String
-  processedAt DateTime?
-  storeId     String?
-  createdAt   DateTime  @default(now())
-
-  @@map("event_outbox")
-}
-
-// ===== FX RATES =====
-model FxRate {
-  id        String   @id @default(cuid())
-  fromCurrency String
-  toCurrency   String
-  rate      Decimal  @db.Decimal(10, 6)
-  date      DateTime
-  storeId   String?
-  createdAt DateTime @default(now())
-
-  @@unique([fromCurrency, toCurrency, date])
-  @@map("fx_rates")
+model Message {
+  id            String @id @default(cuid())
+  conversationId String
+  author        MsgAuthor
+  text          String
+  attachments   String[] @db.Text
+  createdAt     DateTime @default(now())
+  conversation  Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }

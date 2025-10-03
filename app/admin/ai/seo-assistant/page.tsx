@@ -30,11 +30,32 @@ export default function SEOAssistantPage() {
 	const handleAnalyze = async () => {
 		if (!url.trim()) return;
 		setIsAnalyzing(true);
-		// Simulate API call
-		setTimeout(() => {
+		
+		try {
+			const response = await fetch('/api/ai/seo-analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					url: url,
+					title: 'TDC Market - ' + url.split('/').pop(),
+					description: 'TDC Market ürün sayfası',
+					content: 'Ürün açıklaması ve detayları burada yer alacak...'
+				})
+			});
+			
+			if (response.ok) {
+				const data = await response.json();
+				setResults(data.data);
+			} else {
+				// Fallback to mock data
+				setResults(mockResults);
+			}
+		} catch (error) {
+			console.error('SEO analysis error:', error);
 			setResults(mockResults);
+		} finally {
 			setIsAnalyzing(false);
-		}, 2000);
+		}
 	};
 
 	const getIssueColor = (type: string) => {

@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { auth } from '@/lib/auth';
 import Hero from '../../src/components/home/Hero';
 import CategoryStrip from '../../src/components/home/CategoryStrip';
 import CollectionStrip from '../../src/components/home/CollectionStrip';
@@ -35,9 +36,36 @@ export default async function HomePage() {
   revalidateTag('products');
   revalidateTag('blog');
 
+  // Get user session
+  const session = await auth();
+
   return (
     <main className="min-h-screen">
       <ClientShim />
+      
+      {/* Welcome Message for Authenticated Users */}
+      {session?.user && (
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center gap-3">
+              <img 
+                src={session.user.image ?? ""} 
+                alt={session.user.name ?? "User"} 
+                className="w-10 h-10 rounded-full border-2 border-white shadow-sm" 
+              />
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Merhaba, {session.user.name}!
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Hoş geldiniz! Size özel ürünleri keşfedin.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Hero Section */}
       <Hero />
       

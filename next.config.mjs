@@ -1,4 +1,14 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      { 
+        protocol: "https", 
+        hostname: "storage.googleapis.com", 
+        pathname: "/tdc-market-storage/**" 
+      }
+    ],
+  },
+};
 
 export default nextConfig;

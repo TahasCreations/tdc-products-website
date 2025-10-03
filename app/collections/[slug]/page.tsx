@@ -1,25 +1,34 @@
-export const dynamic = 'force-static'
+import { notFound } from 'next/navigation';
 
-interface Params { params: { slug: string } }
+const mockCollections = {
+  'anime-collection': {
+    name: 'Anime Koleksiyonu',
+    description: 'En popüler anime karakterlerinin figürleri ve aksesuarları'
+  },
+  'marvel-collection': {
+    name: 'Marvel Koleksiyonu',
+    description: 'Marvel evreninden karakterler ve özel ürünler'
+  },
+  'gaming-collection': {
+    name: 'Gaming Koleksiyonu',
+    description: 'Oyun dünyasından ürünler ve aksesuarlar'
+  }
+};
 
-export default function CollectionPage({ params }: Params) {
-	const { slug } = params
-	const title = slug.replace(/-/g, ' ')
+export default function CollectionPage({ params }: { params: { slug: string } }) {
+  const collection = mockCollections[params.slug as keyof typeof mockCollections];
+  
+  if (!collection) {
+    notFound();
+  }
 
-	return (
-		<div className="max-w-6xl mx-auto px-4 py-8">
-			<h1 className="text-2xl font-bold mb-4">Koleksiyon: {title}</h1>
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-				{Array.from({ length: 8 }).map((_, i) => (
-					<a key={i} href={`/product/${slug}-${i+1}`} className="border rounded-lg overflow-hidden hover:shadow-md transition">
-						<div className="bg-gray-100 aspect-square" />
-						<div className="p-3">
-							<div className="font-medium">Ürün {i+1}</div>
-							<div className="text-indigo-600 font-semibold mt-1">{((i+1)*199).toLocaleString('tr-TR')} ₺</div>
-						</div>
-					</a>
-				))}
-			</div>
-		</div>
-	)
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-4">{collection.name}</h1>
+      <p className="text-gray-600 mb-8">{collection.description}</p>
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <p className="text-gray-700">Bu koleksiyondaki ürünler burada listelenecek.</p>
+      </div>
+    </div>
+  );
 }

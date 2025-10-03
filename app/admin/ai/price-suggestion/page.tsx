@@ -39,10 +39,36 @@ export default function PriceSuggestionPage() {
 	const handleAnalyze = async () => {
 		if (!selectedProduct) return;
 		setIsAnalyzing(true);
-		setTimeout(() => {
+		
+		try {
+			const product = products.find(p => p.id === selectedProduct);
+			if (!product) return;
+			
+			const response = await fetch('/api/ai/price-suggestion', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					productId: selectedProduct,
+					currentPrice: parseFloat(product.currentPrice.replace('₺', '').replace(',', '.')),
+					category: 'figur-koleksiyon',
+					title: product.name,
+					description: 'Yüksek kaliteli koleksiyon ürünü'
+				})
+			});
+			
+			if (response.ok) {
+				const data = await response.json();
+				setResults(data.data);
+			} else {
+				// Fallback to mock data
+				setResults(mockResults);
+			}
+		} catch (error) {
+			console.error('Price suggestion error:', error);
 			setResults(mockResults);
+		} finally {
 			setIsAnalyzing(false);
-		}, 2000);
+		}
 	};
 
 	const getImpactColor = (impact: string) => {

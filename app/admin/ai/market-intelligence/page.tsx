@@ -4,6 +4,9 @@ import { useState } from 'react';
 
 export default function MarketIntelligencePage() {
 	const [activeTab, setActiveTab] = useState('overview');
+	const [selectedCategory, setSelectedCategory] = useState('figur-koleksiyon');
+	const [isAnalyzing, setIsAnalyzing] = useState(false);
+	const [results, setResults] = useState<any>(null);
 
 	const marketData = {
 		marketSize: 15600000000, // 15.6B TL
@@ -43,6 +46,35 @@ export default function MarketIntelligencePage() {
 			threat: 'low'
 		}
 	];
+
+	const handleAnalyze = async () => {
+		setIsAnalyzing(true);
+		
+		try {
+			const response = await fetch('/api/ai/market-intelligence', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					category: selectedCategory,
+					region: 'TR',
+					timeframe: '6months'
+				})
+			});
+			
+			if (response.ok) {
+				const data = await response.json();
+				setResults(data.data);
+			} else {
+				// Fallback to mock data
+				setResults({ marketOverview: marketData, competitors, opportunities: [], threats: [] });
+			}
+		} catch (error) {
+			console.error('Market intelligence error:', error);
+			setResults({ marketOverview: marketData, competitors, opportunities: [], threats: [] });
+		} finally {
+			setIsAnalyzing(false);
+		}
+	};
 
 	const trends = [
 		{
@@ -145,8 +177,32 @@ export default function MarketIntelligencePage() {
 					<p className="text-gray-600">Kapsamlı pazar analizi, rakip izleme ve trend takibi</p>
 				</div>
 				<div className="flex space-x-2">
-					<button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-						Veri Güncelle
+					<select 
+						value={selectedCategory}
+						onChange={(e) => setSelectedCategory(e.target.value)}
+						className="border rounded-lg px-3 py-2"
+					>
+						<option value="figur-koleksiyon">Figür & Koleksiyon</option>
+						<option value="moda-aksesuar">Moda & Aksesuar</option>
+						<option value="elektronik">Elektronik</option>
+						<option value="ev-yasam">Ev & Yaşam</option>
+					</select>
+					<button 
+						onClick={handleAnalyze}
+						disabled={isAnalyzing}
+						className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center space-x-2"
+					>
+						{isAnalyzing ? (
+							<>
+								<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+								<span>Analiz ediliyor...</span>
+							</>
+						) : (
+							<>
+								<span>📊</span>
+								<span>Pazar Analizi</span>
+							</>
+						)}
 					</button>
 					<button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
 						Rapor İndir
