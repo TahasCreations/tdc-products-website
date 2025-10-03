@@ -368,59 +368,6 @@ export default function ProductsPage({
           </p>
         </div>
 
-        {/* Quick Filters Bar */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Hızlı Filtreler</h2>
-            <button
-              onClick={() => setShowQuickFilters(!showQuickFilters)}
-              className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
-            >
-              {showQuickFilters ? 'Gizle' : 'Tümünü Göster'}
-            </button>
-          </div>
-          
-          <div className="flex flex-wrap gap-2 mb-4">
-            {/* Category Quick Filters */}
-            {mockCategories.slice(0, showQuickFilters ? mockCategories.length : 6).map((cat) => (
-              <a
-                key={cat.id}
-                href={`/products?category=${cat.slug}`}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                  category === cat.slug
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:border-indigo-300'
-                }`}
-              >
-                {cat.name} ({cat.count})
-              </a>
-            ))}
-          </div>
-
-          {/* Price Range Quick Filters */}
-          <div className="flex flex-wrap gap-2">
-            {[
-              { label: '0-100₺', min: 0, max: 100 },
-              { label: '100-500₺', min: 100, max: 500 },
-              { label: '500-1000₺', min: 500, max: 1000 },
-              { label: '1000₺+', min: 1000, max: undefined },
-              { label: 'Stokta Olanlar', special: 'inStock' }
-            ].map((filter) => (
-              <a
-                key={filter.label}
-                href={`/products?${filter.special ? 'inStock=true' : `minPrice=${filter.min}${filter.max ? `&maxPrice=${filter.max}` : ''}`}`}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                  (filter.special === 'inStock' && inStock) || 
-                  (!filter.special && minPrice === filter.min && maxPrice === filter.max)
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:border-indigo-300'
-                }`}
-              >
-                {filter.label}
-              </a>
-            ))}
-          </div>
-        </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Mobile Filters Trigger */}
@@ -436,93 +383,46 @@ export default function ProductsPage({
             </button>
           </div>
 
-          {/* Desktop Filters Sidebar - Compact Version */}
-          <div className="hidden lg:block lg:w-72 flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Filtreler</h3>
-                <button className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
-                  Temizle
-                </button>
-              </div>
+          {/* Desktop Filters Sidebar - Narrow Version */}
+          <div className="hidden lg:block lg:w-48 flex-shrink-0">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-4">
+              <h3 className="text-sm font-semibold text-gray-900 mb-4">Filtreler</h3>
               
-              {/* Compact Category Filter */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Kategoriler</h4>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {mockCategories.map((cat) => (
-                    <a
-                      key={cat.id}
-                      href={`/products?category=${cat.slug}`}
-                      className={`flex items-center justify-between p-2 rounded-lg text-sm transition-colors ${
-                        category === cat.slug
-                          ? 'bg-indigo-50 text-indigo-700'
-                          : 'hover:bg-gray-50 text-gray-700'
-                      }`}
-                    >
-                      <span>{cat.name}</span>
-                      <span className="text-xs text-gray-500">({cat.count})</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              {/* Compact Price Range */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Fiyat Aralığı</h4>
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      defaultValue={minPrice || ''}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Max"
-                      defaultValue={maxPrice || ''}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    />
-                  </div>
-                  <button className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
-                    Uygula
-                  </button>
+              {/* Price Range */}
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-700 mb-2">Fiyat Aralığı</h4>
+                <div className="space-y-2">
+                  <input
+                    type="number"
+                    placeholder="Min ₺"
+                    defaultValue={minPrice || ''}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max ₺"
+                    defaultValue={maxPrice || ''}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-transparent"
+                  />
                 </div>
               </div>
 
               {/* Stock Filter */}
-              <div className="mb-6">
-                <label className="flex items-center space-x-3 cursor-pointer">
+              <div className="mb-4">
+                <label className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="checkbox"
                     defaultChecked={inStock}
-                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    className="w-3 h-3 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                   />
-                  <span className="text-sm text-gray-700">Sadece stokta olanlar</span>
+                  <span className="text-xs text-gray-700">Stokta olanlar</span>
                 </label>
               </div>
 
-              {/* Seller Filter */}
-              <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Popüler Satıcılar</h4>
-                <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {mockSellers.slice(0, 5).map((sellerItem) => (
-                    <a
-                      key={sellerItem.id}
-                      href={`/products?seller=${sellerItem.slug}`}
-                      className={`flex items-center justify-between p-2 rounded-lg text-sm transition-colors ${
-                        seller === sellerItem.slug
-                          ? 'bg-indigo-50 text-indigo-700'
-                          : 'hover:bg-gray-50 text-gray-700'
-                      }`}
-                    >
-                      <span>{sellerItem.name}</span>
-                      <span className="text-xs text-gray-500">({sellerItem.count})</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
+              {/* Clear Filters */}
+              <button className="w-full text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+                Filtreleri Temizle
+              </button>
             </div>
           </div>
 

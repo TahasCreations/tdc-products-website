@@ -87,88 +87,93 @@ export default function Header() {
       title: 'Figür & Koleksiyon',
       description: 'Anime figürleri, film karakterleri ve koleksiyon ürünleri',
       categories: [
-        { name: 'Anime Figürleri', href: '/products?category=anime-figurleri', icon: 'zap' },
-        { name: 'Film/TV Figürleri', href: '/products?category=film-tv-figurleri', icon: 'film' },
-        { name: 'Dioramalar', href: '/products?category=dioramalar', icon: 'layers' },
-        { name: 'Koleksiyon Arabaları', href: '/products?category=koleksiyon-arabalari', icon: 'car' },
-        { name: 'Maket & Kitler', href: '/products?category=maket-kitler', icon: 'package' },
-        { name: 'Limited Edition', href: '/products?category=limited-edition', icon: 'star' },
-        { name: 'Aksesuar & Stand', href: '/products?category=figur-aksesuar', icon: 'box' }
+        { name: 'Anime Figürleri', href: '/products?category=anime-figurleri', icon: 'zap', subcategories: ['Naruto', 'One Piece', 'Dragon Ball', 'Attack on Titan', 'Demon Slayer', 'My Hero Academia'] },
+        { name: 'Film/TV Figürleri', href: '/products?category=film-tv-figurleri', icon: 'film', subcategories: ['Marvel', 'DC Comics', 'Star Wars', 'Harry Potter', 'Stranger Things', 'The Witcher'] },
+        { name: 'Dioramalar', href: '/products?category=dioramalar', icon: 'layers', subcategories: ['Savaş Sahnesi', 'Fantastik Dünya', 'Şehir Manzarası', 'Doğa Manzarası', 'Uzay Teması'] },
+        { name: 'Koleksiyon Arabaları', href: '/products?category=koleksiyon-arabalari', icon: 'car', subcategories: ['Formula 1', 'Klasik Arabalar', 'Spor Arabalar', 'SUV Modelleri', 'Retro Arabalar'] },
+        { name: 'Maket & Kitler', href: '/products?category=maket-kitler', icon: 'package', subcategories: ['Gundam', 'Tank Modelleri', 'Uçak Modelleri', 'Araba Modelleri', 'Gemi Modelleri'] },
+        { name: 'Limited Edition', href: '/products?category=limited-edition', icon: 'star', subcategories: ['Exclusive Figürler', 'Özel Renkler', 'Altın Seri', 'Platin Seri', 'Koleksiyoncu Özel'] },
+        { name: 'Aksesuar & Stand', href: '/products?category=figur-aksesuar', icon: 'box', subcategories: ['Figür Standları', 'LED Aydınlatma', 'Vitrin Kutusu', 'Temizlik Seti', 'Pozisyon Aksesuarları'] }
       ],
       featured: [
         { name: 'Naruto Uzumaki Figürü', href: '/products/naruto-uzumaki-figuru-shippuden', price: '₺299.99', image: 'https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=Naruto' },
-        { name: 'One Piece Luffy Figürü', href: '/products/one-piece-luffy-figuru-gear-4', price: '₺459.99', image: 'https://via.placeholder.com/150x150/FF9F43/FFFFFF?text=Luffy' }
+        { name: 'One Piece Luffy Figürü', href: '/products/one-piece-luffy-figuru-gear-4', price: '₺459.99', image: 'https://via.placeholder.com/150x150/FF9F43/FFFFFF?text=Luffy' },
+        { name: 'Iron Man Mark 85', href: '/products/iron-man-mark-85-figuru', price: '₺1299.99', image: 'https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=Iron+Man' }
       ]
     },
     'moda-aksesuar': {
       title: 'Moda & Aksesuar',
       description: 'Tişört, hoodie, şapka ve takı koleksiyonları',
       categories: [
-        { name: 'Tişört', href: '/products?category=tisort', icon: 'shirt' },
-        { name: 'Hoodie', href: '/products?category=hoodie', icon: 'shirt' },
-        { name: 'Şapka', href: '/products?category=sapka', icon: 'hat' },
-        { name: 'Takı & Bileklik', href: '/products?category=taki-bileklik', icon: 'gem' },
-        { name: 'Çanta & Cüzdan', href: '/products?category=canta-cuzdan', icon: 'bag' },
-        { name: 'Ayakkabı', href: '/products?category=ayakkabi', icon: 'shoe' }
+        { name: 'Tişört', href: '/products?category=tisort', icon: 'shirt', subcategories: ['Anime Tişört', 'Film Tişört', 'Oyun Tişört', 'Klasik Tişört', 'Vintage Tişört', 'Özel Tasarım'] },
+        { name: 'Hoodie', href: '/products?category=hoodie', icon: 'shirt', subcategories: ['Kapüşonlu', 'Zipsiz', 'Oversize', 'Klasik', 'Vintage', 'Özel Tasarım'] },
+        { name: 'Şapka', href: '/products?category=sapka', icon: 'hat', subcategories: ['Baseball Şapka', 'Beanie', 'Snapback', 'Trucker Şapka', 'Bucket Hat', 'Özel Tasarım'] },
+        { name: 'Takı & Bileklik', href: '/products?category=taki-bileklik', icon: 'gem', subcategories: ['Bileklik', 'Kolye', 'Küpe', 'Yüzük', 'Broş', 'Özel Tasarım'] },
+        { name: 'Çanta & Cüzdan', href: '/products?category=canta-cuzdan', icon: 'bag', subcategories: ['Sırt Çantası', 'El Çantası', 'Cüzdan', 'Kartlık', 'Telefon Kılıfı', 'Özel Tasarım'] },
+        { name: 'Ayakkabı', href: '/products?category=ayakkabi', icon: 'shoe', subcategories: ['Sneaker', 'Spor Ayakkabı', 'Klasik Ayakkabı', 'Bot', 'Sandalet', 'Özel Tasarım'] }
       ],
       featured: [
-        { name: 'Anime Tişört - Naruto', href: '/products/anime-tisort-naruto-collection', price: '₺89.99', image: 'https://via.placeholder.com/150x150/4ECDC4/FFFFFF?text=Naruto+T' }
+        { name: 'Anime Tişört - Naruto', href: '/products/anime-tisort-naruto-collection', price: '₺89.99', image: 'https://via.placeholder.com/150x150/4ECDC4/FFFFFF?text=Naruto+T' },
+        { name: 'One Piece Hoodie', href: '/products/one-piece-hoodie', price: '₺199.99', image: 'https://via.placeholder.com/150x150/FF9F43/FFFFFF?text=One+Piece+H' }
       ]
     },
     'elektronik': {
       title: 'Elektronik',
       description: 'Kulaklık, akıllı ev ürünleri ve elektronik aksesuarlar',
       categories: [
-        { name: 'Kulaklık', href: '/products?category=kulaklik', icon: 'headphones' },
-        { name: 'Akıllı Ev', href: '/products?category=akilli-ev', icon: 'home' },
-        { name: 'Aydınlatma', href: '/products?category=aydinlatma', icon: 'lightbulb' },
-        { name: 'Hobi Elektroniği', href: '/products?category=hobi-elektronigi', icon: 'cpu' },
-        { name: '3D Yazıcı Aksesuarları', href: '/products?category=3d-yazici-aksesuarlari', icon: 'printer' },
-        { name: 'Bilgisayar Aksesuarları', href: '/products?category=pc-aksesuar', icon: 'keyboard' },
-        { name: 'Giyilebilir Teknoloji', href: '/products?category=giyilebilir', icon: 'watch' }
+        { name: 'Kulaklık', href: '/products?category=kulaklik', icon: 'headphones', subcategories: ['Kablosuz Kulaklık', 'Gaming Kulaklık', 'Spor Kulaklık', 'Noise Cancelling', 'Bluetooth Kulaklık', 'Profesyonel'] },
+        { name: 'Akıllı Ev', href: '/products?category=akilli-ev', icon: 'home', subcategories: ['Akıllı Ampul', 'Akıllı Priz', 'Akıllı Sensör', 'Akıllı Kamera', 'Akıllı Hoparlör', 'Akıllı Termostat'] },
+        { name: 'Aydınlatma', href: '/products?category=aydinlatma', icon: 'lightbulb', subcategories: ['LED Şerit', 'RGB Aydınlatma', 'Masa Lambası', 'Duvar Aydınlatması', 'Bahçe Aydınlatması', 'Özel Tasarım'] },
+        { name: 'Hobi Elektroniği', href: '/products?category=hobi-elektronigi', icon: 'cpu', subcategories: ['Arduino Kitleri', 'Raspberry Pi', 'Sensörler', 'Motorlar', 'Kablo Setleri', 'Breadboard'] },
+        { name: '3D Yazıcı Aksesuarları', href: '/products?category=3d-yazici-aksesuarlari', icon: 'printer', subcategories: ['3D Yazıcı', 'Filament', 'Nozzle', 'Yatak Yüzeyi', 'Aksesuarlar', 'Yedek Parçalar'] },
+        { name: 'Bilgisayar Aksesuarları', href: '/products?category=pc-aksesuar', icon: 'keyboard', subcategories: ['Klavye', 'Mouse', 'Webcam', 'Mikrofon', 'Hoparlör', 'Monitör Standı'] },
+        { name: 'Giyilebilir Teknoloji', href: '/products?category=giyilebilir', icon: 'watch', subcategories: ['Akıllı Saat', 'Fitness Band', 'VR Gözlük', 'Akıllı Gözlük', 'Kulaklık', 'Özel Tasarım'] }
       ],
       featured: [
-        { name: 'Kablosuz Kulaklık', href: '/products/kablosuz-kulaklik-noise-cancelling', price: '₺899.99', image: 'https://via.placeholder.com/150x150/2C3E50/FFFFFF?text=Headphones' }
+        { name: 'Kablosuz Kulaklık', href: '/products/kablosuz-kulaklik-noise-cancelling', price: '₺899.99', image: 'https://via.placeholder.com/150x150/2C3E50/FFFFFF?text=Headphones' },
+        { name: 'LED Aydınlatma Seti', href: '/products/led-aydinlatma-seti-rgb', price: '₺149.99', image: 'https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=LED' }
       ]
     },
     'ev-yasam': {
       title: 'Ev & Yaşam',
       description: 'Dekorasyon, aydınlatma ve ev ürünleri',
       categories: [
-        { name: 'Dekor', href: '/products?category=dekor', icon: 'sparkles' },
-        { name: 'Mutfak', href: '/products?category=mutfak', icon: 'utensils' },
-        { name: 'Düzenleme', href: '/products?category=duzenleme', icon: 'box' },
-        { name: 'Banyo', href: '/products?category=banyo', icon: 'droplet' },
-        { name: 'Tekstil', href: '/products?category=ev-tekstil', icon: 'fabric' }
+        { name: 'Dekor', href: '/products?category=dekor', icon: 'sparkles', subcategories: ['Duvar Dekoru', 'Masa Dekoru', 'Raf Sistemi', 'Çerçeve', 'Süs Eşyaları', 'Özel Tasarım'] },
+        { name: 'Mutfak', href: '/products?category=mutfak', icon: 'utensils', subcategories: ['Mutfak Gereçleri', 'Pişirme Ekipmanları', 'Saklama Kapları', 'Mutfak Tekstili', 'Mutfak Aksesuarları', 'Özel Tasarım'] },
+        { name: 'Düzenleme', href: '/products?category=duzenleme', icon: 'box', subcategories: ['Saklama Kutuları', 'Dosyalama Sistemi', 'Raf Organizatörü', 'Çekmece Organizatörü', 'Askı Sistemleri', 'Özel Tasarım'] },
+        { name: 'Banyo', href: '/products?category=banyo', icon: 'droplet', subcategories: ['Banyo Aksesuarları', 'Havlu & Bornoz', 'Banyo Tekstili', 'Banyo Dekoru', 'Banyo Organizatörü', 'Özel Tasarım'] },
+        { name: 'Tekstil', href: '/products?category=ev-tekstil', icon: 'fabric', subcategories: ['Yatak Takımları', 'Yastık Kılıfları', 'Perde & Tül', 'Halı & Kilim', 'Battaniye', 'Özel Tasarım'] }
       ],
       featured: [
-        { name: 'LED Aydınlatma Seti', href: '/products/led-aydinlatma-seti-rgb', price: '₺149.99', image: 'https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=LED' }
+        { name: 'LED Aydınlatma Seti', href: '/products/led-aydinlatma-seti-rgb', price: '₺149.99', image: 'https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=LED' },
+        { name: 'Kişiye Özel Çerçeve', href: '/products/kisiye-ozel-fotograf-cercevesi', price: '₺79.99', image: 'https://via.placeholder.com/150x150/8E44AD/FFFFFF?text=Frame' }
       ]
     },
     'sanat-hobi': {
       title: 'Sanat & Hobi',
       description: 'Boya, tuval ve el sanatları malzemeleri',
       categories: [
-        { name: 'Boya & Fırça', href: '/products?category=boya-firca', icon: 'brush' },
-        { name: 'Tuval', href: '/products?category=tuval', icon: 'square' },
-        { name: '3D Baskı Malzemeleri', href: '/products?category=3d-baski-malzemeleri', icon: 'package' },
-        { name: 'El Sanatları', href: '/products?category=el-sanatlari', icon: 'scissors' },
-        { name: 'Kırtasiye', href: '/products?category=kirtasiye', icon: 'pen' },
-        { name: 'Model & Maket', href: '/products?category=model-maket', icon: 'cube' }
+        { name: 'Boya & Fırça', href: '/products?category=boya-firca', icon: 'brush', subcategories: ['Akrilik Boya', 'Sulu Boya', 'Yağlı Boya', 'Pastel Boya', 'Fırça Setleri', 'Palet'] },
+        { name: 'Tuval', href: '/products?category=tuval', icon: 'square', subcategories: ['Tuval Çeşitleri', 'Tuval Setleri', 'Tuval Çerçeveleri', 'Tuval Aksesuarları', 'Özel Boyutlar', 'Özel Tasarım'] },
+        { name: '3D Baskı Malzemeleri', href: '/products?category=3d-baski-malzemeleri', icon: 'package', subcategories: ['3D Yazıcı', 'Filament', 'Nozzle', 'Yatak Yüzeyi', 'Aksesuarlar', 'Yedek Parçalar'] },
+        { name: 'El Sanatları', href: '/products?category=el-sanatlari', icon: 'scissors', subcategories: ['Dikiş Malzemeleri', 'Örgü Malzemeleri', 'Takı Malzemeleri', 'Ahşap İşleme', 'Seramik', 'Özel Tasarım'] },
+        { name: 'Kırtasiye', href: '/products?category=kirtasiye', icon: 'pen', subcategories: ['Kalem Setleri', 'Defter & Bloknot', 'Çizim Malzemeleri', 'Ofis Gereçleri', 'Okul Malzemeleri', 'Özel Tasarım'] },
+        { name: 'Model & Maket', href: '/products?category=model-maket', icon: 'cube', subcategories: ['Gundam Kitleri', 'Tank Modelleri', 'Uçak Modelleri', 'Araba Modelleri', 'Gemi Modelleri', 'Özel Tasarım'] }
       ],
       featured: [
-        { name: 'Akrilik Boya Seti', href: '/products/akrilik-boya-seti-24-renk', price: '₺199.99', image: 'https://via.placeholder.com/150x150/FF9F43/FFFFFF?text=Paint' }
+        { name: 'Akrilik Boya Seti', href: '/products/akrilik-boya-seti-24-renk', price: '₺199.99', image: 'https://via.placeholder.com/150x150/FF9F43/FFFFFF?text=Paint' },
+        { name: 'Gundam Model Kit', href: '/products/gundam-model-kit', price: '₺299.99', image: 'https://via.placeholder.com/150x150/4F46E5/FFFFFF?text=Gundam' }
       ]
     },
     'hediyelik': {
       title: 'Hediyelik',
       description: 'Kişiye özel hediyeler ve özel gün setleri',
       categories: [
-        { name: 'Kişiye Özel', href: '/products?category=kisiye-ozel', icon: 'user' },
-        { name: 'Doğum Günü', href: '/products?category=dogum-gunu', icon: 'cake' },
-        { name: 'Özel Gün Setleri', href: '/products?category=ozel-gun-setleri', icon: 'gift' },
-        { name: 'Kart & Aksesuar', href: '/products?category=hediye-kart-aksesuar', icon: 'credit-card' },
-        { name: 'Kurumsal Hediyeler', href: '/products?category=kurumsal-hediye', icon: 'briefcase' }
+        { name: 'Kişiye Özel', href: '/products?category=kisiye-ozel', icon: 'user', subcategories: ['Kişiye Özel Çerçeve', 'Kişiye Özel Tişört', 'Kişiye Özel Kupa', 'Kişiye Özel Takı', 'Kişiye Özel Çanta', 'Özel Tasarım'] },
+        { name: 'Doğum Günü', href: '/products?category=dogum-gunu', icon: 'cake', subcategories: ['Doğum Günü Setleri', 'Doğum Günü Kartları', 'Doğum Günü Süsleri', 'Doğum Günü Hediyeleri', 'Doğum Günü Parti', 'Özel Tasarım'] },
+        { name: 'Özel Gün Setleri', href: '/products?category=ozel-gun-setleri', icon: 'gift', subcategories: ['Sevgililer Günü', 'Anneler Günü', 'Babalar Günü', 'Yılbaşı Setleri', 'Bayram Setleri', 'Özel Tasarım'] },
+        { name: 'Kart & Aksesuar', href: '/products?category=hediye-kart-aksesuar', icon: 'credit-card', subcategories: ['Hediye Kartları', 'Kart Aksesuarları', 'Hediye Paketleri', 'Kurdele & Fiyonk', 'Hediye Etiketleri', 'Özel Tasarım'] },
+        { name: 'Kurumsal Hediyeler', href: '/products?category=kurumsal-hediye', icon: 'briefcase', subcategories: ['Kurumsal Hediye Setleri', 'Promosyon Ürünleri', 'Özel Gün Hediyeleri', 'Kurumsal Kartlar', 'Kurumsal Aksesuarlar', 'Özel Tasarım'] }
       ],
       featured: [
         { name: 'Kişiye Özel Çerçeve', href: '/products/kisiye-ozel-fotograf-cercevesi', price: '₺79.99', image: 'https://via.placeholder.com/150x150/8E44AD/FFFFFF?text=Frame' },
@@ -536,18 +541,36 @@ export default function Header() {
                                 <div className="col-span-8">
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4">{menuData.title}</h3>
                                   <p className="text-gray-600 mb-6">{menuData.description}</p>
-                                  <div className="grid grid-cols-2 gap-4">
+                                  <div className="grid grid-cols-2 gap-6">
                                     {menuData.categories.map((category, catIndex) => (
-                                      <Link
-                                        key={category.href}
-                                        href={category.href}
-                                        className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
-                                      >
-                                        <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-                                          <span className="text-indigo-600 text-sm">📦</span>
-                                        </div>
-                                        <span className="text-gray-700 group-hover:text-indigo-600 transition-colors">{category.name}</span>
-                                      </Link>
+                                      <div key={category.href} className="space-y-2">
+                                        <Link
+                                          href={category.href}
+                                          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
+                                        >
+                                          <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                                            <span className="text-indigo-600 text-sm">📦</span>
+                                          </div>
+                                          <span className="text-gray-700 group-hover:text-indigo-600 transition-colors font-medium">{category.name}</span>
+                                        </Link>
+                                        {/* Subcategories */}
+                                        {category.subcategories && (
+                                          <div className="ml-11 space-y-1">
+                                            {category.subcategories.slice(0, 4).map((subcategory, subIndex) => (
+                                              <Link
+                                                key={subIndex}
+                                                href={`${category.href}&subcategory=${subcategory.toLowerCase().replace(/\s+/g, '-')}`}
+                                                className="block text-xs text-gray-600 hover:text-indigo-600 transition-colors py-1"
+                                              >
+                                                {subcategory}
+                                              </Link>
+                                            ))}
+                                            {category.subcategories.length > 4 && (
+                                              <span className="text-xs text-gray-400">+{category.subcategories.length - 4} daha</span>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
                                     ))}
                                   </div>
                                 </div>
