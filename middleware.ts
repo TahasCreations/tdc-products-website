@@ -5,6 +5,11 @@ import type { NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
   
+  // Never block NextAuth routes
+  if (url.pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+
   // Simplified middleware without auth for now
   // TODO: Implement proper auth middleware
   

@@ -4,6 +4,11 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // Never interfere with NextAuth routes
+  if (pathname.startsWith('/api/auth')) {
+    return NextResponse.next();
+  }
+  
   // Admin routes protection (except login page)
   if (pathname.startsWith('/admin') && pathname !== '/admin') {
     const adminAuth = request.cookies.get('adminAuth')?.value;

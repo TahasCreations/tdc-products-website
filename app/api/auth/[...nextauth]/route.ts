@@ -1,7 +1,7 @@
 // /app/api/auth/[...nextauth]/route.ts
-import NextAuth from "../../../../src/lib/auth";
+import nextAuth from "@/lib/auth";
 
-export const { GET, POST } = NextAuth;
+export const { GET, POST } = nextAuth as any;
 
 // Prisma Client Edge'de çalışmaz, Node.js runtime kullan
 export const runtime = "nodejs";

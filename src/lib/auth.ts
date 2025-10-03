@@ -33,5 +33,5 @@ const nextAuth = NextAuth({
   },
 });
 
+export const { handlers, auth, signIn, signOut } = nextAuth;
 export default nextAuth;
-export const { auth, signIn, signOut } = nextAuth;
