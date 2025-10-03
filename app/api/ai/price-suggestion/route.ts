@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-import { requireRole } from "@/src/lib/guards";
-import { aiGenerateText } from "@/src/lib/ai";
+import { requireRole } from "@/lib/guards";
+import { aiGenerateText } from "@/lib/ai";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();

@@ -1,4 +1,4 @@
-import { requireSeller } from '@/src/lib/guards';
+import { requireSeller } from '@/lib/guards';
 import { PrismaClient } from '@prisma/client';
 import { motion } from 'framer-motion';
 

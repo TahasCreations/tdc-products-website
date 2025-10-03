@@ -1,4 +1,4 @@
-import { requireRole } from "@/src/lib/guards";
+import { requireRole } from "@/lib/guards";
 
 export default async function FraudDetectionPage() {
   await requireRole("ADMIN");

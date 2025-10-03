@@ -29,37 +29,6 @@ export async function requireRole(...roles: Array<"BUYER" | "SELLER" | "ADMIN">)
   return user;
 }
 
-export async function requireInfluencerApproved() {
-  const { user } = await auth();
-  if (!user) throw new Error("auth_required");
-  const inf = await prisma.influencerProfile.findUnique({ where: { userId: (user as any).id } });
-  if (!inf || inf.status !== "APPROVED") throw new Error("forbidden");
-  return { user, inf };
-}
-
-export async function isInfluencerApproved(userId: string) {
-  const inf = await prisma.influencerProfile.findUnique({ where: { userId } });
-  return !!inf && inf.status === "APPROVED";
-}
-
-export async function requireInfluencer(userId?: string) {
-  const session = await auth();
-  if (!session?.user) throw new Error("auth_required");
-  const uid = userId || (session.user as any).id;
-  const prisma = new PrismaClient();
-  const prof = await prisma.influencerProfile.findUnique({ where: { userId: uid } });
-  if (!prof || prof.status !== "APPROVED") throw new Error("forbidden");
-  return { userId: uid, profileId: prof.id };
-}
-
-export function platformFee(amount: number) { 
-  return Number((amount * 0.10).toFixed(2)); 
-}
-
-export function influencerTake(amount: number) { 
-  return Number((amount * 0.90).toFixed(2)); 
-}
-
 export async function requireAdmin() {
   return await requireRole("ADMIN");
 }
@@ -122,6 +91,7 @@ export async function requireSellerOwnership(sellerId: string) {
   return user;
 }
 
+// Influencer functions
 export async function requireInfluencerApproved() {
   const { user } = await auth();
   if (!user) throw new Error("auth_required");
@@ -198,33 +168,5 @@ export async function requireEntitlement(entitlement: string) {
   return user;
 }
 
-export async function requireInfluencerApproved() {
-  const { user } = await auth();
-  if (!user) throw new Error("auth_required");
-  const inf = await prisma.influencerProfile.findUnique({ where: { userId: (user as any).id } });
-  if (!inf || inf.status !== "APPROVED") throw new Error("forbidden");
-  return { user, inf };
-}
-
-export async function isInfluencerApproved(userId: string) {
-  const inf = await prisma.influencerProfile.findUnique({ where: { userId } });
-  return !!inf && inf.status === "APPROVED";
-}
-
-export async function requireInfluencer(userId?: string) {
-  const session = await auth();
-  if (!session?.user) throw new Error("auth_required");
-  const uid = userId || (session.user as any).id;
-  const prisma = new PrismaClient();
-  const prof = await prisma.influencerProfile.findUnique({ where: { userId: uid } });
-  if (!prof || prof.status !== "APPROVED") throw new Error("forbidden");
-  return { userId: uid, profileId: prof.id };
-}
-
-export function platformFee(amount: number) { 
-  return Number((amount * 0.10).toFixed(2)); 
-}
-
-export function influencerTake(amount: number) { 
-  return Number((amount * 0.90).toFixed(2)); 
-}
+// Export auth function for compatibility
+export { auth } from '@/lib/auth';

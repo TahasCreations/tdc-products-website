@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { shouldRateLimitClick } from "@/src/lib/ads";
+import { shouldRateLimitClick } from "@/lib/ads";
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {

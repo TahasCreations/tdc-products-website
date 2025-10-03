@@ -64,11 +64,11 @@ export default function SalesReportPage() {
 
   const handleExport = () => {
     const csvData = entries.map(entry => ({
-      Tarih: new Date(entry.createdAt).toLocaleDateString('tr-TR'),
-      Tip: entry.type === 'ORDER_PAID' ? 'Satış' : 'İade',
-      Tutar: entry.amount,
-      Para Birimi: entry.currency,
-      Sipariş: entry.meta?.orderId || ''
+      'Tarih': new Date(entry.createdAt).toLocaleDateString('tr-TR'),
+      'Tip': entry.type === 'ORDER_PAID' ? 'Satış' : 'İade',
+      'Tutar': entry.amount,
+      'Para Birimi': entry.currency,
+      'Sipariş': entry.meta?.orderId || ''
     }));
     
     const csv = generateCSV(csvData, 'sales-report');

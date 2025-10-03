@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { requireAdmin } from '@/src/lib/guards';
+import { requireAdmin } from '@/lib/guards';
 
 interface InfluencerApplication {
   id: string;

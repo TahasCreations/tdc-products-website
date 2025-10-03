@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
-import { auth } from "@/src/lib/auth";
-import { bucket } from "@/src/lib/gcs";
+import { auth } from "@/lib/auth";
+import { bucket } from "@/lib/gcs";
 
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 const MAX_MB = 10;

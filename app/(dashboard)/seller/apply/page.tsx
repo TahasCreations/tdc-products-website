@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useFormState } from 'react-dom';
 import { applySeller } from './actions';
 import { motion } from 'framer-motion';
-import ImageUpload from '@/src/components/upload/ImageUpload';
+import ImageUpload from '@/components/upload/ImageUpload';
 
 export default function SellerApplyPage() {
   const [state, formAction] = useFormState(applySeller, { ok: false, error: null });

@@ -64,11 +64,11 @@ export default function AdsReportPage() {
 
   const handleExport = () => {
     const csvData = entries.map(entry => ({
-      Tarih: new Date(entry.createdAt).toLocaleDateString('tr-TR'),
-      Tutar: entry.amount,
-      Para Birimi: entry.currency,
-      Kampanya: entry.meta?.campaignId || '',
-      Ürün: entry.meta?.productId || ''
+      'Tarih': new Date(entry.createdAt).toLocaleDateString('tr-TR'),
+      'Tutar': entry.amount,
+      'Para Birimi': entry.currency,
+      'Kampanya': entry.meta?.campaignId || '',
+      'Ürün': entry.meta?.productId || ''
     }));
     
     const csv = generateCSV(csvData, 'ads-report');

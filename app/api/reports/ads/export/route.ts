@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { requireRole } from "@/src/lib/guards";
-import { generateCSV } from "@/src/lib/csv";
+import { requireRole } from "@/lib/guards";
+import { generateCSV } from "@/lib/csv";
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {

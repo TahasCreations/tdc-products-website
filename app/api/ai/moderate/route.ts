@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-import { auth } from "@/src/lib/auth";
-import { aiGenerateText } from "@/src/lib/ai";
+import { auth } from "@/lib/auth";
+import { aiGenerateText } from "@/lib/ai";
 
 export async function POST(req: NextRequest) {
   const session = await auth();

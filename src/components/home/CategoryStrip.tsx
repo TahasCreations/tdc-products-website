@@ -16,7 +16,7 @@ export default function CategoryStrip() {
   return (
     <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 relative overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40"></div>
+      <div className="absolute inset-0 bg-gray-100/20 opacity-40"></div>
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -71,11 +71,11 @@ export default function CategoryStrip() {
                 className="group block p-6 bg-white/70 backdrop-blur-sm rounded-3xl border border-white/50 hover:bg-white/90 transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/10 relative overflow-hidden"
               >
                 {/* Gradient Overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-br from-${category.color}-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-${category.color}-500/5 group-hover:via-purple-500/5 group-hover:to-pink-500/5 transition-all duration-500`}></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-gray-500/5 group-hover:via-purple-500/5 group-hover:to-pink-500/5 transition-all duration-500"></div>
                 
                 <div className="relative z-10 text-center">
                   <motion.div 
-                    className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 bg-gradient-to-br from-${category.color}-100 to-purple-100 rounded-2xl flex items-center justify-center group-hover:from-${category.color}-200 group-hover:to-purple-200 transition-all duration-500 shadow-lg group-hover:shadow-xl`}
+                    className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl flex items-center justify-center group-hover:from-indigo-200 group-hover:to-purple-200 transition-all duration-500 shadow-lg group-hover:shadow-xl"
                     whileHover={{ rotate: 5 }}
                   >
                     <span className="text-3xl sm:text-4xl group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
@@ -86,7 +86,7 @@ export default function CategoryStrip() {
                   </h3>
                   
                   <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
-                    <span className={`w-2 h-2 bg-gradient-to-r from-${category.color}-400 to-purple-400 rounded-full`}></span>
+                    <span className="w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></span>
                     <span>{category.count} ürün</span>
                   </div>
                   

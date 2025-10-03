@@ -1,4 +1,4 @@
-import { GoogleLoginButton } from '@/src/components/auth/GoogleLoginButton';
+import GoogleLoginButton from '@/components/auth/GoogleLoginButton';
 import { motion } from 'framer-motion';
 
 export default function LoginPage() {

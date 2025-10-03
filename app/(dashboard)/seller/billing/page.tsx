@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { PLANS, ENTITLEMENTS_DESC } from '@/src/lib/billing';
+import { BILLING_PLANS as PLANS, ENTITLEMENTS_DESC } from '@/lib/billing';
 
 interface Subscription {
   id: string;

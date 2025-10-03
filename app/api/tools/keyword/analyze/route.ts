@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-import { requireRole, requireEntitlement } from "@/src/lib/guards";
-import { aiGenerateText, aiEmbed } from "@/src/lib/ai";
+import { requireRole, requireEntitlement } from "@/lib/guards";
+import { aiGenerateText, aiEmbed } from "@/lib/ai";
 
 export async function POST(req: NextRequest) {
   await requireRole("SELLER","ADMIN");

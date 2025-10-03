@@ -64,11 +64,11 @@ export default function PayoutsReportPage() {
 
   const handleExport = () => {
     const csvData = entries.map(entry => ({
-      Tarih: new Date(entry.createdAt).toLocaleDateString('tr-TR'),
-      Tutar: entry.amount,
-      Para Birimi: entry.currency,
-      Yöntem: entry.meta?.method || '',
-      Referans: entry.meta?.reference || ''
+      'Tarih': new Date(entry.createdAt).toLocaleDateString('tr-TR'),
+      'Tutar': entry.amount,
+      'Para Birimi': entry.currency,
+      'Yöntem': entry.meta?.method || '',
+      'Referans': entry.meta?.reference || ''
     }));
     
     const csv = generateCSV(csvData, 'payouts-report');

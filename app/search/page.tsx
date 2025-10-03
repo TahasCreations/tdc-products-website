@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { gcsObjectPublicUrl } from '@/src/lib/gcs';
+// import { gcsObjectPublicUrl } from '@/lib/gcs';
 
 interface SearchItem {
   type: 'ad' | 'organic';
@@ -126,7 +126,7 @@ export default function SearchPage() {
                   <div className="p-4">
                     <div className="aspect-square mb-4 bg-gray-100 rounded-lg flex items-center justify-center">
                       <img
-                        src={item.product?.images?.[0] ? gcsObjectPublicUrl(item.product.images[0]) : 'https://via.placeholder.com/200x200/CCCCCC/FFFFFF?text=Ürün'}
+                        src={item.product?.images?.[0] ? item.product.images[0] : 'https://via.placeholder.com/200x200/CCCCCC/FFFFFF?text=Ürün'}
                         alt={item.product?.title || 'Ürün'}
                         className="w-full h-full object-cover rounded-lg"
                       />
@@ -156,7 +156,7 @@ export default function SearchPage() {
                   <div className="p-4">
                     <div className="aspect-square mb-4 bg-gray-100 rounded-lg flex items-center justify-center">
                       <img
-                        src={item.product?.images?.[0] ? gcsObjectPublicUrl(item.product.images[0]) : 'https://via.placeholder.com/200x200/CCCCCC/FFFFFF?text=Ürün'}
+                        src={item.product?.images?.[0] ? item.product.images[0] : 'https://via.placeholder.com/200x200/CCCCCC/FFFFFF?text=Ürün'}
                         alt={item.product?.title || 'Ürün'}
                         className="w-full h-full object-cover rounded-lg"
                       />

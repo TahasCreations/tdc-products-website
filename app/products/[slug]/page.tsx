@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { gcsObjectPublicUrl } from '@/src/lib/gcs';
+import { gcsObjectPublicUrl } from '@/lib/gcs';
 
 const mockProducts = {
   'naruto-uzumaki-figuru-shippuden': {

@@ -1,8 +1,8 @@
-import { requireSeller } from '@/src/lib/guards';
+import { requireSeller } from '@/lib/guards';
 import { PrismaClient } from '@prisma/client';
 import { motion } from 'framer-motion';
-import ProductCreateForm from '@/src/components/products/ProductCreateForm';
-import { gcsObjectPublicUrl } from '@/src/lib/gcs';
+import ProductCreateForm from '@/components/products/ProductCreateForm';
+import { gcsObjectPublicUrl } from '@/lib/gcs';
 
 const prisma = new PrismaClient();
 

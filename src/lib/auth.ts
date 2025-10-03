@@ -6,10 +6,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const {
-  handlers: { GET, POST },
-  auth,
-} = NextAuth({
+const nextAuth = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "database" }, // DB tabanlı session
   providers: [
@@ -29,3 +26,5 @@ export const {
     },
   },
 });
+
+export const { handlers, auth, signIn, signOut } = nextAuth;

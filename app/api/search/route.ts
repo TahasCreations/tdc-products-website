@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-import { searchProducts } from "@/src/lib/search";
-import { serveAdsForQuery } from "@/src/lib/ads";
-import { checkRateLimit, getRateLimitHeaders } from "@/src/lib/rate-limit";
+import { searchProducts } from "@/lib/search";
+import { serveAdsForQuery } from "@/lib/ads";
+import { checkRateLimit, getRateLimitHeaders } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   // Rate limiting

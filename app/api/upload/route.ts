@@ -1,7 +1,7 @@
 // /app/api/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { requireUser } from '@/src/lib/guards';
-import { uploadFile, validateFileSize, validateFileType, ALLOWED_IMAGE_TYPES, ALLOWED_DOCUMENT_TYPES } from '@/src/lib/storage';
+import { requireUser } from '@/lib/guards';
+import { uploadFile, validateFileSize, validateFileType, ALLOWED_IMAGE_TYPES, ALLOWED_DOCUMENT_TYPES } from '@/lib/storage';
 
 export const runtime = "nodejs";
 

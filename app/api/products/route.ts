@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { auth } from "@/src/lib/auth";
+import { auth } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 

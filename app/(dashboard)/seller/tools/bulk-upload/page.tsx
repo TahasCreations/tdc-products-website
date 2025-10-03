@@ -1,4 +1,4 @@
-import { requireRole, requireEntitlement } from "@/src/lib/guards";
+import { requireRole, requireEntitlement } from "@/lib/guards";
 
 export default async function BulkUploadPage() {
   await requireRole("SELLER", "ADMIN");

@@ -1,289 +1,358 @@
-"use client";
-import { useState } from "react";
-import { motion } from "framer-motion";
+'use client';
 
-export default function ProductCreateForm() {
-  const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [category, setCategory] = useState("figur-koleksiyon");
-  const [subcategory, setSubcategory] = useState("");
-  const [price, setPrice] = useState<number>(0);
-  const [stock, setStock] = useState<number>(0);
-  const [description, setDescription] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import ImageUpload from '@/components/upload/ImageUpload';
 
-  const categories = [
-    { value: "figur-koleksiyon", label: "Figür & Koleksiyon" },
-    { value: "moda-aksesuar", label: "Moda & Aksesuar" },
-    { value: "elektronik", label: "Elektronik" },
-    { value: "ev-yasam", label: "Ev & Yaşam" },
-    { value: "sanat-hobi", label: "Sanat & Hobi" },
-    { value: "hediyelik", label: "Hediyelik" },
-  ];
+interface ProductFormData {
+  title: string;
+  description: string;
+  price: number;
+  listPrice?: number;
+  category: string;
+  stock: number;
+  images: string[];
+  tags: string[];
+  attributes: Record<string, string>;
+}
 
-  async function handleSubmit(e: React.FormEvent) {
+interface ProductCreateFormProps {
+  onSubmit: (data: ProductFormData) => void;
+  loading?: boolean;
+  initialData?: Partial<ProductFormData>;
+}
+
+export default function ProductCreateForm({ 
+  onSubmit, 
+  loading = false, 
+  initialData = {} 
+}: ProductCreateFormProps) {
+  const [formData, setFormData] = useState<ProductFormData>({
+    title: initialData.title || '',
+    description: initialData.description || '',
+    price: initialData.price || 0,
+    listPrice: initialData.listPrice || 0,
+    category: initialData.category || '',
+    stock: initialData.stock || 0,
+    images: initialData.images || [],
+    tags: initialData.tags || [],
+    attributes: initialData.attributes || {},
+    ...initialData
+  });
+
+  const [tagInput, setTagInput] = useState('');
+  const [attributeKey, setAttributeKey] = useState('');
+  const [attributeValue, setAttributeValue] = useState('');
+
+  const handleInputChange = (field: keyof ProductFormData, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleImageSelect = (imageUrl: string) => {
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, imageUrl]
+    }));
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addTag = () => {
+    if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, tagInput.trim()]
+      }));
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tag: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(t => t !== tag)
+    }));
+  };
+
+  const addAttribute = () => {
+    if (attributeKey.trim() && attributeValue.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        attributes: {
+          ...prev.attributes,
+          [attributeKey.trim()]: attributeValue.trim()
+        }
+      }));
+      setAttributeKey('');
+      setAttributeValue('');
+    }
+  };
+
+  const removeAttribute = (key: string) => {
+    setFormData(prev => {
+      const newAttributes = { ...prev.attributes };
+      delete newAttributes[key];
+      return {
+        ...prev,
+        attributes: newAttributes
+      };
+    });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    if (!file) {
-      setError("Lütfen bir görsel seçin");
-      setLoading(false);
-      return;
-    }
-
-    if (!title || !slug || !category || !price) {
-      setError("Lütfen tüm gerekli alanları doldurun");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      // 1) İmzalı upload URL al
-      const uploadResponse = await fetch("/api/uploads/signed-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          fileName: file.name, 
-          contentType: file.type, 
-          size: file.size,
-          prefix: "products" 
-        }),
-      });
-
-      if (!uploadResponse.ok) {
-        const errorText = await uploadResponse.text();
-        throw new Error(`Upload URL alınamadı: ${errorText}`);
-      }
-
-      const { uploadUrl, objectPath } = await uploadResponse.json();
-
-      // 2) Dosyayı GCS'ye yükle
-      const uploadResult = await fetch(uploadUrl, { 
-        method: "PUT", 
-        headers: { "Content-Type": file.type }, 
-        body: file 
-      });
-
-      if (!uploadResult.ok) {
-        throw new Error("Dosya yüklenemedi");
-      }
-
-      // 3) Ürün kaydı (objectPath'i images[] içine yaz)
-      const productResponse = await fetch("/api/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          title, 
-          slug, 
-          category, 
-          subcategory: subcategory || null,
-          price, 
-          stock,
-          description: description || null,
-          images: [objectPath], // Sadece objectPath, tam URL değil
-          attributes: {}
-        }),
-      });
-
-      if (!productResponse.ok) {
-        const errorText = await productResponse.text();
-        throw new Error(`Ürün oluşturulamadı: ${errorText}`);
-      }
-
-      const result = await productResponse.json();
-
-      if (result.ok) {
-        setSuccess(true);
-        // Formu temizle
-        setFile(null);
-        setTitle("");
-        setSlug("");
-        setCategory("figur-koleksiyon");
-        setSubcategory("");
-        setPrice(0);
-        setStock(0);
-        setDescription("");
-      } else {
-        setError(result.error || "Ürün oluşturulamadı");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Bir hata oluştu");
-    } finally {
-      setLoading(false);
-    }
-  }
+    onSubmit(formData);
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-2xl mx-auto"
+      className="max-w-4xl mx-auto p-6"
     >
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Yeni Ürün Ekle</h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Başlık */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ürün Başlığı *
-            </label>
-            <input
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Örn: Naruto Uzumaki Figürü"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Basic Information */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-lg p-8 border border-white/50">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Temel Bilgiler</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ürün Adı *
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                placeholder="Ürün adını girin"
+                required
+              />
+            </div>
 
-          {/* Slug */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              URL Slug *
-            </label>
-            <input
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="naruto-uzumaki-figuru"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Sadece küçük harf, rakam ve tire kullanın
-            </p>
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Kategori *
+              </label>
+              <select
+                value={formData.category}
+                onChange={(e) => handleInputChange('category', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                required
+              >
+                <option value="">Kategori seçin</option>
+                <option value="figur-koleksiyon">Figür & Koleksiyon</option>
+                <option value="moda-aksesuar">Moda & Aksesuar</option>
+                <option value="elektronik">Elektronik</option>
+                <option value="ev-yasam">Ev & Yaşam</option>
+                <option value="sanat-hobi">Sanat & Hobi</option>
+                <option value="hediyelik">Hediyelik</option>
+              </select>
+            </div>
 
-          {/* Kategori */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Kategori *
-            </label>
-            <select
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required
-            >
-              {categories.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Alt Kategori */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Alt Kategori
-            </label>
-            <input
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Örn: anime-figurleri"
-              value={subcategory}
-              onChange={(e) => setSubcategory(e.target.value)}
-            />
-          </div>
-
-          {/* Fiyat ve Stok */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Fiyat (₺) *
               </label>
               <input
                 type="number"
-                step="0.01"
+                value={formData.price}
+                onChange={(e) => handleInputChange('price', Number(e.target.value))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                placeholder="0"
                 min="0"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="0.00"
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
+                step="0.01"
                 required
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Stok Miktarı
+                Liste Fiyatı (₺)
               </label>
               <input
                 type="number"
-                min="0"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                value={formData.listPrice || ''}
+                onChange={(e) => handleInputChange('listPrice', Number(e.target.value) || 0)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
                 placeholder="0"
-                value={stock}
-                onChange={(e) => setStock(Number(e.target.value))}
+                min="0"
+                step="0.01"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Stok Miktarı *
+              </label>
+              <input
+                type="number"
+                value={formData.stock}
+                onChange={(e) => handleInputChange('stock', Number(e.target.value))}
+                className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                placeholder="0"
+                min="0"
+                required
               />
             </div>
           </div>
 
-          {/* Açıklama */}
-          <div>
+          <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ürün Açıklaması
+              Açıklama *
             </label>
             <textarea
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
               rows={4}
-              placeholder="Ürün hakkında detaylı bilgi..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-
-          {/* Görsel Yükleme */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Ürün Görseli *
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+              placeholder="Ürün açıklamasını girin"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
-              JPG, PNG, WebP formatları desteklenir. Max 5MB.
-            </p>
+          </div>
+        </div>
+
+        {/* Images */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-lg p-8 border border-white/50">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Ürün Görselleri</h2>
+          
+          <ImageUpload
+            onUploadSuccess={handleImageSelect}
+            label="Ürün görseli yükleyin"
+          />
+
+          {formData.images.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {formData.images.map((image, index) => (
+                <div key={index} className="relative group">
+                  <img
+                    src={image}
+                    alt={`Ürün görseli ${index + 1}`}
+                    className="w-full h-32 object-cover rounded-2xl"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Tags */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-lg p-8 border border-white/50">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Etiketler</h2>
+          
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+              placeholder="Etiket ekleyin"
+            />
+            <button
+              type="button"
+              onClick={addTag}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold hover:bg-indigo-700 transition-colors"
+            >
+              Ekle
+            </button>
           </div>
 
-          {/* Hata/Success Mesajları */}
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700 text-sm">{error}</p>
+          {formData.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {formData.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => removeTag(tag)}
+                    className="ml-2 text-indigo-600 hover:text-indigo-800"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
             </div>
           )}
+        </div>
 
-          {success && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-700 text-sm">Ürün başarıyla oluşturuldu!</p>
+        {/* Attributes */}
+        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-lg p-8 border border-white/50">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Özellikler</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <input
+              type="text"
+              value={attributeKey}
+              onChange={(e) => setAttributeKey(e.target.value)}
+              className="px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+              placeholder="Özellik adı"
+            />
+            <input
+              type="text"
+              value={attributeValue}
+              onChange={(e) => setAttributeValue(e.target.value)}
+              className="px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+              placeholder="Özellik değeri"
+            />
+            <button
+              type="button"
+              onClick={addAttribute}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-semibold hover:bg-indigo-700 transition-colors"
+            >
+              Ekle
+            </button>
+          </div>
+
+          {Object.keys(formData.attributes).length > 0 && (
+            <div className="space-y-2">
+              {Object.entries(formData.attributes).map(([key, value]) => (
+                <div key={key} className="flex items-center justify-between p-3 bg-gray-50 rounded-2xl">
+                  <span className="font-medium text-gray-900">{key}: {value}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeAttribute(key)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
             </div>
           )}
+        </div>
 
-          {/* Submit Button */}
-          <button
+        {/* Submit Button */}
+        <div className="flex justify-end">
+          <motion.button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Oluşturuluyor...
-              </div>
-            ) : (
-              'Ürünü Oluştur'
-            )}
-          </button>
-        </form>
-      </div>
+            {loading ? 'Kaydediliyor...' : 'Ürünü Kaydet'}
+          </motion.button>
+        </div>
+      </form>
     </motion.div>
   );
 }

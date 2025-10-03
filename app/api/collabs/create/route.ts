@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { requireRole, platformFee, influencerTake } from "@/src/lib/guards";
+import { requireRole, platformFee, influencerTake } from "@/lib/guards";
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {

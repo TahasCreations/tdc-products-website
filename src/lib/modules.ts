@@ -1,6 +1,6 @@
 import { MODULES } from "@/src/lib/permissions";
 import { auth } from "@/src/lib/auth";
-import { getActivePlanForUser } from "@/src/lib/guards";
+import { getActivePlanForUser } from "@/lib/guards";
 
 // Plan → entitlement haritası
 const PLAN_ENTITLEMENTS = {

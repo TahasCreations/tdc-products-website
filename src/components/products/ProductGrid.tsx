@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { gcsObjectPublicUrl } from '@/src/lib/gcs';
+// import { // gcsObjectPublicUrl } from '@/lib/gcs';
 
 interface Product {
   id: string;
@@ -146,7 +146,7 @@ function ProductCard({ product }: { product: Product }) {
         {/* Product Image */}
         <div className="aspect-square relative overflow-hidden">
           <Image
-            src={gcsObjectPublicUrl(product.images[0])}
+            src={product.images[0]}
             alt={product.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -206,7 +206,7 @@ function ProductCard({ product }: { product: Product }) {
           <div className="flex items-center space-x-2 mb-2">
             {product.seller.logo && (
               <img
-                src={gcsObjectPublicUrl(product.seller.logo)}
+                src={product.seller.logo}
                 alt={product.seller.name}
                 className="w-4 h-4 rounded-full"
               />

@@ -3,7 +3,7 @@ import ProductFilters from '../../src/components/products/ProductFilters';
 import ProductGrid from '../../src/components/products/ProductGrid';
 import ProductSorting from '../../src/components/products/ProductSorting';
 import Breadcrumb from '../../src/components/ui/Breadcrumb';
-import { gcsObjectPublicUrl } from '@/src/lib/gcs';
+import { gcsObjectPublicUrl } from '@/lib/gcs';
 
 export const metadata = {
   title: 'Tüm Ürünler - TDC Market',
