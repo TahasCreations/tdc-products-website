@@ -519,7 +519,7 @@ export default function Header() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute top-full left-1/2 -translate-x-1/2 w-screen max-w-7xl bg-white shadow-xl border-t border-gray-200 z-50"
+                        className="absolute top-full left-1/2 -translate-x-1/2 w-screen max-w-6xl bg-white shadow-xl border-t border-gray-200 z-50"
                       >
                         <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
                           {(() => {
@@ -530,44 +530,42 @@ export default function Header() {
                             return (
                               <div className="grid grid-cols-12 gap-8">
                                 {/* Quick Links */}
-                                <div className="col-span-12 mb-2">
+                                <div className="col-span-12 mb-4">
                                   <div className="flex items-center justify-center gap-3">
                                     <a href={`${item.href}&sort=newest`} className="px-3 py-1.5 text-xs rounded-full bg-gray-100 hover:bg-gray-200">Yeni Gelenler</a>
                                     <a href={`${item.href}&sort=best-selling`} className="px-3 py-1.5 text-xs rounded-full bg-gray-100 hover:bg-gray-200">En Çok Satanlar</a>
                                     <a href={`${item.href}&discount=true`} className="px-3 py-1.5 text-xs rounded-full bg-gray-100 hover:bg-gray-200">İndirimler</a>
                                   </div>
                                 </div>
+                                
                                 {/* Categories Column */}
                                 <div className="col-span-8">
-                                  <h3 className="text-lg font-semibold text-gray-900 mb-4">{menuData.title}</h3>
+                                  <h3 className="text-xl font-bold text-gray-900 mb-2">{menuData.title}</h3>
                                   <p className="text-gray-600 mb-6">{menuData.description}</p>
                                   <div className="grid grid-cols-2 gap-6">
                                     {menuData.categories.map((category, catIndex) => (
-                                      <div key={category.href} className="space-y-2">
+                                      <div key={category.href} className="space-y-3">
                                         <Link
                                           href={category.href}
                                           className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors group"
                                         >
-                                          <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-                                            <span className="text-indigo-600 text-sm">📦</span>
+                                          <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                                            <span className="text-indigo-600 text-lg">📦</span>
                                           </div>
-                                          <span className="text-gray-700 group-hover:text-indigo-600 transition-colors font-medium">{category.name}</span>
+                                          <span className="text-gray-700 group-hover:text-indigo-600 transition-colors font-semibold text-sm">{category.name}</span>
                                         </Link>
                                         {/* Subcategories */}
                                         {category.subcategories && (
-                                          <div className="ml-11 space-y-1">
-                                            {category.subcategories.slice(0, 4).map((subcategory, subIndex) => (
+                                          <div className="ml-13 space-y-2">
+                                            {category.subcategories.map((subcategory, subIndex) => (
                                               <Link
                                                 key={subIndex}
                                                 href={`${category.href}&subcategory=${subcategory.toLowerCase().replace(/\s+/g, '-')}`}
-                                                className="block text-xs text-gray-600 hover:text-indigo-600 transition-colors py-1"
+                                                className="block text-xs text-gray-600 hover:text-indigo-600 transition-colors py-1 hover:bg-gray-50 px-2 rounded"
                                               >
                                                 {subcategory}
                                               </Link>
                                             ))}
-                                            {category.subcategories.length > 4 && (
-                                              <span className="text-xs text-gray-400">+{category.subcategories.length - 4} daha</span>
-                                            )}
                                           </div>
                                         )}
                                       </div>
@@ -577,7 +575,7 @@ export default function Header() {
 
                                 {/* Featured Products Column */}
                                 <div className="col-span-4">
-                                  <h4 className="text-md font-semibold text-gray-900 mb-4">Öne Çıkan Ürünler</h4>
+                                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Öne Çıkan Ürünler</h4>
                                   <div className="space-y-4">
                                     {menuData.featured.map((product, prodIndex) => (
                                       <Link
@@ -588,7 +586,7 @@ export default function Header() {
                                         <img
                                           src={product.image}
                                           alt={product.name}
-                                          className="w-12 h-12 rounded-lg object-cover"
+                                          className="w-14 h-14 rounded-lg object-cover"
                                           loading="lazy"
                                         />
                                         <div className="flex-1 min-w-0">

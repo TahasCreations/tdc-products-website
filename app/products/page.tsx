@@ -383,11 +383,54 @@ export default function ProductsPage({
             </button>
           </div>
 
-          {/* Desktop Filters Sidebar - Narrow Version */}
-          <div className="hidden lg:block lg:w-48 flex-shrink-0">
+          {/* Desktop Filters Sidebar - Enhanced Version */}
+          <div className="hidden lg:block lg:w-64 flex-shrink-0">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-4">
               <h3 className="text-sm font-semibold text-gray-900 mb-4">Filtreler</h3>
               
+              {/* Categories */}
+              <div className="mb-6">
+                <h4 className="text-xs font-medium text-gray-700 mb-3">Kategoriler</h4>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {[
+                    { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', subcategories: ['Anime Figürleri', 'Film/TV Figürleri', 'Dioramalar', 'Koleksiyon Arabaları', 'Maket & Kitler', 'Limited Edition'] },
+                    { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', subcategories: ['Tişört', 'Hoodie', 'Şapka', 'Takı & Bileklik', 'Çanta & Cüzdan', 'Ayakkabı'] },
+                    { name: 'Elektronik', href: '/products?category=elektronik', subcategories: ['Kulaklık', 'Akıllı Ev', 'Aydınlatma', 'Hobi Elektroniği', '3D Yazıcı', 'Bilgisayar Aksesuarları'] },
+                    { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', subcategories: ['Dekor', 'Mutfak', 'Düzenleme', 'Banyo', 'Tekstil'] },
+                    { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', subcategories: ['Boya & Fırça', 'Tuval', '3D Baskı', 'El Sanatları', 'Kırtasiye', 'Model & Maket'] },
+                    { name: 'Hediyelik', href: '/products?category=hediyelik', subcategories: ['Kişiye Özel', 'Doğum Günü', 'Özel Gün Setleri', 'Kart & Aksesuar', 'Kurumsal Hediyeler'] }
+                  ].map((cat) => (
+                    <div key={cat.name} className="space-y-1">
+                      <a
+                        href={cat.href}
+                        className={`block px-3 py-2 rounded text-xs font-medium transition-colors ${
+                          category === cat.name.toLowerCase().replace(/\s+/g, '-')
+                            ? 'bg-indigo-50 text-indigo-700'
+                            : 'text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {cat.name}
+                      </a>
+                      {/* Subcategories */}
+                      <div className="ml-4 space-y-1">
+                        {cat.subcategories.slice(0, 3).map((subcat, index) => (
+                          <a
+                            key={index}
+                            href={`${cat.href}&subcategory=${subcat.toLowerCase().replace(/\s+/g, '-')}`}
+                            className="block text-xs text-gray-600 hover:text-indigo-600 transition-colors py-1"
+                          >
+                            {subcat}
+                          </a>
+                        ))}
+                        {cat.subcategories.length > 3 && (
+                          <span className="text-xs text-gray-400">+{cat.subcategories.length - 3} daha</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Price Range */}
               <div className="mb-4">
                 <h4 className="text-xs font-medium text-gray-700 mb-2">Fiyat Aralığı</h4>
