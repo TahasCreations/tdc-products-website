@@ -8,6 +8,7 @@ import MixedProductGrid from '../../src/components/home/MixedProductGrid';
 import ClientShim from './ClientShim';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export const metadata: Metadata = {
   title: 'TDC Market — Özel figürlerden elektroniğe, tasarımdan ev yaşamına',
@@ -32,9 +33,13 @@ export const metadata: Metadata = {
 // Dynamic page; do not schedule ISR here to avoid conflicts
 
 export default async function HomePage() {
-
-  // Get user session
-  const session = await auth();
+  // Get user session (guard errors to avoid 500s)
+  let session: any = null;
+  try {
+    session = await auth();
+  } catch {
+    session = null;
+  }
 
   return (
     <main className="min-h-screen">
