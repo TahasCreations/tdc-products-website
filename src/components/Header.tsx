@@ -322,7 +322,7 @@ export default function Header() {
                   onClick={() => setIsAuthOpen(true)}
                   className="px-3 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow"
                 >
-                  Giriş Yap
+                  Giriş Yap / Kayıt Ol
                 </motion.button>
               )}
 
@@ -611,8 +611,8 @@ export default function Header() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-4 text-center">
-                <h3 className="text-lg font-semibold text-gray-900">Giriş Yap</h3>
-                <p className="text-sm text-gray-500">Hesabınıza giriş yapın veya Google ile devam edin</p>
+                <h3 className="text-lg font-semibold text-gray-900">Giriş Yap / Kayıt Ol</h3>
+                <p className="text-sm text-gray-500">Hesabınıza giriş yapın veya yeni hesap oluşturun</p>
               </div>
               <div className="space-y-3">
                 <a
@@ -620,6 +620,12 @@ export default function Header() {
                   className="block w-full text-center px-4 py-2.5 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition"
                 >
                   E-posta ile Giriş Yap
+                </a>
+                <a
+                  href="/kayit"
+                  className="block w-full text-center px-4 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                >
+                  Yeni Hesap Oluştur
                 </a>
                 <div className="flex items-center">
                   <div className="flex-1 h-px bg-gray-200" />

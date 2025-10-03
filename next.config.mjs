@@ -6,6 +6,11 @@ const nextConfig = {
         protocol: "https", 
         hostname: "storage.googleapis.com", 
         pathname: "/tdc-market-storage/**" 
+      },
+      { 
+        protocol: "https", 
+        hostname: "storage.googleapis.com", 
+        pathname: "/**" 
       }
     ],
   },

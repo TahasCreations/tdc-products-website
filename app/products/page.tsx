@@ -278,6 +278,7 @@ export default function ProductsPage({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [showQuickFilters, setShowQuickFilters] = useState(false);
   const sortBy = (searchParams.sort as string) || 'recommended';
   const category = searchParams.category as string;
   const seller = searchParams.seller as string;
@@ -367,33 +368,162 @@ export default function ProductsPage({
           </p>
         </div>
 
+        {/* Quick Filters Bar */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Hızlı Filtreler</h2>
+            <button
+              onClick={() => setShowQuickFilters(!showQuickFilters)}
+              className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+            >
+              {showQuickFilters ? 'Gizle' : 'Tümünü Göster'}
+            </button>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 mb-4">
+            {/* Category Quick Filters */}
+            {mockCategories.slice(0, showQuickFilters ? mockCategories.length : 6).map((cat) => (
+              <a
+                key={cat.id}
+                href={`/products?category=${cat.slug}`}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                  category === cat.slug
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:border-indigo-300'
+                }`}
+              >
+                {cat.name} ({cat.count})
+              </a>
+            ))}
+          </div>
+
+          {/* Price Range Quick Filters */}
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: '0-100₺', min: 0, max: 100 },
+              { label: '100-500₺', min: 100, max: 500 },
+              { label: '500-1000₺', min: 500, max: 1000 },
+              { label: '1000₺+', min: 1000, max: undefined },
+              { label: 'Stokta Olanlar', special: 'inStock' }
+            ].map((filter) => (
+              <a
+                key={filter.label}
+                href={`/products?${filter.special ? 'inStock=true' : `minPrice=${filter.min}${filter.max ? `&maxPrice=${filter.max}` : ''}`}`}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                  (filter.special === 'inStock' && inStock) || 
+                  (!filter.special && minPrice === filter.min && maxPrice === filter.max)
+                    ? 'bg-indigo-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-indigo-50 hover:border-indigo-300'
+                }`}
+              >
+                {filter.label}
+              </a>
+            ))}
+          </div>
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Mobile Filters Trigger */}
-          <div className="lg:hidden -mt-2 mb-2">
+          <div className="lg:hidden mb-4">
             <button
               onClick={() => setIsFiltersOpen(true)}
-              className="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
               </svg>
-              Kategoriler & Filtreler
+              Gelişmiş Filtreler
             </button>
           </div>
 
-          {/* Desktop Filters Sidebar */}
-          <div className="hidden lg:block lg:w-64 flex-shrink-0">
-            <ProductFilters
-              categories={mockCategories}
-              sellers={mockSellers}
-              currentFilters={{
-                category,
-                seller,
-                minPrice,
-                maxPrice,
-                inStock
-              }}
-            />
+          {/* Desktop Filters Sidebar - Compact Version */}
+          <div className="hidden lg:block lg:w-72 flex-shrink-0">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Filtreler</h3>
+                <button className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+                  Temizle
+                </button>
+              </div>
+              
+              {/* Compact Category Filter */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Kategoriler</h4>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {mockCategories.map((cat) => (
+                    <a
+                      key={cat.id}
+                      href={`/products?category=${cat.slug}`}
+                      className={`flex items-center justify-between p-2 rounded-lg text-sm transition-colors ${
+                        category === cat.slug
+                          ? 'bg-indigo-50 text-indigo-700'
+                          : 'hover:bg-gray-50 text-gray-700'
+                      }`}
+                    >
+                      <span>{cat.name}</span>
+                      <span className="text-xs text-gray-500">({cat.count})</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Compact Price Range */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Fiyat Aralığı</h4>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      defaultValue={minPrice || ''}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      defaultValue={maxPrice || ''}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    />
+                  </div>
+                  <button className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+                    Uygula
+                  </button>
+                </div>
+              </div>
+
+              {/* Stock Filter */}
+              <div className="mb-6">
+                <label className="flex items-center space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    defaultChecked={inStock}
+                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                  />
+                  <span className="text-sm text-gray-700">Sadece stokta olanlar</span>
+                </label>
+              </div>
+
+              {/* Seller Filter */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Popüler Satıcılar</h4>
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {mockSellers.slice(0, 5).map((sellerItem) => (
+                    <a
+                      key={sellerItem.id}
+                      href={`/products?seller=${sellerItem.slug}`}
+                      className={`flex items-center justify-between p-2 rounded-lg text-sm transition-colors ${
+                        seller === sellerItem.slug
+                          ? 'bg-indigo-50 text-indigo-700'
+                          : 'hover:bg-gray-50 text-gray-700'
+                      }`}
+                    >
+                      <span>{sellerItem.name}</span>
+                      <span className="text-xs text-gray-500">({sellerItem.count})</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Mobile Slide-over Filters */}
@@ -449,30 +579,77 @@ export default function ProductsPage({
 
           {/* Main Content */}
           <div className="flex-1">
-            {/* Sorting */}
-            <div className="mb-6 flex items-center justify-between">
-              {/* Inline mobile trigger (right) */}
-              <button
-                onClick={() => setIsFiltersOpen(true)}
-                className="lg:hidden inline-flex items-center px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                Filtreler
-              </button>
-              <ProductSorting currentSort={sortBy} />
+            {/* Results Header & Sorting */}
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {filteredProducts.length} ürün
+                </h2>
+                {/* Active Filters Display */}
+                <div className="flex flex-wrap gap-2">
+                  {category && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                      {mockCategories.find(c => c.slug === category)?.name}
+                      <button className="ml-2 text-indigo-600 hover:text-indigo-800">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </span>
+                  )}
+                  {seller && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                      {mockSellers.find(s => s.slug === seller)?.name}
+                      <button className="ml-2 text-indigo-600 hover:text-indigo-800">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </span>
+                  )}
+                  {inStock && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Stokta Olanlar
+                      <button className="ml-2 text-green-600 hover:text-green-800">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                {/* View Toggle */}
+                <div className="hidden sm:flex items-center border border-gray-300 rounded-lg">
+                  <button className="p-2 text-gray-400 hover:text-gray-600">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                  </button>
+                  <button className="p-2 text-indigo-600 bg-indigo-50">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <ProductSorting currentSort={sortBy} />
+              </div>
             </div>
 
             {/* Products Grid */}
-            <Suspense fallback={<ProductGridSkeleton />}>
-              <ProductGrid 
-                products={paginatedProducts}
-                currentPage={page}
-                totalPages={totalPages}
-                totalProducts={filteredProducts.length}
-              />
-            </Suspense>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <Suspense fallback={<ProductGridSkeleton />}>
+                <ProductGrid 
+                  products={paginatedProducts}
+                  currentPage={page}
+                  totalPages={totalPages}
+                  totalProducts={filteredProducts.length}
+                />
+              </Suspense>
+            </div>
           </div>
         </div>
       </div>
@@ -520,9 +697,9 @@ function ProductGridSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {Array.from({ length: 8 }).map((_, index) => (
-        <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden animate-pulse">
+        <div key={index} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden animate-pulse">
           <div className="aspect-square bg-gray-200"></div>
-          <div className="p-4">
+          <div className="p-5">
             <div className="h-4 bg-gray-200 rounded mb-2"></div>
             <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
             <div className="h-3 bg-gray-200 rounded w-1/2"></div>

@@ -1,33 +1,45 @@
-export const runtime = "nodejs";
-import { NextRequest } from "next/server";
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-export async function POST(req: NextRequest) {
-  // Secret token kontrolü
-  const authHeader = req.headers.get('authorization');
-  const secretToken = process.env.CRON_SECRET_TOKEN;
-  
-  if (!secretToken || authHeader !== `Bearer ${secretToken}`) {
-    return new Response("unauthorized", { status: 401 });
-  }
-  
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+
+export async function GET(request: NextRequest) {
   try {
-    // Tüm aktif kampanyalarda spentToday'ı sıfırla
+    // Check CRON_KEY
+    const url = new URL(request.url);
+    const cronKey = url.searchParams.get('key');
+    
+    if (cronKey !== process.env.CRON_KEY) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Reset spentToday for all ACTIVE campaigns
     const result = await prisma.adCampaign.updateMany({
-      where: { status: "ACTIVE" },
-      data: { spentToday: 0 }
+      where: {
+        status: 'ACTIVE',
+      },
+      data: {
+        spentToday: 0,
+      },
     });
-    
-    console.log(`Reset spend for ${result.count} active campaigns`);
-    
-    return Response.json({ 
-      ok: true, 
-      resetCount: result.count,
-      timestamp: new Date().toISOString()
+
+    return NextResponse.json({
+      ok: true,
+      reset: result.count,
+      message: `Reset spentToday for ${result.count} active campaigns`,
     });
   } catch (error) {
-    console.error('Error resetting ad spend:', error);
-    return new Response("internal_error", { status: 500 });
+    console.error('Ads reset spend failed:', error);
+    return NextResponse.json(
+      { 
+        error: 'Reset failed',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
   }
 }
