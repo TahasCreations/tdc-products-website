@@ -6,6 +6,7 @@ import { CartProvider } from '@/contexts/CartContext'
 import { WishlistProvider } from '@/contexts/WishlistContext'
 import { CompareProvider } from '@/contexts/CompareContext'
 import PWAInstaller from '@/components/PWAInstaller'
+import Header from '@/components/Header'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -99,7 +100,10 @@ export default function RootLayout({
             <CartProvider>
               <WishlistProvider>
                 <CompareProvider>
-                  {children}
+                  <Header />
+                  <main>
+                    {children}
+                  </main>
                   <PWAInstaller />
                 </CompareProvider>
               </WishlistProvider>

@@ -20,6 +20,7 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [useSemanticSearch, setUseSemanticSearch] = useState(false);
   const megaMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,7 +36,8 @@ export default function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+      const searchType = useSemanticSearch ? 'semantic' : 'regular';
+      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}&type=${searchType}`;
     }
   };
 
@@ -196,13 +198,32 @@ export default function Header() {
                     placeholder="Ürün, kategori veya marka ara..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-3 sm:px-4 py-2 sm:py-3 pl-10 sm:pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 pl-10 sm:pl-12 pr-20 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 text-sm sm:text-base"
                   />
                   <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
                     <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
+                  
+                  {/* Semantic Search Toggle */}
+                  <div className="absolute inset-y-0 right-10 flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => setUseSemanticSearch(!useSemanticSearch)}
+                      className={`p-1 rounded-md transition-colors ${
+                        useSemanticSearch 
+                          ? 'bg-indigo-100 text-indigo-600' 
+                          : 'text-gray-400 hover:text-indigo-600 hover:bg-gray-100'
+                      }`}
+                      title={useSemanticSearch ? 'Semantik Arama: Açık' : 'Semantik Arama: Kapalı'}
+                    >
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </button>
+                  </div>
+
                   <button
                     type="submit"
                     className="absolute inset-y-0 right-0 pr-3 sm:pr-4 flex items-center"
@@ -218,7 +239,10 @@ export default function Header() {
                       {suggestions.map((s) => (
                         <li key={s}>
                           <button
-                            onClick={() => (window.location.href = `/search?q=${encodeURIComponent(s)}`)}
+                            onClick={() => {
+                              const searchType = useSemanticSearch ? 'semantic' : 'regular';
+                              window.location.href = `/search?q=${encodeURIComponent(s)}&type=${searchType}`;
+                            }}
                             className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
                           >
                             {s}

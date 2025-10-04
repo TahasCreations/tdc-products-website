@@ -48,6 +48,7 @@ model User {
   addresses     Address[]
   wishlistItems WishlistItem[]
   reviews       Review[]
+  pushTokens    PushToken[]
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -130,6 +131,9 @@ model Product {
   orderItems    OrderItem[]
   reviews       Review[]
   adTargets     AdTarget[]
+  embedding     ProductEmbedding?
+  recommendations ProductReco[] @relation("ProductRecommendations")
+  recommendedBy ProductReco[] @relation("RecommendedProducts")
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -555,4 +559,31 @@ model Message {
   attachments   String  // JSON string olarak sakla
   createdAt     DateTime @default(now())
   conversation  Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+// === AI & ANALYTICS ===
+model ProductEmbedding {
+  id        String   @id @default(cuid())
+  productId String   @unique
+  vector    String   // JSON string olarak sakla (SQLite için)
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductReco {
+  id             String   @id @default(cuid())
+  productId      String
+  recoProductId  String
+  score          Float
+  updatedAt      DateTime @updatedAt
+  product        Product  @relation("ProductRecommendations", fields: [productId], references: [id], onDelete: Cascade)
+  recoProduct    Product  @relation("RecommendedProducts", fields: [recoProductId], references: [id], onDelete: Cascade)
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

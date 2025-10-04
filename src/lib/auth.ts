@@ -35,3 +35,6 @@ const nextAuth = NextAuth({
 
 export const { handlers, auth, signIn, signOut } = nextAuth;
 export default nextAuth;
+
+// Export authOptions for API routes
+export const authOptions = nextAuth;

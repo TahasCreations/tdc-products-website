@@ -82,3 +82,6 @@ export function shouldRateLimitClick(campaignId: string, ip: string): boolean {
   cached.timestamp = now;
   return false;
 }
+
+// Alias for backward compatibility
+export const getAdsForQuery = serveAdsForQuery;

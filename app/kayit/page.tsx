@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
@@ -17,7 +17,51 @@ export default function KayitPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const router = useRouter();
+
+  // reCAPTCHA widget ID
+  const [recaptchaWidgetId, setRecaptchaWidgetId] = useState<number | null>(null);
+
+  // Load reCAPTCHA script
+  useEffect(() => {
+    const loadRecaptcha = () => {
+      if (window.grecaptcha && window.grecaptcha.render) {
+        const widgetId = window.grecaptcha.render('recaptcha-container', {
+          sitekey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+          callback: (token: string) => {
+            setRecaptchaToken(token);
+          },
+          'expired-callback': () => {
+            setRecaptchaToken(null);
+          },
+          'error-callback': () => {
+            setRecaptchaToken(null);
+          },
+        });
+        setRecaptchaWidgetId(widgetId);
+      }
+    };
+
+    // Check if reCAPTCHA is already loaded
+    if (window.grecaptcha) {
+      loadRecaptcha();
+    } else {
+      // Load reCAPTCHA script
+      const script = document.createElement('script');
+      script.src = 'https://www.google.com/recaptcha/enterprise.js';
+      script.async = true;
+      script.defer = true;
+      script.onload = loadRecaptcha;
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      if (recaptchaWidgetId !== null && window.grecaptcha) {
+        window.grecaptcha.reset(recaptchaWidgetId);
+      }
+    };
+  }, [recaptchaWidgetId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +74,11 @@ export default function KayitPage() {
 
     if (!formData.acceptTerms) {
       setError('Kullanım şartlarını kabul etmelisiniz');
+      return;
+    }
+
+    if (!recaptchaToken) {
+      setError('reCAPTCHA doğrulaması gerekli');
       return;
     }
 
@@ -47,6 +96,7 @@ export default function KayitPage() {
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
+          recaptchaToken,
         }),
       });
 
@@ -210,6 +260,11 @@ export default function KayitPage() {
                 </Link>
                 'nı okudum ve kabul ediyorum.
               </label>
+            </div>
+
+            {/* reCAPTCHA */}
+            <div className="flex justify-center">
+              <div id="recaptcha-container"></div>
             </div>
 
             <motion.button
