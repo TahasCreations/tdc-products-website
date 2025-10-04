@@ -2,124 +2,271 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useState } from 'react';
 import ProductCard from './ProductCard';
 import CategoryHero from './CategoryHero';
 import CategoryFilters from './CategoryFilters';
+import PromoBand from './PromoBand';
+import QuickViewDialog from './QuickViewDialog';
+import GiftWizard from './GiftWizard';
 
 const mockProducts = [
   {
     id: '1',
-    title: 'Kişiye Özel Fotoğraf Çerçevesi',
-    price: 79.99,
-    originalPrice: 99.99,
-    image: 'https://via.placeholder.com/400x400/8E44AD/FFFFFF?text=Custom+Frame',
-    category: 'Kişiye Özel',
+    title: 'Özel Günler İçin Hediye Kutusu',
+    price: 89.99,
+    originalPrice: 129.99,
+    image: 'https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=Gift+Box',
+    images: [
+      'https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=Gift+Box+1',
+      'https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=Gift+Box+2',
+      'https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=Gift+Box+3'
+    ],
+    category: 'Hediye Kutuları',
     rating: 4.9,
     reviewCount: 234,
     isNew: true,
-    discount: 20
+    discount: 31,
+    description: 'Özel günler için hazırlanmış lüks hediye kutusu. İçinde çeşitli hediyeler ve sürprizler.',
+    features: ['Lüks ambalaj', 'Çeşitli hediyeler', 'Kişiselleştirilebilir', 'Hediye kartı dahil'],
+    specifications: {
+      'Boyut': '25x20x15 cm',
+      'Malzeme': 'Premium karton',
+      'İçerik': 'Çeşitli hediyeler',
+      'Renk': 'Kırmızı/Altın',
+      'Marka': 'GiftBox Premium'
+    },
+    inStock: true,
+    stockCount: 25
   },
   {
     id: '2',
-    title: 'Doğum Günü Hediye Seti',
+    title: 'Doğum Günü Sürpriz Paketi',
     price: 149.99,
-    image: 'https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=Birthday+Set',
+    image: 'https://via.placeholder.com/400x400/4F46E5/FFFFFF?text=Birthday+Surprise',
+    images: [
+      'https://via.placeholder.com/400x400/4F46E5/FFFFFF?text=Birthday+1',
+      'https://via.placeholder.com/400x400/4F46E5/FFFFFF?text=Birthday+2'
+    ],
     category: 'Doğum Günü',
     rating: 4.8,
     reviewCount: 156,
-    isFeatured: true
+    isFeatured: true,
+    description: 'Doğum günü için özel olarak tasarlanmış sürpriz paket. Balonlar, süslemeler ve hediyeler dahil.',
+    features: ['Balon seti', 'Süsleme malzemeleri', 'Hediye paketi', 'Doğum günü kartı'],
+    specifications: {
+      'İçerik': 'Balon, süsleme, hediye',
+      'Yaş Grubu': 'Tüm yaşlar',
+      'Tema': 'Doğum günü',
+      'Renk': 'Çok renkli',
+      'Marka': 'PartyTime'
+    },
+    inStock: true,
+    stockCount: 18
   },
   {
     id: '3',
-    title: 'Anneler Günü Özel Kutu',
+    title: 'Anneler Günü Özel Seti',
     price: 199.99,
-    image: 'https://via.placeholder.com/400x400/27AE60/FFFFFF?text=Mothers+Day',
-    category: 'Özel Günler',
-    rating: 4.7,
-    reviewCount: 89
+    image: 'https://via.placeholder.com/400x400/FF9F43/FFFFFF?text=Mothers+Day',
+    images: [
+      'https://via.placeholder.com/400x400/FF9F43/FFFFFF?text=Mothers+1',
+      'https://via.placeholder.com/400x400/FF9F43/FFFFFF?text=Mothers+2'
+    ],
+    category: 'Anneler Günü',
+    rating: 4.9,
+    reviewCount: 189,
+    description: 'Anneler günü için özel olarak hazırlanmış lüks hediye seti. Çiçek, çikolata ve özel not dahil.',
+    features: ['Taze çiçek', 'Premium çikolata', 'Özel not', 'Lüks ambalaj'],
+    specifications: {
+      'İçerik': 'Çiçek, çikolata, not',
+      'Çiçek Türü': 'Gül buketi',
+      'Çikolata': 'Belçika çikolatası',
+      'Ambalaj': 'Lüks kutu',
+      'Marka': 'FlowerGift'
+    },
+    inStock: true,
+    stockCount: 12
   },
   {
     id: '4',
-    title: 'Kurumsal Hediye Seti',
+    title: 'Sevgililer Günü Romantik Set',
     price: 299.99,
-    image: 'https://via.placeholder.com/400x400/3498DB/FFFFFF?text=Corporate+Gift',
-    category: 'Kurumsal',
-    rating: 4.6,
-    reviewCount: 67
+    image: 'https://via.placeholder.com/400x400/E74C3C/FFFFFF?text=Valentines',
+    images: [
+      'https://via.placeholder.com/400x400/E74C3C/FFFFFF?text=Valentines+1',
+      'https://via.placeholder.com/400x400/E74C3C/FFFFFF?text=Valentines+2'
+    ],
+    category: 'Sevgililer Günü',
+    rating: 4.7,
+    reviewCount: 98,
+    description: 'Sevgililer günü için romantik hediye seti. Çiçek, çikolata, şarap ve özel mesaj dahil.',
+    features: ['Kırmızı güller', 'Premium şarap', 'Çikolata kutusu', 'Romantik mesaj'],
+    specifications: {
+      'İçerik': 'Gül, şarap, çikolata',
+      'Şarap': 'Kırmızı şarap',
+      'Çiçek': '12 adet kırmızı gül',
+      'Ambalaj': 'Romantik kutu',
+      'Marka': 'RomanceGift'
+    },
+    inStock: false,
+    stockCount: 0
   },
   {
     id: '5',
-    title: 'Sevgililer Günü Romantik Set',
+    title: 'Yılbaşı Kutlama Paketi',
     price: 179.99,
-    image: 'https://via.placeholder.com/400x400/E74C3C/FFFFFF?text=Valentines+Set',
-    category: 'Sevgililer Günü',
-    rating: 4.8,
-    reviewCount: 123
+    image: 'https://via.placeholder.com/400x400/27AE60/FFFFFF?text=New+Year',
+    images: [
+      'https://via.placeholder.com/400x400/27AE60/FFFFFF?text=New+Year+1',
+      'https://via.placeholder.com/400x400/27AE60/FFFFFF?text=New+Year+2'
+    ],
+    category: 'Yılbaşı',
+    rating: 4.6,
+    reviewCount: 145,
+    description: 'Yılbaşı kutlaması için özel paket. Süslemeler, içecekler ve atıştırmalıklar dahil.',
+    features: ['Yılbaşı süsleri', 'İçecek seti', 'Atıştırmalık', 'Kutlama kartı'],
+    specifications: {
+      'İçerik': 'Süsleme, içecek, atıştırmalık',
+      'Süsleme': 'Yılbaşı temalı',
+      'İçecek': 'Şampanya + meyve suyu',
+      'Atıştırmalık': 'Çeşitli',
+      'Marka': 'NewYearParty'
+    },
+    inStock: true,
+    stockCount: 30
   },
   {
     id: '6',
-    title: 'Mini Hediye Koleksiyonu',
-    price: 59.99,
-    image: 'https://via.placeholder.com/400x400/9B59B6/FFFFFF?text=Mini+Gift+Set',
-    category: 'Mini Setler',
-    rating: 4.5,
-    reviewCount: 78
+    title: 'Bebek Doğum Hediye Seti',
+    price: 249.99,
+    image: 'https://via.placeholder.com/400x400/8E44AD/FFFFFF?text=Baby+Gift',
+    images: [
+      'https://via.placeholder.com/400x400/8E44AD/FFFFFF?text=Baby+1',
+      'https://via.placeholder.com/400x400/8E44AD/FFFFFF?text=Baby+2'
+    ],
+    category: 'Bebek Hediyeleri',
+    rating: 4.8,
+    reviewCount: 167,
+    description: 'Yeni doğan bebek için özel hediye seti. Bebek kıyafetleri, oyuncaklar ve bakım ürünleri dahil.',
+    features: ['Bebek kıyafetleri', 'Oyuncaklar', 'Bakım ürünleri', 'Özel kutu'],
+    specifications: {
+      'İçerik': 'Kıyafet, oyuncak, bakım',
+      'Yaş': '0-6 ay',
+      'Malzeme': 'Organik pamuk',
+      'Renk': 'Pembe/Mavi',
+      'Marka': 'BabyGift'
+    },
+    inStock: true,
+    stockCount: 22
   }
 ];
 
 const filters = {
   price: { min: 0, max: 500 },
   categories: [
-    { id: 'kisiye-ozel', label: 'Kişiye Özel', count: 45 },
-    { id: 'dogum-gunu', label: 'Doğum Günü', count: 23 },
-    { id: 'ozel-gunler', label: 'Özel Günler', count: 18 },
-    { id: 'kurumsal', label: 'Kurumsal', count: 31 },
-    { id: 'mini-set', label: 'Mini Setler', count: 27 },
-    { id: 'kart', label: 'Kart & Aksesuar', count: 19 }
+    { id: 'birthday', label: 'Doğum Günü', count: 45 },
+    { id: 'valentines', label: 'Sevgililer Günü', count: 30 },
+    { id: 'mothers-day', label: 'Anneler Günü', count: 25 },
+    { id: 'new-year', label: 'Yılbaşı', count: 20 },
+    { id: 'baby', label: 'Bebek Hediyeleri', count: 35 },
+    { id: 'corporate', label: 'Kurumsal', count: 15 },
   ],
-  brands: [
-    { id: 'custom', label: 'Özel Tasarım', count: 35 },
-    { id: 'premium', label: 'Premium', count: 22 },
-    { id: 'eco', label: 'Eco-Friendly', count: 18 },
-    { id: 'handmade', label: 'El Yapımı', count: 12 }
+  occasion: [
+    { id: 'romantic', label: 'Romantik', count: 30 },
+    { id: 'family', label: 'Aile', count: 40 },
+    { id: 'friends', label: 'Arkadaş', count: 35 },
+    { id: 'business', label: 'İş', count: 20 },
   ],
-  colors: [
-    { id: 'gold', label: '#FFD700' },
-    { id: 'silver', label: '#C0C0C0' },
-    { id: 'rose', label: '#FF69B4' },
-    { id: 'blue', label: '#3498DB' },
-    { id: 'green', label: '#27AE60' },
-    { id: 'purple', label: '#9B59B6' }
+  priceRange: [
+    { id: 'budget', label: 'Bütçe Dostu (0-100₺)', count: 50 },
+    { id: 'mid', label: 'Orta (100-300₺)', count: 40 },
+    { id: 'premium', label: 'Premium (300₺+)', count: 30 },
+  ],
+  recipient: [
+    { id: 'women', label: 'Kadın', count: 60 },
+    { id: 'men', label: 'Erkek', count: 45 },
+    { id: 'children', label: 'Çocuk', count: 35 },
+    { id: 'couple', label: 'Çift', count: 25 },
+  ],
+  stock: [
+    { id: 'in-stock', label: 'Stokta', count: 100 },
+    { id: 'pre-order', label: 'Ön Sipariş', count: 20 },
   ],
   features: [
-    { id: 'personalized', label: 'Kişiselleştirilebilir', count: 28 },
-    { id: 'gift-wrap', label: 'Hediye Paketi', count: 35 },
-    { id: 'express', label: 'Hızlı Teslimat', count: 12 },
-    { id: 'premium', label: 'Premium Kalite', count: 20 }
+    { id: 'personalized', label: 'Kişiselleştirilebilir', count: 40 },
+    { id: 'luxury', label: 'Lüks', count: 30 },
+    { id: 'eco-friendly', label: 'Çevre Dostu', count: 25 },
+    { id: 'handmade', label: 'El Yapımı', count: 15 }
   ]
 };
 
 export default function HediyelikPage() {
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [showGiftWizard, setShowGiftWizard] = useState(false);
+
   const handleFilterChange = (filterType: string, value: any) => {
     console.log('Filter changed:', filterType, value);
   };
 
+  const handleQuickView = (product: any) => {
+    setSelectedProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const promoData = [
+    {
+      id: '1',
+      title: 'Özel Günler',
+      description: 'Her özel gün için mükemmel hediye seçenekleri',
+      image: 'https://via.placeholder.com/600x400/FF6B6B/FFFFFF?text=Special+Occasions',
+      ctaText: 'Özel Günler',
+      ctaLink: '#products',
+      badge: 'Özel',
+      gradient: 'from-red-900 to-pink-900'
+    },
+    {
+      id: '2',
+      title: 'Hediye Rehberi',
+      description: 'Doğru hediye seçimi için uzman önerileri',
+      image: 'https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=Gift+Guide',
+      ctaText: 'Rehberi Gör',
+      ctaLink: '#gift-wizard',
+      badge: 'Rehber',
+      gradient: 'from-purple-900 to-indigo-900'
+    },
+    {
+      id: '3',
+      title: 'Kişiselleştirme',
+      description: 'Hediyelerinizi özel mesajlarla kişiselleştirin',
+      image: 'https://via.placeholder.com/600x400/27AE60/FFFFFF?text=Personalization',
+      ctaText: 'Kişiselleştir',
+      ctaLink: '#products',
+      badge: 'Özel',
+      gradient: 'from-green-900 to-emerald-900'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-red-50">
       {/* Hero Section */}
       <CategoryHero
-        title="Hediyelik"
-        description="Sevdiklerinizi mutlu edecek özel hediyeler ve anlamlı anlar yaratın. Her hediye bir hikaye, her anı bir hazine."
-        backgroundImage="https://via.placeholder.com/1920x1080/8E44AD/FFFFFF?text=Gifts+Special+Occasions"
-        accentColor="bg-purple-600"
-        gradientFrom="from-purple-900"
+        title="Sevgiyi Hediye Et"
+        description="Özel günlerde sevdiklerinizi mutlu edecek anlamlı hediyeler. Her duruma uygun, kişiselleştirilebilir hediye seçenekleri."
+        backgroundImage="https://via.placeholder.com/1920x1080/FF6B6B/FFFFFF?text=Gift+Love"
+        accentColor="bg-red-500"
+        gradientFrom="from-red-900"
         gradientTo="to-pink-900"
-        features={['Kişiselleştirilebilir', 'Özel Günler', 'Hızlı Teslimat', 'Anlamlı Hediyeler']}
+        features={['Kişiselleştirilebilir', 'Anlamlı Hediyeler', 'Hızlı Teslimat', 'Özel Ambalaj']}
         ctaText="Hediye Keşfet"
         ctaLink="#products"
       />
 
-      {/* Celebration Themes Section */}
+      {/* Promo Band */}
+      <PromoBand promos={promoData} className="bg-gradient-to-r from-pink-50 to-red-50" />
+
+      {/* Gift Wizard Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
@@ -129,98 +276,69 @@ export default function HediyelikPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              Özel Günler & Kutlamalar
+              Doğru Hediyeyi Bul
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Hayatınızdaki özel anları unutulmaz kılacak hediyeler. 
-              Her kutlama için özel tasarlanmış koleksiyonlar.
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+              Hediye seçiminde zorlanıyor musunuz? Uzman rehberimiz size en uygun hediye önerilerini sunar.
             </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowGiftWizard(true)}
+              className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-4 rounded-2xl text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              Hediye Rehberini Başlat
+            </motion.button>
           </motion.div>
 
-          {/* Celebration Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Quick Gift Ideas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
             {[
               {
-                title: 'Doğum Günleri',
-                description: 'Yaşınızın güzelliğini kutlayın',
-                image: 'https://via.placeholder.com/600x400/FF6B6B/FFFFFF?text=Birthday',
-                color: 'from-pink-500 to-rose-500',
-                icon: '🎂'
+                icon: '🎂',
+                title: 'Doğum Günü',
+                description: 'Unutulmaz doğum günü hediyeleri',
+                color: 'from-pink-400 to-rose-400'
               },
               {
-                title: 'Anneler Günü',
-                description: 'Annelerin değerini gösterin',
-                image: 'https://via.placeholder.com/600x400/27AE60/FFFFFF?text=Mothers+Day',
-                color: 'from-green-500 to-emerald-500',
-                icon: '🌹'
-              },
-              {
+                icon: '💕',
                 title: 'Sevgililer Günü',
-                description: 'Aşkınızı kutlayın',
-                image: 'https://via.placeholder.com/600x400/E74C3C/FFFFFF?text=Valentines',
-                color: 'from-red-500 to-pink-500',
-                icon: '💕'
+                description: 'Romantik hediye seçenekleri',
+                color: 'from-red-400 to-pink-400'
               },
               {
-                title: 'Babalar Günü',
-                description: 'Babaların gücünü onurlandırın',
-                image: 'https://via.placeholder.com/600x400/3498DB/FFFFFF?text=Fathers+Day',
-                color: 'from-blue-500 to-cyan-500',
-                icon: '👨‍👧‍👦'
+                icon: '👶',
+                title: 'Bebek Hediyeleri',
+                description: 'Yeni doğan için özel hediyeler',
+                color: 'from-purple-400 to-indigo-400'
               },
               {
+                icon: '🎄',
                 title: 'Yılbaşı',
-                description: 'Yeni yılı karşılayın',
-                image: 'https://via.placeholder.com/600x400/9B59B6/FFFFFF?text=New+Year',
-                color: 'from-purple-500 to-indigo-500',
-                icon: '🎊'
-              },
-              {
-                title: 'Kurumsal',
-                description: 'İş dünyasında değer yaratın',
-                image: 'https://via.placeholder.com/600x400/2C3E50/FFFFFF?text=Corporate',
-                color: 'from-gray-500 to-gray-700',
-                icon: '💼'
+                description: 'Yeni yıl kutlama paketleri',
+                color: 'from-green-400 to-emerald-400'
               }
-            ].map((celebration, index) => (
+            ].map((item, index) => (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500"
+                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer"
               >
-                <div className="aspect-[4/3] relative">
-                  <Image
-                    src={celebration.image}
-                    alt={celebration.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className={`absolute inset-0 bg-gradient-to-t ${celebration.color} opacity-80`} />
-                  
-                  {/* Content */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6 text-center">
-                    <div className="text-5xl mb-4">{celebration.icon}</div>
-                    <h3 className="text-2xl font-bold mb-3">{celebration.title}</h3>
-                    <p className="text-white/90 mb-6">{celebration.description}</p>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-lg font-medium hover:bg-white/30 transition-colors"
-                    >
-                      Hediyeleri Gör
-                    </motion.button>
-                  </div>
+                <div className={`w-16 h-16 bg-gradient-to-r ${item.color} rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  {item.icon}
                 </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-gray-600">{item.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Gift Guide Section */}
-      <section className="py-20 bg-gray-50">
+      {/* Celebration Themes */}
+      <section className="py-20 bg-gradient-to-r from-red-50 to-pink-50">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -229,108 +347,69 @@ export default function HediyelikPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              Hediye Rehberi
+              Kutlama Temaları
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Doğru hediye seçimi için ipuçları ve öneriler. 
-              Her kişiye özel hediye fikirleri.
+              Her özel gün için özel olarak tasarlanmış hediye temaları
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Gift Ideas */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
-              {[
-                {
-                  icon: '👶',
-                  title: 'Bebek & Çocuk',
-                  description: 'Minikler için güvenli ve eğlenceli hediyeler',
-                  items: ['Oyuncaklar', 'Kıyafetler', 'Eğitici Setler']
-                },
-                {
-                  icon: '👩',
-                  title: 'Kadınlar İçin',
-                  description: 'Zarif ve şık hediye seçenekleri',
-                  items: ['Takılar', 'Çantalar', 'Kozmetik Setleri']
-                },
-                {
-                  icon: '👨',
-                  title: 'Erkekler İçin',
-                  description: 'Pratik ve kaliteli hediye fikirleri',
-                  items: ['Aksesuarlar', 'Teknoloji', 'Spor Ekipmanları']
-                },
-                {
-                  icon: '👴',
-                  title: 'Yaşlılar İçin',
-                  description: 'Anlamlı ve kullanışlı hediyeler',
-                  items: ['Sağlık Ürünleri', 'Hobi Malzemeleri', 'Anı Eşyaları']
-                }
-              ].map((category, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-start space-x-4">
-                    <div className="text-3xl">{category.icon}</div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {category.title}
-                      </h3>
-                      <p className="text-gray-600 mb-3">{category.description}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {category.items.map((item, itemIndex) => (
-                          <span
-                            key={itemIndex}
-                            className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full"
-                          >
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                title: 'Romantik Tema',
+                description: 'Sevgiliniz için romantik hediye seçenekleri',
+                image: 'https://via.placeholder.com/600x400/E74C3C/FFFFFF?text=Romantic',
+                color: 'from-red-500 to-pink-500',
+                items: ['Çiçek buketi', 'Çikolata kutusu', 'Romantik mesaj', 'Özel ambalaj']
+              },
+              {
+                title: 'Aile Tema',
+                description: 'Aile bireyleri için anlamlı hediyeler',
+                image: 'https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=Family',
+                color: 'from-blue-500 to-indigo-500',
+                items: ['Aile fotoğrafı', 'Kişisel eşya', 'Anı kutusu', 'Özel mesaj']
+              },
+              {
+                title: 'Arkadaş Tema',
+                description: 'Arkadaşlarınız için eğlenceli hediyeler',
+                image: 'https://via.placeholder.com/600x400/27AE60/FFFFFF?text=Friends',
+                color: 'from-green-500 to-emerald-500',
+                items: ['Eğlenceli oyuncak', 'Hobi malzemesi', 'Deneyim hediyesi', 'Şaka hediyesi']
+              }
+            ].map((theme, index) => (
+              <motion.div
+                key={theme.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group"
+              >
+                <div className="relative h-48 overflow-hidden">
+                  <Image
+                    src={theme.image}
+                    alt={theme.title}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className={`absolute inset-0 bg-gradient-to-t ${theme.color} opacity-80`} />
+                  <div className="absolute bottom-4 left-4 text-white">
+                    <h3 className="text-2xl font-bold mb-2">{theme.title}</h3>
+                    <p className="text-sm opacity-90">{theme.description}</p>
                   </div>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Gift Wrapping */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="relative"
-            >
-              <div className="aspect-[4/5] relative rounded-2xl overflow-hidden shadow-2xl">
-                <Image
-                  src="https://via.placeholder.com/600x750/8E44AD/FFFFFF?text=Gift+Wrapping"
-                  alt="Gift Wrapping"
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-purple-900/50 to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <h3 className="text-2xl font-bold mb-2">Özel Hediye Paketi</h3>
-                  <p className="text-white/90 mb-4">
-                    Tüm hediyelerimiz özel paketleme ile gönderilir
-                  </p>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-lg font-medium hover:bg-white/30 transition-colors"
-                  >
-                    Paketleme Seçenekleri
-                  </motion.button>
                 </div>
-              </div>
-            </motion.div>
+                <div className="p-6">
+                  <div className="space-y-2">
+                    {theme.items.map((item, itemIndex) => (
+                      <div key={itemIndex} className="flex items-center space-x-2">
+                        <div className={`w-2 h-2 bg-gradient-to-r ${theme.color} rounded-full`} />
+                        <span className="text-sm text-gray-600">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -340,7 +419,7 @@ export default function HediyelikPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Filters */}
-            <div className="lg:w-80 flex-shrink-0">
+            <div className="lg:w-64 flex-shrink-0">
               <CategoryFilters
                 filters={filters}
                 onFilterChange={handleFilterChange}
@@ -352,57 +431,57 @@ export default function HediyelikPage() {
             <div className="flex-1">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Tüm Hediye Ürünleri
-                  </h2>
-                  <p className="text-gray-600">
-                    {mockProducts.length} ürün bulundu
-                  </p>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">Hediye Seçenekleri</h2>
+                  <p className="text-gray-600">{mockProducts.length} ürün bulundu</p>
                 </div>
-                
                 <div className="flex items-center space-x-4">
-                  <select className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                    <option>Önerilen</option>
+                  <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    <option>En Popüler</option>
                     <option>En Yeni</option>
-                    <option>Fiyat: Düşük → Yüksek</option>
-                    <option>Fiyat: Yüksek → Düşük</option>
-                    <option>En Çok Satan</option>
+                    <option>Fiyat (Düşük → Yüksek)</option>
+                    <option>Fiyat (Yüksek → Düşük)</option>
+                    <option>Değerlendirme</option>
                   </select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {mockProducts.map((product, index) => (
                   <motion.div
                     key={product.id}
                     initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
-                    <ProductCard {...product} />
+                    <ProductCard
+                      product={product}
+                      onQuickView={handleQuickView}
+                      className="h-full"
+                    />
                   </motion.div>
                 ))}
               </div>
-
-              {/* Load More */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                className="text-center mt-12"
-              >
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors"
-                >
-                  Daha Fazla Yükle
-                </motion.button>
-              </motion.div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Quick View Dialog */}
+      {isQuickViewOpen && selectedProduct && (
+        <QuickViewDialog
+          product={selectedProduct}
+          isOpen={isQuickViewOpen}
+          onClose={() => setIsQuickViewOpen(false)}
+        />
+      )}
+
+      {/* Gift Wizard Modal */}
+      {showGiftWizard && (
+        <GiftWizard
+          isOpen={showGiftWizard}
+          onClose={() => setShowGiftWizard(false)}
+        />
+      )}
     </div>
   );
 }

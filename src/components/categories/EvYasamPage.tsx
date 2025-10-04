@@ -2,9 +2,12 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useState } from 'react';
 import ProductCard from './ProductCard';
 import CategoryHero from './CategoryHero';
 import CategoryFilters from './CategoryFilters';
+import PromoBand from './PromoBand';
+import QuickViewDialog from './QuickViewDialog';
 
 const mockProducts = [
   {
@@ -100,24 +103,68 @@ const filters = {
 };
 
 export default function EvYasamPage() {
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
   const handleFilterChange = (filterType: string, value: any) => {
     console.log('Filter changed:', filterType, value);
   };
 
+  const handleQuickView = (product: any) => {
+    setSelectedProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const promoData = [
+    {
+      id: '1',
+      title: 'Minimalist Salon',
+      description: 'Sade ve şık salon dekorasyonu',
+      image: 'https://via.placeholder.com/600x400/27AE60/FFFFFF?text=Minimalist+Living',
+      ctaText: 'Salon Dekorasyonu',
+      ctaLink: '#products',
+      badge: 'Minimalist',
+      gradient: 'from-green-900 to-emerald-900'
+    },
+    {
+      id: '2',
+      title: 'Scandi Mutfak',
+      description: 'İskandinav tarzı mutfak tasarımı',
+      image: 'https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=Scandi+Kitchen',
+      ctaText: 'Mutfak Tasarımı',
+      ctaLink: '#products',
+      badge: 'Scandinavian',
+      gradient: 'from-indigo-900 to-purple-900'
+    },
+    {
+      id: '3',
+      title: 'Boho Yatak Odası',
+      description: 'Bohem tarzı yatak odası dekorasyonu',
+      image: 'https://via.placeholder.com/600x400/FF6B6B/FFFFFF?text=Boho+Bedroom',
+      ctaText: 'Yatak Odası',
+      ctaLink: '#products',
+      badge: 'Boho',
+      gradient: 'from-pink-900 to-rose-900'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
       {/* Hero Section */}
       <CategoryHero
-        title="Ev & Yaşam"
+        title="Evinde Yeni Bir Hava"
         description="Evinizi güzelleştiren dekorasyon ürünleri ve yaşam kalitenizi artıran çözümler. Her detayda konfor ve estetik."
-        backgroundImage="https://via.placeholder.com/1920x1080/27AE60/FFFFFF?text=Home+Living"
-        accentColor="bg-green-600"
+        backgroundImage="https://via.placeholder.com/1920x1080/27AE60/FFFFFF?text=Lifestyle+Home"
+        accentColor="bg-emerald-500"
         gradientFrom="from-green-900"
         gradientTo="to-emerald-900"
         features={['Çevre Dostu', 'El Yapımı', 'Minimalist Tasarım', 'Sürdürülebilir']}
         ctaText="Evi Keşfet"
         ctaLink="#products"
       />
+
+      {/* Promo Band */}
+      <PromoBand promos={promoData} className="bg-gradient-to-r from-green-50 to-emerald-50" />
 
       {/* Lifestyle Section */}
       <section className="py-20 bg-white">
@@ -129,11 +176,11 @@ export default function EvYasamPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-              Yaşam Tarzı Koleksiyonları
+              Oda Bazlı Kısayol Kartları
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Farklı yaşam tarzlarına uygun koleksiyonlarımız ile evinizi 
-              kişiselleştirin ve kendinizi evde hissettirin.
+              Her oda için özel olarak tasarlanmış dekorasyon ürünleri ile 
+              evinizin her köşesini güzelleştirin.
             </p>
           </motion.div>
 
@@ -141,46 +188,52 @@ export default function EvYasamPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                title: 'Minimalist Yaşam',
-                description: 'Sadelikte güzellik bulun',
-                image: 'https://via.placeholder.com/600x400/F8F9FA/6C757D?text=Minimalist',
+                title: 'Salon',
+                description: 'Rahat ve şık oturma alanı',
+                image: 'https://via.placeholder.com/600x400/27AE60/FFFFFF?text=Living+Room',
                 items: 24,
-                color: 'from-gray-100 to-gray-200'
+                color: 'from-green-100 to-emerald-200',
+                icon: '🛋️'
               },
               {
-                title: 'Bohem Tarzı',
-                description: 'Renkli ve özgür ruh',
-                image: 'https://via.placeholder.com/600x400/FF6B6B/FFFFFF?text=Bohemian',
+                title: 'Mutfak',
+                description: 'Fonksiyonel ve modern mutfak',
+                image: 'https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=Kitchen',
                 items: 18,
-                color: 'from-pink-100 to-rose-200'
+                color: 'from-indigo-100 to-purple-200',
+                icon: '🍳'
               },
               {
-                title: 'Scandinavian',
-                description: 'Kuzeyin sıcaklığı',
-                image: 'https://via.placeholder.com/600x400/3498DB/FFFFFF?text=Scandinavian',
+                title: 'Banyo',
+                description: 'Rahatlatıcı banyo alanı',
+                image: 'https://via.placeholder.com/600x400/06B6D4/FFFFFF?text=Bathroom',
                 items: 31,
-                color: 'from-blue-100 to-cyan-200'
+                color: 'from-cyan-100 to-blue-200',
+                icon: '🛁'
               },
               {
-                title: 'Industrial',
-                description: 'Modern endüstriyel',
-                image: 'https://via.placeholder.com/600x400/2C3E50/FFFFFF?text=Industrial',
+                title: 'Çalışma',
+                description: 'Verimli çalışma ortamı',
+                image: 'https://via.placeholder.com/600x400/8B5CF6/FFFFFF?text=Study+Room',
                 items: 15,
-                color: 'from-gray-200 to-gray-300'
+                color: 'from-purple-100 to-violet-200',
+                icon: '💻'
               },
               {
-                title: 'Rustic',
-                description: 'Doğal ve sıcak',
-                image: 'https://via.placeholder.com/600x400/8B4513/FFFFFF?text=Rustic',
+                title: 'Yatak Odası',
+                description: 'Huzurlu uyku alanı',
+                image: 'https://via.placeholder.com/600x400/FF6B6B/FFFFFF?text=Bedroom',
                 items: 22,
-                color: 'from-amber-100 to-yellow-200'
+                color: 'from-pink-100 to-rose-200',
+                icon: '🛏️'
               },
               {
-                title: 'Modern',
-                description: 'Çağdaş tasarım',
-                image: 'https://via.placeholder.com/600x400/27AE60/FFFFFF?text=Modern',
+                title: 'Balkon',
+                description: 'Açık hava yaşam alanı',
+                image: 'https://via.placeholder.com/600x400/10B981/FFFFFF?text=Balcony',
                 items: 28,
-                color: 'from-green-100 to-emerald-200'
+                color: 'from-emerald-100 to-green-200',
+                icon: '🌿'
               }
             ].map((style, index) => (
               <motion.div
@@ -201,7 +254,10 @@ export default function EvYasamPage() {
                   
                   {/* Content */}
                   <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{style.title}</h3>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-3xl">{style.icon}</span>
+                      <h3 className="text-2xl font-bold text-gray-900">{style.title}</h3>
+                    </div>
                     <p className="text-gray-700 mb-4">{style.description}</p>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-gray-600">
@@ -346,8 +402,114 @@ export default function EvYasamPage() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="group"
+                    whileHover={{ y: -8 }}
                   >
-                    <ProductCard {...product} />
+                    <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 group-hover:border-emerald-200">
+                      {/* Product Image */}
+                      <div className="relative aspect-square overflow-hidden bg-gray-50">
+                        <Image
+                          src={product.image}
+                          alt={product.title}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                        
+                        {/* Lifestyle Badges */}
+                        <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+                          {product.isNew && (
+                            <span className="px-2 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full">
+                              YENİ
+                            </span>
+                          )}
+                          {product.isFeatured && (
+                            <span className="px-2 py-1 bg-green-500 text-white text-xs font-bold rounded-full">
+                              ÖNE ÇIKAN
+                            </span>
+                          )}
+                          {product.discount && (
+                            <span className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+                              %{product.discount} İNDİRİM
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Quick View Button */}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => handleQuickView(product)}
+                            className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors"
+                          >
+                            Hızlı Görüntüle
+                          </motion.button>
+                        </div>
+                      </div>
+
+                      {/* Product Info */}
+                      <div className="p-6">
+                        <div className="mb-2">
+                          <span className="text-xs text-emerald-600 uppercase tracking-wide font-bold">
+                            {product.category}
+                          </span>
+                        </div>
+                        
+                        <h3 className="font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-emerald-600 transition-colors">
+                          {product.title}
+                        </h3>
+
+                        {/* Rating */}
+                        <div className="flex items-center gap-1 mb-4">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <svg
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'
+                                }`}
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            ))}
+                          </div>
+                          <span className="text-sm text-gray-500">({product.reviewCount})</span>
+                        </div>
+
+                        {/* Price */}
+                        <div className="flex items-center gap-2 mb-4">
+                          <span className="text-xl font-bold text-gray-900">
+                            {new Intl.NumberFormat('tr-TR', {
+                              style: 'currency',
+                              currency: 'TRY',
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(product.price)}
+                          </span>
+                          {product.originalPrice && product.originalPrice > product.price && (
+                            <span className="text-sm text-gray-500 line-through">
+                              {new Intl.NumberFormat('tr-TR', {
+                                style: 'currency',
+                                currency: 'TRY',
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0,
+                              }).format(product.originalPrice)}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* CTA Button */}
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full py-3 px-4 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors"
+                        >
+                          Sepete Ekle
+                        </motion.button>
+                      </div>
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -362,7 +524,7 @@ export default function EvYasamPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-8 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors"
+                  className="px-8 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition-colors"
                 >
                   Daha Fazla Yükle
                 </motion.button>
@@ -371,6 +533,13 @@ export default function EvYasamPage() {
           </div>
         </div>
       </section>
+
+      {/* Quick View Dialog */}
+      <QuickViewDialog
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+        product={selectedProduct}
+      />
     </div>
   );
 }

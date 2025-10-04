@@ -8,6 +8,9 @@ import CategoryHero from './CategoryHero';
 import CategoryFilters from './CategoryFilters';
 import PromoBand from './PromoBand';
 import QuickViewDialog from './QuickViewDialog';
+import CategorySEO from '../seo/CategorySEO';
+import SkipLinks from '../accessibility/SkipLinks';
+import Announcer from '../accessibility/Announcer';
 
 const mockProducts = [
   {
@@ -196,14 +199,17 @@ const filters = {
 export default function FigurKoleksiyonPage() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+  const [announcement, setAnnouncement] = useState('');
 
   const handleFilterChange = (filterType: string, value: any) => {
     console.log('Filter changed:', filterType, value);
+    setAnnouncement(`Filtre değiştirildi: ${filterType}`);
   };
 
   const handleQuickView = (product: any) => {
     setSelectedProduct(product);
     setIsQuickViewOpen(true);
+    setAnnouncement(`${product.title} ürünü hızlı görünümde açıldı`);
   };
 
   const promoData = [
@@ -240,9 +246,31 @@ export default function FigurKoleksiyonPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Hero Section */}
-      <CategoryHero
+    <>
+      <CategorySEO
+        title="Figür & Koleksiyon"
+        description="Anime dünyasının en sevilen karakterlerini koleksiyonunuza ekleyin. Premium kalitede figürler, aksiyon figürleri, model kitleri ve özel koleksiyon ürünleri."
+        keywords={[
+          'figür',
+          'koleksiyon',
+          'anime figürü',
+          'aksiyon figürü',
+          'model kit',
+          'funko pop',
+          'nendoroid',
+          'premium figür',
+          'koleksiyon ürünleri',
+          'anime karakterleri'
+        ]}
+        category="figur-koleksiyon"
+        image="https://via.placeholder.com/1200x630/4F46E5/FFFFFF?text=Figur+Koleksiyon"
+      />
+      <SkipLinks />
+      <Announcer message={announcement} />
+      
+      <div className="min-h-screen bg-gray-900">
+        {/* Hero Section */}
+        <CategoryHero
         title="Efsaneleri Koleksiyonuna Kat"
         description="Anime dünyasının en sevilen karakterlerini koleksiyonunuza ekleyin. Premium kalitede figürler ve özel koleksiyon ürünleri."
         backgroundImage="https://via.placeholder.com/1920x1080/0B0B0B/CBA135?text=Figur+Collection"
@@ -542,6 +570,7 @@ export default function FigurKoleksiyonPage() {
         onClose={() => setIsQuickViewOpen(false)}
         product={selectedProduct}
       />
-    </div>
+      </div>
+    </>
   );
 }

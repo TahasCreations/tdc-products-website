@@ -2,9 +2,12 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useState } from 'react';
 import ProductCard from './ProductCard';
 import CategoryHero from './CategoryHero';
 import CategoryFilters from './CategoryFilters';
+import PromoBand from './PromoBand';
+import QuickViewDialog from './QuickViewDialog';
 
 const mockProducts = [
   {
@@ -100,24 +103,68 @@ const filters = {
 };
 
 export default function SanatHobiPage() {
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
   const handleFilterChange = (filterType: string, value: any) => {
     console.log('Filter changed:', filterType, value);
   };
 
+  const handleQuickView = (product: any) => {
+    setSelectedProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const promoData = [
+    {
+      id: '1',
+      title: 'Yaratıcılığını Besle',
+      description: 'Sanat ve hobi dünyasında kendini keşfet',
+      image: 'https://via.placeholder.com/600x400/FF6B6B/FFFFFF?text=Creative+Art',
+      ctaText: 'Sanat Dünyası',
+      ctaLink: '#products',
+      badge: 'Creative',
+      gradient: 'from-orange-900 to-yellow-900'
+    },
+    {
+      id: '2',
+      title: 'Moodboard Grid',
+      description: 'İlham veren proje örnekleri',
+      image: 'https://via.placeholder.com/600x400/4F46E5/FFFFFF?text=Moodboard',
+      ctaText: 'İlham Al',
+      ctaLink: '#products',
+      badge: 'Inspiration',
+      gradient: 'from-purple-900 to-pink-900'
+    },
+    {
+      id: '3',
+      title: 'Mini Atölye Kitleri',
+      description: 'Başlangıç seviyesi setler',
+      image: 'https://via.placeholder.com/600x400/27AE60/FFFFFF?text=Workshop+Kits',
+      ctaText: 'Atölye Setleri',
+      ctaLink: '#products',
+      badge: 'Workshop',
+      gradient: 'from-green-900 to-emerald-900'
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50">
       {/* Hero Section */}
       <CategoryHero
-        title="Sanat & Hobi"
+        title="Yaratıcılığını Besle"
         description="Yaratıcılığınızı ortaya çıkaracak sanat malzemeleri ve hobi ürünleri. Her projede mükemmellik için ihtiyacınız olan her şey."
-        backgroundImage="https://via.placeholder.com/1920x1080/FF9F43/FFFFFF?text=Art+Hobby"
-        accentColor="bg-orange-600"
+        backgroundImage="https://via.placeholder.com/1920x1080/FF9F43/FFFFFF?text=Creative+Art"
+        accentColor="bg-orange-500"
         gradientFrom="from-orange-900"
         gradientTo="to-yellow-900"
         features={['Profesyonel Kalite', 'Yaratıcı Projeler', 'Başlangıç Dostu', 'Sürdürülebilir']}
         ctaText="Yaratıcılığı Keşfet"
         ctaLink="#products"
       />
+
+      {/* Promo Band */}
+      <PromoBand promos={promoData} className="bg-gradient-to-r from-orange-50 to-yellow-50" />
 
       {/* Moodboard Section */}
       <section className="py-20 bg-white">
