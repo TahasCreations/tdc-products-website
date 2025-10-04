@@ -63,13 +63,13 @@ export default function Header() {
         }`}
       >
         {/* Main Header */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
             {/* Logo */}
             <HeaderLogo />
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:block flex-1 max-w-4xl mx-8">
+            <div className="hidden lg:block flex-1 max-w-2xl mx-4">
               <HeaderNav />
             </div>
 
@@ -83,8 +83,8 @@ export default function Header() {
 
         {/* Desktop Category Navigation */}
         <div className="hidden lg:block border-t border-gray-100 bg-white/90 backdrop-blur-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-center space-x-8 py-3">
+          <div className="w-full px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center space-x-8 py-3">
               {/* Category links will be rendered by HeaderNav */}
             </div>
           </div>

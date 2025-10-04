@@ -122,13 +122,13 @@ export default function HeaderActions({
   }
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-1">
       {/* Search Button */}
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={handleSearchClick}
-        className="p-2 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
+        className="p-1.5 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
         aria-label="Arama"
       >
         <Search className="w-5 h-5" />
@@ -179,7 +179,7 @@ export default function HeaderActions({
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={handleThemeToggle}
-        className="p-2 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
+        className="p-1.5 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
         aria-label="Tema Değiştir"
       >
         {theme === 'dark' ? (
@@ -321,7 +321,7 @@ export default function HeaderActions({
       ) : (
         <Link
           href="/giris"
-          className="px-4 py-2 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200"
+          className="px-3 py-1.5 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200"
         >
           Giriş Yap
         </Link>
@@ -331,7 +331,7 @@ export default function HeaderActions({
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={onMenuClick}
-        className="lg:hidden p-2 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
+        className="lg:hidden p-1.5 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
         aria-label="Menü"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

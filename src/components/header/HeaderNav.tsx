@@ -123,7 +123,7 @@ export default function HeaderNav({ isMobile = false, onItemClick }: HeaderNavPr
   }
 
   return (
-    <nav className="hidden lg:flex items-center space-x-8" role="navigation">
+    <nav className="hidden lg:flex items-center space-x-6" role="navigation">
       {/* Simple nav items */}
       {simpleNavItems.map((item, index) => (
         <motion.div

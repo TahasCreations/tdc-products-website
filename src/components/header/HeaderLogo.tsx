@@ -44,7 +44,7 @@ export default function HeaderLogo() {
               TDC Market
             </span>
             <p className="text-xs text-gray-500 -mt-1 font-medium">
-              Premium Koleksiyon
+              Özel figürlerden elektroniğe, tasarımdan ev yaşamına
             </p>
           </div>
         </motion.div>
