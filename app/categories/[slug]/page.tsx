@@ -1,46 +1,26 @@
 import { notFound } from 'next/navigation';
+import FigurKoleksiyonPage from '@/components/categories/FigurKoleksiyonPage';
+import ModaAksesuarPage from '@/components/categories/ModaAksesuarPage';
+import ElektronikPage from '@/components/categories/ElektronikPage';
+import EvYasamPage from '@/components/categories/EvYasamPage';
+import SanatHobiPage from '@/components/categories/SanatHobiPage';
+import HediyelikPage from '@/components/categories/HediyelikPage';
 
-const mockCategories = {
-  'figur-koleksiyon': {
-    name: 'Figür & Koleksiyon',
-    description: 'Anime figürleri, film karakterleri ve koleksiyon ürünleri'
-  },
-  'moda-aksesuar': {
-    name: 'Moda & Aksesuar',
-    description: 'Tişört, hoodie, şapka ve takı koleksiyonları'
-  },
-  'elektronik': {
-    name: 'Elektronik',
-    description: 'Kulaklık, akıllı ev ürünleri ve elektronik aksesuarlar'
-  },
-  'ev-yasam': {
-    name: 'Ev & Yaşam',
-    description: 'Dekorasyon, aydınlatma ve ev ürünleri'
-  },
-  'sanat-hobi': {
-    name: 'Sanat & Hobi',
-    description: 'Boya, tuval ve el sanatları malzemeleri'
-  },
-  'hediyelik': {
-    name: 'Hediyelik',
-    description: 'Kişiye özel hediyeler ve özel gün setleri'
-  }
+const categoryComponents = {
+  'figur-koleksiyon': FigurKoleksiyonPage,
+  'moda-aksesuar': ModaAksesuarPage,
+  'elektronik': ElektronikPage,
+  'ev-yasam': EvYasamPage,
+  'sanat-hobi': SanatHobiPage,
+  'hediyelik': HediyelikPage
 };
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
-  const category = mockCategories[params.slug as keyof typeof mockCategories];
+  const CategoryComponent = categoryComponents[params.slug as keyof typeof categoryComponents];
   
-  if (!category) {
+  if (!CategoryComponent) {
     notFound();
   }
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-4">{category.name}</h1>
-      <p className="text-gray-600 mb-8">{category.description}</p>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <p className="text-gray-700">Bu kategorideki ürünler burada listelenecek.</p>
-      </div>
-    </div>
-  );
+  return <CategoryComponent />;
 }

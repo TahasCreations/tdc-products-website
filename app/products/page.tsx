@@ -354,96 +354,120 @@ export default function ProductsPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header Spacer - Header'ın altında kalmaması için */}
+      <div className="h-20"></div>
+      
       <div className="flex">
-        {/* Desktop Filters Sidebar - Fixed Left */}
-        <div className="hidden lg:block lg:w-64 flex-shrink-0 bg-white border-r border-gray-200 sticky top-0 h-screen overflow-y-auto">
-          <div className="p-4">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">Filtreler</h3>
+        {/* Desktop Filters Sidebar - Compact & Animated */}
+        <div className="hidden lg:block lg:w-56 flex-shrink-0 bg-white/95 backdrop-blur-sm border-r border-gray-200/50 sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto shadow-sm">
+          <div className="p-3">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-gray-900">Filtreler</h3>
+              <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+            </div>
             
-            {/* Categories */}
-            <div className="mb-6">
-              <h4 className="text-xs font-medium text-gray-700 mb-3">Kategoriler</h4>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
+            {/* Categories - Compact Design */}
+            <div className="mb-5">
+              <h4 className="text-xs font-medium text-gray-700 mb-3 flex items-center">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Kategoriler
+              </h4>
+              <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {[
-                  { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', subcategories: ['Anime Figürleri', 'Film/TV Figürleri', 'Dioramalar', 'Koleksiyon Arabaları', 'Maket & Kitler', 'Limited Edition'] },
-                  { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', subcategories: ['Tişört', 'Hoodie', 'Şapka', 'Takı & Bileklik', 'Çanta & Cüzdan', 'Ayakkabı'] },
-                  { name: 'Elektronik', href: '/products?category=elektronik', subcategories: ['Kulaklık', 'Akıllı Ev', 'Aydınlatma', 'Hobi Elektroniği', '3D Yazıcı', 'Bilgisayar Aksesuarları'] },
-                  { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', subcategories: ['Dekor', 'Mutfak', 'Düzenleme', 'Banyo', 'Tekstil'] },
-                  { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', subcategories: ['Boya & Fırça', 'Tuval', '3D Baskı', 'El Sanatları', 'Kırtasiye', 'Model & Maket'] },
-                  { name: 'Hediyelik', href: '/products?category=hediyelik', subcategories: ['Kişiye Özel', 'Doğum Günü', 'Özel Gün Setleri', 'Kart & Aksesuar', 'Kurumsal Hediyeler'] }
-                ].map((cat) => (
-                  <div key={cat.name} className="space-y-1">
-                    <a
-                      href={cat.href}
-                      className={`block px-3 py-2 rounded text-xs font-medium transition-colors ${
-                        category === cat.name.toLowerCase().replace(/\s+/g, '-')
-                          ? 'bg-indigo-50 text-indigo-700'
-                          : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                    >
-                      {cat.name}
-                    </a>
-                    {/* Subcategories */}
-                    <div className="ml-4 space-y-1">
-                      {cat.subcategories.slice(0, 3).map((subcat, index) => (
-                        <a
-                          key={index}
-                          href={`${cat.href}&subcategory=${subcat.toLowerCase().replace(/\s+/g, '-')}`}
-                          className="block text-xs text-gray-600 hover:text-indigo-600 transition-colors py-1"
-                        >
-                          {subcat}
-                        </a>
-                      ))}
-                      {cat.subcategories.length > 3 && (
-                        <span className="text-xs text-gray-400">+{cat.subcategories.length - 3} daha</span>
-                      )}
+                  { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', icon: '🎭', count: 156 },
+                  { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', icon: '👕', count: 89 },
+                  { name: 'Elektronik', href: '/products?category=elektronik', icon: '📱', count: 67 },
+                  { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', icon: '🏠', count: 123 },
+                  { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', icon: '🎨', count: 45 },
+                  { name: 'Hediyelik', href: '/products?category=hediyelik', icon: '🎁', count: 78 }
+                ].map((cat, index) => (
+                  <motion.a
+                    key={cat.name}
+                    href={cat.href}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className={`group flex items-center justify-between px-2 py-2 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-[1.02] ${
+                      category === cat.name.toLowerCase().replace(/\s+/g, '-')
+                        ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 shadow-sm'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm">{cat.icon}</span>
+                      <span className="truncate">{cat.name}</span>
                     </div>
-                  </div>
+                    <span className="text-xs text-gray-400 group-hover:text-gray-600">{cat.count}</span>
+                  </motion.a>
                 ))}
               </div>
             </div>
 
-            {/* Price Range */}
+            {/* Price Range - Compact */}
             <div className="mb-4">
-              <h4 className="text-xs font-medium text-gray-700 mb-2">Fiyat Aralığı</h4>
+              <h4 className="text-xs font-medium text-gray-700 mb-2 flex items-center">
+                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+                Fiyat Aralığı
+              </h4>
               <div className="space-y-2">
-                <input
-                  type="number"
-                  placeholder="Min ₺"
-                  defaultValue={minPrice || ''}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-transparent"
-                />
-                <input
-                  type="number"
-                  placeholder="Max ₺"
-                  defaultValue={maxPrice || ''}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-indigo-500 focus:border-transparent"
-                />
+                <div className="flex space-x-1">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    defaultValue={minPrice || ''}
+                    className="flex-1 px-2 py-1.5 border border-gray-200 rounded-md text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    defaultValue={maxPrice || ''}
+                    className="flex-1 px-2 py-1.5 border border-gray-200 rounded-md text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  />
+                </div>
+                <div className="text-xs text-gray-500 text-center">₺</div>
               </div>
             </div>
 
-            {/* Stock Filter */}
+            {/* Stock Filter - Compact */}
             <div className="mb-4">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  defaultChecked={inStock}
-                  className="w-3 h-3 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                />
-                <span className="text-xs text-gray-700">Stokta olanlar</span>
+              <label className="flex items-center space-x-2 cursor-pointer group">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    defaultChecked={inStock}
+                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 opacity-0 absolute"
+                  />
+                  <div className="w-4 h-4 border-2 border-gray-300 rounded flex items-center justify-center group-hover:border-indigo-400 transition-colors">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+                <span className="text-xs text-gray-700 group-hover:text-gray-900">Stokta olanlar</span>
               </label>
             </div>
 
-            {/* Clear Filters */}
-            <button className="w-full text-xs text-indigo-600 hover:text-indigo-700 font-medium">
-              Filtreleri Temizle
-            </button>
+            {/* Clear Filters - Animated */}
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full text-xs text-indigo-600 hover:text-indigo-700 font-medium py-2 px-3 rounded-lg hover:bg-indigo-50 transition-colors flex items-center justify-center space-x-1"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Filtreleri Temizle</span>
+            </motion.button>
           </div>
         </div>
 
         {/* Main Content Area */}
         <div className="flex-1 min-w-0">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Breadcrumb */}
         <Breadcrumb items={breadcrumbItems} />
 
@@ -460,15 +484,20 @@ export default function ProductsPage({
 
         {/* Mobile Filters Trigger */}
         <div className="lg:hidden mb-4">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setIsFiltersOpen(true)}
-            className="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
+            className="inline-flex items-center px-4 py-3 rounded-xl border border-gray-200 bg-white/80 backdrop-blur-sm text-sm font-medium text-gray-700 hover:bg-white hover:shadow-md shadow-sm transition-all duration-200"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
-            </svg>
-            Gelişmiş Filtreler
-          </button>
+            <div className="w-5 h-5 mr-2 bg-indigo-100 rounded-md flex items-center justify-center">
+              <svg className="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+              </svg>
+            </div>
+            <span>Gelişmiş Filtreler</span>
+            <div className="ml-2 w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+          </motion.button>
         </div>
 
           {/* Mobile Slide-over Filters */}
@@ -489,18 +518,25 @@ export default function ProductsPage({
                   className="absolute left-0 top-0 h-full w-full max-w-sm bg-white shadow-xl"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="p-4 border-b flex items-center justify-between">
+                  <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50 flex items-center justify-between">
                     <div className="flex items-center">
-                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                      </svg>
-                      <h2 className="text-base font-semibold text-gray-900">Kategoriler & Filtreler</h2>
+                      <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+                        <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+                        </svg>
+                      </div>
+                      <h2 className="text-lg font-semibold text-gray-900">Filtreler</h2>
                     </div>
-                    <button onClick={() => setIsFiltersOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <motion.button 
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setIsFiltersOpen(false)} 
+                      className="p-2 hover:bg-white/50 rounded-full transition-colors"
+                    >
+                      <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                    </button>
+                    </motion.button>
                   </div>
                   <div className="p-4 overflow-y-auto h-[calc(100%-56px)]">
                     <ProductFilters
