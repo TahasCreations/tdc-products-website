@@ -11,6 +11,7 @@ type WishlistItem = {
 
 type WishlistContextValue = {
   items: WishlistItem[];
+  count: number;
   has: (id: string) => boolean;
   toggle: (item: WishlistItem) => void;
   add: (item: WishlistItem) => void;
@@ -46,7 +47,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const toggle = (item: WishlistItem) => (has(item.id) ? remove(item.id) : add(item));
   const clear = () => setItems([]);
 
-  const value: WishlistContextValue = { items, has, toggle, add, remove, clear };
+  const value: WishlistContextValue = { items, count: items.length, has, toggle, add, remove, clear };
   return <WishlistContext.Provider value={value}>{children}</WishlistContext.Provider>;
 }
 

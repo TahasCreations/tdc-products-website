@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Manrope } from 'next/font/google'
 import './globals.css'
-import { ThemeProvider } from '@/contexts/ThemeContext'
+import { ThemeProvider } from 'next-themes'
 import { CartProvider } from '@/contexts/CartContext'
 import { WishlistProvider } from '@/contexts/WishlistContext'
 import { CompareProvider } from '@/contexts/CompareContext'
@@ -96,7 +96,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} antialiased`}>
         <div id="root">
-          <ThemeProvider>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <CartProvider>
               <WishlistProvider>
                 <CompareProvider>
