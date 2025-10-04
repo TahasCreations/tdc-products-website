@@ -32,8 +32,8 @@ export default function HeaderActions({
   };
 
   const handleWishlistClick = () => {
-    // TODO: Implement wishlist modal/drawer
-    console.log('Wishlist clicked');
+    // Redirect to profile favorites tab
+    window.location.href = '/profile?tab=favorites';
   };
 
   const handleCartClick = () => {
@@ -54,125 +54,103 @@ export default function HeaderActions({
 
   if (isMobile) {
     return (
-      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl">
-        {/* Search Button */}
+      <div className="flex items-center justify-end space-x-3">
+        {/* Wishlist */}
         <motion.button
           whileTap={{ scale: 0.95 }}
-          onClick={handleSearchClick}
-          className="flex items-center space-x-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
-          aria-label="Arama"
+          onClick={handleWishlistClick}
+          className="relative p-2 text-gray-600 hover:text-[#CBA135] transition-colors"
+          aria-label="Favoriler"
         >
-          <Search className="w-5 h-5 text-gray-600" />
-          <span className="text-sm font-medium text-gray-700">Ara</span>
+          <Heart className="w-6 h-6" />
+          {wishlistCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-[#CBA135] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
+              {wishlistCount}
+            </span>
+          )}
         </motion.button>
 
-        {/* Action Icons */}
-        <div className="flex items-center space-x-3">
-          {/* Wishlist */}
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleWishlistClick}
-            className="relative p-2 text-gray-600 hover:text-[#CBA135] transition-colors"
-            aria-label="Favoriler"
-          >
-            <Heart className="w-6 h-6" />
-            {wishlistCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#CBA135] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
-                {wishlistCount}
-              </span>
-            )}
-          </motion.button>
-
-          {/* Cart */}
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleCartClick}
-            className="relative p-2 text-gray-600 hover:text-[#CBA135] transition-colors"
-            aria-label="Sepet"
-          >
-            <ShoppingCart className="w-6 h-6" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[#CBA135] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
-                {cartCount}
-              </span>
-            )}
-          </motion.button>
-
-          {/* User Menu */}
-          {session ? (
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={handleUserMenuToggle}
-              className="relative p-2 text-gray-600 hover:text-[#CBA135] transition-colors"
-              aria-label="Kullanıcı Menüsü"
-            >
-              <User className="w-6 h-6" />
-            </motion.button>
-          ) : (
-            <Link
-              href="/giris"
-              className="px-4 py-2 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200"
-            >
-              Giriş Yap
-            </Link>
+        {/* Cart */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={handleCartClick}
+          className="relative p-2 text-gray-600 hover:text-[#CBA135] transition-colors"
+          aria-label="Sepet"
+        >
+          <ShoppingCart className="w-6 h-6" />
+          {cartCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-[#CBA135] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
+              {cartCount}
+            </span>
           )}
-        </div>
+        </motion.button>
+
+        {/* User Menu */}
+        {session ? (
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleUserMenuToggle}
+            className="relative p-2 text-gray-600 hover:text-[#CBA135] transition-colors"
+            aria-label="Kullanıcı Menüsü"
+          >
+            <User className="w-6 h-6" />
+          </motion.button>
+        ) : (
+          <Link
+            href="/giris"
+            className="px-4 py-2 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200"
+          >
+            Giriş Yap
+          </Link>
+        )}
       </div>
     );
   }
 
   return (
     <div className="flex items-center space-x-1">
-      {/* Search Button */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={handleSearchClick}
-        className="p-1.5 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
-        aria-label="Arama"
-      >
-        <Search className="w-5 h-5" />
-      </motion.button>
+      {/* Cart with Wishlist */}
+      <div className="flex items-center space-x-1">
+        {/* Wishlist */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleWishlistClick}
+          className="relative p-1.5 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
+          aria-label="Favoriler"
+        >
+          <Heart className="w-5 h-5" />
+          {wishlistCount > 0 && (
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute -top-1 -right-1 bg-[#CBA135] text-white rounded-full h-4 w-4 flex items-center justify-center text-xs font-bold"
+            >
+              {wishlistCount}
+            </motion.span>
+          )}
+        </motion.button>
 
-      {/* Wishlist */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={handleWishlistClick}
-        className="relative p-2 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
-        aria-label="Favoriler"
-      >
-        <Heart className="w-5 h-5" />
-        {wishlistCount > 0 && (
-          <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 bg-[#CBA135] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold"
-          >
-            {wishlistCount}
-          </motion.span>
-        )}
-      </motion.button>
-
-      {/* Cart */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={handleCartClick}
-        className="relative p-2 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
-        aria-label="Sepet"
-      >
-        <ShoppingCart className="w-5 h-5" />
-        {cartCount > 0 && (
-          <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 bg-[#CBA135] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold"
-          >
-            {cartCount}
-          </motion.span>
-        )}
-      </motion.button>
+        {/* Cart */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleCartClick}
+          className="relative p-1.5 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
+          aria-label="Sepet"
+        >
+          <ShoppingCart className="w-5 h-5" />
+          {cartCount > 0 && (
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute -top-1 -right-1 bg-[#CBA135] text-white rounded-full h-4 w-4 flex items-center justify-center text-xs font-bold"
+            >
+              {cartCount}
+            </motion.span>
+          )}
+        </motion.button>
+      </div>
 
       {/* Theme Toggle */}
       <motion.button

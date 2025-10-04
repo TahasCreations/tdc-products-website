@@ -134,6 +134,8 @@ model Product {
   embedding     ProductEmbedding?
   recommendations ProductReco[] @relation("ProductRecommendations")
   recommendedBy ProductReco[] @relation("RecommendedProducts")
+  shippingEstimate ShippingEstimate?
+  variants      ProductVariant[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -161,6 +163,7 @@ model OrderItem {
   id         String   @id @default(cuid())
   orderId    String
   productId  String
+  variantId  String?
   sellerId   String
   title      String
   unitPrice  Float
@@ -169,6 +172,7 @@ model OrderItem {
   
   order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant    ProductVariant? @relation("OrderItemVariant", fields: [variantId], references: [id])
 }
 
 // === PAYOUT MANAGEMENT ===
@@ -586,4 +590,174 @@ model PushToken {
   token     String   @unique
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// === SHIPPING & ETA MANAGEMENT ===
+model ShippingEstimate {
+  id              String   @id @default(cuid())
+  productId       String   @unique
+  productionType  String   // stoklu | elyapimi
+  estimateMode    String   // sabit | aralik | kural
+  businessDays    Boolean  @default(true)
+  weekendDispatch Boolean  @default(false)
+  cutoffHour      Int      @default(16)
+  fixedDays       Int?
+  minDays         Int?
+  maxDays         Int?
+  regionOverrides Json?    // RegionOverride[]
+  blackoutDates   Json?    // string[]
+  capacityFactor  Float?   // 0.5-2.0
+  dailyCapacity   Int?     // el yapımı için
+  backlogUnits    Int?     // el yapımı için
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductVariant {
+  id                    String   @id @default(cuid())
+  productId             String
+  sku                   String   @unique
+  name                  String
+  attributes            Json     // renk, beden vb.
+  price                 Float?
+  stock                 Int      @default(0)
+  images                String?  // JSON string
+  shippingEstimateVariant String @default("inherit") // inherit | override
+  shippingEstimate      Json?    // ShippingEstimateConfig (override durumunda)
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  product               Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems            OrderItem[] @relation("OrderItemVariant")
+}
+
+model SlaMatrix {
+  id               String   @id @default(cuid())
+  scope            Json     // {postalPattern, il, ilce, region}
+  carrier          String   // Yurtiçi, Aras, UPS, DHL vb.
+  transitMin       Int      // minimum transit gün
+  transitMax       Int      // maksimum transit gün
+  remoteAreaFactor Float?   // uzak bölge çarpanı
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([carrier, scope])
+}
+
+model Warehouse {
+  id              String   @id @default(cuid())
+  name            String
+  code            String   @unique
+  lat             Float
+  lon             Float
+  address         String
+  city            String
+  postalCode      String
+  cutoffHour      Int      @default(16)
+  weekendDispatch Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  inventory       WarehouseInventory[]
+  shipments       Shipment[]
+}
+
+model WarehouseInventory {
+  id          String   @id @default(cuid())
+  warehouseId String
+  productId   String
+  variantId   String?
+  stock       Int      @default(0)
+  reserved    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  
+  @@unique([warehouseId, productId, variantId])
+}
+
+model Holiday {
+  id          String   @id @default(cuid())
+  name        String
+  date        String   // YYYY-MM-DD format
+  type        String   // resmi | özel | kampanya
+  isRecurring Boolean  @default(false)
+  capacityFactor Float @default(1.0)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([date])
+}
+
+model ShippingPreset {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  description     String?
+  productionType  String
+  estimateMode    String
+  businessDays    Boolean  @default(true)
+  weekendDispatch Boolean  @default(false)
+  cutoffHour      Int      @default(16)
+  fixedDays       Int?
+  minDays         Int?
+  maxDays         Int?
+  capacityFactor  Float?
+  dailyCapacity   Int?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model DeliveryAnalytics {
+  id                String   @id @default(cuid())
+  orderId           String
+  productId         String
+  variantId         String?
+  estimatedShipDate DateTime
+  actualShipDate    DateTime?
+  estimatedDelivery DateTime
+  actualDelivery    DateTime?
+  carrier           String?
+  region            String
+  onTimeDelivery    Boolean?
+  delayDays         Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([productId, estimatedDelivery])
+  @@index([carrier, onTimeDelivery])
+}
+
+model Shipment {
+  id          String   @id @default(cuid())
+  orderId     String
+  warehouseId String
+  trackingNumber String?
+  carrier     String
+  status      String   @default("preparing") // preparing | shipped | in_transit | delivered | failed
+  shippedAt   DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  items       ShipmentItem[]
+}
+
+model ShipmentItem {
+  id         String   @id @default(cuid())
+  shipmentId String
+  productId  String
+  variantId  String?
+  quantity   Int
+  createdAt  DateTime @default(now())
+  
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 }
