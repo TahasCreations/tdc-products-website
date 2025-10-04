@@ -21,7 +21,14 @@ const mockProducts = [
     rating: 4.8,
     reviewCount: 234,
     isNew: true,
-    discount: 25
+    discount: 25,
+    specifications: {
+      'Ses Kalitesi': 'Hi-Res Audio',
+      'Pil Ömrü': '30 saat',
+      'Bağlantı': 'Bluetooth 5.0',
+      'Ağırlık': '250g',
+      'Marka': 'TechSound'
+    }
   },
   {
     id: '2',
@@ -31,7 +38,14 @@ const mockProducts = [
     category: 'Akıllı Ev',
     rating: 4.7,
     reviewCount: 156,
-    isFeatured: true
+    isFeatured: true,
+    specifications: {
+      'WiFi': 'WiFi 6',
+      'Bağlantı': 'Zigbee, Z-Wave',
+      'Kapasite': '100 cihaz',
+      'Güç': 'USB-C',
+      'Marka': 'SmartHome Pro'
+    }
   },
   {
     id: '3',
@@ -40,7 +54,14 @@ const mockProducts = [
     image: 'https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=LED+Strip',
     category: 'Aydınlatma',
     rating: 4.6,
-    reviewCount: 89
+    reviewCount: 89,
+    specifications: {
+      'Uzunluk': '5 metre',
+      'Renkler': '16.7M RGB',
+      'Güç': '12V',
+      'Kontrol': 'Uzaktan kumanda',
+      'Marka': 'LEDMaster'
+    }
   },
   {
     id: '4',
@@ -49,7 +70,14 @@ const mockProducts = [
     image: 'https://via.placeholder.com/400x400/27AE60/FFFFFF?text=Gaming+Mouse',
     category: 'Gaming',
     rating: 4.9,
-    reviewCount: 312
+    reviewCount: 312,
+    specifications: {
+      'DPI': '16000',
+      'Sensör': 'Optik',
+      'Bağlantı': 'USB-A',
+      'Ağırlık': '120g',
+      'Marka': 'GameTech'
+    }
   },
   {
     id: '5',
@@ -58,7 +86,14 @@ const mockProducts = [
     image: 'https://via.placeholder.com/400x400/E74C3C/FFFFFF?text=Keyboard',
     category: 'Klavye',
     rating: 4.5,
-    reviewCount: 178
+    reviewCount: 178,
+    specifications: {
+      'Switch': 'Cherry MX Blue',
+      'Bağlantı': 'USB-C',
+      'Aydınlatma': 'RGB',
+      'Layout': 'TKL',
+      'Marka': 'KeyMaster'
+    }
   },
   {
     id: '6',
@@ -67,7 +102,14 @@ const mockProducts = [
     image: 'https://via.placeholder.com/400x400/9B59B6/FFFFFF?text=Webcam',
     category: 'Webcam',
     rating: 4.4,
-    reviewCount: 67
+    reviewCount: 67,
+    specifications: {
+      'Çözünürlük': '4K UHD',
+      'FPS': '30fps',
+      'Mikrofon': 'Stereo',
+      'Bağlantı': 'USB 3.0',
+      'Marka': 'StreamCam'
+    }
   }
 ];
 
@@ -488,18 +530,12 @@ export default function ElektronikPage() {
 
                         {/* Tech Specs */}
                         <div className="mb-4 space-y-1">
-                          <div className="text-sm text-gray-400 flex items-center">
-                            <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mr-2"></div>
-                            CPU: {product.specifications?.CPU || 'N/A'}
-                          </div>
-                          <div className="text-sm text-gray-400 flex items-center">
-                            <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mr-2"></div>
-                            RAM: {product.specifications?.RAM || 'N/A'}
-                          </div>
-                          <div className="text-sm text-gray-400 flex items-center">
-                            <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mr-2"></div>
-                            Storage: {product.specifications?.Storage || 'N/A'}
-                          </div>
+                          {product.specifications && Object.entries(product.specifications).slice(0, 3).map(([key, value], index) => (
+                            <div key={key} className="text-sm text-gray-400 flex items-center">
+                              <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mr-2"></div>
+                              {key}: {value}
+                            </div>
+                          ))}
                         </div>
 
                         {/* Rating */}

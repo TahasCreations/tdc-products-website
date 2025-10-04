@@ -172,26 +172,20 @@ const filters = {
     { id: 'baby', label: 'Bebek Hediyeleri', count: 35 },
     { id: 'corporate', label: 'Kurumsal', count: 15 },
   ],
-  occasion: [
-    { id: 'romantic', label: 'Romantik', count: 30 },
-    { id: 'family', label: 'Aile', count: 40 },
-    { id: 'friends', label: 'Arkadaş', count: 35 },
-    { id: 'business', label: 'İş', count: 20 },
+  brands: [
+    { id: 'giftbox', label: 'GiftBox Premium', count: 20 },
+    { id: 'partytime', label: 'PartyTime', count: 15 },
+    { id: 'flowergift', label: 'FlowerGift', count: 12 },
+    { id: 'romancegift', label: 'RomanceGift', count: 8 },
+    { id: 'babygift', label: 'BabyGift', count: 10 },
   ],
-  priceRange: [
-    { id: 'budget', label: 'Bütçe Dostu (0-100₺)', count: 50 },
-    { id: 'mid', label: 'Orta (100-300₺)', count: 40 },
-    { id: 'premium', label: 'Premium (300₺+)', count: 30 },
-  ],
-  recipient: [
-    { id: 'women', label: 'Kadın', count: 60 },
-    { id: 'men', label: 'Erkek', count: 45 },
-    { id: 'children', label: 'Çocuk', count: 35 },
-    { id: 'couple', label: 'Çift', count: 25 },
-  ],
-  stock: [
-    { id: 'in-stock', label: 'Stokta', count: 100 },
-    { id: 'pre-order', label: 'Ön Sipariş', count: 20 },
+  colors: [
+    { id: 'red', label: '#E74C3C' },
+    { id: 'pink', label: '#F39C12' },
+    { id: 'purple', label: '#9B59B6' },
+    { id: 'blue', label: '#3498DB' },
+    { id: 'green', label: '#27AE60' },
+    { id: 'gold', label: '#F1C40F' }
   ],
   features: [
     { id: 'personalized', label: 'Kişiselleştirilebilir', count: 40 },
@@ -213,6 +207,12 @@ export default function HediyelikPage() {
   const handleQuickView = (product: any) => {
     setSelectedProduct(product);
     setIsQuickViewOpen(true);
+  };
+
+  const handleGiftWizardComplete = (giftData: any) => {
+    console.log('Gift wizard completed:', giftData);
+    setShowGiftWizard(false);
+    // Here you could redirect to filtered products or show recommendations
   };
 
   const promoData = [
@@ -454,8 +454,17 @@ export default function HediyelikPage() {
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
                     <ProductCard
-                      product={product}
-                      onQuickView={handleQuickView}
+                      id={product.id}
+                      title={product.title}
+                      price={product.price}
+                      originalPrice={product.originalPrice}
+                      image={product.image}
+                      category={product.category}
+                      rating={product.rating}
+                      reviewCount={product.reviewCount}
+                      isNew={product.isNew}
+                      isFeatured={product.isFeatured}
+                      discount={product.discount}
                       className="h-full"
                     />
                   </motion.div>
@@ -480,6 +489,7 @@ export default function HediyelikPage() {
         <GiftWizard
           isOpen={showGiftWizard}
           onClose={() => setShowGiftWizard(false)}
+          onComplete={handleGiftWizardComplete}
         />
       )}
     </div>
