@@ -130,8 +130,6 @@ export default function HeaderActions({
             </motion.span>
           )}
         </motion.button>
-      </div>
-
       {/* Theme Toggle */}
       <motion.button
         whileHover={{ scale: 1.05 }}
