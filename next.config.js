@@ -3,13 +3,8 @@ const config = {
   async redirects() {
     return [
       {
-        source: '/categories/:slug',
-        destination: '/k/:slug',
-        permanent: false,
-      },
-      {
-        source: '/category/:slug',
-        destination: '/k/:slug',
+        source: '/k/:slug',
+        destination: '/categories/:slug',
         permanent: false,
       },
     ];
