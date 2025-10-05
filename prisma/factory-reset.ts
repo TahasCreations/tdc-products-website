@@ -17,12 +17,15 @@ import * as readline from 'readline';
 
 // Environment variables validation
 const requiredEnvVars = [
+  'FACTORY_RESET',
+  'FACTORY_RESET_CONFIRM'
+];
+
+const optionalEnvVars = [
   'GCP_PROJECT_ID',
   'GCP_CLIENT_EMAIL', 
   'GCP_PRIVATE_KEY',
-  'GCS_BUCKET',
-  'FACTORY_RESET',
-  'FACTORY_RESET_CONFIRM'
+  'GCS_BUCKET'
 ];
 
 // Check required environment variables
@@ -31,6 +34,12 @@ for (const envVar of requiredEnvVars) {
     console.error(`❌ Missing required environment variable: ${envVar}`);
     process.exit(1);
   }
+}
+
+// Check optional environment variables for GCS
+const hasGCSConfig = optionalEnvVars.every(envVar => process.env[envVar]);
+if (!hasGCSConfig) {
+  console.log('⚠️  GCS configuration missing - will skip GCS cleanup');
 }
 
 // Validate factory reset confirmation
@@ -129,15 +138,22 @@ async function main() {
   }
   
   const prisma = new PrismaClient();
-  const storage = new Storage({
-    projectId: process.env.GCP_PROJECT_ID,
-    credentials: {
-      client_email: process.env.GCP_CLIENT_EMAIL,
-      private_key: process.env.GCP_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    },
-  });
   
-  const bucket = storage.bucket(process.env.GCS_BUCKET!);
+  // Initialize GCS only if configuration is available
+  let storage: Storage | null = null;
+  let bucket: any = null;
+  
+  if (hasGCSConfig) {
+    storage = new Storage({
+      projectId: process.env.GCP_PROJECT_ID,
+      credentials: {
+        client_email: process.env.GCP_CLIENT_EMAIL,
+        private_key: process.env.GCP_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      },
+    });
+    
+    bucket = storage.bucket(process.env.GCS_BUCKET!);
+  }
   
   try {
     if (isDryRun) {
@@ -155,14 +171,18 @@ async function main() {
       }
       
       // GCS counts
-      console.log('\n📦 GCS Objects:');
-      for (const prefix of gcsPrefixes) {
-        try {
-          const [files] = await bucket.getFiles({ prefix });
-          console.log(`  ${prefix}: ${files.length} objects`);
-        } catch (error) {
-          console.log(`  ${prefix}: Error checking`);
+      if (bucket) {
+        console.log('\n📦 GCS Objects:');
+        for (const prefix of gcsPrefixes) {
+          try {
+            const [files] = await bucket.getFiles({ prefix });
+            console.log(`  ${prefix}: ${files.length} objects`);
+          } catch (error) {
+            console.log(`  ${prefix}: Error checking`);
+          }
         }
+      } else {
+        console.log('\n📦 GCS Objects: Skipped (no GCS configuration)');
       }
       
       console.log('\n✅ Dry run completed - no data was deleted');
@@ -199,22 +219,27 @@ async function main() {
     }
     
     // GCS cleanup
-    console.log('\n☁️  Cleaning GCS bucket...');
     const gcsDeletedCounts: Record<string, number> = {};
     
-    for (const prefix of gcsPrefixes) {
-      try {
-        const [files] = await bucket.getFiles({ prefix });
-        if (files.length > 0) {
-          await Promise.all(files.map(file => file.delete()));
-          gcsDeletedCounts[prefix] = files.length;
-          console.log(`  ✅ ${prefix}: ${files.length} objects deleted`);
-        } else {
-          console.log(`  ℹ️  ${prefix}: No objects found`);
+    if (bucket) {
+      console.log('\n☁️  Cleaning GCS bucket...');
+      
+      for (const prefix of gcsPrefixes) {
+        try {
+          const [files] = await bucket.getFiles({ prefix });
+          if (files.length > 0) {
+            await Promise.all(files.map(file => file.delete()));
+            gcsDeletedCounts[prefix] = files.length;
+            console.log(`  ✅ ${prefix}: ${files.length} objects deleted`);
+          } else {
+            console.log(`  ℹ️  ${prefix}: No objects found`);
+          }
+        } catch (error) {
+          console.log(`  ⚠️  ${prefix}: Error cleaning - skipped`);
         }
-      } catch (error) {
-        console.log(`  ⚠️  ${prefix}: Error cleaning - skipped`);
       }
+    } else {
+      console.log('\n☁️  GCS cleanup: Skipped (no GCS configuration)');
     }
     
     // Summary
