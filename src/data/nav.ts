@@ -5,7 +5,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "figures",
     label: "Figür & Koleksiyon",
-    href: "/categories/figur-koleksiyon",
+    href: "/k/figur-koleksiyon",
     children: [
       { label: "Koleksiyon Figürleri", href: "/categories/figur-koleksiyon/koleksiyon-figurleri" },
       { label: "Anime / Manga", href: "/categories/figur-koleksiyon/anime" },
@@ -17,7 +17,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "fashion",
     label: "Moda & Aksesuar",
-    href: "/categories/moda-aksesuar",
+    href: "/k/moda-aksesuar",
     children: [
       { label: "Tişört & Hoodie", href: "/categories/moda-aksesuar/tisort-hoodie" },
       { label: "Takı & Saat", href: "/categories/moda-aksesuar/taki-saat" },
@@ -28,7 +28,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "electronics",
     label: "Elektronik",
-    href: "/categories/elektronik",
+    href: "/k/elektronik",
     children: [
       { label: "Kulaklık & Ses", href: "/categories/elektronik/kulaklik" },
       { label: "Akıllı Ev", href: "/categories/elektronik/akilli-ev" },
@@ -39,7 +39,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "home",
     label: "Ev & Yaşam",
-    href: "/categories/ev-yasam",
+    href: "/k/ev-yasam",
     children: [
       { label: "Dekorasyon", href: "/categories/ev-yasam/dekorasyon" },
       { label: "Mutfak", href: "/categories/ev-yasam/mutfak" },
@@ -50,7 +50,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "art",
     label: "Sanat & Hobi",
-    href: "/categories/sanat-hobi",
+    href: "/k/sanat-hobi",
     children: [
       { label: "Tablo & Poster", href: "/categories/sanat-hobi/poster" },
       { label: "El Sanatları", href: "/categories/sanat-hobi/el-sanatlari" },
@@ -61,7 +61,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "gifts",
     label: "Hediyelik",
-    href: "/categories/hediyelik",
+    href: "/k/hediyelik",
     children: [
       { label: "Kişiye Özel", href: "/categories/hediyelik/kisiye-ozel" },
       { label: "Doğum Günü", href: "/categories/hediyelik/dogum-gunu" },
