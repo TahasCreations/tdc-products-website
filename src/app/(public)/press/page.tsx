@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Header from '@/components/Header';
+import Header from '@/components/layout/Header';
 import Footer from '@/components/Footer';
 
 export default function PressPage() {

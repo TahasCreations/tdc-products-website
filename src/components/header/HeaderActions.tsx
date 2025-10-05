@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { Search, Heart, ShoppingCart, User, LogOut, Package, MapPin, Edit3, Sun, Moon, Languages } from 'lucide-react';
+import { Search, ShoppingCart, User, LogOut, Package, MapPin, Edit3, Sun, Moon, Languages, Heart } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useWishlist } from '../../contexts/WishlistContext';
 import { useTheme } from 'next-themes';
@@ -25,15 +25,11 @@ export default function HeaderActions({
   const { count: wishlistCount } = useWishlist();
   const { theme, setTheme } = useTheme();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isAuthMenuOpen, setIsAuthMenuOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
 
   const handleSearchClick = () => {
     onSearchClick?.();
-  };
-
-  const handleWishlistClick = () => {
-    // Redirect to profile favorites tab
-    window.location.href = '/profile?tab=favorites';
   };
 
   const handleCartClick = () => {
@@ -55,21 +51,6 @@ export default function HeaderActions({
   if (isMobile) {
     return (
       <div className="flex items-center justify-end space-x-3">
-        {/* Wishlist */}
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={handleWishlistClick}
-          className="relative p-2 text-gray-600 hover:text-[#CBA135] transition-colors"
-          aria-label="Favoriler"
-        >
-          <Heart className="w-6 h-6" />
-          {wishlistCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-[#CBA135] text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold">
-              {wishlistCount}
-            </span>
-          )}
-        </motion.button>
-
         {/* Cart */}
         <motion.button
           whileTap={{ scale: 0.95 }}
@@ -96,42 +77,41 @@ export default function HeaderActions({
             <User className="w-6 h-6" />
           </motion.button>
         ) : (
-          <Link
-            href="/giris"
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsAuthMenuOpen(!isAuthMenuOpen)}
             className="px-4 py-2 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg font-medium hover:shadow-lg transition-all duration-200"
+            aria-label="Hesap"
           >
-            Giriş Yap
-          </Link>
+            Hesap
+          </motion.button>
         )}
+
+        {/* Auth dropdown (mobile simple) */}
+        <AnimatePresence>
+          {!session && isAuthMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="absolute top-full right-4 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 z-50"
+            >
+              <div className="py-2">
+                <Link href="/giris" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Giriş Yap</Link>
+                <Link href="/kayit" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kayıt Ol</Link>
+                <button onClick={() => import('next-auth/react').then(m => m.signIn('google'))} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Google ile Giriş Yap</button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
 
   return (
     <div className="flex items-center space-x-0.5">
-      {/* Cart with Wishlist */}
-      <div className="flex items-center space-x-0.5">
-        {/* Wishlist */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleWishlistClick}
-          className="relative p-1.5 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
-          aria-label="Favoriler"
-        >
-          <Heart className="w-5 h-5" />
-          {wishlistCount > 0 && (
-            <motion.span
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="absolute -top-1 -right-1 bg-[#CBA135] text-white rounded-full h-4 w-4 flex items-center justify-center text-xs font-bold"
-            >
-              {wishlistCount}
-            </motion.span>
-          )}
-        </motion.button>
-
-        {/* Cart */}
+      {/* Cart */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -202,7 +182,7 @@ export default function HeaderActions({
         </AnimatePresence>
       </div>
 
-      {/* User Menu */}
+      {/* User Menu / Auth */}
       {session ? (
         <div className="relative">
           <motion.button
@@ -245,6 +225,21 @@ export default function HeaderActions({
                 </div>
 
                 <div className="py-2">
+                  <Link
+                    href="/profile?tab=favorites"
+                    className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#CBA135] transition-colors"
+                    role="menuitem"
+                  >
+                    <div className="relative">
+                      <Heart className="w-4 h-4" />
+                      {wishlistCount > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-[#CBA135] text-white rounded-full h-4 w-4 flex items-center justify-center text-[10px] font-bold">
+                          {wishlistCount}
+                        </span>
+                      )}
+                    </div>
+                    <span>Favorilerim</span>
+                  </Link>
                   <Link
                     href="/profile"
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#CBA135] transition-colors"
@@ -294,19 +289,41 @@ export default function HeaderActions({
           </AnimatePresence>
         </div>
       ) : (
-        <div className="flex items-center gap-2">
-          <Link
-            href="/giris"
+        <div className="relative">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsAuthMenuOpen(!isAuthMenuOpen)}
             className="px-2.5 py-1.5 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200 whitespace-nowrap"
+            aria-haspopup="menu"
+            aria-expanded={isAuthMenuOpen}
           >
-            Giriş Yap
-          </Link>
-          <Link
-            href="/kayit"
-            className="px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:border-[#CBA135] hover:text-[#CBA135] transition-colors whitespace-nowrap"
-          >
-            Kayıt Ol
-          </Link>
+            Hesap
+          </motion.button>
+          <AnimatePresence>
+            {isAuthMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 z-50"
+                role="menu"
+              >
+                <div className="py-2">
+                  <Link href="/giris" className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" role="menuitem">
+                    <span>Giriş Yap</span>
+                  </Link>
+                  <Link href="/kayit" className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" role="menuitem">
+                    <span>Kayıt Ol</span>
+                  </Link>
+                  <button onClick={() => import('next-auth/react').then(m => m.signIn('google'))} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" role="menuitem">
+                    Google ile Giriş Yap
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
 

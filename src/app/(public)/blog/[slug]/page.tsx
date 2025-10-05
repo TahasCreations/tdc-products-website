@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import Header from '@/components/Header';
+import Header from '@/components/layout/Header';
 import Footer from '@/components/Footer';
 
 export default function BlogPostPage() {

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import Header from '@/components/Header';
+import Header from '@/components/layout/Header';
 import Footer from '@/components/Footer';
 
 const artists = [

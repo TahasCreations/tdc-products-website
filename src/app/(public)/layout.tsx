@@ -7,7 +7,7 @@ import { CompareProvider } from '@/contexts/CompareContext';
 import { A11yProvider } from '@/components/accessibility/A11yProvider';
 import { PerformanceMonitor } from '@/lib/performance/analytics';
 import { SkipLinks } from '@/components/accessibility/A11yProvider';
-import Header from '@/components/Header';
+import Header from '@/components/layout/Header';
 
 export default function PublicLayout({
   children,
