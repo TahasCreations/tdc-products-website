@@ -50,7 +50,7 @@ export default function Header() {
         {/* Logo */}
         <Link
           href="/"
-          className="font-semibold tracking-wide text-white hover:text-[#CBA135] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg p-1"
+          className="font-semibold tracking-wide text-orange-500 hover:text-orange-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg p-1"
           aria-label="TDC Market Ana Sayfa"
         >
           <motion.span
@@ -73,7 +73,7 @@ export default function Header() {
             >
               <Link
                 href={link.href}
-                className="text-white/90 hover:text-[#CBA135] transition-colors duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg px-2 py-1"
+                className="text-orange-400 hover:text-orange-300 transition-colors duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg px-2 py-1"
               >
                 {link.name}
               </Link>
@@ -81,7 +81,7 @@ export default function Header() {
           ))}
           <Link
             href="/products"
-            className="text-[#CBA135] hover:text-white transition-colors duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg px-2 py-1"
+            className="text-orange-500 hover:text-orange-300 transition-colors duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg px-2 py-1"
           >
             Tüm Ürünler
           </Link>
@@ -93,7 +93,7 @@ export default function Header() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="p-2 text-white/80 hover:text-[#CBA135] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg"
+            className="p-2 text-orange-400 hover:text-orange-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg"
             aria-label="Ara"
           >
             <Search className="w-5 h-5" />
@@ -103,7 +103,7 @@ export default function Header() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="p-2 text-white/80 hover:text-[#CBA135] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg"
+            className="p-2 text-orange-400 hover:text-orange-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg"
             aria-label="Favoriler"
           >
             <Heart className="w-5 h-5" />
@@ -113,7 +113,7 @@ export default function Header() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="p-2 text-white/80 hover:text-[#CBA135] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg"
+            className="p-2 text-orange-400 hover:text-orange-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg"
             aria-label="Sepet"
           >
             <ShoppingCart className="w-5 h-5" />
@@ -123,7 +123,7 @@ export default function Header() {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="p-2 text-white/80 hover:text-[#CBA135] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg"
+            className="p-2 text-orange-400 hover:text-orange-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg"
             aria-label="Hesap"
           >
             <User className="w-5 h-5" />
@@ -136,7 +136,7 @@ export default function Header() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="md:hidden p-2 text-white/80 hover:text-[#CBA135] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg"
+                className="md:hidden p-2 text-orange-400 hover:text-orange-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg"
                 aria-label="Menüyü aç/kapat"
               >
                 <Menu className="w-5 h-5" />
@@ -152,7 +152,7 @@ export default function Header() {
                     <Link
                       key={link.name}
                       href={link.href}
-                      className="text-white/90 hover:text-[#CBA135] transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg px-3 py-2"
+                      className="text-orange-400 hover:text-orange-300 transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg px-3 py-2"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {link.name}
@@ -160,7 +160,7 @@ export default function Header() {
                   ))}
                   <Link
                     href="/products"
-                    className="text-[#CBA135] hover:text-white transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg px-3 py-2"
+                    className="text-orange-500 hover:text-orange-300 transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B] rounded-lg px-3 py-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Tüm Ürünler
@@ -171,7 +171,7 @@ export default function Header() {
                 <div className="flex flex-col space-y-3 pt-6 border-t border-white/10">
                   <Button
                     variant="ghost"
-                    className="justify-start text-white/90 hover:text-[#CBA135] hover:bg-white/5 focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B]"
+                    className="justify-start text-orange-400 hover:text-orange-300 hover:bg-white/5 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B]"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Search className="w-4 h-4 mr-2" />
@@ -179,7 +179,7 @@ export default function Header() {
                   </Button>
                   <Button
                     variant="ghost"
-                    className="justify-start text-white/90 hover:text-[#CBA135] hover:bg-white/5 focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B]"
+                    className="justify-start text-orange-400 hover:text-orange-300 hover:bg-white/5 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B]"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Heart className="w-4 h-4 mr-2" />
@@ -187,7 +187,7 @@ export default function Header() {
                   </Button>
                   <Button
                     variant="ghost"
-                    className="justify-start text-white/90 hover:text-[#CBA135] hover:bg-white/5 focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B]"
+                    className="justify-start text-orange-400 hover:text-orange-300 hover:bg-white/5 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B]"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <ShoppingCart className="w-4 h-4 mr-2" />
@@ -195,7 +195,7 @@ export default function Header() {
                   </Button>
                   <Button
                     variant="ghost"
-                    className="justify-start text-white/90 hover:text-[#CBA135] hover:bg-white/5 focus:ring-2 focus:ring-[#CBA135] focus:ring-offset-2 focus:ring-offset-[#0B0B0B]"
+                    className="justify-start text-orange-400 hover:text-orange-300 hover:bg-white/5 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-[#0B0B0B]"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <User className="w-4 h-4 mr-2" />

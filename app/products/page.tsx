@@ -354,12 +354,10 @@ export default function ProductsPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Spacer - Header'ın altında kalmaması için */}
-      <div className="h-20"></div>
       
       <div className="flex">
         {/* Desktop Filters Sidebar - Compact & Animated */}
-        <div className="hidden lg:block lg:w-56 flex-shrink-0 bg-white/95 backdrop-blur-sm border-r border-gray-200/50 sticky top-20 h-[calc(100vh-5rem)] overflow-y-auto shadow-sm">
+        <div className="hidden lg:block lg:w-56 flex-shrink-0 bg-white/95 backdrop-blur-sm border-r border-gray-200/50 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto shadow-sm">
           <div className="p-3">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-gray-900">Filtreler</h3>
