@@ -6,6 +6,7 @@ import { CartProvider } from '../src/contexts/CartContext'
 import { WishlistProvider } from '../src/contexts/WishlistContext'
 import SessionProviderWrapper from '../src/components/providers/SessionProviderWrapper'
 import PWAInstaller from '../src/components/PWAInstaller'
+import ConditionalHeader from '../components/layout/ConditionalHeader'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -99,6 +100,7 @@ export default function RootLayout({
             <ThemeProvider>
               <CartProvider>
                 <WishlistProvider>
+                  <ConditionalHeader />
                   {children}
                   <PWAInstaller />
                 </WishlistProvider>
