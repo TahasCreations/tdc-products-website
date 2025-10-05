@@ -16,8 +16,6 @@ export default function HeaderNav({ isMobile = false, onItemClick }: HeaderNavPr
 
   const simpleNavItems = [
     { href: '/products', label: 'Tüm Ürünler', icon: '📦' },
-    { href: '/blog', label: 'Blog', icon: '📝' },
-    { href: '/hakkimizda', label: 'Hakkımızda', icon: 'ℹ️' }
   ];
 
   const handleMouseEnter = (categoryKey: string) => {

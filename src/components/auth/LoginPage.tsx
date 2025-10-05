@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -82,12 +84,20 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-3">
             <button
               type="submit"
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#CBA135] hover:bg-[#F4D03F] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CBA135]"
             >
               Giriş Yap
+            </button>
+            <button
+              type="button"
+              onClick={() => signIn('google')}
+              className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CBA135]"
+            >
+              <FcGoogle className="w-5 h-5" />
+              Google ile Giriş Yap
             </button>
           </div>
         </form>

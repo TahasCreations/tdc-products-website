@@ -281,10 +281,7 @@ export default function HeaderActions({
 
                 <div className="border-t border-gray-100 pt-2">
                   <button
-                    onClick={() => {
-                      // TODO: Implement logout
-                      console.log('Logout clicked');
-                    }}
+                    onClick={() => import('next-auth/react').then(m => m.signOut())}
                     className="flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
                     role="menuitem"
                   >
@@ -297,12 +294,20 @@ export default function HeaderActions({
           </AnimatePresence>
         </div>
       ) : (
-        <Link
-          href="/giris"
-          className="px-2.5 py-1.5 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200 whitespace-nowrap"
-        >
-          Giriş Yap
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/giris"
+            className="px-2.5 py-1.5 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200 whitespace-nowrap"
+          >
+            Giriş Yap
+          </Link>
+          <Link
+            href="/kayit"
+            className="px-2.5 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:border-[#CBA135] hover:text-[#CBA135] transition-colors whitespace-nowrap"
+          >
+            Kayıt Ol
+          </Link>
+        </div>
       )}
 
       {/* Mobile Menu Button */}
