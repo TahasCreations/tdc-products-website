@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
+import { Sparkles, Crown, Leaf, Users } from 'lucide-react';
 import ProductCard from './ProductCard';
 import CategoryHero from './CategoryHero';
 import CategoryFilters from './CategoryFilters';
@@ -153,15 +154,34 @@ export default function ModaAksesuarPage() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-50">
       {/* Hero Section */}
       <CategoryHero
+        category="moda-aksesuar"
         title="Sezona Özel Editorial"
         description="Tarzınızı yansıtan özel tasarım kıyafetler ve aksesuarlar. Her detayda kalite ve stil bir arada."
-        backgroundImage="https://via.placeholder.com/1920x1080/FF6B6B/FFFFFF?text=Fashion+Editorial"
-        accentColor="bg-pink-600"
-        gradientFrom="from-pink-900"
-        gradientTo="to-rose-900"
-        features={['Özel Tasarım', 'Premium Kalite', 'Sürdürülebilir', 'Unisex Seçenekler']}
+        badge="Yeni Koleksiyon"
         ctaText="Koleksiyonu Keşfet"
-        ctaLink="#products"
+        ctaHref="#products"
+        features={[
+          {
+            icon: <Sparkles className="w-5 h-5" />,
+            title: 'Özel Tasarım',
+            description: 'Benzersiz tasarımlar'
+          },
+          {
+            icon: <Crown className="w-5 h-5" />,
+            title: 'Premium Kalite',
+            description: 'En iyi malzemeler'
+          },
+          {
+            icon: <Leaf className="w-5 h-5" />,
+            title: 'Sürdürülebilir',
+            description: 'Çevre dostu'
+          },
+          {
+            icon: <Users className="w-5 h-5" />,
+            title: 'Unisex Seçenekler',
+            description: 'Herkes için'
+          }
+        ]}
       />
 
       {/* Promo Band */}

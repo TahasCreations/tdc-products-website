@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
+import { Cpu, Wifi, Battery, Settings } from 'lucide-react';
 import ProductCard from './ProductCard';
 import CategoryHero from './CategoryHero';
 import CategoryFilters from './CategoryFilters';
@@ -206,15 +207,34 @@ export default function ElektronikPage() {
     <div className="min-h-screen bg-gray-900">
       {/* Hero Section */}
       <CategoryHero
+        category="elektronik"
         title="Performans ve İnovasyon"
         description="En son teknoloji ürünleri ile hayatınızı kolaylaştırın. Akıllı ev çözümlerinden gaming ekipmanlarına kadar her şey burada."
-        backgroundImage="https://via.placeholder.com/1920x1080/0B0B0B/00D4FF?text=Electronics+Tech"
-        accentColor="bg-cyan-500"
-        gradientFrom="from-gray-900"
-        gradientTo="to-black"
-        features={['Son Teknoloji', 'Akıllı Bağlantı', 'Enerji Tasarrufu', 'Kolay Kurulum']}
+        badge="Son Teknoloji"
         ctaText="Teknolojiyi Keşfet"
-        ctaLink="#products"
+        ctaHref="#products"
+        features={[
+          {
+            icon: <Cpu className="w-5 h-5" />,
+            title: 'Son Teknoloji',
+            description: 'En güncel teknoloji'
+          },
+          {
+            icon: <Wifi className="w-5 h-5" />,
+            title: 'Akıllı Bağlantı',
+            description: 'Kablosuz bağlantı'
+          },
+          {
+            icon: <Battery className="w-5 h-5" />,
+            title: 'Enerji Tasarrufu',
+            description: 'Düşük güç tüketimi'
+          },
+          {
+            icon: <Settings className="w-5 h-5" />,
+            title: 'Kolay Kurulum',
+            description: 'Hızlı kurulum'
+          }
+        ]}
       />
 
       {/* Promo Band */}

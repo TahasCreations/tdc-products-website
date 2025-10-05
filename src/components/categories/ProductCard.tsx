@@ -17,6 +17,9 @@ interface ProductCardProps {
   isNew?: boolean;
   isFeatured?: boolean;
   discount?: number;
+  inStock?: boolean;
+  stockCount?: number;
+  specifications?: Record<string, string>;
   className?: string;
 }
 
@@ -32,6 +35,9 @@ export default function ProductCard({
   isNew = false,
   isFeatured = false,
   discount = 0,
+  inStock = true,
+  stockCount = 0,
+  specifications = {},
   className = ''
 }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);

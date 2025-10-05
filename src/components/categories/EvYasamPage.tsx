@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
+import { Leaf, Hand, Minimize, Recycle } from 'lucide-react';
 import ProductCard from './ProductCard';
 import CategoryHero from './CategoryHero';
 import CategoryFilters from './CategoryFilters';
@@ -152,15 +153,34 @@ export default function EvYasamPage() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
       {/* Hero Section */}
       <CategoryHero
+        category="ev-yasam"
         title="Evinde Yeni Bir Hava"
         description="Evinizi güzelleştiren dekorasyon ürünleri ve yaşam kalitenizi artıran çözümler. Her detayda konfor ve estetik."
-        backgroundImage="https://via.placeholder.com/1920x1080/27AE60/FFFFFF?text=Lifestyle+Home"
-        accentColor="bg-emerald-500"
-        gradientFrom="from-green-900"
-        gradientTo="to-emerald-900"
-        features={['Çevre Dostu', 'El Yapımı', 'Minimalist Tasarım', 'Sürdürülebilir']}
+        badge="Sürdürülebilir Yaşam"
         ctaText="Evi Keşfet"
-        ctaLink="#products"
+        ctaHref="#products"
+        features={[
+          {
+            icon: <Leaf className="w-5 h-5" />,
+            title: 'Çevre Dostu',
+            description: 'Sürdürülebilir malzemeler'
+          },
+          {
+            icon: <Hand className="w-5 h-5" />,
+            title: 'El Yapımı',
+            description: 'Özenle üretilmiş'
+          },
+          {
+            icon: <Minimize className="w-5 h-5" />,
+            title: 'Minimalist Tasarım',
+            description: 'Sade ve şık'
+          },
+          {
+            icon: <Recycle className="w-5 h-5" />,
+            title: 'Sürdürülebilir',
+            description: 'Doğaya saygılı'
+          }
+        ]}
       />
 
       {/* Promo Band */}

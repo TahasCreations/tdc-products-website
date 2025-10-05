@@ -1,110 +1,185 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Shield, Clock, RotateCcw, Award } from 'lucide-react';
+import { Shield, Award, Users, Heart } from 'lucide-react';
+import { ProductCardImage } from '@/components/media/AutoImage';
 
 export default function AboutHero() {
-  const trustBadges = [
-    { icon: Shield, text: '%100 Güvenli Alışveriş', color: 'bg-green-100 text-green-800' },
-    { icon: Clock, text: '7/24 Hızlı Destek', color: 'bg-blue-100 text-blue-800' },
-    { icon: RotateCcw, text: '30 Gün İade Garantisi', color: 'bg-purple-100 text-purple-800' },
-    { icon: Award, text: 'Premium Kalite', color: 'bg-yellow-100 text-yellow-800' }
-  ];
-
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image/Video */}
+      {/* Background */}
       <div className="absolute inset-0 z-0">
-        <Image
-          src="https://via.placeholder.com/1920x1080/0B0B0B/CBA135?text=TDC+Market+Team"
-          alt="TDC Market Ekibi"
-          fill
-          className="object-cover"
-          priority
+        <ProductCardImage
+          alt="TDC Market Hakkında"
+          className="w-full h-full opacity-40"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0B0B0B] via-[#0B0B0B]/90 to-transparent" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeInOut' }}
-          className="space-y-8"
-        >
-          {/* Main Title */}
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white">
-              TDC Market
-              <span className="block bg-gradient-to-r from-[#CBA135] to-[#F4D03F] bg-clip-text text-transparent">
-                Hakkımızda
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto leading-relaxed">
-              Özel figürlerden elektroniğe, tasarımdan ev yaşamına kadar her alanda 
-              <span className="text-[#CBA135] font-semibold"> kaliteli ürünler</span> ve 
-              <span className="text-[#CBA135] font-semibold"> güvenilir hizmet</span> sunuyoruz.
-            </p>
-          </div>
-
-          {/* CTA Buttons */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2, ease: 'easeInOut' }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="space-y-8"
           >
-            <Button 
-              size="lg" 
-              className="bg-gradient-to-r from-[#CBA135] to-[#F4D03F] hover:shadow-xl transition-all duration-300 text-white px-8 py-4 text-lg font-semibold"
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="inline-flex items-center space-x-2 bg-[#CBA135]/10 border border-[#CBA135]/30 rounded-full px-4 py-2 backdrop-blur-sm"
             >
-              Bize Ulaşın
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="border-2 border-white text-white hover:bg-white hover:text-black transition-all duration-300 px-8 py-4 text-lg font-semibold"
+              <Shield className="w-4 h-4 text-[#CBA135]" />
+              <span className="text-[#CBA135] font-medium text-sm">Güvenilir Platform</span>
+            </motion.div>
+
+            {/* Title */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
             >
-              Mağazamız
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="lg"
-              className="text-gray-300 hover:text-white transition-colors duration-300 px-8 py-4 text-lg"
+              <span className="text-white">TDC Market</span>
+              <br />
+              <span className="bg-gradient-to-r from-[#CBA135] to-[#F4D03F] bg-clip-text text-transparent">
+                Hakkında
+              </span>
+            </motion.h1>
+
+            {/* Description */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="text-xl text-gray-300 leading-relaxed max-w-2xl"
             >
-              Basın Kiti
-            </Button>
+              2024 yılında kurulan TDC Market, özel figürlerden elektroniğe, 
+              tasarımdan ev yaşamına kadar geniş bir ürün yelpazesinde 
+              müşterilerimize en kaliteli ve güvenilir alışveriş deneyimini sunuyor.
+            </motion.p>
+
+            {/* Key Values */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="grid grid-cols-2 gap-6"
+            >
+              {[
+                {
+                  icon: <Shield className="w-6 h-6" />,
+                  title: 'Güvenlik',
+                  description: 'KVKK uyumlu'
+                },
+                {
+                  icon: <Award className="w-6 h-6" />,
+                  title: 'Kalite',
+                  description: 'Premium ürünler'
+                },
+                {
+                  icon: <Users className="w-6 h-6" />,
+                  title: 'Müşteri Odaklı',
+                  description: '7/24 destek'
+                },
+                {
+                  icon: <Heart className="w-6 h-6" />,
+                  title: 'Şeffaflık',
+                  description: 'Açık iletişim'
+                }
+              ].map((value, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.9 + index * 0.1 }}
+                  className="flex items-start space-x-3"
+                >
+                  <div className="flex-shrink-0 w-10 h-10 bg-[#CBA135]/20 rounded-xl flex items-center justify-center text-[#CBA135]">
+                    {value.icon}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-white text-sm mb-1">
+                      {value.title}
+                    </h3>
+                    <p className="text-gray-400 text-xs leading-relaxed">
+                      {value.description}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </motion.div>
-        </motion.div>
+
+          {/* Right Content - Visual */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="relative"
+          >
+            {/* Main Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
+              animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+              transition={{ duration: 1, delay: 0.6 }}
+              className="relative z-10 bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl p-8 shadow-2xl"
+            >
+              <div className="aspect-square bg-gradient-to-br from-[#CBA135]/20 to-[#F4D03F]/10 rounded-2xl flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Shield className="w-8 h-8 text-black" />
+                  </div>
+                  <h3 className="text-white font-semibold text-lg mb-2">TDC Market</h3>
+                  <p className="text-gray-300 text-sm">Güvenilir Alışveriş</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Floating Elements */}
+            <motion.div
+              initial={{ opacity: 0, x: -20, y: -20 }}
+              animate={{ opacity: 1, x: 0, y: 0 }}
+              transition={{ duration: 0.8, delay: 1 }}
+              className="absolute -top-4 -left-4 w-20 h-20 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-2xl shadow-lg flex items-center justify-center"
+            >
+              <Award className="w-8 h-8 text-black" />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20, y: 20 }}
+              animate={{ opacity: 1, x: 0, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.2 }}
+              className="absolute -bottom-4 -right-4 w-16 h-16 bg-gradient-to-br from-[#F4D03F] to-[#CBA135] rounded-xl shadow-lg flex items-center justify-center"
+            >
+              <Heart className="w-6 h-6 text-black" />
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
 
-      {/* Trust Badges */}
+      {/* Scroll Indicator */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.4, ease: 'easeInOut' }}
-        className="absolute bottom-8 left-0 right-0 z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, delay: 1.5 }}
+        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10"
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {trustBadges.map((badge, index) => (
-              <motion.div
-                key={badge.text}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
-                className="flex items-center justify-center space-x-2 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20"
-              >
-                <badge.icon className="w-5 h-5 text-[#CBA135]" />
-                <span className="text-white text-sm font-medium">{badge.text}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
+        >
+          <motion.div
+            animate={{ y: [0, 12, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-1 h-3 bg-[#CBA135] rounded-full mt-2"
+          />
+        </motion.div>
       </motion.div>
     </section>
   );

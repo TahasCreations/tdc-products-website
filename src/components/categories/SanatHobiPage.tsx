@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
+import { Star, Palette, Heart, Leaf } from 'lucide-react';
 import ProductCard from './ProductCard';
 import CategoryHero from './CategoryHero';
 import CategoryFilters from './CategoryFilters';
@@ -152,15 +153,34 @@ export default function SanatHobiPage() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50">
       {/* Hero Section */}
       <CategoryHero
+        category="sanat-hobi"
         title="Yaratıcılığını Besle"
         description="Yaratıcılığınızı ortaya çıkaracak sanat malzemeleri ve hobi ürünleri. Her projede mükemmellik için ihtiyacınız olan her şey."
-        backgroundImage="https://via.placeholder.com/1920x1080/FF9F43/FFFFFF?text=Creative+Art"
-        accentColor="bg-orange-500"
-        gradientFrom="from-orange-900"
-        gradientTo="to-yellow-900"
-        features={['Profesyonel Kalite', 'Yaratıcı Projeler', 'Başlangıç Dostu', 'Sürdürülebilir']}
+        badge="Yaratıcı Projeler"
         ctaText="Yaratıcılığı Keşfet"
-        ctaLink="#products"
+        ctaHref="#products"
+        features={[
+          {
+            icon: <Star className="w-5 h-5" />,
+            title: 'Profesyonel Kalite',
+            description: 'En iyi malzemeler'
+          },
+          {
+            icon: <Palette className="w-5 h-5" />,
+            title: 'Yaratıcı Projeler',
+            description: 'İlham verici'
+          },
+          {
+            icon: <Heart className="w-5 h-5" />,
+            title: 'Başlangıç Dostu',
+            description: 'Kolay başlangıç'
+          },
+          {
+            icon: <Leaf className="w-5 h-5" />,
+            title: 'Sürdürülebilir',
+            description: 'Çevre dostu'
+          }
+        ]}
       />
 
       {/* Promo Band */}

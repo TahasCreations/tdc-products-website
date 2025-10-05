@@ -123,7 +123,7 @@ export default function HeaderNav({ isMobile = false, onItemClick }: HeaderNavPr
   }
 
   return (
-    <nav className="hidden lg:flex items-center space-x-6" role="navigation">
+    <nav className="hidden lg:flex items-center space-x-3" role="navigation">
       {/* Simple nav items */}
       {simpleNavItems.map((item, index) => (
         <motion.div
@@ -134,7 +134,7 @@ export default function HeaderNav({ isMobile = false, onItemClick }: HeaderNavPr
         >
           <Link
             href={item.href}
-            className="relative text-sm font-medium text-gray-700 hover:text-[#CBA135] transition-colors duration-300 group py-2 flex items-center space-x-1"
+            className="relative text-sm font-medium text-gray-700 hover:text-[#CBA135] transition-colors duration-300 group py-2 flex items-center space-x-1 whitespace-nowrap"
           >
             <span>{item.label}</span>
             <motion.div
@@ -160,7 +160,7 @@ export default function HeaderNav({ isMobile = false, onItemClick }: HeaderNavPr
         >
           <Link
             href={cat.href}
-            className="relative text-sm font-medium text-gray-700 hover:text-[#CBA135] transition-colors duration-300 group py-2 flex items-center space-x-1"
+            className="relative text-sm font-medium text-gray-700 hover:text-[#CBA135] transition-colors duration-300 group py-2 flex items-center space-x-1 whitespace-nowrap"
           >
             <span>{cat.label}</span>
             <ChevronDown className="w-3 h-3 text-gray-400 group-hover:text-[#CBA135] transition-colors" />

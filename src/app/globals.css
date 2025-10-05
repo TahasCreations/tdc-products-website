@@ -79,28 +79,36 @@
 
 /* CSS Variables for TDC Design System */
 :root {
-  /* Colors */
+  /* TDC Brand Colors */
+  --tdc-bg: #0B0B0B;
+  --tdc-fg: #F6F6F6;
+  --tdc-accent: #CBA135;
+  --tdc-accent-light: #F4D03F;
+  --tdc-accent-dark: #B8941F;
+  
+  /* Extended Accent Palette */
+  --color-accent-50: #fefcf0;
+  --color-accent-100: #fdf8e1;
+  --color-accent-200: #fbefb8;
+  --color-accent-300: #f8e385;
+  --color-accent-400: #F4D03F;
+  --color-accent-500: #CBA135;
+  --color-accent-600: #B8941F;
+  --color-accent-700: #9A7A1A;
+  --color-accent-800: #7C6115;
+  --color-accent-900: #5E4A10;
+
+  /* Primary Colors (Legacy Support) */
   --color-primary-50: #f0f4ff;
   --color-primary-100: #e0e7ff;
   --color-primary-200: #c7d2fe;
   --color-primary-300: #a5b4fc;
   --color-primary-400: #818cf8;
-  --color-primary-500: #5A63F2;
-  --color-primary-600: #4f46e5;
-  --color-primary-700: #4338ca;
-  --color-primary-800: #3730a3;
-  --color-primary-900: #312e81;
-
-  --color-accent-50: #fff7ed;
-  --color-accent-100: #ffedd5;
-  --color-accent-200: #fed7aa;
-  --color-accent-300: #fdba74;
-  --color-accent-400: #fb923c;
-  --color-accent-500: #FF7A59;
-  --color-accent-600: #ea580c;
-  --color-accent-700: #c2410c;
-  --color-accent-800: #9a3412;
-  --color-accent-900: #7c2d12;
+  --color-primary-500: #CBA135;
+  --color-primary-600: #B8941F;
+  --color-primary-700: #9A7A1A;
+  --color-primary-800: #7C6115;
+  --color-primary-900: #5E4A10;
 
   --color-ink-50: #f8fafc;
   --color-ink-100: #f1f5f9;
@@ -162,24 +170,28 @@
   --shadow-glow-coral: 0 0 20px rgba(255, 122, 89, 0.3);
 
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #5A63F2 0%, #FF7A59 100%);
-  --gradient-soft: linear-gradient(135deg, #f0f4ff 0%, #fff7ed 100%);
-  --gradient-dark: linear-gradient(135deg, #0F172A 0%, #1e293b 100%);
+  --gradient-primary: linear-gradient(135deg, var(--tdc-accent) 0%, var(--tdc-accent-light) 100%);
+  --gradient-soft: linear-gradient(135deg, var(--tdc-accent-50) 0%, var(--tdc-accent-100) 100%);
+  --gradient-dark: linear-gradient(135deg, var(--tdc-bg) 0%, #1a1a1a 100%);
+  --gradient-gold: linear-gradient(135deg, var(--tdc-accent) 0%, var(--tdc-accent-light) 50%, var(--tdc-accent-dark) 100%);
 }
 
 /* Dark mode variables */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-ink-50: #020617;
-    --color-ink-100: #0f172a;
-    --color-ink-200: #1e293b;
-    --color-ink-300: #334155;
-    --color-ink-400: #475569;
-    --color-ink-500: #64748b;
-    --color-ink-600: #94a3b8;
-    --color-ink-700: #cbd5e1;
-    --color-ink-800: #e2e8f0;
-    --color-ink-900: #f8fafc;
+    --tdc-bg: #0B0B0B;
+    --tdc-fg: #F6F6F6;
+    
+    --color-ink-50: #0B0B0B;
+    --color-ink-100: #1a1a1a;
+    --color-ink-200: #2a2a2a;
+    --color-ink-300: #3a3a3a;
+    --color-ink-400: #4a4a4a;
+    --color-ink-500: #6a6a6a;
+    --color-ink-600: #8a8a8a;
+    --color-ink-700: #aaaaaa;
+    --color-ink-800: #cccccc;
+    --color-ink-900: #F6F6F6;
   }
 }
 
@@ -197,8 +209,8 @@ html {
 body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.6;
-  color: var(--color-ink-900);
-  background-color: #ffffff;
+  color: var(--tdc-fg);
+  background-color: var(--tdc-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

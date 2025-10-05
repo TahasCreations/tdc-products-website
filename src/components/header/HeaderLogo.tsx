@@ -43,7 +43,7 @@ export default function HeaderLogo() {
             <span className="text-2xl font-bold bg-gradient-to-r from-[#CBA135] to-[#F4D03F] bg-clip-text text-transparent">
               TDC Market
             </span>
-            <p className="text-xs text-gray-500 -mt-1 font-medium">
+            <p className="text-xs text-gray-500 -mt-1 font-medium whitespace-nowrap">
               Özel figürlerden elektroniğe, tasarımdan ev yaşamına
             </p>
           </div>

@@ -1,12 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Manrope } from 'next/font/google'
 import './globals.css'
-import { ThemeProvider } from 'next-themes'
-import { CartProvider } from '@/contexts/CartContext'
-import { WishlistProvider } from '@/contexts/WishlistContext'
-import { CompareProvider } from '@/contexts/CompareContext'
 import PWAInstaller from '@/components/PWAInstaller'
-import Header from '@/components/Header'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -92,23 +87,12 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="TDC Admin" />
+        <meta name="apple-mobile-web-app-title" content="TDC Market" />
       </head>
       <body className={`${inter.className} antialiased`}>
         <div id="root">
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-            <CartProvider>
-              <WishlistProvider>
-                <CompareProvider>
-                  <Header />
-                  <main>
-                    {children}
-                  </main>
-                  <PWAInstaller />
-                </CompareProvider>
-              </WishlistProvider>
-            </CartProvider>
-          </ThemeProvider>
+          {children}
+          <PWAInstaller />
         </div>
       </body>
     </html>

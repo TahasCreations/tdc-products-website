@@ -108,9 +108,9 @@ export default function HeaderActions({
   }
 
   return (
-    <div className="flex items-center space-x-1">
+    <div className="flex items-center space-x-0.5">
       {/* Cart with Wishlist */}
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center space-x-0.5">
         {/* Wishlist */}
         <motion.button
           whileHover={{ scale: 1.05 }}
@@ -173,11 +173,11 @@ export default function HeaderActions({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleLanguageToggle}
-          className="p-2 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50 flex items-center space-x-1"
+          className="p-1.5 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50 flex items-center space-x-1"
           aria-label="Dil Seçimi"
         >
           <Languages className="w-5 h-5" />
-          <span className="text-sm font-medium">TR</span>
+          <span className="text-sm font-medium hidden sm:inline">TR</span>
         </motion.button>
 
         <AnimatePresence>
@@ -209,15 +209,15 @@ export default function HeaderActions({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleUserMenuToggle}
-            className="flex items-center space-x-2 p-2 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
+            className="flex items-center space-x-1.5 p-1.5 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
             aria-label="Kullanıcı Menüsü"
           >
             <img
               src={session.user?.image || 'https://via.placeholder.com/32x32/4F46E5/FFFFFF?text=U'}
               alt={session.user?.name || 'User'}
-              className="w-8 h-8 rounded-full"
+              className="w-7 h-7 rounded-full"
             />
-            <span className="hidden sm:block text-sm font-medium">{session.user?.name}</span>
+            <span className="hidden lg:block text-sm font-medium truncate max-w-20">{session.user?.name}</span>
           </motion.button>
 
           <AnimatePresence>
@@ -299,7 +299,7 @@ export default function HeaderActions({
       ) : (
         <Link
           href="/giris"
-          className="px-3 py-1.5 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200"
+          className="px-2.5 py-1.5 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200 whitespace-nowrap"
         >
           Giriş Yap
         </Link>

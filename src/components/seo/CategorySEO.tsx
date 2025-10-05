@@ -1,114 +1,99 @@
-import Head from 'next/head';
+'use client';
+
+import React from 'react';
+import { SEOMeta, StructuredData, BreadcrumbStructuredData } from './StructuredData';
 
 interface CategorySEOProps {
   title: string;
   description: string;
-  keywords: string[];
-  category: string;
+  keywords?: string;
+  slug: string;
+  breadcrumbs?: Array<{ name: string; url: string }>;
   image?: string;
-  canonicalUrl?: string;
+  products?: Array<{
+    id: string;
+    name: string;
+    price: number;
+    image: string;
+    url: string;
+  }>;
+  totalProducts?: number;
 }
 
-export default function CategorySEO({
+export function CategorySEO({
   title,
   description,
   keywords,
-  category,
-  image = 'https://via.placeholder.com/1200x630/4F46E5/FFFFFF?text=Category',
-  canonicalUrl
+  slug,
+  breadcrumbs = [],
+  image,
+  products = [],
+  totalProducts = 0
 }: CategorySEOProps) {
-  const fullTitle = `${title} | TDC Products`;
-  const keywordsString = keywords.join(', ');
-  const canonical = canonicalUrl || `https://tdc-products.com/categories/${category}`;
+  // Generate canonical URL
+  const canonicalUrl = `https://tdcmarket.com/k/${slug}`;
+  
+  // Generate Open Graph image
+  const ogImage = image || `https://tdcmarket.com/api/og?title=${encodeURIComponent(title)}&type=category`;
+  
+  // Generate breadcrumbs
+  const fullBreadcrumbs = [
+    { name: 'Ana Sayfa', url: 'https://tdcmarket.com' },
+    { name: 'Kategoriler', url: 'https://tdcmarket.com/kategoriler' },
+    ...breadcrumbs
+  ];
+
+  // Generate category schema
+  const categorySchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    description,
+    url: canonicalUrl,
+    image: ogImage,
+    mainEntity: {
+      '@type': 'ItemList',
+      name: title,
+      description,
+      numberOfItems: totalProducts,
+      itemListElement: products.slice(0, 10).map((product, index) => ({
+        '@type': 'Product',
+        position: index + 1,
+        name: product.name,
+        url: product.url,
+        image: product.image,
+        offers: {
+          '@type': 'Offer',
+          price: product.price,
+          priceCurrency: 'TRY'
+        }
+      }))
+    }
+  };
 
   return (
-    <Head>
-      {/* Basic Meta Tags */}
-      <title>{fullTitle}</title>
-      <meta name="description" content={description} />
-      <meta name="keywords" content={keywordsString} />
-      <meta name="robots" content="index, follow" />
-      <link rel="canonical" href={canonical} />
-
-      {/* Open Graph / Facebook */}
-      <meta property="og:type" content="website" />
-      <meta property="og:url" content={canonical} />
-      <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
-      <meta property="og:site_name" content="TDC Products" />
-      <meta property="og:locale" content="tr_TR" />
-
-      {/* Twitter */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:url" content={canonical} />
-      <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
-      <meta name="twitter:site" content="@tdcproducts" />
-      <meta name="twitter:creator" content="@tdcproducts" />
-
-      {/* Additional SEO */}
-      <meta name="author" content="TDC Products" />
-      <meta name="publisher" content="TDC Products" />
-      <meta name="copyright" content="TDC Products" />
-      <meta name="language" content="Turkish" />
-      <meta name="revisit-after" content="7 days" />
-
-      {/* Mobile */}
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta name="mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-
-      {/* Theme */}
-      <meta name="theme-color" content="#4F46E5" />
-      <meta name="msapplication-TileColor" content="#4F46E5" />
-
-      {/* Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            "name": title,
-            "description": description,
-            "url": canonical,
-            "image": image,
-            "mainEntity": {
-              "@type": "ItemList",
-              "name": `${title} Ürünleri`,
-              "description": description
-            },
-            "breadcrumb": {
-              "@type": "BreadcrumbList",
-              "itemListElement": [
-                {
-                  "@type": "ListItem",
-                  "position": 1,
-                  "name": "Ana Sayfa",
-                  "item": "https://tdc-products.com"
-                },
-                {
-                  "@type": "ListItem",
-                  "position": 2,
-                  "name": "Kategoriler",
-                  "item": "https://tdc-products.com/categories"
-                },
-                {
-                  "@type": "ListItem",
-                  "position": 3,
-                  "name": title,
-                  "item": canonical
-                }
-              ]
-            }
-          })
-        }}
+    <>
+      <SEOMeta
+        title={title}
+        description={description}
+        keywords={keywords}
+        image={ogImage}
+        url={canonicalUrl}
+        type="website"
       />
-    </Head>
+      
+      <StructuredData type="combined" schemas={[
+        categorySchema,
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: fullBreadcrumbs.map((breadcrumb, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: breadcrumb.name,
+            item: breadcrumb.url
+          }))
+        }
+      ]} />
+    </>
   );
 }

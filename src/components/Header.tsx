@@ -65,20 +65,24 @@ export default function Header() {
       >
         {/* Main Header */}
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+          <div className="flex items-center h-16 lg:h-20">
             {/* Logo */}
-            <HeaderLogo />
+            <div className="flex-shrink-0">
+              <HeaderLogo />
+            </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:block flex-1 max-w-2xl mx-4">
+            {/* Desktop Navigation - Moved closer to logo */}
+            <div className="hidden lg:block flex-1 ml-6">
               <HeaderNav />
             </div>
 
             {/* Actions */}
-            <HeaderActions
-              onSearchClick={() => setIsSearchOpen(true)}
-              onMenuClick={() => setIsMobileMenuOpen(true)}
-            />
+            <div className="flex-shrink-0 ml-4">
+              <HeaderActions
+                onSearchClick={() => setIsSearchOpen(true)}
+                onMenuClick={() => setIsMobileMenuOpen(true)}
+              />
+            </div>
           </div>
         </div>
 

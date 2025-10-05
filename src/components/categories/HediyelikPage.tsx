@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
+import { Gift, Heart, Truck, Package } from 'lucide-react';
 import ProductCard from './ProductCard';
 import CategoryHero from './CategoryHero';
 import CategoryFilters from './CategoryFilters';
@@ -252,15 +253,34 @@ export default function HediyelikPage() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-red-50">
       {/* Hero Section */}
       <CategoryHero
+        category="hediyelik"
         title="Sevgiyi Hediye Et"
         description="Özel günlerde sevdiklerinizi mutlu edecek anlamlı hediyeler. Her duruma uygun, kişiselleştirilebilir hediye seçenekleri."
-        backgroundImage="https://via.placeholder.com/1920x1080/FF6B6B/FFFFFF?text=Gift+Love"
-        accentColor="bg-red-500"
-        gradientFrom="from-red-900"
-        gradientTo="to-pink-900"
-        features={['Kişiselleştirilebilir', 'Anlamlı Hediyeler', 'Hızlı Teslimat', 'Özel Ambalaj']}
+        badge="Özel Günler"
         ctaText="Hediye Keşfet"
-        ctaLink="#products"
+        ctaHref="#products"
+        features={[
+          {
+            icon: <Gift className="w-5 h-5" />,
+            title: 'Kişiselleştirilebilir',
+            description: 'Özel tasarım'
+          },
+          {
+            icon: <Heart className="w-5 h-5" />,
+            title: 'Anlamlı Hediyeler',
+            description: 'Duygusal değer'
+          },
+          {
+            icon: <Truck className="w-5 h-5" />,
+            title: 'Hızlı Teslimat',
+            description: 'Aynı gün teslimat'
+          },
+          {
+            icon: <Package className="w-5 h-5" />,
+            title: 'Özel Ambalaj',
+            description: 'Lüks paketleme'
+          }
+        ]}
       />
 
       {/* Promo Band */}

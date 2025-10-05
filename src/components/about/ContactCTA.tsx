@@ -1,200 +1,254 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Mail, Phone, MapPin, Clock, MessageCircle, ExternalLink } from 'lucide-react';
-
-const contactInfo = [
-  {
-    icon: Mail,
-    title: 'E-posta',
-    value: 'destek@tdcmarket.com',
-    description: '7/24 e-posta desteği',
-    action: 'mailto:destek@tdcmarket.com'
-  },
-  {
-    icon: Phone,
-    title: 'Telefon',
-    value: '+90 850 123 45 67',
-    description: 'Pazartesi-Cuma 09:00-18:00',
-    action: 'tel:+908501234567'
-  },
-  {
-    icon: MessageCircle,
-    title: 'WhatsApp',
-    value: '+90 850 123 45 67',
-    description: 'Anında mesajlaşma',
-    action: 'https://wa.me/908501234567'
-  },
-  {
-    icon: MapPin,
-    title: 'Adres',
-    value: 'Maslak Mahallesi, Büyükdere Caddesi',
-    description: 'No: 123, Sarıyer/İstanbul',
-    action: 'https://maps.google.com'
-  }
-];
-
-const workingHours = [
-  { day: 'Pazartesi - Cuma', hours: '09:00 - 18:00' },
-  { day: 'Cumartesi', hours: '10:00 - 16:00' },
-  { day: 'Pazar', hours: 'Kapalı' }
-];
-
-const quickActions = [
-  { title: 'Canlı Destek', description: 'Anında yardım alın', icon: MessageCircle, action: '/destek' },
-  { title: 'Sipariş Takibi', description: 'Siparişinizi takip edin', icon: ExternalLink, action: '/siparis-takip' },
-  { title: 'İade Talebi', description: 'Kolay iade süreci', icon: ExternalLink, action: '/iade' },
-  { title: 'Kariyer', description: 'Bizimle çalışın', icon: ExternalLink, action: '/kariyer' }
-];
+import { MapPin, Phone, Mail, Clock, MessageCircle, ExternalLink } from 'lucide-react';
 
 export default function ContactCTA() {
+  const contactMethods = [
+    {
+      icon: Phone,
+      title: 'Telefon',
+      value: '+90 (555) 123 45 67',
+      description: 'Pazartesi - Cuma: 09:00 - 18:00',
+      action: 'tel:+905551234567',
+      highlight: true
+    },
+    {
+      icon: MessageCircle,
+      title: 'WhatsApp',
+      value: '+90 (555) 123 45 67',
+      description: '7/24 Anında Destek',
+      action: 'https://wa.me/905551234567',
+      highlight: true
+    },
+    {
+      icon: Mail,
+      title: 'E-posta',
+      value: 'destek@tdcmarket.com',
+      description: '24 saat içinde yanıt',
+      action: 'mailto:destek@tdcmarket.com'
+    },
+    {
+      icon: Clock,
+      title: 'Canlı Destek',
+      value: 'Online Chat',
+      description: 'Anında yardım',
+      action: '#',
+      comingSoon: true
+    }
+  ];
+
+  const offices = [
+    {
+      city: 'İstanbul',
+      address: 'Maslak Mahallesi, Büyükdere Caddesi No:123, Sarıyer/İstanbul',
+      phone: '+90 (212) 123 45 67',
+      hours: 'Pazartesi - Cuma: 09:00 - 18:00'
+    },
+    {
+      city: 'Ankara',
+      address: 'Çankaya Mahallesi, Tunalı Hilmi Caddesi No:456, Çankaya/Ankara',
+      phone: '+90 (312) 123 45 67',
+      hours: 'Pazartesi - Cuma: 09:00 - 18:00'
+    }
+  ];
+
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
+    <section className="py-20 bg-gradient-to-b from-[#0B0B0B] to-[#1a1a1a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.8 }}
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Bize Ulaşın</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Sorularınız için 7/24 hizmetinizdeyiz. Size en uygun iletişim yöntemini seçin.
+          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+            <span className="text-white">Bizimle</span>
+            <br />
+            <span className="bg-gradient-to-r from-[#CBA135] to-[#F4D03F] bg-clip-text text-transparent">
+              İletişime Geçin
+            </span>
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Sorularınız, önerileriniz veya işbirliği teklifleriniz için her zaman buradayız.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-          {/* Contact Information */}
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {contactInfo.map((contact, index) => (
-                <motion.div
-                  key={contact.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <Card className="h-full hover:shadow-xl transition-all duration-300 group cursor-pointer"
-                        onClick={() => window.open(contact.action, '_blank')}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                          <contact.icon className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-1">{contact.title}</h3>
-                          <p className="text-[#CBA135] font-medium mb-1">{contact.value}</p>
-                          <p className="text-sm text-gray-500">{contact.description}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* Working Hours */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            viewport={{ once: true }}
-          >
-            <Card className="h-full">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] rounded-2xl flex items-center justify-center">
-                    <Clock className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">Çalışma Saatleri</h3>
-                </div>
-                <div className="space-y-3">
-                  {workingHours.map((schedule, index) => (
-                    <div key={schedule.day} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
-                      <span className="text-gray-700 font-medium">{schedule.day}</span>
-                      <span className="text-[#CBA135] font-semibold">{schedule.hours}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-
-        {/* Quick Actions */}
+        {/* Contact Methods Grid */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
-          className="mb-16"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
         >
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-8">Hızlı İşlemler</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {quickActions.map((action, index) => (
+          {contactMethods.map((method, index) => {
+            const Icon = method.icon;
+            return (
               <motion.a
-                key={action.title}
-                href={action.action}
+                key={index}
+                href={method.action}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="group"
+                whileHover={{ y: -5, scale: 1.02 }}
+                className={`
+                  relative p-6 rounded-2xl border transition-all duration-300 group
+                  ${method.highlight 
+                    ? 'bg-gradient-to-br from-[#CBA135]/20 to-[#F4D03F]/20 border-[#CBA135]/30 hover:border-[#CBA135] hover:shadow-[0_20px_40px_rgba(203,161,53,0.15)]' 
+                    : 'bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 hover:border-white/20'
+                  }
+                  ${method.comingSoon ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+                `}
               >
-                <Card className="h-full hover:shadow-xl transition-all duration-300 group-hover:border-[#CBA135]">
-                  <CardContent className="p-6 text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                      <action.icon className="w-8 h-8 text-white" />
-                    </div>
-                    <h4 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-[#CBA135] transition-colors">
-                      {action.title}
-                    </h4>
-                    <p className="text-gray-600 text-sm">{action.description}</p>
-                  </CardContent>
-                </Card>
+                {method.comingSoon && (
+                  <div className="absolute top-3 right-3 bg-[#CBA135] text-black text-xs px-2 py-1 rounded-full font-medium">
+                    Yakında
+                  </div>
+                )}
+                
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className={`
+                    w-12 h-12 rounded-xl flex items-center justify-center transition-colors
+                    ${method.highlight 
+                      ? 'bg-[#CBA135] text-black group-hover:bg-[#F4D03F]' 
+                      : 'bg-white/10 text-white group-hover:bg-white/20'
+                    }
+                  `}>
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-semibold text-white text-lg mb-1">
+                      {method.title}
+                    </h3>
+                    <p className="text-[#CBA135] font-medium mb-2">
+                      {method.value}
+                    </p>
+                    <p className="text-gray-400 text-sm">
+                      {method.description}
+                    </p>
+                  </div>
+                </div>
+
+                {!method.comingSoon && (
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ExternalLink className="w-4 h-4 text-[#CBA135]" />
+                  </div>
+                )}
               </motion.a>
-            ))}
+            );
+          })}
+        </motion.div>
+
+        {/* Offices Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16"
+        >
+          {offices.map((office, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 * index }}
+              viewport={{ once: true }}
+              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all duration-300 hover:border-[#CBA135]/30"
+            >
+              <div className="flex items-start space-x-4">
+                <div className="w-12 h-12 bg-[#CBA135]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-6 h-6 text-[#CBA135]" />
+                </div>
+                
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-white mb-3">
+                    {office.city} Ofisi
+                  </h3>
+                  <div className="space-y-3">
+                    <p className="text-gray-300 leading-relaxed">
+                      {office.address}
+                    </p>
+                    <div className="flex items-center space-x-2 text-[#CBA135]">
+                      <Phone className="w-4 h-4" />
+                      <span className="font-medium">{office.phone}</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-gray-400">
+                      <Clock className="w-4 h-4" />
+                      <span className="text-sm">{office.hours}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Map Placeholder */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          viewport={{ once: true }}
+          className="bg-gradient-to-r from-[#CBA135]/10 to-[#F4D03F]/10 border border-[#CBA135]/30 rounded-2xl p-12 text-center"
+        >
+          <div className="w-16 h-16 bg-[#CBA135]/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <MapPin className="w-8 h-8 text-[#CBA135]" />
+          </div>
+          <h3 className="text-2xl font-bold text-white mb-4">
+            Konumumuzu Görün
+          </h3>
+          <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+            İstanbul ve Ankara ofislerimizin konumlarını haritada görebilir, 
+            ziyaret etmek istediğiniz ofisi seçerek yol tarifi alabilirsiniz.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="https://maps.google.com/?q=Maslak+Mahallesi+Büyükdere+Caddesi+İstanbul"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-6 py-3 bg-[#CBA135] text-black rounded-xl hover:bg-[#F4D03F] transition-colors"
+            >
+              İstanbul Ofisi Harita
+            </a>
+            <a
+              href="https://maps.google.com/?q=Çankaya+Mahallesi+Tunalı+Hilmi+Caddesi+Ankara"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors border border-white/20"
+            >
+              Ankara Ofisi Harita
+            </a>
           </div>
         </motion.div>
 
-        {/* Final CTA */}
+        {/* Emergency Contact */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
           viewport={{ once: true }}
-          className="text-center bg-gradient-to-r from-[#CBA135] to-[#F4D03F] rounded-3xl p-12 text-white"
+          className="mt-12 text-center"
         >
-          <h3 className="text-3xl font-bold mb-4">Her Zaman Yanınızdayız</h3>
-          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-            Müşteri memnuniyeti bizim önceliğimiz. Herhangi bir sorunuz veya öneriniz varsa, 
-            bizimle iletişime geçmekten çekinmeyin.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="bg-white text-[#CBA135] hover:bg-gray-100 px-8 py-4 text-lg font-semibold"
-              onClick={() => window.open('mailto:destek@tdcmarket.com', '_blank')}
+          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 max-w-2xl mx-auto">
+            <h3 className="text-xl font-bold text-white mb-3">
+              Acil Durum Desteği
+            </h3>
+            <p className="text-gray-300 mb-4">
+              Kritik sorunlarınız için 7/24 acil destek hattımız mevcuttur.
+            </p>
+            <a
+              href="tel:+905551234567"
+              className="inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium"
             >
-              <Mail className="w-5 h-5 mr-2" />
-              E-posta Gönder
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-2 border-white text-white hover:bg-white hover:text-[#CBA135] px-8 py-4 text-lg font-semibold"
-              onClick={() => window.open('https://wa.me/908501234567', '_blank')}
-            >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              WhatsApp
-            </Button>
+              <Phone className="w-4 h-4 mr-2" />
+              Acil Destek: +90 (555) 123 45 67
+            </a>
           </div>
         </motion.div>
       </div>

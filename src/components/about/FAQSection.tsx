@@ -1,140 +1,150 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { HelpCircle } from 'lucide-react';
-
-interface FAQ {
-  q: string;
-  a: string;
-}
-
-const faqs: FAQ[] = [
-  {
-    q: 'Siparişim ne kadar sürede teslim edilir?',
-    a: 'Standart teslimat süremiz 2-5 iş günüdür. Hızlı teslimat seçeneği ile 1-2 iş gününde teslim edebiliriz. Teslimat süresi ürün türüne ve teslimat adresine göre değişiklik gösterebilir.'
-  },
-  {
-    q: 'İade ve değişim politikası nasıl?',
-    a: 'Ürünlerinizi teslim aldığınız tarihten itibaren 30 gün içinde iade edebilirsiniz. Ürün orijinal ambalajında ve kullanılmamış durumda olmalıdır. İade kargo ücreti bizim tarafımızdan karşılanır.'
-  },
-  {
-    q: 'Hangi ödeme yöntemlerini kabul ediyorsunuz?',
-    a: 'Kredi kartı, banka kartı, havale/EFT, kapıda ödeme ve taksitli ödeme seçeneklerini kabul ediyoruz. Tüm ödemeler SSL şifreleme ile güvenli bir şekilde işlenir.'
-  },
-  {
-    q: 'Ürünleriniz orijinal mi?',
-    a: 'Evet, tüm ürünlerimiz %100 orijinaldir. Sadece yetkili distribütörlerden tedarik ettiğimiz ürünleri satıyoruz. Sahte ürün satışı yapmıyoruz.'
-  },
-  {
-    q: 'Müşteri hizmetlerinize nasıl ulaşabilirim?',
-    a: '7/24 müşteri hizmetlerimize WhatsApp, e-posta veya telefon ile ulaşabilirsiniz. Ortalama yanıt süremiz 2 saattir. Canlı destek hattımız da mevcuttur.'
-  },
-  {
-    q: 'Toplu sipariş indirimi var mı?',
-    a: 'Evet, 10 adet ve üzeri siparişlerde %5, 50 adet ve üzeri siparişlerde %10 indirim uygularız. Kurumsal müşterilerimiz için özel fiyatlandırma seçenekleri de mevcuttur.'
-  },
-  {
-    q: 'Ürünlerinizde garanti var mı?',
-    a: 'Tüm ürünlerimizde üretici garantisi geçerlidir. Ayrıca kendi garantimiz de mevcuttur. Garanti süresi ürün türüne göre 1-3 yıl arasında değişir.'
-  },
-  {
-    q: 'Kargo ücreti ne kadar?',
-    a: '150 TL ve üzeri siparişlerde kargo ücretsizdir. Altındaki siparişlerde 15 TL kargo ücreti alınır. Hızlı teslimat seçeneği için ek ücret uygulanır.'
-  },
-  {
-    q: 'Ürün stokta yoksa ne yapabilirim?',
-    a: 'Stokta olmayan ürünler için bildirim listesine eklenebilirsiniz. Ürün stokta olduğunda size e-posta ile bilgi veririz. Özel üretim talepleriniz için bizimle iletişime geçebilirsiniz.'
-  },
-  {
-    q: 'Gizlilik ve güvenlik nasıl sağlanıyor?',
-    a: 'KVKK uyumlu gizlilik politikamız vardır. Kişisel verileriniz SSL şifreleme ile korunur. Ödeme bilgileriniz saklanmaz ve güvenli ödeme sistemleri kullanılır.'
-  }
-];
+import { useState } from 'react';
+import { ChevronDown, HelpCircle } from 'lucide-react';
 
 export default function FAQSection() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      question: 'Siparişlerim ne kadar sürede teslim edilir?',
+      answer: 'Siparişleriniz genellikle 1-3 iş günü içinde teslim edilir. Kargo takip numarası ile teslimat durumunu takip edebilirsiniz.'
+    },
+    {
+      question: 'Ürünleriniz orijinal mi?',
+      answer: 'Evet, tüm ürünlerimiz orijinal ve kaliteli tedarikçilerden temin edilir. Orijinallik garantisi veriyoruz.'
+    },
+    {
+      question: 'İade işlemi nasıl yapılır?',
+      answer: '14 gün içinde koşulsuz iade hakkınız vardır. İade işlemi için müşteri hizmetlerimizle iletişime geçebilirsiniz.'
+    },
+    {
+      question: 'Hangi ödeme yöntemlerini kabul ediyorsunuz?',
+      answer: 'Kredi kartı, banka kartı, havale/EFT ve kapıda ödeme seçeneklerini kabul ediyoruz. Tüm ödemeler güvenlidir.'
+    },
+    {
+      question: 'Müşteri hizmetlerinize nasıl ulaşabilirim?',
+      answer: '7/24 müşteri hizmetlerimiz WhatsApp, telefon ve e-posta üzerinden hizmetinizdedir. Hızlı yanıt garantisi veriyoruz.'
+    },
+    {
+      question: 'Kargo ücreti ne kadar?',
+      answer: '150 TL ve üzeri alışverişlerde kargo ücretsizdir. Altındaki tutarlarda kargo ücreti 15 TL\'dir.'
+    },
+    {
+      question: 'Kişisel verilerim güvende mi?',
+      answer: 'KVKK uyumlu olarak kişisel verilerinizi koruyoruz. SSL şifreleme ile güvenli saklama sağlıyoruz.'
+    },
+    {
+      question: 'Ürün stokta yoksa ne olur?',
+      answer: 'Stokta olmayan ürünler için bildirim alabilirsiniz. Stok geldiğinde size haber veririz.'
+    }
+  ];
+
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-gradient-to-b from-[#1a1a1a] to-[#0B0B0B]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.8 }}
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <div className="flex items-center justify-center space-x-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] rounded-2xl flex items-center justify-center">
-              <HelpCircle className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-4xl font-bold text-gray-900">Sıkça Sorulan Sorular</h2>
-          </div>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Merak ettiğiniz soruların yanıtlarını burada bulabilirsiniz. 
-            Aradığınızı bulamazsanız bizimle iletişime geçin.
+          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+            <span className="text-white">Sıkça Sorulan</span>
+            <br />
+            <span className="bg-gradient-to-r from-[#CBA135] to-[#F4D03F] bg-clip-text text-transparent">
+              Sorular
+            </span>
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            Müşterilerimizin en çok merak ettiği konular hakkında detaylı cevaplar.
           </p>
         </motion.div>
 
-        {/* FAQ Accordion */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          viewport={{ once: true }}
-        >
-          <Accordion type="single" collapsible className="space-y-4">
-            {faqs.map((faq, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                viewport={{ once: true }}
+        <div className="space-y-4">
+          {faqs.map((faq, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.05 }}
+              viewport={{ once: true }}
+              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 hover:border-[#CBA135]/30"
+            >
+              <button
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                className="w-full px-6 py-6 text-left flex items-center justify-between hover:bg-white/5 transition-colors"
               >
-                <AccordionItem 
-                  value={`item-${index}`}
-                  className="border border-gray-200 rounded-2xl px-6 hover:shadow-md transition-all duration-300"
+                <div className="flex items-center space-x-4">
+                  <div className="w-8 h-8 bg-[#CBA135]/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <HelpCircle className="w-4 h-4 text-[#CBA135]" />
+                  </div>
+                  <span className="text-white font-semibold text-lg">
+                    {faq.question}
+                  </span>
+                </div>
+                <motion.div
+                  animate={{ rotate: openIndex === index ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex-shrink-0"
                 >
-                  <AccordionTrigger className="text-left font-semibold text-gray-900 hover:text-[#CBA135] transition-colors py-6">
-                    {faq.q}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-gray-600 leading-relaxed pb-6">
-                    {faq.a}
-                  </AccordionContent>
-                </AccordionItem>
+                  <ChevronDown className="w-5 h-5 text-gray-400" />
+                </motion.div>
+              </button>
+
+              <motion.div
+                initial={false}
+                animate={{
+                  height: openIndex === index ? 'auto' : 0,
+                  opacity: openIndex === index ? 1 : 0
+                }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <div className="px-6 pb-6">
+                  <div className="pl-12">
+                    <p className="text-gray-300 leading-relaxed">
+                      {faq.answer}
+                    </p>
+                  </div>
+                </div>
               </motion.div>
-            ))}
-          </Accordion>
-        </motion.div>
+            </motion.div>
+          ))}
+        </div>
 
         {/* Contact CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
           viewport={{ once: true }}
-          className="text-center mt-12 p-8 bg-gradient-to-r from-gray-50 to-gray-100 rounded-3xl"
+          className="mt-12 text-center"
         >
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            Sorunuz mu var?
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Aradığınızı bulamadınız mı? Müşteri hizmetlerimiz size yardımcı olmaktan mutluluk duyar.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="mailto:destek@tdcmarket.com"
-              className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-300"
-            >
-              E-posta Gönder
-            </a>
-            <a
-              href="tel:+908501234567"
-              className="inline-flex items-center justify-center px-6 py-3 border-2 border-[#CBA135] text-[#CBA135] rounded-lg font-semibold hover:bg-[#CBA135] hover:text-white transition-all duration-300"
-            >
-              Telefon Et
-            </a>
+          <div className="bg-gradient-to-r from-[#CBA135]/10 to-[#F4D03F]/10 border border-[#CBA135]/30 rounded-3xl p-8">
+            <h3 className="text-2xl font-bold text-white mb-4">
+              Sorunuz mu var?
+            </h3>
+            <p className="text-lg text-gray-300 mb-6">
+              Aradığınız cevabı bulamadıysanız, müşteri hizmetlerimizle iletişime geçin.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="https://wa.me/905XXXXXXXXX"
+                className="inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors"
+              >
+                WhatsApp Destek
+              </a>
+              <a
+                href="mailto:destek@tdcmarket.com"
+                className="inline-flex items-center justify-center px-6 py-3 bg-[#CBA135] text-black rounded-xl hover:bg-[#F4D03F] transition-colors"
+              >
+                E-posta Gönder
+              </a>
+            </div>
           </div>
         </motion.div>
       </div>

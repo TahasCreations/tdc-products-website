@@ -1,128 +1,148 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Calendar, ExternalLink } from 'lucide-react';
-
-interface Milestone {
-  year: string;
-  title: string;
-  description?: string;
-  link?: string;
-}
-
-const milestones: Milestone[] = [
-  {
-    year: '2019',
-    title: 'TDC Market Kuruluşu',
-    description: 'Küçük bir ekip ile e-ticaret yolculuğumuza başladık.',
-    link: '/blog/tdc-market-kurulusu'
-  },
-  {
-    year: '2020',
-    title: 'İlk 1000 Müşteri',
-    description: 'Pandemi döneminde online alışverişe geçişle birlikte hızlı büyüme.',
-    link: '/blog/ilk-1000-musteri'
-  },
-  {
-    year: '2021',
-    title: 'Uluslararası Teslimat',
-    description: '25+ ülkeye teslimat hizmeti başlattık.',
-    link: '/blog/uluslararasi-teslimat'
-  },
-  {
-    year: '2022',
-    title: 'Mobil Uygulama',
-    description: 'iOS ve Android uygulamalarımızı yayınladık.',
-    link: '/blog/mobil-uygulama'
-  },
-  {
-    year: '2023',
-    title: 'Sürdürülebilirlik Programı',
-    description: 'Çevre dostu üretim ve ambalajlama süreçlerini hayata geçirdik.',
-    link: '/blog/surdurulebilirlik-programi'
-  },
-  {
-    year: '2024',
-    title: 'AI Destekli Öneriler',
-    description: 'Yapay zeka teknolojisi ile kişiselleştirilmiş ürün önerileri.',
-    link: '/blog/ai-destekli-oneriler'
-  }
-];
+import { Calendar, MapPin, Users, Award, Zap, Heart } from 'lucide-react';
 
 export default function Timeline() {
+  const milestones = [
+    {
+      year: '2024',
+      month: 'Ocak',
+      title: 'TDC Market Kuruluşu',
+      description: 'TDC Market\'in temelleri atıldı ve ilk ekibimiz kuruldu.',
+      icon: <Heart className="w-6 h-6" />,
+      color: 'from-blue-500 to-blue-600'
+    },
+    {
+      year: '2024',
+      month: 'Mart',
+      title: 'Platform Geliştirme',
+      description: 'Modern ve kullanıcı dostu platformumuzun geliştirilmesi tamamlandı.',
+      icon: <Zap className="w-6 h-6" />,
+      color: 'from-purple-500 to-purple-600'
+    },
+    {
+      year: '2024',
+      month: 'Mayıs',
+      title: 'İlk Satışlar',
+      description: 'Platformumuzda ilk satışlar gerçekleşti ve müşteri memnuniyeti başladı.',
+      icon: <Users className="w-6 h-6" />,
+      color: 'from-green-500 to-green-600'
+    },
+    {
+      year: '2024',
+      month: 'Ağustos',
+      title: '1000. Müşteri',
+      description: 'Platformumuzda 1000. müşteriye ulaştık ve büyük bir dönüm noktası yaşadık.',
+      icon: <Award className="w-6 h-6" />,
+      color: 'from-orange-500 to-orange-600'
+    },
+    {
+      year: '2024',
+      month: 'Ekim',
+      title: 'Kategori Genişletme',
+      description: 'Ürün kategorilerimizi genişlettik ve daha fazla seçenek sunduk.',
+      icon: <MapPin className="w-6 h-6" />,
+      color: 'from-pink-500 to-pink-600'
+    },
+    {
+      year: '2024',
+      month: 'Aralık',
+      title: 'Gelecek Planları',
+      description: '2025 yılı için büyük hedefler ve yeni projeler planlıyoruz.',
+      icon: <Calendar className="w-6 h-6" />,
+      color: 'from-cyan-500 to-cyan-600'
+    }
+  ];
+
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-gradient-to-b from-[#0B0B0B] to-[#1a1a1a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.8 }}
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Yolculuğumuz</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            TDC Market'in kuruluşundan bugüne kadar geçen süreçteki önemli kilometre taşları
+          <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+            <span className="text-white">Yolculuğumuz</span>
+            <br />
+            <span className="bg-gradient-to-r from-[#CBA135] to-[#F4D03F] bg-clip-text text-transparent">
+              Zaman Çizelgesi
+            </span>
+          </h2>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            TDC Market'in kuruluşundan bugüne kadar olan önemli kilometre taşlarımız.
           </p>
         </motion.div>
 
         <div className="relative">
           {/* Timeline Line */}
-          <div className="absolute left-4 md:left-1/2 md:transform md:-translate-x-0.5 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#CBA135] to-[#F4D03F]"></div>
+          <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#CBA135] to-[#F4D03F] opacity-30" />
 
+          {/* Timeline Items */}
           <div className="space-y-12">
             {milestones.map((milestone, index) => (
               <motion.div
-                key={milestone.year}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                key={index}
+                initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className={`relative flex items-center ${
-                  index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                }`}
+                className="relative flex items-start space-x-8"
               >
                 {/* Timeline Dot */}
-                <div className="absolute left-4 md:left-1/2 md:transform md:-translate-x-1/2 w-4 h-4 bg-[#CBA135] rounded-full border-4 border-white shadow-lg z-10"></div>
+                <div className="relative z-10 flex-shrink-0">
+                  <div className={`w-16 h-16 bg-gradient-to-br ${milestone.color} rounded-full flex items-center justify-center text-white shadow-lg`}>
+                    {milestone.icon}
+                  </div>
+                  <div className="absolute inset-0 w-16 h-16 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-full opacity-0 animate-ping" />
+                </div>
 
                 {/* Content */}
-                <div className={`ml-12 md:ml-0 md:w-1/2 ${
-                  index % 2 === 0 ? 'md:pr-8' : 'md:pl-8'
-                }`}>
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 group"
-                  >
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-10 h-10 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] rounded-lg flex items-center justify-center">
-                        <Calendar className="w-5 h-5 text-white" />
+                <div className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300 hover:border-[#CBA135]/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <div>
+                      <div className="flex items-center space-x-2 text-sm text-[#CBA135] font-medium mb-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>{milestone.month} {milestone.year}</span>
                       </div>
-                      <span className="text-2xl font-bold text-[#CBA135]">{milestone.year}</span>
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        {milestone.title}
+                      </h3>
                     </div>
-                    
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#CBA135] transition-colors">
-                      {milestone.title}
-                    </h3>
-                    
-                    {milestone.description && (
-                      <p className="text-gray-600 mb-4">{milestone.description}</p>
-                    )}
-                    
-                    {milestone.link && (
-                      <a
-                        href={milestone.link}
-                        className="inline-flex items-center space-x-2 text-[#CBA135] hover:text-[#F4D03F] transition-colors font-medium"
-                      >
-                        <span>Detayları Gör</span>
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    )}
-                  </motion.div>
+                  </div>
+                  <p className="text-gray-300 leading-relaxed">
+                    {milestone.description}
+                  </p>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
+
+        {/* Future Vision */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          viewport={{ once: true }}
+          className="mt-16 text-center"
+        >
+          <div className="bg-gradient-to-r from-[#CBA135]/10 to-[#F4D03F]/10 border border-[#CBA135]/30 rounded-3xl p-8 max-w-4xl mx-auto">
+            <div className="w-16 h-16 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <Award className="w-8 h-8 text-black" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-4">
+              Gelecek Vizyonumuz
+            </h3>
+            <p className="text-lg text-gray-300 leading-relaxed">
+              2025 yılında daha da büyük hedeflerle, müşteri memnuniyetini artırarak 
+              ve teknolojiyi daha etkin kullanarak sektörde öncü konuma gelmeyi hedefliyoruz.
+            </p>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
