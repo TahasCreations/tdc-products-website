@@ -1,4 +1,10 @@
 import { Storage } from '@google-cloud/storage';
+import { ImageAnnotatorClient } from '@google-cloud/vision';
+import { BigQuery } from '@google-cloud/bigquery';
+import { WebRiskServiceClient } from '@google-cloud/web-risk';
+import { RecaptchaEnterpriseServiceClient } from '@google-cloud/recaptcha-enterprise';
+import { VertexAI } from '@google-cloud/vertexai';
+import admin from 'firebase-admin';
 
 /**
  * GCP Storage Configuration
@@ -144,4 +150,54 @@ export async function testConnection(): Promise<boolean> {
     console.warn('GCS connection test failed:', error);
     return false;
   }
+}
+
+// Vision API
+export function getVision(): ImageAnnotatorClient {
+  return new ImageAnnotatorClient();
+}
+
+// BigQuery
+export function getBigQuery(): BigQuery {
+  return new BigQuery();
+}
+
+export function getBigQueryDataset(datasetId: string): any {
+  const bigquery = getBigQuery();
+  return bigquery.dataset(datasetId);
+}
+
+// Web Risk
+export function getWebRisk(): WebRiskServiceClient {
+  return new WebRiskServiceClient();
+}
+
+// Recaptcha
+export function getRecaptcha(): RecaptchaEnterpriseServiceClient {
+  return new RecaptchaEnterpriseServiceClient();
+}
+
+// Vertex AI
+export function getVertexEmbedding(): any {
+  const vertex = new VertexAI({ project: process.env.GCP_PROJECT_ID, location: 'us-central1' });
+  return vertex.getGenerativeModel({ model: 'text-embedding-004' });
+}
+
+// Firebase Admin
+export function getFCM(): any {
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.GCP_PROJECT_ID,
+        clientEmail: process.env.GCP_CLIENT_EMAIL,
+        privateKey: process.env.GCP_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      }),
+    });
+  }
+  return admin.messaging();
+}
+
+// Storage alias
+export function getStorage(): Storage {
+  return getStorageClient();
 }

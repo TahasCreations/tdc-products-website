@@ -6,8 +6,8 @@ import {
   isDemoContent,
   isDemoProduct,
   isDemoCategory
-} from '../../../../src/data/demo-purge.rules';
-import { cleanupDemoFiles } from '../../../../src/lib/gcp';
+} from '@/data/demo-purge.rules';
+import { cleanupDemoFiles } from '@/lib/gcp';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt'
 
 const prisma = new PrismaClient()
 
@@ -29,14 +28,12 @@ async function main() {
     return
   }
 
-  // Şifreyi hash'le
-  const hashedPassword = await bcrypt.hash(adminPassword, 12)
+  // NextAuth kullanılıyor, şifre gerekmiyor
 
   // Admin kullanıcısını oluştur
   const admin = await prisma.user.create({
     data: {
       email: adminEmail,
-      password: hashedPassword,
       role: 'ADMIN',
       name: 'Admin User'
     }
@@ -49,24 +46,8 @@ async function main() {
   })
 
   // Örnek kategoriler oluştur (sadece demo modunda)
-  const categories = [
-    { name: 'Elektronik', slug: 'elektronik' },
-    { name: 'Giyim', slug: 'giyim' },
-    { name: 'Ev & Yaşam', slug: 'ev-yasam' }
-  ]
-
-  for (const category of categories) {
-    const existing = await prisma.category.findUnique({
-      where: { slug: category.slug }
-    })
-
-    if (!existing) {
-      await prisma.category.create({
-        data: category
-      })
-      console.log(`✅ Kategori oluşturuldu: ${category.name}`)
-    }
-  }
+  // Category modeli mevcut değil, Product.category alanı kullanılıyor
+  console.log('ℹ️  Kategoriler Product.category alanında string olarak saklanıyor')
 
   console.log('🎉 Demo seeding tamamlandı!')
 }

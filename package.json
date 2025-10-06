@@ -15,7 +15,7 @@
     "demo:purge": "set ALLOW_DEMO_PURGE=I_UNDERSTAND && tsx prisma/purge-demo.ts",
     "demo:purge:force": "set ALLOW_DEMO_PURGE=I_UNDERSTAND && tsx prisma/purge-demo.ts --force",
     "seed": "tsx prisma/seed.ts",
-    "seed:demo": "SEED_DEMO=true tsx prisma/seed.ts"
+    "seed:demo": "set SEED_DEMO=true && tsx prisma/seed.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -50,6 +50,7 @@
     "@tiptap/extension-placeholder": "^3.6.2",
     "@tiptap/react": "^3.6.2",
     "@tiptap/starter-kit": "^3.6.2",
+    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.19.19",
     "@types/react": "^18.3.25",
@@ -60,6 +61,7 @@
     "@vercel/og": "^0.8.5",
     "@vercel/speed-insights": "^1.2.0",
     "autoprefixer": "^10.4.19",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
