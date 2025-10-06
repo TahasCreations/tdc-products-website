@@ -14,6 +14,7 @@ datasource db {
 enum Role {
   BUYER
   SELLER
+  INFLUENCER
   ADMIN
 }
 
@@ -49,6 +50,10 @@ model User {
   wishlistItems WishlistItem[]
   reviews       Review[]
   pushTokens    PushToken[]
+  
+  // Partner başvuru relations
+  sellerApplications      SellerApplication[]
+  influencerApplications  InfluencerApplication[]
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -470,19 +475,6 @@ enum MsgAuthor {
   ADMIN
 }
 
-model InfluencerApplication {
-  id          String   @id @default(cuid())
-  userId      String
-  platforms   String  // JSON string olarak sakla
-  profileLinks String  // JSON string olarak sakla
-  followers   Int?
-  engagement  Float?   // % olarak
-  niches      String  // JSON string olarak sakla
-  note        String?
-  status      InfluencerStatus @default(PENDING)
-  reviewedBy  String?
-  createdAt   DateTime @default(now())
-}
 
 model InfluencerProfile {
   id           String   @id @default(cuid())
@@ -760,4 +752,32 @@ model ShipmentItem {
   createdAt  DateTime @default(now())
   
   shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+}
+
+// === PARTNER APPLICATIONS ===
+model SellerApplication {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeName    String
+  taxId        String
+  iban         String
+  shippingPref String
+  agreement    Boolean  @default(false)
+  status       String   @default("pending") // pending|approved|rejected
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model InfluencerApplication {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  socialLinks  Json     // {instagram?, tiktok?, youtube?, website?}
+  followerEst  Int?
+  category     String?
+  agreement    Boolean  @default(false)
+  status       String   @default("pending") // pending|approved|rejected
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

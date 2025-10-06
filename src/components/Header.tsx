@@ -8,6 +8,7 @@ import HeaderNav from './header/HeaderNav';
 import HeaderActions from './header/HeaderActions';
 import HeaderMobileMenu from './header/HeaderMobileMenu';
 import SearchModal from './header/SearchModal';
+import AccountMenu from '../../components/layout/AccountMenu';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -75,11 +76,30 @@ export default function Header() {
             </div>
 
             {/* Actions */}
-            <div className="flex-shrink-0 ml-4">
-              <HeaderActions
-                onSearchClick={() => setIsSearchOpen(true)}
-                onMenuClick={() => setIsMobileMenuOpen(true)}
-              />
+            <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+              <button 
+                onClick={() => setIsSearchOpen(true)}
+                className="p-2 text-orange-400 hover:text-orange-300 focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-lg transition-colors"
+                aria-label="Ara"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+              
+              <button 
+                className="p-2 text-orange-400 hover:text-orange-300 focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-lg transition-colors"
+                aria-label="Favoriler"
+              >
+                ♡
+              </button>
+              
+              <button 
+                className="p-2 text-orange-400 hover:text-orange-300 focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-lg transition-colors"
+                aria-label="Sepet"
+              >
+                🛒
+              </button>
+              
+              <AccountMenu />
             </div>
           </div>
         </div>
