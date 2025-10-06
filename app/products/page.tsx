@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ProductGrid from '../../src/components/products/ProductGrid';
 import ProductSorting from '../../src/components/products/ProductSorting';
 import Breadcrumb from '../../src/components/ui/Breadcrumb';
+import { EmptyProductsState } from '../../src/components/empty/EmptyState';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
 
 // Note: metadata cannot be exported from a Client Component; moved to head via JSON-LD only.
@@ -19,258 +20,12 @@ const pageMeta = {
   },
 };
 
-// Mock data - in real app, this would come from API/database
-const mockProducts = [
-  {
-    id: '1',
-    title: 'Naruto Uzumaki Figürü - Shippuden',
-    slug: 'naruto-uzumaki-figuru-shippuden',
-    price: 299.99,
-    listPrice: 399.99,
-    currency: 'TRY',
-    rating: 4.8,
-    reviewCount: 156,
-    stock: 25,
-    images: ['products/naruto-figur-1.jpg'],
-    tags: ['anime', 'naruto', 'figür', 'shippuden'],
-    seller: {
-      name: 'AnimeWorld Store',
-      slug: 'animeworld-store',
-      rating: 4.8,
-      logo: 'https://via.placeholder.com/50x50/4F46E5/FFFFFF?text=AW'
-    },
-    category: {
-      name: 'Anime Figürleri',
-      slug: 'anime-figurleri'
-    }
-  },
-  {
-    id: '2',
-    title: 'One Piece Luffy Figürü - Gear 4',
-    slug: 'one-piece-luffy-figuru-gear-4',
-    price: 459.99,
-    listPrice: 599.99,
-    currency: 'TRY',
-    rating: 4.9,
-    reviewCount: 89,
-    stock: 15,
-    images: ['https://via.placeholder.com/400x400/FF9F43/FFFFFF?text=Luffy'],
-    tags: ['anime', 'one-piece', 'luffy', 'gear-4'],
-    seller: {
-      name: 'AnimeWorld Store',
-      slug: 'animeworld-store',
-      rating: 4.8,
-      logo: 'https://via.placeholder.com/50x50/4F46E5/FFFFFF?text=AW'
-    },
-    category: {
-      name: 'Anime Figürleri',
-      slug: 'anime-figurleri'
-    }
-  },
-  {
-    id: '3',
-    title: 'Iron Man Mark 85 Figürü',
-    slug: 'iron-man-mark-85-figuru',
-    price: 1299.99,
-    listPrice: 1599.99,
-    currency: 'TRY',
-    rating: 4.7,
-    reviewCount: 234,
-    stock: 8,
-    images: ['https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=Iron+Man'],
-    tags: ['marvel', 'iron-man', 'figür', 'led'],
-    seller: {
-      name: 'AnimeWorld Store',
-      slug: 'animeworld-store',
-      rating: 4.8,
-      logo: 'https://via.placeholder.com/50x50/4F46E5/FFFFFF?text=AW'
-    },
-    category: {
-      name: 'Film/TV Figürleri',
-      slug: 'film-tv-figurleri'
-    }
-  },
-  {
-    id: '4',
-    title: 'Anime Tişört - Naruto Collection',
-    slug: 'anime-tisort-naruto-collection',
-    price: 89.99,
-    listPrice: 129.99,
-    currency: 'TRY',
-    rating: 4.5,
-    reviewCount: 67,
-    stock: 50,
-    images: ['https://via.placeholder.com/400x400/4ECDC4/FFFFFF?text=Naruto+T'],
-    tags: ['tişört', 'naruto', 'anime', 'pamuklu'],
-    seller: {
-      name: 'FashionHub',
-      slug: 'fashionhub',
-      rating: 4.5,
-      logo: 'https://via.placeholder.com/50x50/7C3AED/FFFFFF?text=FH'
-    },
-    category: {
-      name: 'Tişört',
-      slug: 'tisort'
-    }
-  },
-  {
-    id: '5',
-    title: 'Kablosuz Kulaklık - Noise Cancelling',
-    slug: 'kablosuz-kulaklik-noise-cancelling',
-    price: 899.99,
-    listPrice: 1199.99,
-    currency: 'TRY',
-    rating: 4.6,
-    reviewCount: 189,
-    stock: 30,
-    images: ['https://via.placeholder.com/400x400/2C3E50/FFFFFF?text=Headphones'],
-    tags: ['kulaklık', 'kablosuz', 'gürültü-engelleyici', 'bluetooth'],
-    seller: {
-      name: 'TechGear Pro',
-      slug: 'techgear-pro',
-      rating: 4.6,
-      logo: 'https://via.placeholder.com/50x50/059669/FFFFFF?text=TG'
-    },
-    category: {
-      name: 'Kulaklık',
-      slug: 'kulaklik'
-    }
-  },
-  {
-    id: '6',
-    title: 'LED Aydınlatma Seti - RGB',
-    slug: 'led-aydinlatma-seti-rgb',
-    price: 149.99,
-    listPrice: 199.99,
-    currency: 'TRY',
-    rating: 4.4,
-    reviewCount: 92,
-    stock: 40,
-    images: ['https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=LED'],
-    tags: ['led', 'aydınlatma', 'rgb', 'uzaktan-kumanda'],
-    seller: {
-      name: 'HomeDecor Plus',
-      slug: 'homedecor-plus',
-      rating: 4.4,
-      logo: 'https://via.placeholder.com/50x50/EA580C/FFFFFF?text=HD'
-    },
-    category: {
-      name: 'Dekor',
-      slug: 'dekor'
-    }
-  },
-  {
-    id: '7',
-    title: 'Akrilik Boya Seti - 24 Renk',
-    slug: 'akrilik-boya-seti-24-renk',
-    price: 199.99,
-    listPrice: 249.99,
-    currency: 'TRY',
-    rating: 4.7,
-    reviewCount: 145,
-    stock: 25,
-    images: ['https://via.placeholder.com/400x400/FF9F43/FFFFFF?text=Paint'],
-    tags: ['akrilik', 'boya', 'sanat', 'profesyonel'],
-    seller: {
-      name: 'ArtCraft Studio',
-      slug: 'artcraft-studio',
-      rating: 4.7,
-      logo: 'https://via.placeholder.com/50x50/DC2626/FFFFFF?text=AC'
-    },
-    category: {
-      name: 'Boya & Fırça',
-      slug: 'boya-firca'
-    }
-  },
-  {
-    id: '8',
-    title: 'Kişiye Özel Fotoğraf Çerçevesi',
-    slug: 'kisiye-ozel-fotograf-cercevesi',
-    price: 79.99,
-    listPrice: 99.99,
-    currency: 'TRY',
-    rating: 4.8,
-    reviewCount: 78,
-    stock: 60,
-    images: ['https://via.placeholder.com/400x400/8E44AD/FFFFFF?text=Frame'],
-    tags: ['çerçeve', 'kişiye-özel', 'ahşap', 'gravür'],
-    seller: {
-      name: 'HomeDecor Plus',
-      slug: 'homedecor-plus',
-      rating: 4.4,
-      logo: 'https://via.placeholder.com/50x50/EA580C/FFFFFF?text=HD'
-    },
-    category: {
-      name: 'Kişiye Özel',
-      slug: 'kisiye-ozel'
-    }
-  },
-  {
-    id: '9',
-    title: 'Doğum Günü Hediyelik Seti',
-    slug: 'dogum-gunu-hediyelik-seti',
-    price: 149.99,
-    listPrice: 179.99,
-    currency: 'TRY',
-    rating: 4.6,
-    reviewCount: 56,
-    stock: 35,
-    images: ['https://via.placeholder.com/400x400/E74C3C/FFFFFF?text=Gift+Set'],
-    tags: ['hediye', 'doğum-günü', 'set', 'özel'],
-    seller: {
-      name: 'HomeDecor Plus',
-      slug: 'homedecor-plus',
-      rating: 4.4,
-      logo: 'https://via.placeholder.com/50x50/EA580C/FFFFFF?text=HD'
-    },
-    category: {
-      name: 'Doğum Günü',
-      slug: 'dogum-gunu'
-    }
-  },
-  {
-    id: '10',
-    title: 'Dragon Ball Goku Figürü - Super Saiyan',
-    slug: 'dragon-ball-goku-figuru-super-saiyan',
-    price: 349.99,
-    listPrice: 449.99,
-    currency: 'TRY',
-    rating: 4.9,
-    reviewCount: 203,
-    stock: 12,
-    images: ['https://via.placeholder.com/400x400/FFD93D/FFFFFF?text=Goku'],
-    tags: ['anime', 'dragon-ball', 'goku', 'super-saiyan'],
-    seller: {
-      name: 'AnimeWorld Store',
-      slug: 'animeworld-store',
-      rating: 4.8,
-      logo: 'https://via.placeholder.com/50x50/4F46E5/FFFFFF?text=AW'
-    },
-    category: {
-      name: 'Anime Figürleri',
-      slug: 'anime-figurleri'
-    }
-  }
-];
+// Empty products array - no demo data
+const mockProducts: any[] = [];
 
-const mockCategories = [
-  { id: '1', name: 'Anime Figürleri', slug: 'anime-figurleri', count: 3 },
-  { id: '2', name: 'Film/TV Figürleri', slug: 'film-tv-figurleri', count: 1 },
-  { id: '3', name: 'Tişört', slug: 'tisort', count: 1 },
-  { id: '4', name: 'Kulaklık', slug: 'kulaklik', count: 1 },
-  { id: '5', name: 'Dekor', slug: 'dekor', count: 1 },
-  { id: '6', name: 'Boya & Fırça', slug: 'boya-firca', count: 1 },
-  { id: '7', name: 'Kişiye Özel', slug: 'kisiye-ozel', count: 1 },
-  { id: '8', name: 'Doğum Günü', slug: 'dogum-gunu', count: 1 }
-];
-
-const mockSellers = [
-  { id: '1', name: 'AnimeWorld Store', slug: 'animeworld-store', count: 4 },
-  { id: '2', name: 'FashionHub', slug: 'fashionhub', count: 1 },
-  { id: '3', name: 'TechGear Pro', slug: 'techgear-pro', count: 1 },
-  { id: '4', name: 'HomeDecor Plus', slug: 'homedecor-plus', count: 3 },
-  { id: '5', name: 'ArtCraft Studio', slug: 'artcraft-studio', count: 1 }
-];
+// Empty categories and sellers arrays - no demo data
+const mockCategories: any[] = [];
+const mockSellers: any[] = [];
 
 export default function ProductsPage({
   searchParams,
@@ -374,12 +129,12 @@ export default function ProductsPage({
               </h4>
               <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 {[
-                  { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', icon: '🎭', count: 156 },
-                  { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', icon: '👕', count: 89 },
-                  { name: 'Elektronik', href: '/products?category=elektronik', icon: '📱', count: 67 },
-                  { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', icon: '🏠', count: 123 },
-                  { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', icon: '🎨', count: 45 },
-                  { name: 'Hediyelik', href: '/products?category=hediyelik', icon: '🎁', count: 78 }
+                  { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', icon: '🎭', count: 0 },
+                  { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', icon: '👕', count: 0 },
+                  { name: 'Elektronik', href: '/products?category=elektronik', icon: '📱', count: 0 },
+                  { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', icon: '🏠', count: 0 },
+                  { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', icon: '🎨', count: 0 },
+                  { name: 'Hediyelik', href: '/products?category=hediyelik', icon: '🎁', count: 0 }
                 ].map((cat, index) => (
                   <motion.a
                     key={cat.name}
@@ -616,16 +371,20 @@ export default function ProductsPage({
               </div>
             </div>
 
-        {/* Products Grid */}
+        {/* Products Grid or Empty State */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <Suspense fallback={<ProductGridSkeleton />}>
-            <ProductGrid 
-              products={paginatedProducts}
-              currentPage={page}
-              totalPages={totalPages}
-              totalProducts={filteredProducts.length}
-            />
-          </Suspense>
+          {filteredProducts.length === 0 ? (
+            <EmptyProductsState />
+          ) : (
+            <Suspense fallback={<ProductGridSkeleton />}>
+              <ProductGrid 
+                products={paginatedProducts}
+                currentPage={page}
+                totalPages={totalPages}
+                totalProducts={filteredProducts.length}
+              />
+            </Suspense>
+          )}
         </div>
           </div>
         </div>

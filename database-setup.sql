@@ -60,11 +60,7 @@ CREATE TRIGGER update_products_updated_at
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
--- 7. Test verisi ekle (opsiyonel)
-INSERT INTO products (title, slug, price, category, stock, image, description, status) VALUES
-('Test Ürün 1', 'test-urun-1', 99.99, 'Elektronik', 10, 'https://via.placeholder.com/300x200', 'Bu bir test ürünüdür.', 'active'),
-('Test Ürün 2', 'test-urun-2', 149.99, 'Giyim', 5, 'https://via.placeholder.com/300x200', 'Bu da bir test ürünüdür.', 'active')
-ON CONFLICT (slug) DO NOTHING;
+-- 7. Test verisi eklenmedi - demo veriler temizlendi
 
 -- 8. Tabloyu kontrol et
 SELECT * FROM products;

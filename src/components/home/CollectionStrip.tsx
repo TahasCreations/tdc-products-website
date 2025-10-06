@@ -4,37 +4,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 export default function CollectionStrip() {
-  const collections = [
-    {
-      title: 'Haftanın Trendleri',
-      description: 'En popüler ürünler',
-      image: '🔥',
-      color: 'red',
-      href: '/collections/trending'
-    },
-    {
-      title: 'Özel Figürler',
-      description: 'TDC Products',
-      image: '🎭',
-      color: 'indigo',
-      href: '/collections/tdc-products',
-      badge: 'Premium'
-    },
-    {
-      title: 'Günlük Yaşam Favorileri',
-      description: 'Her gün kullanacağınız ürünler',
-      image: '⭐',
-      color: 'yellow',
-      href: '/collections/daily-favorites'
-    },
-    {
-      title: 'Bütçe Dostu Hediyeler',
-      description: 'Uygun fiyatlı seçenekler',
-      image: '💝',
-      color: 'green',
-      href: '/collections/budget-gifts'
-    }
-  ];
+  // Empty collections array - no demo data
+  const collections: any[] = [];
 
   return (
     <section className="py-16 bg-gradient-to-br from-indigo-50 to-coral-50">

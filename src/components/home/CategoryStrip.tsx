@@ -5,12 +5,12 @@ import Link from 'next/link';
 
 export default function CategoryStrip() {
   const categories = [
-    { name: 'Figür & Koleksiyon', slug: 'figur-koleksiyon', icon: '🎭', color: 'indigo', count: '2.5K+' },
-    { name: 'Moda & Aksesuar', slug: 'moda-aksesuar', icon: '👗', color: 'pink', count: '3.2K+' },
-    { name: 'Elektronik', slug: 'elektronik', icon: '📱', color: 'blue', count: '4.1K+' },
-    { name: 'Ev & Yaşam', slug: 'ev-yasam', icon: '🏠', color: 'green', count: '2.8K+' },
-    { name: 'Sanat & Hobi', slug: 'sanat-hobi', icon: '🎨', color: 'purple', count: '1.9K+' },
-    { name: 'Hediyelik', slug: 'hediyelik', icon: '🎁', color: 'orange', count: '1.5K+' }
+    { name: 'Figür & Koleksiyon', slug: 'figur-koleksiyon', icon: '🎭', color: 'indigo', count: '0' },
+    { name: 'Moda & Aksesuar', slug: 'moda-aksesuar', icon: '👗', color: 'pink', count: '0' },
+    { name: 'Elektronik', slug: 'elektronik', icon: '📱', color: 'blue', count: '0' },
+    { name: 'Ev & Yaşam', slug: 'ev-yasam', icon: '🏠', color: 'green', count: '0' },
+    { name: 'Sanat & Hobi', slug: 'sanat-hobi', icon: '🎨', color: 'purple', count: '0' },
+    { name: 'Hediyelik', slug: 'hediyelik', icon: '🎁', color: 'orange', count: '0' }
   ];
 
   return (

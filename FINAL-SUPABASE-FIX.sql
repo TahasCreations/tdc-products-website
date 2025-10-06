@@ -21,11 +21,7 @@ CREATE TABLE products (
 -- 3. RLS'yi KAPAT (geçici olarak)
 ALTER TABLE products DISABLE ROW LEVEL SECURITY;
 
--- 4. Test verisi ekle
-INSERT INTO products (title, slug, price, category, stock, image, description, status) VALUES
-('Test Ürün 1', 'test-urun-1', 99.99, 'Elektronik', 10, 'https://via.placeholder.com/300x200', 'Bu bir test ürünüdür.', 'active'),
-('Test Ürün 2', 'test-urun-2', 149.99, 'Giyim', 5, 'https://via.placeholder.com/300x200', 'Bu da bir test ürünüdür.', 'active'),
-('Naruto Figürü', 'naruto-figur', 299.00, 'Anime', 8, 'https://via.placeholder.com/300x200', 'Naruto Uzumaki figürü.', 'active');
+-- 4. Test verisi eklenmedi - demo veriler temizlendi
 
 -- 5. Kontrol et
 SELECT * FROM products;

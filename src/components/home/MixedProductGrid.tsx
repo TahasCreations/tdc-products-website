@@ -2,64 +2,11 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { EmptyProductsState } from '../empty/EmptyState';
 
 export default function MixedProductGrid() {
-  const products = [
-    {
-      id: 1,
-      name: 'Premium Dragon Figür',
-      category: 'Figür & Koleksiyon',
-      price: '₺2,499',
-      image: '🐉',
-      color: 'indigo',
-      badge: 'TDC Products'
-    },
-    {
-      id: 2,
-      name: 'Vintage Saat Koleksiyonu',
-      category: 'Moda & Aksesuar',
-      price: '₺899',
-      image: '⌚',
-      color: 'blue',
-      badge: 'Trend'
-    },
-    {
-      id: 3,
-      name: 'Akıllı Telefon Kılıfı',
-      category: 'Elektronik',
-      price: '₺299',
-      image: '📱',
-      color: 'green',
-      badge: 'Yeni'
-    },
-    {
-      id: 4,
-      name: 'Modern Dekor Vazo',
-      category: 'Ev & Yaşam',
-      price: '₺599',
-      image: '🏺',
-      color: 'purple',
-      badge: 'Popüler'
-    },
-    {
-      id: 5,
-      name: 'El Yapımı Seramik Tabak',
-      category: 'Sanat & Hobi',
-      price: '₺199',
-      image: '🍽️',
-      color: 'orange',
-      badge: 'El Yapımı'
-    },
-    {
-      id: 6,
-      name: 'Özel Tasarım Kupa',
-      category: 'Hediyelik',
-      price: '₺149',
-      image: '☕',
-      color: 'pink',
-      badge: 'Hediye'
-    }
-  ];
+  // Empty products array - no demo data
+  const products: any[] = [];
 
   return (
     <section className="py-16 bg-white">
@@ -79,49 +26,53 @@ export default function MixedProductGrid() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              whileHover={{ scale: 1.02, y: -5 }}
-              className="group"
-            >
-              <Link
-                href={`/products/${product.id}`}
-                className="block bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 hover:border-indigo-300"
+        {products.length === 0 ? (
+          <EmptyProductsState />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.02, y: -5 }}
+                className="group"
               >
-                <div className={`h-48 bg-gradient-to-br from-${product.color}-100 to-${product.color}-200 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-300 relative`}>
-                  {product.image}
-                  <div className="absolute top-3 right-3">
-                    <span className={`px-2 py-1 bg-${product.color}-500 text-white text-xs font-medium rounded-full`}>
-                      {product.badge}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="p-6">
-                  <div className="text-sm text-ink-500 mb-1">{product.category}</div>
-                  <h3 className="text-lg font-semibold text-ink-900 mb-2 group-hover:text-indigo-600 transition-colors">
-                    {product.name}
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-ink-900">{product.price}</span>
-                    <div className="flex items-center text-ink-500 group-hover:text-indigo-600 transition-colors">
-                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                      </svg>
-                      <span className="text-sm">4.8</span>
+                <Link
+                  href={`/products/${product.id}`}
+                  className="block bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 hover:border-indigo-300"
+                >
+                  <div className={`h-48 bg-gradient-to-br from-${product.color}-100 to-${product.color}-200 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-300 relative`}>
+                    {product.image}
+                    <div className="absolute top-3 right-3">
+                      <span className={`px-2 py-1 bg-${product.color}-500 text-white text-xs font-medium rounded-full`}>
+                        {product.badge}
+                      </span>
                     </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+                  
+                  <div className="p-6">
+                    <div className="text-sm text-ink-500 mb-1">{product.category}</div>
+                    <h3 className="text-lg font-semibold text-ink-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                      {product.name}
+                    </h3>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl font-bold text-ink-900">{product.price}</span>
+                      <div className="flex items-center text-ink-500 group-hover:text-indigo-600 transition-colors">
+                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                        <span className="text-sm">4.8</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
