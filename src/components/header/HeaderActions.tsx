@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Search, ShoppingCart, User, LogOut, Package, MapPin, Edit3, Sun, Moon, Languages, Heart } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
-import { useWishlist } from '../../contexts/WishlistContext';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 
@@ -21,8 +20,9 @@ export default function HeaderActions({
   onMenuClick 
 }: HeaderActionsProps) {
   const { data: session, status } = useSession();
-  const { count: cartCount, toggleCart } = useCart();
-  const { count: wishlistCount } = useWishlist();
+  const { getItemCount } = useCart();
+  const cartCount = getItemCount();
+  const wishlistCount = 0; // TODO: Wishlist sistemi eklenecek
   const { theme, setTheme } = useTheme();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isAuthMenuOpen, setIsAuthMenuOpen] = useState(false);
@@ -33,7 +33,8 @@ export default function HeaderActions({
   };
 
   const handleCartClick = () => {
-    toggleCart();
+    // TODO: Cart drawer açma fonksiyonu eklenecek
+    window.location.href = '/cart';
   };
 
   const handleUserMenuToggle = () => {

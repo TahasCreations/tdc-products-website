@@ -3,17 +3,22 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
+import Link from 'next/link';
 import HeaderLogo from './header/HeaderLogo';
 import HeaderNav from './header/HeaderNav';
 import HeaderActions from './header/HeaderActions';
 import HeaderMobileMenu from './header/HeaderMobileMenu';
 import SearchModal from './header/SearchModal';
 import AccountMenu from '../../components/layout/AccountMenu';
+import { useCart } from '@/contexts/CartContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { getItemCount } = useCart();
+  const { getItemCount: getWishlistCount } = useWishlist();
 
   // Scroll effect
   useEffect(() => {
@@ -85,19 +90,31 @@ export default function Header() {
                 <Search className="w-5 h-5" />
               </button>
               
-              <button 
-                className="p-2 text-orange-400 hover:text-orange-300 focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-lg transition-colors"
+              <Link
+                href="/wishlist"
+                className="relative p-2 text-orange-400 hover:text-orange-300 focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-lg transition-colors"
                 aria-label="Favoriler"
               >
                 ♡
-              </button>
+                {getWishlistCount() > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#CBA135] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                    {getWishlistCount()}
+                  </span>
+                )}
+              </Link>
               
-              <button 
-                className="p-2 text-orange-400 hover:text-orange-300 focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-lg transition-colors"
-                aria-label="Sepet"
-              >
-                🛒
-              </button>
+                  <Link
+                    href="/cart"
+                    className="relative p-2 text-orange-400 hover:text-orange-300 focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-lg transition-colors"
+                    aria-label="Sepet"
+                  >
+                    🛒
+                    {getItemCount() > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-[#CBA135] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                        {getItemCount()}
+                      </span>
+                    )}
+                  </Link>
               
               <AccountMenu />
             </div>

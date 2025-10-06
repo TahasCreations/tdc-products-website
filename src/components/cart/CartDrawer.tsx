@@ -1,169 +1,176 @@
-'use client';
+"use client";
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/contexts/CartContext';
+import { X, Plus, Minus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 
-export default function CartDrawer() {
+interface CartDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { 
-    isOpen, 
-    closeCart, 
-    items, 
-    total, 
+    state,
     removeItem, 
-    setQty, 
-    saveForLater, 
-    moveToSaved, 
-    moveToCart,
-    appliedCoupons,
-    freeShippingThreshold,
-    freeShippingProgress,
-    isFreeShippingEligible,
-    applyCoupon,
-    removeCoupon
+    updateQuantity,
+    clearCart,
+    getTotalPrice,
   } = useCart();
-  const [code, setCode] = React.useState('');
 
-  const applyCode = () => {
-    const success = applyCoupon(code);
-    if (success) {
-      setCode('');
-    }
-  };
+  const shipping = 0; // Ücretsiz kargo
+  const tax = getTotalPrice() * 0.18; // %18 KDV
+  const finalTotal = getTotalPrice() + shipping + tax;
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[70] bg-black/40"
-          onClick={closeCart}
-        >
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          />
+
+          {/* Drawer */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-xl z-50 flex flex-col"
           >
-            <div className="p-4 border-b flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Sepet</h2>
-              <button onClick={closeCart} className="p-2 hover:bg-gray-100 rounded-full">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">Sepetim</h2>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            <div className="p-4 h-[calc(100%-64px-88px)] overflow-y-auto">
-              {items.length === 0 ? (
-                <div className="text-sm text-gray-500">Sepetiniz boş.</div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {state.items.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-gray-400 mb-4">
+                    <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Sepetiniz Boş</h3>
+                  <p className="text-gray-600 mb-4">Alışverişe başlamak için ürünlere göz atın</p>
+                  <Link
+                    href="/products"
+                    onClick={onClose}
+                    className="inline-flex items-center px-4 py-2 bg-[#CBA135] text-white rounded-lg hover:bg-[#B8941F] transition-colors"
+                  >
+                    Alışverişe Başla
+                  </Link>
+                </div>
               ) : (
                 <div className="space-y-4">
-                  {items.map((it) => (
-                    <div key={it.id} className="flex items-center gap-3">
-                      <div className="w-14 h-14 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
-                        <span className="text-xl">{it.image ? '' : '🛍️'}</span>
-                      </div>
+                  {state.items.map((item) => (
+                    <div key={item.id} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-16 h-16 object-cover rounded"
+                      />
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-gray-900 truncate">{it.title}</div>
-                        <div className="text-xs text-gray-500">₺{it.price.toFixed(2)}</div>
-                        <div className="mt-2 flex items-center gap-2">
-                          <button onClick={() => setQty(it.id, it.qty - 1)} className="w-6 h-6 rounded border">-</button>
-                          <span className="text-sm w-6 text-center">{it.qty}</span>
-                          <button onClick={() => setQty(it.id, it.qty + 1)} className="w-6 h-6 rounded border">+</button>
-                        </div>
+                        <h3 className="text-sm font-medium text-gray-900 truncate">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-gray-500">Satıcı: {item.sellerName}</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          ₺{(item.price * item.quantity).toLocaleString()}
+                        </p>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <button onClick={() => moveToSaved(it.id)} className="px-2 py-1 text-xs rounded border hover:bg-gray-50">Daha Sonra</button>
-                        <button onClick={() => removeItem(it.id)} className="px-2 py-1 text-xs text-red-600 rounded border border-red-200 hover:bg-red-50">Sil</button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          disabled={item.quantity <= 1}
+                          className="p-1 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Minus className="w-4 h-4 text-gray-600" />
+                        </button>
+                        <span className="w-8 text-center text-sm font-medium">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          disabled={item.quantity >= item.maxStock}
+                          className="p-1 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Plus className="w-4 h-4 text-gray-600" />
+                        </button>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* Saved for later */}
-            {saveForLater.length > 0 && (
-              <div className="px-4 pb-2">
-                <div className="text-sm font-semibold text-gray-700 mb-2">Daha Sonra Kaydedilenler</div>
-                <div className="space-y-3">
-                  {saveForLater.map((it) => (
-                    <div key={it.id} className="flex items-center justify-between">
-                      <div className="text-sm text-gray-700 truncate max-w-[200px]">{it.title}</div>
-                      <button onClick={() => moveToCart(it.id)} className="px-2 py-1 text-xs rounded border hover:bg-gray-50">Sepete Ekle</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            <div className="p-4 border-t space-y-3">
-              {/* Free Shipping Progress */}
-              {!isFreeShippingEligible && (
-                <div className="bg-blue-50 p-3 rounded-lg">
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-blue-800">Ücretsiz kargo için</span>
-                    <span className="text-blue-600 font-semibold">₺{(freeShippingThreshold - total).toFixed(2)} daha</span>
-                  </div>
-                  <div className="w-full bg-blue-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-500 h-2 rounded-full transition-all duration-300" 
-                      style={{ width: `${freeShippingProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-              
-              {isFreeShippingEligible && (
-                <div className="bg-green-50 p-3 rounded-lg text-center">
-                  <span className="text-green-800 text-sm font-medium">🎉 Ücretsiz kargo kazandınız!</span>
-                </div>
-              )}
-
-              {/* Applied Coupons */}
-              {appliedCoupons.length > 0 && (
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-gray-700">Uygulanan Kuponlar:</div>
-                  {appliedCoupons.map((coupon) => (
-                    <div key={coupon} className="flex items-center justify-between bg-green-50 p-2 rounded">
-                      <span className="text-sm text-green-800">{coupon}</span>
-                      <button 
-                        onClick={() => removeCoupon(coupon)}
-                        className="text-red-500 hover:text-red-700 text-sm"
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="p-1 text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
                       >
-                        ✕
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
                 </div>
               )}
-
-              {/* Coupon Input */}
-              <div className="flex items-center gap-2">
-                <input
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="Kupon kodu"
-                  className="flex-1 px-3 py-2 rounded border"
-                />
-                <button onClick={applyCode} className="px-3 py-2 rounded bg-gray-100 hover:bg-gray-200">Uygula</button>
-              </div>
-              
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-gray-600">Toplam</span>
-                <span className="text-lg font-semibold">₺{total.toFixed(2)}</span>
-              </div>
-              <a href="/checkout" className="block w-full text-center px-4 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">
-                Ödeme Adımına Geç
-              </a>
             </div>
+
+            {/* Footer */}
+            {state.items.length > 0 && (
+              <div className="border-t border-gray-200 p-4 space-y-4">
+                {/* Price Summary */}
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Ara Toplam</span>
+                    <span className="text-gray-900">₺{getTotalPrice().toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Kargo</span>
+                    <span className="text-green-600">Ücretsiz</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">KDV (%18)</span>
+                    <span className="text-gray-900">₺{tax.toLocaleString()}</span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-2">
+                    <div className="flex justify-between text-lg font-semibold">
+                      <span className="text-gray-900">Toplam</span>
+                      <span className="text-gray-900">₺{finalTotal.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="space-y-2">
+                  <Link
+                    href="/cart"
+                    onClick={onClose}
+                    className="w-full flex items-center justify-center px-4 py-3 bg-[#CBA135] text-white rounded-lg hover:bg-[#B8941F] transition-colors font-medium"
+                  >
+                    Sepeti Görüntüle
+                  </Link>
+                  <Link
+                    href="/checkout"
+                    onClick={onClose}
+                    className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    Ödemeye Geç
+                  </Link>
+                </div>
+              </div>
+            )}
           </motion.div>
-        </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
 }
-
-

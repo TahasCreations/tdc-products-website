@@ -1,15 +1,16 @@
 {
-  "name": "TDC Market - Figür & Koleksiyon Dünyası",
+  "name": "TDC Market",
   "short_name": "TDC Market",
-  "description": "Özel figürlerden elektroniğe, tasarımdan ev yaşamına - TDC Market'te keşfet!",
+  "description": "Özel figürlerden elektroniğe, tasarımdan ev yaşamına - TDC Market",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#5A63F2",
+  "background_color": "#0B0B0B",
+  "theme_color": "#CBA135",
   "orientation": "portrait-primary",
-  "scope": "/",
+  "categories": ["shopping", "business"],
   "lang": "tr",
-  "categories": ["shopping", "lifestyle", "entertainment"],
+  "dir": "ltr",
+  "scope": "/",
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -70,45 +71,45 @@
     },
     {
       "src": "/screenshots/mobile-home.png",
-      "sizes": "375x667",
+      "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "TDC Market Mobil Görünüm"
+      "label": "TDC Market Mobil Ana Sayfa"
     }
   ],
   "shortcuts": [
     {
-      "name": "Blog Yaz",
-      "short_name": "Yaz",
-      "description": "Yeni blog yazısı oluştur",
-      "url": "/blog/write",
+      "name": "Ürünler",
+      "short_name": "Ürünler",
+      "description": "Tüm ürünleri görüntüle",
+      "url": "/products",
       "icons": [
         {
-          "src": "/icons/shortcut-blog.png",
-          "sizes": "96x96"
-        }
-      ]
-    },
-    {
-      "name": "Admin Panel",
-      "short_name": "Admin",
-      "description": "Yönetim paneline git",
-      "url": "/admin",
-      "icons": [
-        {
-          "src": "/icons/shortcut-admin.png",
+          "src": "/icons/shortcut-products.png",
           "sizes": "96x96"
         }
       ]
     },
     {
       "name": "Sepetim",
-      "short_name": "Sepet",
-      "description": "Alışveriş sepetini görüntüle",
+      "short_name": "Sepetim",
+      "description": "Sepetimi görüntüle",
       "url": "/cart",
       "icons": [
         {
           "src": "/icons/shortcut-cart.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Siparişlerim",
+      "short_name": "Siparişlerim",
+      "description": "Siparişlerimi takip et",
+      "url": "/orders",
+      "icons": [
+        {
+          "src": "/icons/shortcut-orders.png",
           "sizes": "96x96"
         }
       ]

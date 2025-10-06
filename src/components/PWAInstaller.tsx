@@ -1,7 +1,7 @@
-'use client';
-
+"use client";
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Download, X, Smartphone } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -15,19 +15,33 @@ export default function PWAInstaller() {
 
   useEffect(() => {
     // Check if app is already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
-      return;
-    }
+    const checkIfInstalled = () => {
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        setIsInstalled(true);
+        return;
+      }
+      
+      // Check for iOS
+      if ((window.navigator as any).standalone === true) {
+        setIsInstalled(true);
+        return;
+      }
+    };
 
-    // Listen for the beforeinstallprompt event
+    checkIfInstalled();
+
+    // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowInstallPrompt(true);
+      
+      // Show install prompt after a delay
+      setTimeout(() => {
+        setShowInstallPrompt(true);
+      }, 3000);
     };
 
-    // Listen for the appinstalled event
+    // Listen for appinstalled event
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setShowInstallPrompt(false);
@@ -48,18 +62,18 @@ export default function PWAInstaller() {
 
     try {
       await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+      const choiceResult = await deferredPrompt.userChoice;
       
-      if (outcome === 'accepted') {
-        console.log('PWA installation accepted');
+      if (choiceResult.outcome === 'accepted') {
+        console.log('User accepted the install prompt');
       } else {
-        console.log('PWA installation dismissed');
+        console.log('User dismissed the install prompt');
       }
       
       setDeferredPrompt(null);
       setShowInstallPrompt(false);
     } catch (error) {
-      console.error('Error installing PWA:', error);
+      console.error('Install prompt failed:', error);
     }
   };
 
@@ -70,7 +84,7 @@ export default function PWAInstaller() {
   };
 
   // Don't show if already installed or dismissed
-  if (isInstalled || !showInstallPrompt || sessionStorage.getItem('pwa-install-dismissed')) {
+  if (isInstalled || !showInstallPrompt || !deferredPrompt) {
     return null;
   }
 
@@ -80,55 +94,40 @@ export default function PWAInstaller() {
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 100 }}
-        className="fixed bottom-4 left-4 right-4 z-50 max-w-md mx-auto"
+        className="fixed bottom-4 left-4 right-4 z-50 max-w-sm mx-auto"
       >
-        <div className="bg-white dark:bg-ink-800 rounded-2xl shadow-2xl border border-neutral-200 dark:border-ink-700 p-6">
-          <div className="flex items-start space-x-4">
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-4">
+          <div className="flex items-start gap-3">
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-coral-500 rounded-xl flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
+              <div className="w-10 h-10 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-lg flex items-center justify-center">
+                <Smartphone className="w-6 h-6 text-white" />
               </div>
             </div>
             
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-ink-900 dark:text-white mb-1">
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">
                 TDC Market'i Yükle
               </h3>
-              <p className="text-sm text-ink-600 dark:text-ink-300 mb-4">
-                Uygulamayı ana ekranınıza ekleyin ve daha hızlı erişim sağlayın!
+              <p className="text-xs text-gray-600 mb-3">
+                Hızlı erişim için uygulamayı ana ekranınıza ekleyin
               </p>
               
-              <div className="flex space-x-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+              <div className="flex gap-2">
+                <button
                   onClick={handleInstallClick}
-                  className="flex-1 bg-gradient-to-r from-indigo-500 to-coral-500 text-white px-4 py-2 rounded-lg font-medium text-sm hover:from-indigo-600 hover:to-coral-600 transition-all duration-300"
+                  className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-[#CBA135] text-white text-xs font-medium rounded-lg hover:bg-[#B8941F] transition-colors"
                 >
+                  <Download className="w-3 h-3" />
                   Yükle
-                </motion.button>
-                
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                </button>
+                <button
                   onClick={handleDismiss}
-                  className="px-4 py-2 text-ink-600 dark:text-ink-300 hover:text-ink-800 dark:hover:text-white transition-colors text-sm"
+                  className="px-3 py-2 text-gray-500 hover:text-gray-700 transition-colors"
                 >
-                  Daha Sonra
-                </motion.button>
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             </div>
-            
-            <button
-              onClick={handleDismiss}
-              className="flex-shrink-0 text-ink-400 hover:text-ink-600 dark:text-ink-500 dark:hover:text-ink-300 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </div>
         </div>
       </motion.div>

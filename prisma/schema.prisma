@@ -33,6 +33,7 @@ model User {
   image         String?
   role          Role     @default(BUYER)
   isActive      Boolean  @default(true)
+  emailPreferences Json?  // Email bildirim tercihleri
   
   // Seller profili (opsiyonel ilişki)
   sellerProfile SellerProfile?
@@ -49,6 +50,7 @@ model User {
   addresses     Address[]
   wishlistItems WishlistItem[]
   reviews       Review[]
+  reviewLikes   ReviewLike[]
   pushTokens    PushToken[]
   
   // Partner başvuru relations
@@ -240,17 +242,39 @@ model Review {
   id        String   @id @default(cuid())
   userId    String
   productId String
+  orderId   String?  // Sipariş referansı (verified purchase için)
   rating    Int      // 1-5
-  comment   String?
-  isVerified Boolean @default(false)
+  title     String?  // Değerlendirme başlığı
+  comment   String?  // Değerlendirme yorumu
+  images    String?  // JSON string olarak fotoğraflar
+  pros      String?  // JSON string olarak artıları
+  cons      String?  // JSON string olarak eksileri
+  isVerified Boolean @default(false) // Doğrulanmış alışveriş
+  isHelpful Int      @default(0) // Yararlı bulundu sayısı
+  isReported Boolean @default(false) // Şikayet edildi mi
   
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  likes     ReviewLike[]
   
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   
   @@unique([userId, productId])
+}
+
+model ReviewLike {
+  id       String @id @default(cuid())
+  userId   String
+  reviewId String
+  isLike   Boolean // true: beğendi, false: beğenmedi
+  
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, reviewId])
 }
 
 // === WEBHOOK EVENTS ===

@@ -1,60 +1,151 @@
-'use client';
+"use client";
+import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-
-type WishlistItem = {
+interface WishlistItem {
   id: string;
   title: string;
-  slug?: string;
-  image?: string;
-};
+  price: number;
+  image: string;
+  slug: string;
+  category: string;
+  rating: number;
+  reviewCount: number;
+  addedAt: string;
+}
 
-type WishlistContextValue = {
+interface WishlistState {
   items: WishlistItem[];
-  count: number;
-  has: (id: string) => boolean;
-  toggle: (item: WishlistItem) => void;
-  add: (item: WishlistItem) => void;
-  remove: (id: string) => void;
-  clear: () => void;
+  isLoading: boolean;
+}
+
+type WishlistAction = 
+  | { type: 'ADD_ITEM'; payload: Omit<WishlistItem, 'addedAt'> }
+  | { type: 'REMOVE_ITEM'; payload: string }
+  | { type: 'CLEAR_WISHLIST' }
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'LOAD_WISHLIST'; payload: WishlistItem[] };
+
+const WishlistContext = createContext<{
+  state: WishlistState;
+  addItem: (item: Omit<WishlistItem, 'addedAt'>) => void;
+  removeItem: (id: string) => void;
+  clearWishlist: () => void;
+  getItemCount: () => number;
+  isInWishlist: (id: string) => boolean;
+} | null>(null);
+
+const wishlistReducer = (state: WishlistState, action: WishlistAction): WishlistState => {
+  switch (action.type) {
+    case 'ADD_ITEM': {
+      const existingItem = state.items.find(item => item.id === action.payload.id);
+      
+      if (existingItem) {
+        return state; // Zaten wishlist'te
+      }
+      
+      const newItem = { 
+        ...action.payload, 
+        addedAt: new Date().toISOString() 
+      };
+      
+      return {
+        ...state,
+        items: [...state.items, newItem]
+      };
+    }
+
+    case 'REMOVE_ITEM': {
+      return {
+        ...state,
+        items: state.items.filter(item => item.id !== action.payload)
+      };
+    }
+
+    case 'CLEAR_WISHLIST':
+      return {
+        ...state,
+        items: []
+      };
+
+    case 'SET_LOADING':
+      return {
+        ...state,
+        isLoading: action.payload
+      };
+
+    case 'LOAD_WISHLIST':
+      return {
+        ...state,
+        items: action.payload
+      };
+
+    default:
+      return state;
+  }
 };
 
-const WishlistContext = createContext<WishlistContextValue | undefined>(undefined);
-const STORAGE_KEY = 'tdc_wishlist_v1';
+export function WishlistProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(wishlistReducer, {
+    items: [],
+    isLoading: false
+  });
 
-export function WishlistProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<WishlistItem[]>([]);
-
+  // Local storage'dan wishlist'i yükle
   useEffect(() => {
-    try {
-      const raw = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
-      if (raw) setItems(JSON.parse(raw));
-    } catch {}
+    const savedWishlist = localStorage.getItem('wishlist');
+    if (savedWishlist) {
+      try {
+        const wishlistItems = JSON.parse(savedWishlist);
+        dispatch({ type: 'LOAD_WISHLIST', payload: wishlistItems });
+      } catch (error) {
+        console.error('Wishlist yüklenirken hata:', error);
+      }
+    }
   }, []);
 
+  // Wishlist değiştiğinde local storage'a kaydet
   useEffect(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-      }
-    } catch {}
-  }, [items]);
+    localStorage.setItem('wishlist', JSON.stringify(state.items));
+  }, [state.items]);
 
-  const map = useMemo(() => new Set(items.map(i => i.id)), [items]);
-  const has = (id: string) => map.has(id);
-  const add = (item: WishlistItem) => setItems(prev => (map.has(item.id) ? prev : [...prev, item]));
-  const remove = (id: string) => setItems(prev => prev.filter(i => i.id !== id));
-  const toggle = (item: WishlistItem) => (has(item.id) ? remove(item.id) : add(item));
-  const clear = () => setItems([]);
+  const addItem = (item: Omit<WishlistItem, 'addedAt'>) => {
+    dispatch({ type: 'ADD_ITEM', payload: item });
+  };
 
-  const value: WishlistContextValue = { items, count: items.length, has, toggle, add, remove, clear };
-  return <WishlistContext.Provider value={value}>{children}</WishlistContext.Provider>;
+  const removeItem = (id: string) => {
+    dispatch({ type: 'REMOVE_ITEM', payload: id });
+  };
+
+  const clearWishlist = () => {
+    dispatch({ type: 'CLEAR_WISHLIST' });
+  };
+
+  const getItemCount = () => {
+    return state.items.length;
+  };
+
+  const isInWishlist = (id: string) => {
+    return state.items.some(item => item.id === id);
+  };
+
+  return (
+    <WishlistContext.Provider value={{
+      state,
+      addItem,
+      removeItem,
+      clearWishlist,
+      getItemCount,
+      isInWishlist
+    }}>
+      {children}
+    </WishlistContext.Provider>
+  );
 }
 
 export function useWishlist() {
-  const ctx = useContext(WishlistContext);
-  if (!ctx) throw new Error('useWishlist must be used within WishlistProvider');
-  return ctx;
+  const context = useContext(WishlistContext);
+  if (!context) {
+    throw new Error('useWishlist must be used within a WishlistProvider');
+  }
+  return context;
 }
-
-

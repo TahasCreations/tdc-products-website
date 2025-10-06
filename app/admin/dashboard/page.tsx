@@ -1,244 +1,275 @@
-'use client';
-
-import { requireAdmin } from '@/lib/guards';
-import { motion } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+"use client";
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Users, ShoppingBag, TrendingUp, DollarSign, Clock, CheckCircle, XCircle } from 'lucide-react';
 
-const data = [
-  { name: 'Ocak', sales: 4000, revenue: 2400 },
-  { name: 'Şubat', sales: 3000, revenue: 1398 },
-  { name: 'Mart', sales: 2000, revenue: 9800 },
-  { name: 'Nisan', sales: 2780, revenue: 3908 },
-  { name: 'Mayıs', sales: 1890, revenue: 4800 },
-  { name: 'Haziran', sales: 2390, revenue: 3800 },
-  { name: 'Temmuz', sales: 3490, revenue: 4300 },
-];
-
-const pieData = [
-  { name: 'Elektronik', value: 400 },
-  { name: 'Moda', value: 300 },
-  { name: 'Ev & Yaşam', value: 300 },
-  { name: 'Kitap', value: 200 },
-];
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+interface DashboardStats {
+  totalUsers: number;
+  totalProducts: number;
+  totalOrders: number;
+  totalRevenue: number;
+  pendingApplications: number;
+  approvedApplications: number;
+  rejectedApplications: number;
+}
 
 export default function AdminDashboard() {
-  const [user, setUser] = useState(null);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalUsers: 0,
+    totalProducts: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
+    pendingApplications: 0,
+    approvedApplications: 0,
+    rejectedApplications: 0
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const userData = await requireAdmin();
-        setUser(userData);
-      } catch (error) {
-        console.error('Auth error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAuth();
+    fetchDashboardStats();
   }, []);
 
-  if (loading) {
-    return <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Yükleniyor...</p>
-      </div>
-    </div>;
-  }
+  const fetchDashboardStats = async () => {
+    try {
+      setLoading(true);
+      // TODO: API endpoint'i oluşturulacak
+      // const response = await fetch('/api/admin/dashboard/stats');
+      // const data = await response.json();
+      
+      // Mock data for now
+      const mockStats: DashboardStats = {
+        totalUsers: 1250,
+        totalProducts: 8500,
+        totalOrders: 3200,
+        totalRevenue: 125000,
+        pendingApplications: 15,
+        approvedApplications: 45,
+        rejectedApplications: 8
+      };
+      
+      setStats(mockStats);
+    } catch (error) {
+      console.error('Dashboard verileri yüklenirken hata:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (!user) {
-    return <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Erişim Reddedildi</h1>
-        <p className="text-gray-600">Bu sayfaya erişim yetkiniz bulunmamaktadır.</p>
+  const statCards = [
+    {
+      title: 'Toplam Kullanıcı',
+      value: stats.totalUsers.toLocaleString(),
+      icon: <Users className="w-8 h-8" />,
+      color: 'blue',
+      change: '+12%'
+    },
+    {
+      title: 'Toplam Ürün',
+      value: stats.totalProducts.toLocaleString(),
+      icon: <ShoppingBag className="w-8 h-8" />,
+      color: 'green',
+      change: '+8%'
+    },
+    {
+      title: 'Toplam Sipariş',
+      value: stats.totalOrders.toLocaleString(),
+      icon: <TrendingUp className="w-8 h-8" />,
+      color: 'purple',
+      change: '+15%'
+    },
+    {
+      title: 'Toplam Gelir',
+      value: `₺${stats.totalRevenue.toLocaleString()}`,
+      icon: <DollarSign className="w-8 h-8" />,
+      color: 'yellow',
+      change: '+22%'
+    }
+  ];
+
+  const applicationCards = [
+    {
+      title: 'Bekleyen Başvurular',
+      value: stats.pendingApplications,
+      icon: <Clock className="w-6 h-6" />,
+      color: 'yellow',
+      bgColor: 'bg-yellow-50',
+      textColor: 'text-yellow-700',
+      borderColor: 'border-yellow-200'
+    },
+    {
+      title: 'Onaylanan Başvurular',
+      value: stats.approvedApplications,
+      icon: <CheckCircle className="w-6 h-6" />,
+      color: 'green',
+      bgColor: 'bg-green-50',
+      textColor: 'text-green-700',
+      borderColor: 'border-green-200'
+    },
+    {
+      title: 'Reddedilen Başvurular',
+      value: stats.rejectedApplications,
+      icon: <XCircle className="w-6 h-6" />,
+      color: 'red',
+      bgColor: 'bg-red-50',
+      textColor: 'text-red-700',
+      borderColor: 'border-red-200'
+    }
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#CBA135]"></div>
       </div>
-    </div>;
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Ana Kontrol Paneli</h1>
-          <p className="text-gray-600">Hoş geldiniz, {user.name}! İşletmenizin genel durumuna hızlı bir bakış.</p>
-        </motion.div>
-
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
-          >
-            <p className="text-sm font-medium text-gray-600">Toplam Satış</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">₺12,450</p>
-            <p className="text-xs text-green-500 mt-2">+12% bu ay</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
-          >
-            <p className="text-sm font-medium text-gray-600">Yeni Siparişler</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">245</p>
-            <p className="text-xs text-red-500 mt-2">-5% bu hafta</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
-          >
-            <p className="text-sm font-medium text-gray-600">Aktif Kullanıcılar</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">1,890</p>
-            <p className="text-xs text-green-500 mt-2">+8% dün</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
-          >
-            <p className="text-sm font-medium text-gray-600">Bekleyen Destek</p>
-            <p className="text-3xl font-bold text-gray-900 mt-1">14</p>
-            <p className="text-xs text-gray-500 mt-2">Ort. yanıt süresi: 2 saat</p>
-          </motion.div>
-        </div>
-
-        {/* Sales & Revenue Chart */}
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-100"
+          className="mb-8"
         >
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Satış ve Gelir Genel Bakışı</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-              <XAxis dataKey="name" stroke="#555" />
-              <YAxis stroke="#555" />
-              <Tooltip cursor={{ fill: 'transparent' }} />
-              <Bar dataKey="sales" fill="#8884d8" name="Satışlar" />
-              <Bar dataKey="revenue" fill="#82ca9d" name="Gelir" />
-            </BarChart>
-          </ResponsiveContainer>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+          <p className="text-gray-600">TDC Market yönetim paneline hoş geldiniz</p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Recent Orders */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Son Siparişler</h2>
-            <ul className="space-y-4">
-              <li className="flex justify-between items-center">
+        {/* Stats Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          {statCards.map((card, index) => (
+            <motion.div
+              key={card.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 * index }}
+              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-gray-800">#1001 - Akıllı Saat</p>
-                  <p className="text-sm text-gray-500">Ahmet Yılmaz</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">{card.title}</p>
+                  <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+                  <p className="text-sm text-green-600 mt-1">{card.change}</p>
                 </div>
-                <span className="px-3 py-1 text-sm font-medium text-green-800 bg-green-100 rounded-full">Tamamlandı</span>
-              </li>
-              <li className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-gray-800">#1002 - Kablosuz Kulaklık</p>
-                  <p className="text-sm text-gray-500">Ayşe Demir</p>
+                <div className={`text-${card.color}-500`}>
+                  {card.icon}
                 </div>
-                <span className="px-3 py-1 text-sm font-medium text-yellow-800 bg-yellow-100 rounded-full">Beklemede</span>
-              </li>
-              <li className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-gray-800">#1003 - Mekanik Klavye</p>
-                  <p className="text-sm text-gray-500">Mehmet Can</p>
-                </div>
-                <span className="px-3 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full">Kargoda</span>
-              </li>
-            </ul>
-          </motion.div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
 
-          {/* Top Selling Categories */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">En Çok Satan Kategoriler</h2>
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </motion.div>
-        </div>
+        {/* Applications Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+        >
+          {applicationCards.map((card, index) => (
+            <motion.div
+              key={card.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + 0.1 * index }}
+              className={`${card.bgColor} ${card.borderColor} border rounded-lg p-6`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${card.textColor} mb-1`}>{card.title}</p>
+                  <p className={`text-2xl font-bold ${card.textColor}`}>{card.value}</p>
+                </div>
+                <div className={card.textColor}>
+                  {card.icon}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
 
         {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
+          transition={{ delay: 0.3 }}
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
         >
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Hızlı İşlemler</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <a
-              href="/admin/sellers"
-              className="flex flex-col items-center justify-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+              href="/admin/partners"
+              className="flex items-center justify-center px-4 py-3 bg-[#CBA135] text-white rounded-lg hover:bg-[#B8941F] transition-colors"
             >
-              <span className="text-indigo-600 text-2xl mb-2">👥</span>
-              <span className="text-sm font-medium text-gray-800">Satıcıları Yönet</span>
+              <Users className="w-5 h-5 mr-2" />
+              Başvuruları Yönet
+            </a>
+            <a
+              href="/admin/products"
+              className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <ShoppingBag className="w-5 h-5 mr-2" />
+              Ürünleri Yönet
             </a>
             <a
               href="/admin/orders"
-              className="flex flex-col items-center justify-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+              className="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
-              <span className="text-green-600 text-2xl mb-2">📦</span>
-              <span className="text-sm font-medium text-gray-800">Siparişleri Görüntüle</span>
+              <TrendingUp className="w-5 h-5 mr-2" />
+              Siparişleri Yönet
             </a>
             <a
-              href="/admin/analytics"
-              className="flex flex-col items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+              href="/admin/users"
+              className="flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
-              <span className="text-purple-600 text-2xl mb-2">📊</span>
-              <span className="text-sm font-medium text-gray-800">Raporları İncele</span>
+              <Users className="w-5 h-5 mr-2" />
+              Kullanıcıları Yönet
             </a>
-            <a
-              href="/admin/settings"
-              className="flex flex-col items-center justify-center p-4 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
-            >
-              <span className="text-orange-600 text-2xl mb-2">⚙️</span>
-              <span className="text-sm font-medium text-gray-800">Sistem Ayarları</span>
-            </a>
+          </div>
+        </motion.div>
+
+        {/* Recent Activity */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-8"
+        >
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Son Aktiviteler</h2>
+          <div className="space-y-4">
+            {[
+              { action: 'Yeni satıcı başvurusu', user: 'Ahmet Yılmaz', time: '2 saat önce', type: 'seller' },
+              { action: 'Influencer başvurusu onaylandı', user: 'Ayşe Demir', time: '4 saat önce', type: 'influencer' },
+              { action: 'Yeni ürün eklendi', user: 'Mehmet Kaya', time: '6 saat önce', type: 'product' },
+              { action: 'Sipariş tamamlandı', user: 'Fatma Öz', time: '8 saat önce', type: 'order' }
+            ].map((activity, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + 0.1 * index }}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${
+                    activity.type === 'seller' ? 'bg-blue-500' :
+                    activity.type === 'influencer' ? 'bg-purple-500' :
+                    activity.type === 'product' ? 'bg-green-500' : 'bg-yellow-500'
+                  }`} />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                    <p className="text-xs text-gray-600">{activity.user}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500">{activity.time}</p>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </div>

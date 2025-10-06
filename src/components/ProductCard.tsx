@@ -42,16 +42,29 @@ interface ProductCardProps {
 export default function ProductCard({ product, showSeller = false, className = '' }: ProductCardProps) {
   const [imageError, setImageError] = useState(false);
   const { addItem } = useCart();
-  const { has, toggle } = useWishlist();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
   const { addItem: addToCompare, isInCompare, removeItem: removeFromCompare } = useCompare();
-  const isWishlisted = has(product.id);
+  const isWishlisted = isInWishlist(product.id);
   const isInCompareList = isInCompare(product.id);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    toggle({ id: product.id, title: product.title, slug: product.slug, image: product.image });
+    if (isWishlisted) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist({
+        id: product.id,
+        title: product.title,
+        slug: product.slug,
+        image: product.image,
+        price: product.price,
+        category: product.category,
+        rating: product.rating || 0,
+        reviewCount: product.reviewCount || 0
+      });
+    }
   };
 
   const handleCompareToggle = (e: React.MouseEvent) => {
@@ -310,7 +323,15 @@ export default function ProductCard({ product, showSeller = false, className = '
               onClick={(e) => {
                 e.preventDefault();
                 if (product.stock > 0) {
-                  addItem({ id: product.id, title: product.title, price: product.price, image: product.image }, 1);
+                  addItem({ 
+                    id: product.id, 
+                    title: product.title, 
+                    price: product.price, 
+                    image: product.image,
+                    sellerId: product.seller?.name || 'unknown',
+                    sellerName: product.seller?.name || 'Bilinmiyor',
+                    maxStock: product.stock || 1
+                  });
                 }
               }}
             >
