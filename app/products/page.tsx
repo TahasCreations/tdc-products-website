@@ -111,30 +111,52 @@ export default function ProductsPage({
     <div className="min-h-screen bg-gray-50">
       
       <div className="flex">
-        {/* Desktop Filters Sidebar - Compact & Animated */}
-        <div className="hidden lg:block lg:w-56 flex-shrink-0 bg-white/95 backdrop-blur-sm border-r border-gray-200/50 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto shadow-sm">
-          <div className="p-3">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-900">Filtreler</h3>
-              <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+        {/* Desktop Filters Sidebar - Premium Design */}
+        <div className="hidden lg:block lg:w-72 flex-shrink-0 bg-gradient-to-b from-white via-gray-50/30 to-white backdrop-blur-xl border-r border-gray-200/60 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto shadow-2xl shadow-gray-900/5">
+          {/* Premium Header */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#CBA135]/5 via-[#F4D03F]/10 to-[#CBA135]/5"></div>
+            <div className="relative p-6 border-b border-gray-200/50">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-xl flex items-center justify-center shadow-lg shadow-[#CBA135]/25">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Filtreler</h3>
+                    <p className="text-xs text-gray-500">Arama sonuçlarını daraltın</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-[#CBA135] rounded-full animate-pulse shadow-lg shadow-[#CBA135]/50"></div>
+                  <span className="text-xs text-gray-500 font-medium">Aktif</span>
+                </div>
+              </div>
             </div>
-            
-            {/* Categories - Compact Design */}
-            <div className="mb-5">
-              <h4 className="text-xs font-medium text-gray-700 mb-3 flex items-center">
-                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                Kategoriler
-              </h4>
-              <div className="space-y-1 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          </div>
+
+          <div className="p-6 space-y-8">
+            {/* Categories - Premium Design */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                </div>
+                <h4 className="text-sm font-bold text-gray-900">Kategoriler</h4>
+              </div>
+              
+              <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {[
-                  { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', icon: '🎭', count: 0 },
-                  { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', icon: '👕', count: 0 },
-                  { name: 'Elektronik', href: '/products?category=elektronik', icon: '📱', count: 0 },
-                  { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', icon: '🏠', count: 0 },
-                  { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', icon: '🎨', count: 0 },
-                  { name: 'Hediyelik', href: '/products?category=hediyelik', icon: '🎁', count: 0 }
+                  { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', icon: '🎭', count: 0, color: 'from-purple-500 to-pink-500' },
+                  { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', icon: '👗', count: 0, color: 'from-pink-500 to-rose-500' },
+                  { name: 'Elektronik', href: '/products?category=elektronik', icon: '📱', count: 0, color: 'from-blue-500 to-cyan-500' },
+                  { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', icon: '🏠', count: 0, color: 'from-green-500 to-emerald-500' },
+                  { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', icon: '🎨', count: 0, color: 'from-orange-500 to-yellow-500' },
+                  { name: 'Hediyelik', href: '/products?category=hediyelik', icon: '🎁', count: 0, color: 'from-red-500 to-pink-500' }
                 ].map((cat, index) => (
                   <motion.a
                     key={cat.name}
@@ -142,78 +164,124 @@ export default function ProductsPage({
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className={`group flex items-center justify-between px-2 py-2 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-[1.02] ${
+                    className={`group relative flex items-center justify-between p-4 rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${
                       category === cat.name.toLowerCase().replace(/\s+/g, '-')
-                        ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 shadow-sm'
-                        : 'text-gray-700 hover:bg-gray-50'
+                        ? 'bg-gradient-to-r from-[#CBA135]/10 to-[#F4D03F]/10 border-2 border-[#CBA135]/30 shadow-lg shadow-[#CBA135]/10'
+                        : 'bg-white border border-gray-200/60 hover:border-gray-300 hover:shadow-md'
                     }`}
                   >
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm">{cat.icon}</span>
-                      <span className="truncate">{cat.name}</span>
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-12 h-12 bg-gradient-to-br ${cat.color} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        <span className="text-xl">{cat.icon}</span>
+                      </div>
+                      <div>
+                        <span className="font-semibold text-gray-900 group-hover:text-[#CBA135] transition-colors">{cat.name}</span>
+                        <p className="text-xs text-gray-500">{cat.count} ürün</p>
+                      </div>
                     </div>
-                    <span className="text-xs text-gray-400 group-hover:text-gray-600">{cat.count}</span>
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${
+                        category === cat.name.toLowerCase().replace(/\s+/g, '-')
+                          ? 'bg-[#CBA135] animate-pulse'
+                          : 'bg-gray-300 group-hover:bg-[#CBA135]/50'
+                      } transition-colors`}></div>
+                      <svg className="w-4 h-4 text-gray-400 group-hover:text-[#CBA135] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
                   </motion.a>
                 ))}
               </div>
             </div>
 
-            {/* Price Range - Compact */}
-            <div className="mb-4">
-              <h4 className="text-xs font-medium text-gray-700 mb-2 flex items-center">
-                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                </svg>
-                Fiyat Aralığı
-              </h4>
-              <div className="space-y-2">
-                <div className="flex space-x-1">
-                  <input
-                    type="number"
-                    placeholder="Min"
-                    defaultValue={minPrice || ''}
-                    className="flex-1 px-2 py-1.5 border border-gray-200 rounded-md text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    defaultValue={maxPrice || ''}
-                    className="flex-1 px-2 py-1.5 border border-gray-200 rounded-md text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  />
+            {/* Price Range - Premium Design */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
                 </div>
-                <div className="text-xs text-gray-500 text-center">₺</div>
+                <h4 className="text-sm font-bold text-gray-900">Fiyat Aralığı</h4>
+              </div>
+              
+              <div className="bg-white border border-gray-200/60 rounded-2xl p-5 space-y-4">
+                <div className="flex space-x-3">
+                  <div className="flex-1">
+                    <label className="block text-xs font-medium text-gray-700 mb-2">Minimum</label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      defaultValue={minPrice || ''}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#CBA135]/20 focus:border-[#CBA135] transition-all duration-200 bg-gray-50/50"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs font-medium text-gray-700 mb-2">Maksimum</label>
+                    <input
+                      type="number"
+                      placeholder="10000"
+                      defaultValue={maxPrice || ''}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#CBA135]/20 focus:border-[#CBA135] transition-all duration-200 bg-gray-50/50"
+                    />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#CBA135]/10 text-[#CBA135]">
+                    ₺ Türk Lirası
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Stock Filter - Compact */}
-            <div className="mb-4">
-              <label className="flex items-center space-x-2 cursor-pointer group">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    defaultChecked={inStock}
-                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 opacity-0 absolute"
-                  />
-                  <div className="w-4 h-4 border-2 border-gray-300 rounded flex items-center justify-center group-hover:border-indigo-400 transition-colors">
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            {/* Stock Filter - Premium Design */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h4 className="text-sm font-bold text-gray-900">Stok Durumu</h4>
+              </div>
+              
+              <div className="bg-white border border-gray-200/60 rounded-2xl p-5">
+                <label className="flex items-center space-x-4 cursor-pointer group">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      defaultChecked={inStock}
+                      className="w-5 h-5 text-[#CBA135] border-gray-300 rounded-lg focus:ring-[#CBA135]/20 opacity-0 absolute"
+                    />
+                    <div className="w-5 h-5 border-2 border-gray-300 rounded-lg flex items-center justify-center group-hover:border-[#CBA135]/50 transition-all duration-200 bg-gray-50/50">
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-semibold text-gray-900 group-hover:text-[#CBA135] transition-colors">Stokta Olanlar</span>
+                    <p className="text-xs text-gray-500">Sadece mevcut ürünleri göster</p>
+                  </div>
+                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                </div>
-                <span className="text-xs text-gray-700 group-hover:text-gray-900">Stokta olanlar</span>
-              </label>
+                </label>
+              </div>
             </div>
 
-            {/* Clear Filters - Animated */}
+            {/* Clear Filters - Premium Button */}
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full text-xs text-indigo-600 hover:text-indigo-700 font-medium py-2 px-3 rounded-lg hover:bg-indigo-50 transition-colors flex items-center justify-center space-x-1"
+              className="w-full bg-gradient-to-r from-gray-100 to-gray-200 hover:from-[#CBA135]/10 hover:to-[#F4D03F]/10 border border-gray-200 hover:border-[#CBA135]/30 text-gray-700 hover:text-[#CBA135] font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center space-x-3 shadow-sm hover:shadow-lg"
             >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>Filtreleri Temizle</span>
+              <span>Tüm Filtreleri Temizle</span>
             </motion.button>
           </div>
         </div>
@@ -235,21 +303,31 @@ export default function ProductsPage({
         </div>
 
 
-        {/* Mobile Filters Trigger */}
-        <div className="lg:hidden mb-4">
+        {/* Mobile Filters Trigger - Premium Design */}
+        <div className="lg:hidden mb-6">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsFiltersOpen(true)}
-            className="inline-flex items-center px-4 py-3 rounded-xl border border-gray-200 bg-white/80 backdrop-blur-sm text-sm font-medium text-gray-700 hover:bg-white hover:shadow-md shadow-sm transition-all duration-200"
+            className="w-full inline-flex items-center justify-between px-6 py-4 rounded-2xl border border-gray-200/60 bg-gradient-to-r from-white via-gray-50/50 to-white backdrop-blur-sm text-sm font-semibold text-gray-700 hover:bg-gradient-to-r hover:from-[#CBA135]/5 hover:to-[#F4D03F]/5 hover:border-[#CBA135]/30 hover:shadow-lg transition-all duration-300"
           >
-            <div className="w-5 h-5 mr-2 bg-indigo-100 rounded-md flex items-center justify-center">
-              <svg className="w-3 h-3 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-xl flex items-center justify-center shadow-lg shadow-[#CBA135]/25">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+                </svg>
+              </div>
+              <div className="text-left">
+                <div className="font-bold text-gray-900">Gelişmiş Filtreler</div>
+                <div className="text-xs text-gray-500">Kategoriler, fiyat ve daha fazlası</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-[#CBA135] rounded-full animate-pulse shadow-lg shadow-[#CBA135]/50"></div>
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
-            <span>Gelişmiş Filtreler</span>
-            <div className="ml-2 w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
           </motion.button>
         </div>
 
@@ -268,43 +346,169 @@ export default function ProductsPage({
                   animate={{ x: 0 }}
                   exit={{ x: '-100%' }}
                   transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                  className="absolute left-0 top-0 h-full w-full max-w-sm bg-white shadow-xl"
+                  className="absolute left-0 top-0 h-full w-full max-w-sm bg-gradient-to-b from-white via-gray-50/30 to-white shadow-2xl shadow-gray-900/20 backdrop-blur-xl"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
-                        <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
-                        </svg>
+                  {/* Premium Mobile Header */}
+                  <div className="relative p-6 border-b border-gray-200/50 bg-gradient-to-r from-[#CBA135]/5 via-[#F4D03F]/10 to-[#CBA135]/5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-xl flex items-center justify-center shadow-lg shadow-[#CBA135]/25">
+                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-gray-900">Filtreler</h2>
+                          <p className="text-xs text-gray-500">Arama sonuçlarını daraltın</p>
+                        </div>
                       </div>
-                      <h2 className="text-lg font-semibold text-gray-900">Filtreler</h2>
+                      <motion.button 
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setIsFiltersOpen(false)} 
+                        className="w-10 h-10 bg-white/80 hover:bg-white border border-gray-200/60 hover:border-gray-300 rounded-xl flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow-md"
+                      >
+                        <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </motion.button>
                     </div>
-                    <motion.button 
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => setIsFiltersOpen(false)} 
-                      className="p-2 hover:bg-white/50 rounded-full transition-colors"
-                    >
-                      <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </motion.button>
                   </div>
-                  <div className="p-4 overflow-y-auto h-[calc(100%-56px)]">
-                    <ProductFilters
-                      categories={mockCategories}
-                      sellers={mockSellers}
-                      currentFilters={{
-                        category,
-                        seller,
-                        minPrice,
-                        maxPrice,
-                        inStock
-                      }}
-                      isOpen
-                      onClose={() => setIsFiltersOpen(false)}
-                    />
+                  
+                  {/* Mobile Filter Content */}
+                  <div className="p-6 overflow-y-auto h-[calc(100%-120px)] space-y-6">
+                    {/* Categories */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          </svg>
+                        </div>
+                        <h4 className="text-sm font-bold text-gray-900">Kategoriler</h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-3">
+                        {[
+                          { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', icon: '🎭', count: 0, color: 'from-purple-500 to-pink-500' },
+                          { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', icon: '👗', count: 0, color: 'from-pink-500 to-rose-500' },
+                          { name: 'Elektronik', href: '/products?category=elektronik', icon: '📱', count: 0, color: 'from-blue-500 to-cyan-500' },
+                          { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', icon: '🏠', count: 0, color: 'from-green-500 to-emerald-500' },
+                          { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', icon: '🎨', count: 0, color: 'from-orange-500 to-yellow-500' },
+                          { name: 'Hediyelik', href: '/products?category=hediyelik', icon: '🎁', count: 0, color: 'from-red-500 to-pink-500' }
+                        ].map((cat, index) => (
+                          <motion.a
+                            key={cat.name}
+                            href={cat.href}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className={`group flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 ${
+                              category === cat.name.toLowerCase().replace(/\s+/g, '-')
+                                ? 'bg-gradient-to-r from-[#CBA135]/10 to-[#F4D03F]/10 border-2 border-[#CBA135]/30 shadow-lg shadow-[#CBA135]/10'
+                                : 'bg-white border border-gray-200/60 hover:border-gray-300 hover:shadow-md'
+                            }`}
+                          >
+                            <div className={`w-12 h-12 bg-gradient-to-br ${cat.color} rounded-xl flex items-center justify-center shadow-lg`}>
+                              <span className="text-xl">{cat.icon}</span>
+                            </div>
+                            <div className="flex-1">
+                              <span className="font-semibold text-gray-900 group-hover:text-[#CBA135] transition-colors">{cat.name}</span>
+                              <p className="text-xs text-gray-500">{cat.count} ürün</p>
+                            </div>
+                            <svg className="w-5 h-5 text-gray-400 group-hover:text-[#CBA135] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </motion.a>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Price Range */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                          </svg>
+                        </div>
+                        <h4 className="text-sm font-bold text-gray-900">Fiyat Aralığı</h4>
+                      </div>
+                      
+                      <div className="bg-white border border-gray-200/60 rounded-2xl p-5 space-y-4">
+                        <div className="flex space-x-3">
+                          <div className="flex-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-2">Minimum</label>
+                            <input
+                              type="number"
+                              placeholder="0"
+                              defaultValue={minPrice || ''}
+                              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#CBA135]/20 focus:border-[#CBA135] transition-all duration-200 bg-gray-50/50"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <label className="block text-xs font-medium text-gray-700 mb-2">Maksimum</label>
+                            <input
+                              type="number"
+                              placeholder="10000"
+                              defaultValue={maxPrice || ''}
+                              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#CBA135]/20 focus:border-[#CBA135] transition-all duration-200 bg-gray-50/50"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Stock Filter */}
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <h4 className="text-sm font-bold text-gray-900">Stok Durumu</h4>
+                      </div>
+                      
+                      <div className="bg-white border border-gray-200/60 rounded-2xl p-5">
+                        <label className="flex items-center space-x-4 cursor-pointer group">
+                          <div className="relative">
+                            <input
+                              type="checkbox"
+                              defaultChecked={inStock}
+                              className="w-5 h-5 text-[#CBA135] border-gray-300 rounded-lg focus:ring-[#CBA135]/20 opacity-0 absolute"
+                            />
+                            <div className="w-5 h-5 border-2 border-gray-300 rounded-lg flex items-center justify-center group-hover:border-[#CBA135]/50 transition-all duration-200 bg-gray-50/50">
+                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <span className="font-semibold text-gray-900 group-hover:text-[#CBA135] transition-colors">Stokta Olanlar</span>
+                            <p className="text-xs text-gray-500">Sadece mevcut ürünleri göster</p>
+                          </div>
+                          <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Clear Filters Button */}
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full bg-gradient-to-r from-gray-100 to-gray-200 hover:from-[#CBA135]/10 hover:to-[#F4D03F]/10 border border-gray-200 hover:border-[#CBA135]/30 text-gray-700 hover:text-[#CBA135] font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center space-x-3 shadow-sm hover:shadow-lg"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span>Tüm Filtreleri Temizle</span>
+                    </motion.button>
                   </div>
                 </motion.div>
               </motion.div>

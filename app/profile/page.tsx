@@ -38,34 +38,37 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      // TODO: API endpoint'i oluşturulacak
-      // const response = await fetch('/api/profile');
-      // const data = await response.json();
       
-      // Mock data for now
-      const mockProfile: UserProfile = {
-        id: '1',
-        name: 'Ahmet Yılmaz',
-		email: 'ahmet@example.com',
-        phone: '+90 555 123 4567',
-        address: 'Atatürk Mahallesi, 123. Sokak No:45',
-				city: 'İstanbul',
-        postalCode: '34000',
-        avatar: '/avatars/default.jpg',
-        role: 'USER',
-        createdAt: '2024-01-15T10:30:00Z'
+      if (!session?.user?.email) {
+        setProfile(null);
+        return;
+      }
+
+      // Gerçek kullanıcı verilerini kullan
+      const userProfile: UserProfile = {
+        id: session.user.id || '1',
+        name: session.user.name || 'Kullanıcı',
+        email: session.user.email,
+        phone: '', // Kullanıcı henüz telefon eklememiş
+        address: '', // Kullanıcı henüz adres eklememiş
+        city: '', // Kullanıcı henüz şehir eklememiş
+        postalCode: '', // Kullanıcı henüz posta kodu eklememiş
+        avatar: session.user.image || undefined,
+        role: 'USER', // Default role
+        createdAt: new Date().toISOString()
       };
       
-      setProfile(mockProfile);
+      setProfile(userProfile);
       setEditForm({
-        name: mockProfile.name,
-        phone: mockProfile.phone || '',
-        address: mockProfile.address || '',
-        city: mockProfile.city || '',
-        postalCode: mockProfile.postalCode || ''
+        name: userProfile.name,
+        phone: userProfile.phone || '',
+        address: userProfile.address || '',
+        city: userProfile.city || '',
+        postalCode: userProfile.postalCode || ''
       });
     } catch (error) {
       console.error('Profil yüklenirken hata:', error);
+      setProfile(null);
     } finally {
       setLoading(false);
     }
@@ -74,19 +77,20 @@ export default function ProfilePage() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      // TODO: API endpoint'i oluşturulacak
+      
+      // TODO: Gerçek API endpoint'i oluşturulacak
       // await fetch('/api/profile', {
       //   method: 'PUT',
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify(editForm)
       // });
       
-      // Mock save
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // Şimdilik local state'i güncelle
       setProfile(prev => prev ? { ...prev, ...editForm } : null);
-		setIsEditing(false);
-      alert('Profil başarıyla güncellendi!');
+      setIsEditing(false);
+      
+      // Başarı mesajı
+      alert('Profil bilgileri kaydedildi! (Demo modunda - gerçek API entegrasyonu eklenecek)');
     } catch (error) {
       console.error('Profil güncellenirken hata:', error);
       alert('Profil güncellenirken bir hata oluştu');
@@ -114,14 +118,44 @@ export default function ProfilePage() {
     );
   }
 
+  // Giriş yapmamış kullanıcılar için
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <User className="w-10 h-10 text-gray-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Giriş Yapın</h2>
+          <p className="text-gray-600 mb-6">Profil sayfanızı görüntülemek için giriş yapmanız gerekiyor.</p>
+          <a
+            href="/auth/signin"
+            className="inline-flex items-center px-6 py-3 bg-[#CBA135] text-white rounded-lg hover:bg-[#B8941F] transition-colors font-medium"
+          >
+            Giriş Yap
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   if (!profile) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Profil Bulunamadı</h2>
-          <p className="text-gray-600">Profil bilgileriniz yüklenemedi.</p>
-							</div>
-						</div>
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <User className="w-10 h-10 text-gray-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Profil Bulunamadı</h2>
+          <p className="text-gray-600 mb-6">Profil bilgileriniz yüklenemedi. Lütfen sayfayı yenileyin.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center px-6 py-3 bg-[#CBA135] text-white rounded-lg hover:bg-[#B8941F] transition-colors font-medium"
+          >
+            Sayfayı Yenile
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -136,6 +170,28 @@ export default function ProfilePage() {
         >
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Profilim</h1>
           <p className="text-gray-600">Kişisel bilgilerinizi yönetin</p>
+          
+          {/* Demo Mode Notice */}
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-blue-800">
+                  Demo Modunda Çalışıyor
+                </h3>
+                <div className="mt-2 text-sm text-blue-700">
+                  <p>
+                    Bu profil sayfası demo modunda çalışmaktadır. Gerçek verileriniz Google hesabınızdan alınmaktadır. 
+                    Ek bilgilerinizi düzenlemek için "Düzenle" butonunu kullanabilirsiniz.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -258,7 +314,12 @@ export default function ProfilePage() {
                   ) : (
                     <div className="flex items-center gap-2 text-gray-900">
                       <Phone className="w-4 h-4 text-gray-400" />
-                      <span>{profile.phone || 'Belirtilmemiş'}</span>
+                      <span>{profile.phone || 'Henüz eklenmedi'}</span>
+                      {!profile.phone && (
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                          Düzenle butonuna tıklayarak ekleyin
+                        </span>
+                      )}
 									</div>
 								)}
 										</div>
@@ -276,7 +337,12 @@ export default function ProfilePage() {
                   ) : (
                     <div className="flex items-start gap-2 text-gray-900">
                       <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
-                      <span>{profile.address || 'Belirtilmemiş'}</span>
+                      <span>{profile.address || 'Henüz eklenmedi'}</span>
+                      {!profile.address && (
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">
+                          Düzenle butonuna tıklayarak ekleyin
+                        </span>
+                      )}
 													</div>
                   )}
 												</div>
@@ -295,7 +361,12 @@ export default function ProfilePage() {
                     ) : (
                       <div className="flex items-center gap-2 text-gray-900">
                         <MapPin className="w-4 h-4 text-gray-400" />
-                        <span>{profile.city || 'Belirtilmemiş'}</span>
+                        <span>{profile.city || 'Henüz eklenmedi'}</span>
+                        {!profile.city && (
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">
+                            Düzenle
+                          </span>
+                        )}
                       </div>
 													)}
 												</div>
@@ -312,7 +383,12 @@ export default function ProfilePage() {
                     ) : (
                       <div className="flex items-center gap-2 text-gray-900">
                         <MapPin className="w-4 h-4 text-gray-400" />
-                        <span>{profile.postalCode || 'Belirtilmemiş'}</span>
+                        <span>{profile.postalCode || 'Henüz eklenmedi'}</span>
+                        {!profile.postalCode && (
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">
+                            Düzenle
+                          </span>
+                        )}
 											</div>
 										)}
 									</div>
