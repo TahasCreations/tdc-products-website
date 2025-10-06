@@ -6,6 +6,15 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Seeding database...')
 
+  // Demo veri üretimini kontrol et
+  if (process.env.SEED_DEMO !== 'true') {
+    console.log('ℹ️  Demo veri üretimi devre dışı (SEED_DEMO != true)')
+    console.log('💡 Demo veri üretmek için SEED_DEMO=true environment variable kullanın')
+    return
+  }
+
+  console.log('⚠️  DEMO VERİ ÜRETİMİ AKTİF - Bu işlem demo verileri oluşturacak!')
+
   // Admin kullanıcısı oluştur
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@site.com'
   const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
@@ -39,7 +48,7 @@ async function main() {
     role: admin.role
   })
 
-  // Örnek kategoriler oluştur
+  // Örnek kategoriler oluştur (sadece demo modunda)
   const categories = [
     { name: 'Elektronik', slug: 'elektronik' },
     { name: 'Giyim', slug: 'giyim' },
@@ -59,7 +68,7 @@ async function main() {
     }
   }
 
-  console.log('🎉 Seeding tamamlandı!')
+  console.log('🎉 Demo seeding tamamlandı!')
 }
 
 main()

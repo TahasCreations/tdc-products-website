@@ -1,159 +1,147 @@
-import "server-only";
+import { Storage } from '@google-cloud/storage';
 
-import { BigQuery } from '@google-cloud/bigquery';
-import { RecaptchaEnterpriseServiceClient } from '@google-cloud/recaptcha-enterprise';
-import { WebRiskServiceClient } from '@google-cloud/web-risk';
-import { PredictionServiceClient } from '@google-cloud/aiplatform';
-import * as admin from 'firebase-admin';
+/**
+ * GCP Storage Configuration
+ * 
+ * Bu dosya Google Cloud Storage ile etkileşim için yardımcı fonksiyonlar içerir.
+ * Sadece server-side kullanım için tasarlanmıştır.
+ */
 
-// GCP Configuration
-const getGcpConfig = () => {
-  const projectId = process.env.GCP_PROJECT_ID;
-  const clientEmail = process.env.GCP_CLIENT_EMAIL;
-  const privateKey = process.env.GCP_PRIVATE_KEY?.replace(/\\n/g, '\n');
+let storageClient: Storage | null = null;
 
-  if (!projectId || !clientEmail || !privateKey) {
-    throw new Error('Missing required GCP environment variables: GCP_PROJECT_ID, GCP_CLIENT_EMAIL, GCP_PRIVATE_KEY');
-  }
-
-  return {
-    projectId,
-    credentials: {
-      client_email: clientEmail,
-      private_key: privateKey,
-    },
-  };
-};
-
-// BigQuery client
-let bigQueryClient: BigQuery | null = null;
-export const getBQ = (): BigQuery => {
-  if (!bigQueryClient) {
-    const config = getGcpConfig();
-    bigQueryClient = new BigQuery({
-      projectId: config.projectId,
-      credentials: config.credentials,
-    });
-  }
-  return bigQueryClient;
-};
-
-// Alias for backward compatibility
-export const getBigQuery = getBQ;
-
-// Storage client
-let storageClient: any = null;
-export const getStorage = () => {
+/**
+ * GCP Storage client'ını başlatır
+ */
+export function getStorageClient(): Storage {
   if (!storageClient) {
-    const { Storage } = require('@google-cloud/storage');
-    const config = getGcpConfig();
-    storageClient = new Storage({
-      credentials: config.credentials,
-    });
-  }
-  return storageClient;
-};
-
-// reCAPTCHA Enterprise client
-let recaptchaClient: RecaptchaEnterpriseServiceClient | null = null;
-export const getRecaptcha = (): RecaptchaEnterpriseServiceClient => {
-  if (!recaptchaClient) {
-    const config = getGcpConfig();
-    recaptchaClient = new RecaptchaEnterpriseServiceClient({
-      credentials: config.credentials,
-    });
-  }
-  return recaptchaClient;
-};
-
-// Web Risk client
-let webRiskClient: WebRiskServiceClient | null = null;
-export const getWebRisk = (): WebRiskServiceClient => {
-  if (!webRiskClient) {
-    const config = getGcpConfig();
-    webRiskClient = new WebRiskServiceClient({
-      credentials: config.credentials,
-    });
-  }
-  return webRiskClient;
-};
-
-// Firebase Admin (FCM)
-let fcmApp: admin.app.App | null = null;
-export const getFCM = (): admin.app.App => {
-  if (!fcmApp) {
-    const projectId = process.env.FCM_PROJECT_ID;
-    const clientEmail = process.env.FCM_CLIENT_EMAIL;
-    const privateKey = process.env.FCM_PRIVATE_KEY?.replace(/\\n/g, '\n');
-
-    if (!projectId || !clientEmail || !privateKey) {
-      throw new Error('Missing required FCM environment variables: FCM_PROJECT_ID, FCM_CLIENT_EMAIL, FCM_PRIVATE_KEY');
+    const requiredEnvVars = ['GCP_PROJECT_ID', 'GCP_CLIENT_EMAIL', 'GCP_PRIVATE_KEY', 'GCS_BUCKET'];
+    
+    for (const envVar of requiredEnvVars) {
+      if (!process.env[envVar]) {
+        throw new Error(`Missing required environment variable: ${envVar}`);
+      }
     }
 
-    fcmApp = admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
+    storageClient = new Storage({
+      projectId: process.env.GCP_PROJECT_ID,
+      credentials: {
+        client_email: process.env.GCP_CLIENT_EMAIL,
+        private_key: process.env.GCP_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+      },
     });
   }
-  return fcmApp;
-};
 
-// Vertex AI client for embeddings
-let vertexClient: PredictionServiceClient | null = null;
-export const getVertexEmbedding = (): PredictionServiceClient => {
-  if (!vertexClient) {
-    const config = getGcpConfig();
-    vertexClient = new PredictionServiceClient({
-      apiEndpoint: `${config.projectId}-aiplatform.googleapis.com`,
-      credentials: config.credentials,
-    });
-  }
-  return vertexClient;
-};
+  return storageClient;
+}
 
-// Vision API client
-let visionClient: any = null;
-export const getVision = () => {
-  if (!visionClient) {
-    const { ImageAnnotatorClient } = require('@google-cloud/vision');
-    const config = getGcpConfig();
-    visionClient = new ImageAnnotatorClient({
-      credentials: config.credentials,
-    });
-  }
-  return visionClient;
-};
-
-// BigQuery dataset helper
-export const getBigQueryDataset = () => {
-  const bq = getBQ();
-  const datasetId = process.env.BQ_DATASET || 'tdc_analytics';
-  return bq.dataset(datasetId);
-};
-
-// Environment validation
-export const validateGcpEnv = () => {
-  const required = [
-    'GCP_PROJECT_ID',
-    'GCP_CLIENT_EMAIL', 
-    'GCP_PRIVATE_KEY',
-    'FCM_PROJECT_ID',
-    'FCM_CLIENT_EMAIL',
-    'FCM_PRIVATE_KEY',
-    'RECAPTCHA_SITE_KEY',
-    'RECAPTCHA_API_KEY',
-    'WEBRISK_API_KEY',
-    'EMBED_MODEL'
-  ];
-
-  const missing = required.filter(key => !process.env[key]);
+/**
+ * Belirtilen bucket'ı döndürür
+ */
+export function getBucket(bucketName?: string): any {
+  const storage = getStorageClient();
+  const bucket = bucketName || process.env.GCS_BUCKET;
   
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  if (!bucket) {
+    throw new Error('GCS_BUCKET environment variable is not set');
   }
 
-  return true;
-};
+  return storage.bucket(bucket);
+}
+
+/**
+ * Belirtilen prefix'teki dosyaları listeler
+ */
+export async function listFilesWithPrefix(prefix: string, bucketName?: string): Promise<string[]> {
+  try {
+    const bucket = getBucket(bucketName);
+    const [files] = await bucket.getFiles({ prefix });
+    return files.map(file => file.name);
+  } catch (error) {
+    console.warn(`Error listing files with prefix ${prefix}:`, error);
+    return [];
+  }
+}
+
+/**
+ * Belirtilen dosyaları siler
+ */
+export async function deleteFiles(fileNames: string[], bucketName?: string): Promise<number> {
+  if (fileNames.length === 0) return 0;
+
+  try {
+    const bucket = getBucket(bucketName);
+    const deletePromises = fileNames.map(fileName => 
+      bucket.file(fileName).delete().catch(error => {
+        console.warn(`Error deleting file ${fileName}:`, error);
+        return null;
+      })
+    );
+    
+    const results = await Promise.all(deletePromises);
+    return results.filter(result => result !== null).length;
+  } catch (error) {
+    console.warn(`Error deleting files:`, error);
+    return 0;
+  }
+}
+
+/**
+ * Belirtilen prefix'teki tüm dosyaları siler
+ */
+export async function deleteFilesWithPrefix(prefix: string, bucketName?: string): Promise<number> {
+  try {
+    const fileNames = await listFilesWithPrefix(prefix, bucketName);
+    return await deleteFiles(fileNames, bucketName);
+  } catch (error) {
+    console.warn(`Error deleting files with prefix ${prefix}:`, error);
+    return 0;
+  }
+}
+
+/**
+ * GCS'de dosya var mı kontrol eder
+ */
+export async function fileExists(fileName: string, bucketName?: string): Promise<boolean> {
+  try {
+    const bucket = getBucket(bucketName);
+    const [exists] = await bucket.file(fileName).exists();
+    return exists;
+  } catch (error) {
+    console.warn(`Error checking file existence ${fileName}:`, error);
+    return false;
+  }
+}
+
+/**
+ * Demo prefix'lerindeki dosyaları temizler
+ */
+export async function cleanupDemoFiles(bucketName?: string): Promise<Record<string, number>> {
+  const { GCS_DEMO_PREFIXES } = await import('../data/demo-purge.rules');
+  const results: Record<string, number> = {};
+
+  for (const prefix of GCS_DEMO_PREFIXES) {
+    try {
+      const deletedCount = await deleteFilesWithPrefix(prefix, bucketName);
+      results[prefix] = deletedCount;
+    } catch (error) {
+      console.warn(`Error cleaning prefix ${prefix}:`, error);
+      results[prefix] = 0;
+    }
+  }
+
+  return results;
+}
+
+/**
+ * GCS bağlantısını test eder
+ */
+export async function testConnection(): Promise<boolean> {
+  try {
+    const bucket = getBucket();
+    await bucket.getMetadata();
+    return true;
+  } catch (error) {
+    console.warn('GCS connection test failed:', error);
+    return false;
+  }
+}

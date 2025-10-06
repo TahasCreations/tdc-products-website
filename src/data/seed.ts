@@ -1,4 +1,7 @@
-export const seedData = {
+// Demo veri üretimini kontrol et
+const SEED_DEMO_ENABLED = process.env.SEED_DEMO === 'true';
+
+export const seedData = SEED_DEMO_ENABLED ? {
   categories: [
     {
       id: "1",
@@ -216,4 +219,8 @@ export const seedData = {
       category: "Hediye"
     }
   ]
+} : {
+  categories: [],
+  products: [],
+  blogPosts: []
 };

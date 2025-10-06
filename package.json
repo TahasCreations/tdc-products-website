@@ -10,7 +10,12 @@
     "postinstall": "prisma generate",
     "reset:dry": "tsx prisma/factory-reset.ts --dry",
     "reset:all": "FACTORY_RESET=I_UNDERSTAND FACTORY_RESET_CONFIRM=TDC_MARKET tsx prisma/factory-reset.ts",
-    "reset:force": "FACTORY_RESET=I_UNDERSTAND FACTORY_RESET_CONFIRM=TDC_MARKET tsx prisma/factory-reset.ts --force"
+    "reset:force": "FACTORY_RESET=I_UNDERSTAND FACTORY_RESET_CONFIRM=TDC_MARKET tsx prisma/factory-reset.ts --force",
+    "demo:status": "set ALLOW_DEMO_PURGE=I_UNDERSTAND && tsx prisma/purge-demo.ts --dry",
+    "demo:purge": "set ALLOW_DEMO_PURGE=I_UNDERSTAND && tsx prisma/purge-demo.ts",
+    "demo:purge:force": "set ALLOW_DEMO_PURGE=I_UNDERSTAND && tsx prisma/purge-demo.ts --force",
+    "seed": "tsx prisma/seed.ts",
+    "seed:demo": "SEED_DEMO=true tsx prisma/seed.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -79,6 +84,7 @@
     "recharts": "^3.2.1",
     "remixicon": "^4.6.0",
     "remixicon-react": "^1.0.0",
+    "server-only": "^0.0.1",
     "sharp": "^0.34.4",
     "stripe": "^19.0.0",
     "tailwind-merge": "^3.3.1",
