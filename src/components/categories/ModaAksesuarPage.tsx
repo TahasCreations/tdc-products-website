@@ -10,83 +10,25 @@ import CategoryFilters from './CategoryFilters';
 import PromoBand from './PromoBand';
 import QuickViewDialog from './QuickViewDialog';
 
-const mockProducts = [
-  {
-    id: '1',
-    title: 'Vintage Band Tişört - Oversized',
-    price: 89.99,
-    originalPrice: 129.99,
-    image: 'https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=Vintage+Tee',
-    category: 'Tişört',
-    rating: 4.7,
-    reviewCount: 89,
-    isNew: true,
-    discount: 31
-  },
-  {
-    id: '2',
-    title: 'Gaming Hoodie - Kapüşonlu',
-    price: 149.99,
-    image: 'https://via.placeholder.com/400x400/4F46E5/FFFFFF?text=Gaming+Hoodie',
-    category: 'Hoodie',
-    rating: 4.8,
-    reviewCount: 156,
-    isFeatured: true
-  },
-  {
-    id: '3',
-    title: 'Minimalist Saat - Rose Gold',
-    price: 199.99,
-    image: 'https://via.placeholder.com/400x400/FFD93D/FFFFFF?text=Watch',
-    category: 'Saat',
-    rating: 4.6,
-    reviewCount: 67
-  },
-  {
-    id: '4',
-    title: 'Canvas Çanta - Vintage',
-    price: 79.99,
-    image: 'https://via.placeholder.com/400x400/27AE60/FFFFFF?text=Canvas+Bag',
-    category: 'Çanta',
-    rating: 4.5,
-    reviewCount: 43
-  },
-  {
-    id: '5',
-    title: 'Sneaker - Retro Style',
-    price: 249.99,
-    image: 'https://via.placeholder.com/400x400/E74C3C/FFFFFF?text=Sneakers',
-    category: 'Ayakkabı',
-    rating: 4.9,
-    reviewCount: 234
-  },
-  {
-    id: '6',
-    title: 'Bileklik Seti - 3\'lü',
-    price: 59.99,
-    image: 'https://via.placeholder.com/400x400/9B59B6/FFFFFF?text=Bracelets',
-    category: 'Takı',
-    rating: 4.4,
-    reviewCount: 78
-  }
-];
+// Empty products array - no demo data
+const mockProducts: any[] = [];
 
 const filters = {
   price: { min: 0, max: 500 },
   categories: [
-    { id: 'tisort', label: 'Tişört & T-Shirt', count: 45 },
-    { id: 'hoodie', label: 'Hoodie & Sweatshirt', count: 23 },
-    { id: 'sapka', label: 'Şapka & Kasket', count: 18 },
-    { id: 'taki', label: 'Takı & Bileklik', count: 31 },
-    { id: 'canta', label: 'Çanta & Cüzdan', count: 27 },
-    { id: 'ayakkabi', label: 'Ayakkabı', count: 19 }
+    { id: 'tisort', label: 'Tişört & T-Shirt', count: 0 },
+    { id: 'hoodie', label: 'Hoodie & Sweatshirt', count: 0 },
+    { id: 'sapka', label: 'Şapka & Kasket', count: 0 },
+    { id: 'taki', label: 'Takı & Bileklik', count: 0 },
+    { id: 'canta', label: 'Çanta & Cüzdan', count: 0 },
+    { id: 'ayakkabi', label: 'Ayakkabı', count: 0 }
   ],
   brands: [
-    { id: 'nike', label: 'Nike', count: 15 },
-    { id: 'adidas', label: 'Adidas', count: 22 },
-    { id: 'puma', label: 'Puma', count: 18 },
-    { id: 'vans', label: 'Vans', count: 12 },
-    { id: 'converse', label: 'Converse', count: 8 }
+    { id: 'nike', label: 'Nike', count: 0 },
+    { id: 'adidas', label: 'Adidas', count: 0 },
+    { id: 'puma', label: 'Puma', count: 0 },
+    { id: 'vans', label: 'Vans', count: 0 },
+    { id: 'converse', label: 'Converse', count: 0 }
   ],
   colors: [
     { id: 'black', label: '#000000' },

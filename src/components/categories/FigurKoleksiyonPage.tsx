@@ -24,113 +24,35 @@ import {
 import CategoryHero from './CategoryHero';
 import { ProductCardImage } from '@/components/media/AutoImage';
 import ProductCard from './ProductCard';
+import { EmptyProductsState } from '../empty/EmptyState';
 
-// Mock data for premium figure collection
-const mockProducts = [
-  {
-    id: '1',
-    title: 'Naruto Uzumaki Figürü - Shippuden',
-    price: 299.99,
-    originalPrice: 399.99,
-    category: 'Anime Figürleri',
-    rating: 4.8,
-    reviewCount: 156,
-    isNew: true,
-    discount: 25,
-    inStock: true,
-    stockCount: 15,
-    series: 'Naruto Shippuden',
-    scale: '1:6',
-    material: 'PVC',
-    height: '25cm',
-    franchise: 'Naruto',
-    preOrder: false,
-    limited: false
-  },
-  {
-    id: '2',
-    title: 'One Piece Luffy Figürü - Gear 4',
-    price: 349.99,
-    category: 'Anime Figürleri',
-    rating: 4.9,
-    reviewCount: 203,
-    isNew: false,
-    discount: 0,
-    inStock: true,
-    stockCount: 8,
-    series: 'One Piece',
-    scale: '1:6',
-    material: 'PVC',
-    height: '28cm',
-    franchise: 'One Piece',
-    preOrder: false,
-    limited: true
-  },
-  {
-    id: '3',
-    title: 'Attack on Titan Levi Figürü',
-    price: 279.99,
-    originalPrice: 329.99,
-    category: 'Anime Figürleri',
-    rating: 4.7,
-    reviewCount: 89,
-    isNew: false,
-    discount: 15,
-    inStock: false,
-    stockCount: 0,
-    series: 'Attack on Titan',
-    scale: '1:8',
-    material: 'PVC',
-    height: '22cm',
-    franchise: 'Attack on Titan',
-    preOrder: true,
-    limited: false
-  },
-  {
-    id: '4',
-    title: 'Marvel Iron Man Mark 85',
-    price: 449.99,
-    category: 'Süper Kahraman',
-    rating: 4.9,
-    reviewCount: 312,
-    isNew: true,
-    discount: 0,
-    inStock: true,
-    stockCount: 5,
-    series: 'Marvel Studios',
-    scale: '1:6',
-    material: 'PVC & Die-cast',
-    height: '30cm',
-    franchise: 'Marvel',
-    preOrder: false,
-    limited: true
-  }
-];
+// Empty products array - no demo data
+const mockProducts: any[] = [];
 
 const filterOptions = {
   series: [
-    { id: 'naruto', label: 'Naruto', count: 12 },
-    { id: 'one-piece', label: 'One Piece', count: 8 },
-    { id: 'attack-on-titan', label: 'Attack on Titan', count: 6 },
-    { id: 'marvel', label: 'Marvel', count: 15 },
-    { id: 'dc', label: 'DC Comics', count: 9 }
+    { id: 'naruto', label: 'Naruto', count: 0 },
+    { id: 'one-piece', label: 'One Piece', count: 0 },
+    { id: 'attack-on-titan', label: 'Attack on Titan', count: 0 },
+    { id: 'marvel', label: 'Marvel', count: 0 },
+    { id: 'dc', label: 'DC Comics', count: 0 }
   ],
   scale: [
-    { id: '1:6', label: '1:6 Scale', count: 25 },
-    { id: '1:8', label: '1:8 Scale', count: 18 },
-    { id: '1:12', label: '1:12 Scale', count: 32 },
-    { id: '1:18', label: '1:18 Scale', count: 14 }
+    { id: '1:6', label: '1:6 Scale', count: 0 },
+    { id: '1:8', label: '1:8 Scale', count: 0 },
+    { id: '1:12', label: '1:12 Scale', count: 0 },
+    { id: '1:18', label: '1:18 Scale', count: 0 }
   ],
   material: [
-    { id: 'pvc', label: 'PVC', count: 45 },
-    { id: 'resin', label: 'Resin', count: 12 },
-    { id: 'die-cast', label: 'Die-cast', count: 8 },
-    { id: 'mixed', label: 'Karışık', count: 15 }
+    { id: 'pvc', label: 'PVC', count: 0 },
+    { id: 'resin', label: 'Resin', count: 0 },
+    { id: 'die-cast', label: 'Die-cast', count: 0 },
+    { id: 'mixed', label: 'Karışık', count: 0 }
   ],
   stock: [
-    { id: 'in-stock', label: 'Stokta Var', count: 35 },
-    { id: 'pre-order', label: 'Ön Sipariş', count: 18 },
-    { id: 'limited', label: 'Sınırlı Üretim', count: 7 }
+    { id: 'in-stock', label: 'Stokta Var', count: 0 },
+    { id: 'pre-order', label: 'Ön Sipariş', count: 0 },
+    { id: 'limited', label: 'Sınırlı Üretim', count: 0 }
   ]
 };
 
@@ -528,19 +450,22 @@ export default function FigurKoleksiyonPage() {
             )}
           </AnimatePresence>
 
-          {/* Products Grid */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className={`grid gap-8 ${
-              viewMode === 'grid' 
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-                : 'grid-cols-1'
-            }`}
-          >
-            {filteredProducts.map((product, index) => (
+          {/* Products Grid or Empty State */}
+          {filteredProducts.length === 0 ? (
+            <EmptyProductsState />
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className={`grid gap-8 ${
+                viewMode === 'grid' 
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+                  : 'grid-cols-1'
+              }`}
+            >
+              {filteredProducts.map((product, index) => (
               <motion.div
                 key={product.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -571,28 +496,6 @@ export default function FigurKoleksiyonPage() {
                 />
               </motion.div>
             ))}
-          </motion.div>
-
-          {/* Empty State */}
-          {filteredProducts.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-20"
-            >
-              <div className="w-24 h-24 bg-[#CBA135]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-12 h-12 text-[#CBA135]" />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-4">Ürün Bulunamadı</h3>
-              <p className="text-gray-300 mb-8">
-                Seçtiğiniz filtreler için ürün bulunamadı. Filtreleri temizleyerek tekrar deneyin.
-              </p>
-              <button
-                onClick={() => setSelectedFilters({ series: [], scale: [], material: [], stock: [] })}
-                className="px-8 py-3 bg-[#CBA135] text-black font-semibold rounded-xl hover:bg-[#F4D03F] transition-colors"
-              >
-                Filtreleri Temizle
-              </button>
             </motion.div>
           )}
         </div>
