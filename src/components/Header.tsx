@@ -82,14 +82,6 @@ export default function Header() {
 
             {/* Actions */}
             <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-              <button 
-                onClick={() => setIsSearchOpen(true)}
-                className="p-2 text-orange-400 hover:text-orange-300 focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-lg transition-colors"
-                aria-label="Ara"
-              >
-                <Search className="w-5 h-5" />
-              </button>
-              
               <Link
                 href="/wishlist"
                 className="relative p-2 text-orange-400 hover:text-orange-300 focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-lg transition-colors"
@@ -131,32 +123,6 @@ export default function Header() {
         </div>
       </motion.header>
 
-      {/* Search Bar - Below Header */}
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-        className="fixed top-16 lg:top-20 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm"
-      >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="relative">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsSearchOpen(true)}
-              className="w-full flex items-center space-x-3 px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 hover:border-[#CBA135] transition-all duration-200 group"
-            >
-              <Search className="w-5 h-5 text-gray-400 group-hover:text-[#CBA135] transition-colors" />
-              <span className="text-gray-500 group-hover:text-gray-700 transition-colors">
-                Ürün, kategori veya marka ara...
-              </span>
-              <div className="ml-auto flex items-center space-x-2">
-                <kbd className="px-2 py-1 text-xs font-medium text-gray-500 bg-gray-200 rounded">⌘K</kbd>
-              </div>
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
 
       {/* Mobile Menu */}
       <HeaderMobileMenu
@@ -172,7 +138,7 @@ export default function Header() {
       />
 
       {/* Header Spacer */}
-      <div className="h-32 lg:h-36" />
+      <div className="h-16 lg:h-20" />
     </>
   );
 }

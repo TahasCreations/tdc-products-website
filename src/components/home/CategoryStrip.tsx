@@ -2,8 +2,21 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Search } from 'lucide-react';
 
 export default function CategoryStrip() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   const categories = [
     { name: 'Figür & Koleksiyon', slug: 'figur-koleksiyon', icon: '🎭', color: 'indigo', count: '0' },
     { name: 'Moda & Aksesuar', slug: 'moda-aksesuar', icon: '👗', color: 'pink', count: '0' },
@@ -19,10 +32,50 @@ export default function CategoryStrip() {
       <div className="absolute inset-0 bg-gray-100/20 opacity-40"></div>
       
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Search Bar */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <motion.form
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            onSubmit={handleSearch}
+            className="max-w-2xl mx-auto"
+          >
+            <div className="relative">
+              <motion.input
+                whileFocus={{ scale: 1.02 }}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Ürün, kategori veya marka ara..."
+                className="w-full px-6 py-4 pl-14 pr-4 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 text-lg"
+              />
+              <div className="absolute left-5 top-1/2 transform -translate-y-1/2">
+                <Search className="w-6 h-6 text-gray-400" />
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                type="submit"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300"
+              >
+                Ara
+              </motion.button>
+            </div>
+          </motion.form>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
           viewport={{ once: true }}
           className="text-center mb-16"
         >
