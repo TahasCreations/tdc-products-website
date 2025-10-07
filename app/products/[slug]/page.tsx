@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
+import ReviewSection from '@/components/reviews/ReviewSection';
+import ProductActions from '@/components/products/ProductActions';
 
 const mockProducts = {
   'naruto-uzumaki-figuru-shippuden': {
@@ -231,27 +233,18 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               )}
             </div>
 
-            {/* Add to Cart */}
-            <div className="space-y-4">
-              {product.stock > 0 ? (
-                <button className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
-                  Sepete Ekle
-                </button>
-              ) : (
-                <button className="w-full bg-gray-400 text-white py-3 px-6 rounded-lg font-medium cursor-not-allowed">
-                  Stokta Yok
-                </button>
-              )}
-              
-              <div className="flex space-x-3">
-                <button className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors">
-                  Favorilere Ekle
-                </button>
-                <button className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors">
-                  Karşılaştır
-                </button>
-              </div>
-            </div>
+            {/* Product Actions */}
+            <ProductActions 
+              product={{
+                id: product.id,
+                title: product.title,
+                price: product.price,
+                image: product.images[0],
+                slug: params.slug,
+                category: product.category.slug,
+                stock: product.stock,
+              }}
+            />
 
             {/* Seller Info */}
             <div className="bg-gray-50 p-4 rounded-lg">
@@ -337,6 +330,23 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12">
+          <ReviewSection
+            productId={product.id}
+            productTitle={product.title}
+            currentRating={product.rating}
+            reviewCount={product.reviewCount}
+            ratingDistribution={{
+              5: Math.floor(product.reviewCount * 0.6),
+              4: Math.floor(product.reviewCount * 0.25),
+              3: Math.floor(product.reviewCount * 0.1),
+              2: Math.floor(product.reviewCount * 0.03),
+              1: Math.floor(product.reviewCount * 0.02),
+            }}
+          />
         </div>
       </div>
 

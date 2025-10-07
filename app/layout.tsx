@@ -4,6 +4,7 @@ import '../src/app/globals.css'
 import { ThemeProvider } from '../src/contexts/ThemeContext'
 import { CartProvider } from '../src/contexts/CartContext'
 import { WishlistProvider } from '../src/contexts/WishlistContext'
+import { CompareProvider } from '../src/contexts/CompareContext'
 import SessionProviderWrapper from '../src/components/providers/SessionProviderWrapper'
 import PWAInstaller from '../src/components/PWAInstaller'
 import ConditionalHeader from '../components/layout/ConditionalHeader'
@@ -35,6 +36,17 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://tdcmarket.com'),
   alternates: {
     canonical: '/',
+  },
+  manifest: '/manifest.json',
+  themeColor: '#CBA135',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'TDC Market',
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/icons/icon-192x192.png',
   },
   openGraph: {
     title: 'TDC Market — Özel figürlerden elektroniğe, tasarımdan ev yaşamına',
@@ -100,9 +112,11 @@ export default function RootLayout({
             <ThemeProvider>
               <CartProvider>
                 <WishlistProvider>
-                  <ConditionalHeader />
-                  {children}
-                  <PWAInstaller />
+                  <CompareProvider>
+                    <ConditionalHeader />
+                    {children}
+                    <PWAInstaller />
+                  </CompareProvider>
                 </WishlistProvider>
               </CartProvider>
             </ThemeProvider>

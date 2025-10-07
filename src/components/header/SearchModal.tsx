@@ -2,7 +2,8 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Search, X, Clock, TrendingUp } from 'lucide-react';
+import { Search, X, Clock, TrendingUp, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -14,6 +15,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [trendingSearches, setTrendingSearches] = useState<string[]>([]);
+  const [searchType, setSearchType] = useState<'text' | 'semantic'>('semantic');
+  const router = useRouter();
 
   // Mock data for suggestions
   const mockSuggestions = [
@@ -61,8 +64,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       setRecentSearches(newRecent);
       localStorage.setItem('recentSearches', JSON.stringify(newRecent));
       
-      // Navigate to search results
-      window.location.href = `/search?q=${encodeURIComponent(query)}`;
+      // Navigate to advanced search page
+      router.push(`/search?q=${encodeURIComponent(query)}&type=${searchType}`);
     }
   };
 
@@ -109,15 +112,42 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="w-full pl-12 pr-4 py-4 text-lg border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent"
+                  className="w-full pl-12 pr-16 py-4 text-lg border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent"
                   autoFocus
                 />
+                <div className="absolute right-12 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                  <button
+                    onClick={() => setSearchType(searchType === 'semantic' ? 'text' : 'semantic')}
+                    className={`p-2 rounded-lg transition-colors ${
+                      searchType === 'semantic' 
+                        ? 'bg-[#CBA135] text-white' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                    title={searchType === 'semantic' ? 'AI Arama (Semantic)' : 'Metin Arama'}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                  </button>
+                </div>
                 <button
                   onClick={onClose}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
+              </div>
+              
+              {/* Search Type Indicator */}
+              <div className="mt-3 flex items-center justify-between">
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  searchType === 'semantic' 
+                    ? 'bg-purple-100 text-purple-700' 
+                    : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {searchType === 'semantic' ? '🤖 AI Arama' : '📝 Metin Arama'}
+                </span>
+                <span className="text-xs text-gray-500">
+                  Enter ile arama yapın
+                </span>
               </div>
             </div>
 

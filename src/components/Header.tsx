@@ -172,7 +172,7 @@ export default function Header() {
       />
 
       {/* Header Spacer */}
-      <div className="h-24 lg:h-28" />
+      <div className="h-32 lg:h-36" />
     </>
   );
 }

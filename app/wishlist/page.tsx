@@ -1,7 +1,8 @@
 "use client";
+import { useState } from 'react';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { motion } from 'framer-motion';
-import { Heart, Trash2, ShoppingCart, Eye, Star, Share2 } from 'lucide-react';
+import { Heart, Trash2, ShoppingCart, Eye, Star, Share2, Filter, SortAsc, Bell, BellRing } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/contexts/CartContext';
@@ -9,6 +10,29 @@ import { useCart } from '@/contexts/CartContext';
 export default function WishlistPage() {
   const { state, removeItem, clearWishlist, getItemCount } = useWishlist();
   const { addItem } = useCart();
+  const [sortBy, setSortBy] = useState<'date' | 'price-low' | 'price-high' | 'name'>('date');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+
+  // Filtreleme ve sıralama
+  const filteredAndSortedItems = state.items
+    .filter(item => filterCategory === 'all' || item.category === filterCategory)
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'date':
+          return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
+        case 'price-low':
+          return a.price - b.price;
+        case 'price-high':
+          return b.price - a.price;
+        case 'name':
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
+
+  // Kategorileri al
+  const categories = ['all', ...Array.from(new Set(state.items.map(item => item.category)))];
 
   const handleAddToCart = (item: any) => {
     addItem({
@@ -100,6 +124,53 @@ export default function WishlistPage() {
           </div>
         </motion.div>
 
+        {/* Filters and Sort */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6"
+        >
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">Kategori:</span>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-[#CBA135] focus:border-transparent"
+                >
+                  {categories.map(category => (
+                    <option key={category} value={category}>
+                      {category === 'all' ? 'Tümü' : category.replace('-', ' ')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <SortAsc className="w-4 h-4 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">Sırala:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-[#CBA135] focus:border-transparent"
+                >
+                  <option value="date">Eklenme Tarihi</option>
+                  <option value="price-low">Fiyat (Düşük → Yüksek)</option>
+                  <option value="price-high">Fiyat (Yüksek → Düşük)</option>
+                  <option value="name">İsim (A → Z)</option>
+                </select>
+              </div>
+            </div>
+            
+            <div className="text-sm text-gray-600">
+              {filteredAndSortedItems.length} ürün gösteriliyor
+            </div>
+          </div>
+        </motion.div>
+
         {/* Wishlist Grid */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -107,7 +178,7 @@ export default function WishlistPage() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         >
-          {state.items.map((item, index) => (
+          {filteredAndSortedItems.map((item, index) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 20 }}
@@ -124,13 +195,31 @@ export default function WishlistPage() {
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 
-                {/* Remove from Wishlist Button */}
-                <button
-                  onClick={() => removeItem(item.id)}
-                  className="absolute top-2 right-2 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-sm transition-colors"
-                >
-                  <Heart className="w-4 h-4 text-red-500 fill-red-500" />
-                </button>
+                {/* Action Buttons */}
+                <div className="absolute top-2 right-2 flex flex-col gap-2">
+                  {/* Price Alert Button */}
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      // TODO: Fiyat bildirimi ekle
+                      alert('Fiyat düşünce bildirim alacaksınız!');
+                    }}
+                    className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-sm transition-colors"
+                    title="Fiyat düşünce bildirim al"
+                  >
+                    <Bell className="w-4 h-4 text-blue-500" />
+                  </button>
+                  
+                  {/* Remove from Wishlist Button */}
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-sm transition-colors"
+                    title="Favorilerden çıkar"
+                  >
+                    <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+                  </button>
+                </div>
 
                 {/* Quick Actions */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
@@ -195,12 +284,54 @@ export default function WishlistPage() {
           ))}
         </motion.div>
 
+        {/* Bulk Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mt-8 bg-gradient-to-r from-[#CBA135]/10 to-[#F4D03F]/10 rounded-lg border border-[#CBA135]/20 p-6"
+        >
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Toplu İşlemler</h3>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => {
+                filteredAndSortedItems.forEach(item => handleAddToCart(item));
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-[#CBA135] text-white rounded-lg hover:bg-[#B8941F] transition-colors"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Tümünü Sepete Ekle
+            </button>
+            
+            <button
+              onClick={() => {
+                const selectedItems = filteredAndSortedItems.filter(item => 
+                  item.category === filterCategory || filterCategory === 'all'
+                );
+                selectedItems.forEach(item => removeItem(item.id));
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              Filtrelenmiş Ürünleri Sil
+            </button>
+            
+            <button
+              onClick={handleShareWishlist}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Share2 className="w-4 h-4" />
+              Wishlist'i Paylaş
+            </button>
+          </div>
+        </motion.div>
+
         {/* Summary */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+          className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -208,27 +339,15 @@ export default function WishlistPage() {
                 Toplam {getItemCount()} ürün
               </h3>
               <p className="text-gray-600">
-                Toplam değer: ₺{state.items.reduce((sum, item) => sum + item.price, 0).toLocaleString()}
+                Toplam değer: ₺{filteredAndSortedItems.reduce((sum, item) => sum + item.price, 0).toLocaleString()}
               </p>
             </div>
-            <div className="flex gap-3">
-              <Link
-                href="/products"
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Alışverişe Devam Et
-              </Link>
-              <button
-                onClick={() => {
-                  // Tüm ürünleri sepete ekle
-                  state.items.forEach(item => handleAddToCart(item));
-                }}
-                className="px-6 py-2 bg-[#CBA135] text-white rounded-lg hover:bg-[#B8941F] transition-colors flex items-center gap-2"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                Tümünü Sepete Ekle
-              </button>
-            </div>
+            <Link
+              href="/products"
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Alışverişe Devam Et
+            </Link>
           </div>
         </motion.div>
       </div>

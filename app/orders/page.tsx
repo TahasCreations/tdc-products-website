@@ -35,52 +35,37 @@ export default function OrdersPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      // TODO: API endpoint'i oluşturulacak
-      // const response = await fetch('/api/orders');
-      // const data = await response.json();
+      const response = await fetch('/api/orders');
       
-      // Mock data for now
-      const mockOrders: Order[] = [
-        {
-          id: '1',
-          orderNumber: 'TDC-2024-001',
-          status: 'delivered',
-          total: 1250,
-          items: [
-            { id: '1', title: 'iPhone 15 Pro', price: 1250, quantity: 1, image: '/images/iphone15.jpg' }
-          ],
-          createdAt: '2024-01-15T10:30:00Z',
-          shippingAddress: 'Atatürk Mahallesi, 123. Sokak No:45, İstanbul',
-          trackingNumber: 'TR123456789'
-        },
-        {
-          id: '2',
-          orderNumber: 'TDC-2024-002',
-          status: 'shipped',
-          total: 850,
-          items: [
-            { id: '2', title: 'Samsung Galaxy S24', price: 850, quantity: 1, image: '/images/galaxy.jpg' }
-          ],
-          createdAt: '2024-01-20T14:15:00Z',
-          shippingAddress: 'Atatürk Mahallesi, 123. Sokak No:45, İstanbul',
-          trackingNumber: 'TR987654321'
-        },
-        {
-          id: '3',
-          orderNumber: 'TDC-2024-003',
-          status: 'processing',
-          total: 450,
-          items: [
-            { id: '3', title: 'AirPods Pro', price: 450, quantity: 1, image: '/images/airpods.jpg' }
-          ],
-          createdAt: '2024-01-25T09:45:00Z',
-          shippingAddress: 'Atatürk Mahallesi, 123. Sokak No:45, İstanbul'
-        }
-      ];
+      if (!response.ok) {
+        throw new Error('Siparişler yüklenemedi');
+      }
       
-      setOrders(mockOrders);
+      const data = await response.json();
+      
+      // API'den gelen veriyi component formatına dönüştür
+      const formattedOrders: Order[] = data.orders.map((order: any) => ({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        total: order.total,
+        items: order.items.map((item: any) => ({
+          id: item.id,
+          title: item.product?.title || 'Ürün',
+          price: item.price,
+          quantity: item.quantity,
+          image: item.product?.image || '/images/placeholder.jpg'
+        })),
+        createdAt: order.createdAt,
+        shippingAddress: order.shippingAddress?.address || 'Adres bilgisi yok',
+        trackingNumber: order.trackingNumber
+      }));
+      
+      setOrders(formattedOrders);
     } catch (error) {
       console.error('Siparişler yüklenirken hata:', error);
+      // Hata durumunda boş array set et
+      setOrders([]);
     } finally {
       setLoading(false);
     }

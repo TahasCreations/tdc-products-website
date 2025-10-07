@@ -1,34 +1,85 @@
-export const runtime = 'nodejs';
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
-import { NextRequest } from 'next/server';
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const query = searchParams.get('q');
+    const limit = parseInt(searchParams.get('limit') || '10');
 
-// Lightweight, in-memory demo suggestions
-const CATEGORIES = [
-  'Anime Figürleri','Film/TV Figürleri','Dioramalar','Koleksiyon Arabaları','Maket & Kitler',
-  'Tişört','Hoodie','Şapka','Takı & Bileklik','Çanta & Cüzdan','Ayakkabı',
-  'Kulaklık','Akıllı Ev','Aydınlatma','Hobi Elektroniği','3D Yazıcı Aksesuarları',
-  'Dekor','Mutfak','Düzenleme','Banyo','Tekstil',
-  'Boya & Fırça','Tuval','3D Baskı Malzemeleri','El Sanatları','Kırtasiye','Model & Maket',
-  'Kişiye Özel','Doğum Günü','Özel Gün Setleri','Kurumsal Hediyeler'
-];
+    if (!query || query.length < 2) {
+      return NextResponse.json({ suggestions: [] });
+    }
 
-const BRANDS = ['AnimeWorld','FashionHub','TechGear','HomeDecor','ArtCraft','TDC Products'];
-const KEYWORDS = ['Naruto','Luffy','Goku','LED aydınlatma','kablosuz kulaklık','hediye seti','çerçeve','kupa'];
+    // Ürün önerileri
+    const productSuggestions = await prisma.product.findMany({
+      where: {
+        title: {
+          contains: query,
+          mode: 'insensitive'
+        }
+      },
+      select: {
+        title: true
+      },
+      take: limit,
+      distinct: ['title']
+    });
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const q = (searchParams.get('q') || '').trim().toLowerCase();
-  const limit = Number(searchParams.get('limit') || 6);
-  if (!q) return Response.json({ items: [] });
+    // Kategori önerileri
+    const categorySuggestions = await prisma.product.findMany({
+      where: {
+        category: {
+          contains: query,
+          mode: 'insensitive'
+        }
+      },
+      select: {
+        category: true
+      },
+      take: Math.ceil(limit / 2),
+      distinct: ['category']
+    });
 
-  const source = [
-    ...CATEGORIES.map((v) => ({ type: 'category', label: v })),
-    ...BRANDS.map((v) => ({ type: 'brand', label: v })),
-    ...KEYWORDS.map((v) => ({ type: 'keyword', label: v })),
-  ];
+    // Marka önerileri
+    const brandSuggestions = await prisma.product.findMany({
+      where: {
+        brand: {
+          contains: query,
+          mode: 'insensitive',
+          not: null
+        }
+      },
+      select: {
+        brand: true
+      },
+      take: Math.ceil(limit / 2),
+      distinct: ['brand']
+    });
 
-  const items = source.filter((s) => s.label.toLowerCase().includes(q)).slice(0, limit);
-  return Response.json({ items });
+    // Popüler aramalar (trending)
+    const trendingSearches = [
+      'anime figür',
+      'elektronik',
+      'moda',
+      'hediyelik',
+      'ev yaşam',
+      'sanat hobi',
+      'koleksiyon',
+      'oyuncak'
+    ].filter(term => term.toLowerCase().includes(query.toLowerCase()));
+
+    const suggestions = [
+      ...productSuggestions.map(p => ({ type: 'product', text: p.title })),
+      ...categorySuggestions.map(c => ({ type: 'category', text: c.category })),
+      ...brandSuggestions.map(b => ({ type: 'brand', text: b.brand })),
+      ...trendingSearches.map(t => ({ type: 'trending', text: t }))
+    ].slice(0, limit);
+
+    return NextResponse.json({ suggestions });
+
+  } catch (error) {
+    console.error('Search suggestions error:', error);
+    return NextResponse.json({ suggestions: [] });
+  }
 }
-
-

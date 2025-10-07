@@ -1,9 +1,12 @@
 "use client";
 import { useCart } from '@/contexts/CartContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, MapPin, User, Phone, Mail, Lock } from 'lucide-react';
 import Image from 'next/image';
+import ShippingCalculator from '@/components/shipping/ShippingCalculator';
+import PaymentMethods from '@/components/payment/PaymentMethods';
+import { usePayment } from '@/hooks/usePayment';
 
 interface CheckoutForm {
   firstName: string;
@@ -22,6 +25,7 @@ interface CheckoutForm {
 
 export default function CheckoutPage() {
   const { state, getTotalPrice } = useCart();
+  const { createOrder, processPayment, isProcessing, error } = usePayment();
   const [form, setForm] = useState<CheckoutForm>({
     firstName: '',
     lastName: '',
@@ -36,10 +40,15 @@ export default function CheckoutPage() {
     cvv: '',
     cardName: ''
   });
-  const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [selectedShipping, setSelectedShipping] = useState<{
+    id: string;
+    name: string;
+    price: number;
+  } | null>(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<any>(null);
 
-  const shipping = 0;
+  const shipping = selectedShipping?.price || 0;
   const tax = getTotalPrice() * 0.18;
   const finalTotal = getTotalPrice() + shipping + tax;
 
@@ -73,11 +82,70 @@ export default function CheckoutPage() {
     setIsProcessing(true);
     
     try {
-      // TODO: Ödeme işlemini gerçekleştir
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Mock delay
+      // Önce sipariş oluştur
+      const orderResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: state.items,
+          customerInfo: {
+            firstName: form.firstName,
+            lastName: form.lastName,
+            email: form.email,
+            phone: form.phone,
+          },
+          shippingAddress: {
+            address: form.address,
+            city: form.city,
+            postalCode: form.postalCode,
+          },
+          total: finalTotal,
+          paymentMethod: form.paymentMethod,
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        throw new Error('Sipariş oluşturulamadı');
+      }
+
+      const orderData = await orderResponse.json();
       
-      alert('Siparişiniz başarıyla alındı!');
-      // TODO: Sipariş onay sayfasına yönlendir
+      if (form.paymentMethod === 'credit') {
+        // PayTR ile ödeme
+        const paymentResponse = await fetch('/api/payment/paytr', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: orderData.orderNumber,
+            amount: finalTotal,
+            currency: 'TRY',
+            customerEmail: form.email,
+            customerName: `${form.firstName} ${form.lastName}`,
+            customerPhone: form.phone,
+            customerAddress: form.address,
+            productName: `${state.items.length} ürün`,
+            basket: state.items.map(item => ({
+              name: item.title,
+              price: item.price,
+              quantity: item.quantity,
+            })),
+            successUrl: `${window.location.origin}/order-success?order=${orderData.orderNumber}`,
+            failUrl: `${window.location.origin}/order-failed?order=${orderData.orderNumber}`,
+          }),
+        });
+
+        if (!paymentResponse.ok) {
+          throw new Error('Ödeme başlatılamadı');
+        }
+
+        const paymentData = await paymentResponse.json();
+        
+        // PayTR iframe'ine yönlendir
+        window.location.href = paymentData.paymentUrl;
+      } else {
+        // Kapıda ödeme veya banka havalesi için sipariş onay sayfasına yönlendir
+        window.location.href = `/order-success?order=${orderData.orderNumber}&method=${form.paymentMethod}`;
+      }
     } catch (error) {
       console.error('Ödeme hatası:', error);
       alert('Ödeme sırasında bir hata oluştu. Lütfen tekrar deneyin.');
@@ -239,111 +307,48 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* Shipping Options */}
+            {form.city && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <ShippingCalculator
+                  items={state.items.map(item => ({
+                    productId: item.id,
+                    quantity: item.quantity,
+                    weight: 0.5, // Default weight
+                    dimensions: {
+                      length: 20,
+                      width: 15,
+                      height: 10
+                    }
+                  }))}
+                  destination={{
+                    city: form.city,
+                    postalCode: form.postalCode,
+                    country: 'Turkey'
+                  }}
+                  onOptionSelect={(option) => {
+                    setSelectedShipping({
+                      id: option.id,
+                      name: option.name,
+                      price: option.price
+                    });
+                  }}
+                  selectedOption={selectedShipping?.id}
+                />
+              </div>
+            )}
+
             {/* Payment Method */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <CreditCard className="w-5 h-5" />
-                Ödeme Yöntemi
-              </h2>
-              
-              <div className="space-y-4">
-                {/* Payment Options */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[
-                    { id: 'credit', label: 'Kredi Kartı', icon: '💳' },
-                    { id: 'bank', label: 'Banka Havalesi', icon: '🏦' },
-                    { id: 'cash', label: 'Kapıda Ödeme', icon: '💰' }
-                  ].map((option) => (
-                    <label
-                      key={option.id}
-                      className={`relative flex items-center justify-center p-4 border rounded-lg cursor-pointer transition-colors ${
-                        form.paymentMethod === option.id
-                          ? 'border-[#CBA135] bg-[#CBA135]/10'
-                          : 'border-gray-300 hover:border-gray-400'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value={option.id}
-                        checked={form.paymentMethod === option.id}
-                        onChange={(e) => handleInputChange('paymentMethod', e.target.value as any)}
-                        className="sr-only"
-                      />
-                      <div className="text-center">
-                        <div className="text-2xl mb-2">{option.icon}</div>
-                        <div className="text-sm font-medium">{option.label}</div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-
-                {/* Credit Card Form */}
-                {form.paymentMethod === 'credit' && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="space-y-4 p-4 bg-gray-50 rounded-lg"
-                  >
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Kart Üzerindeki İsim *</label>
-                      <input
-                        type="text"
-                        value={form.cardName}
-                        onChange={(e) => handleInputChange('cardName', e.target.value)}
-                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#CBA135] focus:border-transparent ${
-                          errors.cardName ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                      />
-                      {errors.cardName && <p className="text-red-500 text-sm mt-1">{errors.cardName}</p>}
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Kart Numarası *</label>
-                      <input
-                        type="text"
-                        value={form.cardNumber}
-                        onChange={(e) => handleInputChange('cardNumber', e.target.value)}
-                        placeholder="1234 5678 9012 3456"
-                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#CBA135] focus:border-transparent ${
-                          errors.cardNumber ? 'border-red-500' : 'border-gray-300'
-                        }`}
-                      />
-                      {errors.cardNumber && <p className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>}
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Son Kullanma *</label>
-                        <input
-                          type="text"
-                          value={form.expiryDate}
-                          onChange={(e) => handleInputChange('expiryDate', e.target.value)}
-                          placeholder="MM/YY"
-                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#CBA135] focus:border-transparent ${
-                            errors.expiryDate ? 'border-red-500' : 'border-gray-300'
-                          }`}
-                        />
-                        {errors.expiryDate && <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>}
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">CVV *</label>
-                        <input
-                          type="text"
-                          value={form.cvv}
-                          onChange={(e) => handleInputChange('cvv', e.target.value)}
-                          placeholder="123"
-                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#CBA135] focus:border-transparent ${
-                            errors.cvv ? 'border-red-500' : 'border-gray-300'
-                          }`}
-                        />
-                        {errors.cvv && <p className="text-red-500 text-sm mt-1">{errors.cvv}</p>}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </div>
+              <PaymentMethods
+                amount={finalTotal}
+                currency="TRY"
+                onMethodSelect={setSelectedPaymentMethod}
+                selectedMethod={selectedPaymentMethod?.id}
+                onProceed={(method, formData) => {
+                  console.log('Payment method selected:', method, formData);
+                }}
+              />
             </div>
           </motion.div>
 
@@ -386,8 +391,12 @@ export default function CheckoutPage() {
                   <span className="text-gray-900">₺{getTotalPrice().toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Kargo</span>
-                      <span className="text-green-600">Ücretsiz</span>
+                  <span className="text-gray-600">
+                    {selectedShipping ? selectedShipping.name : 'Kargo'}
+                  </span>
+                  <span className={shipping === 0 ? "text-green-600" : "text-gray-900"}>
+                    {shipping === 0 ? 'Ücretsiz' : `₺${shipping.toFixed(2)}`}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">KDV (%18)</span>

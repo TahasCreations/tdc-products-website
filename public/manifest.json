@@ -1,16 +1,32 @@
 {
-  "name": "TDC Market",
+  "name": "TDC Market - Premium E-ticaret Platformu",
   "short_name": "TDC Market",
-  "description": "Özel figürlerden elektroniğe, tasarımdan ev yaşamına - TDC Market",
+  "description": "TDC Market ile güvenli alışverişin, hızlı teslimatın ve özel fırsatların tadını çıkarın.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0B0B0B",
   "theme_color": "#CBA135",
   "orientation": "portrait-primary",
-  "categories": ["shopping", "business"],
+  "scope": "/",
   "lang": "tr",
   "dir": "ltr",
-  "scope": "/",
+  "categories": ["shopping", "business", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "TDC Market Ana Sayfa"
+    },
+    {
+      "src": "/screenshots/mobile-home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "TDC Market Mobil Ana Sayfa"
+    }
+  ],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -61,22 +77,6 @@
       "purpose": "maskable any"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/desktop-home.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "TDC Market Ana Sayfa"
-    },
-    {
-      "src": "/screenshots/mobile-home.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "TDC Market Mobil Ana Sayfa"
-    }
-  ],
   "shortcuts": [
     {
       "name": "Ürünler",
@@ -92,8 +92,8 @@
     },
     {
       "name": "Sepetim",
-      "short_name": "Sepetim",
-      "description": "Sepetimi görüntüle",
+      "short_name": "Sepet",
+      "description": "Sepetimdeki ürünleri görüntüle",
       "url": "/cart",
       "icons": [
         {
@@ -103,9 +103,21 @@
       ]
     },
     {
+      "name": "Favorilerim",
+      "short_name": "Favoriler",
+      "description": "Favori ürünlerimi görüntüle",
+      "url": "/wishlist",
+      "icons": [
+        {
+          "src": "/icons/shortcut-wishlist.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
       "name": "Siparişlerim",
-      "short_name": "Siparişlerim",
-      "description": "Siparişlerimi takip et",
+      "short_name": "Siparişler",
+      "description": "Sipariş geçmişimi görüntüle",
       "url": "/orders",
       "icons": [
         {
@@ -115,12 +127,47 @@
       ]
     }
   ],
-  "related_applications": [],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://tdcmarket.com/manifest.json"
+    }
+  ],
   "prefer_related_applications": false,
   "edge_side_panel": {
     "preferred_width": 400
   },
   "launch_handler": {
     "client_mode": "navigate-existing"
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+tdcmarket",
+      "url": "/?protocol=%s"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/upload",
+      "accept": {
+        "image/*": [".jpg", ".jpeg", ".png", ".gif", ".webp"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "image",
+          "accept": ["image/*"]
+        }
+      ]
+    }
   }
 }

@@ -47,7 +47,7 @@ export default function CartPage() {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Sepetim</h1>
-          <p className="text-gray-600">{state.itemCount} ürün</p>
+          <p className="text-gray-600">{state.items.length} ürün</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

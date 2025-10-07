@@ -34,6 +34,7 @@ export default function ProductsPage({
 }) {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [showQuickFilters, setShowQuickFilters] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const sortBy = (searchParams.sort as string) || 'recommended';
   const category = searchParams.category as string;
   const seller = searchParams.seller as string;
@@ -111,35 +112,77 @@ export default function ProductsPage({
     <div className="min-h-screen bg-gray-50">
       
       <div className="flex">
-        {/* Desktop Filters Sidebar - Premium Design */}
-        <div className="hidden lg:block lg:w-72 flex-shrink-0 bg-gradient-to-b from-white via-gray-50/30 to-white backdrop-blur-xl border-r border-gray-200/60 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto shadow-2xl shadow-gray-900/5">
-          {/* Premium Header */}
+        {/* Desktop Filters Sidebar - Collapsible Design */}
+        <div className={`hidden lg:block flex-shrink-0 bg-gradient-to-b from-white via-gray-50/30 to-white backdrop-blur-xl border-r border-gray-200/60 sticky top-32 h-[calc(100vh-8rem)] overflow-y-auto shadow-2xl shadow-gray-900/5 transition-all duration-300 ${
+          isSidebarCollapsed ? 'w-16' : 'w-64'
+        }`}>
+          {/* Collapsible Header */}
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-[#CBA135]/5 via-[#F4D03F]/10 to-[#CBA135]/5"></div>
-            <div className="relative p-6 border-b border-gray-200/50">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-xl flex items-center justify-center shadow-lg shadow-[#CBA135]/25">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
-                    </svg>
+            <div className="relative p-4 border-b border-gray-200/50">
+              <div className="flex items-center justify-between">
+                {!isSidebarCollapsed ? (
+                  <>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-lg flex items-center justify-center shadow-lg shadow-[#CBA135]/25">
+                        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-gray-900">Filtreler</h3>
+                        <p className="text-xs text-gray-500">Arama sonuçlarını daraltın</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-[#CBA135] rounded-full animate-pulse shadow-lg shadow-[#CBA135]/50"></div>
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setIsSidebarCollapsed(true)}
+                        className="p-1 text-gray-500 hover:text-[#CBA135] transition-colors"
+                        title="Daralt"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                        </svg>
+                      </motion.button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-lg flex items-center justify-center shadow-lg shadow-[#CBA135]/25">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.414A1 1 0 013 6.707V4z" />
+                      </svg>
+                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setIsSidebarCollapsed(false)}
+                      className="p-1 text-gray-500 hover:text-[#CBA135] transition-colors"
+                      title="Genişlet"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                      </svg>
+                    </motion.button>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900">Filtreler</h3>
-                    <p className="text-xs text-gray-500">Arama sonuçlarını daraltın</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-[#CBA135] rounded-full animate-pulse shadow-lg shadow-[#CBA135]/50"></div>
-                  <span className="text-xs text-gray-500 font-medium">Aktif</span>
-                </div>
+                )}
               </div>
             </div>
           </div>
 
-          <div className="p-6 space-y-8">
-            {/* Categories - Premium Design */}
-            <div className="space-y-4">
+          <AnimatePresence>
+            {!isSidebarCollapsed && (
+              <motion.div
+                initial={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="p-4 space-y-6"
+              >
+                {/* Categories - Premium Design */}
+                <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,18 +315,20 @@ export default function ProductsPage({
               </div>
             </div>
 
-            {/* Clear Filters - Premium Button */}
-            <motion.button 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full bg-gradient-to-r from-gray-100 to-gray-200 hover:from-[#CBA135]/10 hover:to-[#F4D03F]/10 border border-gray-200 hover:border-[#CBA135]/30 text-gray-700 hover:text-[#CBA135] font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center space-x-3 shadow-sm hover:shadow-lg"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span>Tüm Filtreleri Temizle</span>
-            </motion.button>
-          </div>
+                {/* Clear Filters - Premium Button */}
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full bg-gradient-to-r from-gray-100 to-gray-200 hover:from-[#CBA135]/10 hover:to-[#F4D03F]/10 border border-gray-200 hover:border-[#CBA135]/30 text-gray-700 hover:text-[#CBA135] font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm hover:shadow-lg text-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>Tüm Filtreleri Temizle</span>
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Main Content Area */}
