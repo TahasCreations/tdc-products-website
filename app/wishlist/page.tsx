@@ -6,10 +6,15 @@ import { Heart, Trash2, ShoppingCart, Eye, Star, Share2, Filter, SortAsc, Bell, 
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/contexts/CartContext';
+import GlassCard from '@/components/ui/GlassCard';
+import InteractiveButton, { IconButton } from '@/components/ui/InteractiveButton';
+import ScrollReveal from '@/components/ui/ScrollReveal';
+import { useToast } from '@/components/ui/Toast';
 
 export default function WishlistPage() {
   const { state, removeItem, clearWishlist, getItemCount } = useWishlist();
   const { addItem } = useCart();
+  const toast = useToast();
   const [sortBy, setSortBy] = useState<'date' | 'price-low' | 'price-high' | 'name'>('date');
   const [filterCategory, setFilterCategory] = useState<string>('all');
 
@@ -44,6 +49,7 @@ export default function WishlistPage() {
       sellerName: 'Bilinmiyor',
       maxStock: 1
     });
+    toast.success('Sepete Eklendi!', `${item.title} sepetinize eklendi.`);
   };
 
   const handleShareWishlist = async () => {

@@ -112,15 +112,6 @@ export default function Header() {
             </div>
           </div>
         </div>
-
-        {/* Desktop Category Navigation */}
-        <div className="hidden lg:block border-t border-gray-100 bg-white/90 backdrop-blur-sm">
-          <div className="w-full px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center space-x-8 py-3">
-              {/* Category links will be rendered by HeaderNav */}
-            </div>
-          </div>
-        </div>
       </motion.header>
 
 

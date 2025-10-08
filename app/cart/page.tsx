@@ -4,9 +4,14 @@ import { motion } from 'framer-motion';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import GlassCard from '@/components/ui/GlassCard';
+import InteractiveButton from '@/components/ui/InteractiveButton';
+import ScrollReveal from '@/components/ui/ScrollReveal';
+import { useToast } from '@/components/ui/Toast';
 
 export default function CartPage() {
   const { state, updateQuantity, removeItem, clearCart, getTotalPrice } = useCart();
+  const toast = useToast();
 
   if (state.items.length === 0) {
     return (
@@ -52,13 +57,8 @@ export default function CartPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="lg:col-span-2"
-          >
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+          <ScrollReveal direction="left" delay={0.1} className="lg:col-span-2">
+            <GlassCard variant="premium" hover3d={false}>
               {/* Cart Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">Sepet Ürünleri</h2>
@@ -133,20 +133,15 @@ export default function CartPage() {
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
-                  </motion.div>
-                ))}
+                </motion.div>
+              ))}
               </div>
-            </div>
-          </motion.div>
+            </GlassCard>
+          </ScrollReveal>
 
           {/* Order Summary */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="lg:col-span-1"
-          >
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-8">
+          <ScrollReveal direction="right" delay={0.2} className="lg:col-span-1">
+            <GlassCard variant="premium" hover3d={false} className="p-6 sticky top-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Sipariş Özeti</h2>
               
               {/* Price Breakdown */}
@@ -177,12 +172,16 @@ export default function CartPage() {
               </div>
 
               {/* Checkout Button */}
-              <Link
-                href="/checkout"
-                className="w-full flex items-center justify-center px-6 py-3 bg-[#CBA135] text-white rounded-lg hover:bg-[#B8941F] transition-colors font-medium"
-              >
-                Ödemeye Geç
-                <ArrowRight className="w-5 h-5 ml-2" />
+              <Link href="/checkout" className="block">
+                <InteractiveButton
+                  variant="primary"
+                  size="lg"
+                  icon={<ArrowRight className="w-5 h-5" />}
+                  iconPosition="right"
+                  className="w-full"
+                >
+                  Ödemeye Geç
+                </InteractiveButton>
               </Link>
 
               {/* Security Info */}
@@ -201,8 +200,8 @@ export default function CartPage() {
                   Alışverişe Devam Et
                 </Link>
               </div>
-            </div>
-          </motion.div>
+            </GlassCard>
+          </ScrollReveal>
         </div>
       </div>
     </div>

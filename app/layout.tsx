@@ -8,6 +8,9 @@ import { CompareProvider } from '../src/contexts/CompareContext'
 import SessionProviderWrapper from '../src/components/providers/SessionProviderWrapper'
 import PWAInstaller from '../src/components/PWAInstaller'
 import ConditionalHeader from '../components/layout/ConditionalHeader'
+import { ToastProvider } from '../src/components/ui/Toast'
+import BottomNavigation from '../src/components/ui/BottomNavigation'
+import { FloatingThemeToggle } from '../src/components/ui/ThemeToggle'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -110,15 +113,19 @@ export default function RootLayout({
         <div id="root">
           <SessionProviderWrapper>
             <ThemeProvider>
-              <CartProvider>
-                <WishlistProvider>
-                  <CompareProvider>
-                    <ConditionalHeader />
-                    {children}
-                    <PWAInstaller />
-                  </CompareProvider>
-                </WishlistProvider>
-              </CartProvider>
+              <ToastProvider>
+                <CartProvider>
+                  <WishlistProvider>
+                    <CompareProvider>
+                      <ConditionalHeader />
+                      {children}
+                      <BottomNavigation />
+                      <FloatingThemeToggle />
+                      <PWAInstaller />
+                    </CompareProvider>
+                  </WishlistProvider>
+                </CartProvider>
+              </ToastProvider>
             </ThemeProvider>
           </SessionProviderWrapper>
         </div>
