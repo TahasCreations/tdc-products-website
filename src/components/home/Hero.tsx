@@ -31,7 +31,7 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
   };
 
   return (
-    <section className="relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-neutral-50 via-white to-indigo-50/30 pt-4 pb-12">
+    <section className="relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-neutral-50 via-white to-indigo-50/30 pt-20 pb-12">
       {/* Background Particles */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div

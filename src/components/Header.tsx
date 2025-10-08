@@ -127,9 +127,6 @@ export default function Header() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
       />
-
-      {/* Header Spacer */}
-      <div className="h-16 lg:h-20" />
     </>
   );
 }

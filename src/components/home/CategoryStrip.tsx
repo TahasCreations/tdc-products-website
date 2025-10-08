@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
-import ScrollReveal from '../ui/ScrollReveal';
-import GlassCard from '../ui/GlassCard';
 
 export default function CategoryStrip() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -104,50 +102,60 @@ export default function CategoryStrip() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 sm:gap-8">
           {categories.map((category, index) => (
-            <ScrollReveal
+            <motion.div
               key={category.slug}
-              direction="up"
-              delay={index * 0.1}
+              initial={{ opacity: 0, y: 50, scale: 0.8 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ 
+                duration: 0.6, 
+                delay: index * 0.1,
+                type: "spring",
+                stiffness: 100
+              }}
+              viewport={{ once: true }}
+              whileHover={{ 
+                y: -10, 
+                scale: 1.05,
+                transition: { duration: 0.3 }
+              }}
             >
-              <Link href={`/categories/${category.slug}`}>
-                <GlassCard
-                  variant="premium"
-                  hover3d={true}
-                  glowColor="#CBA135"
-                  className="group p-6 cursor-pointer"
-                >
-                  <div className="text-center">
-                    <motion.div 
-                      className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 bg-gradient-to-br from-[#CBA135]/20 to-[#F4D03F]/20 rounded-2xl flex items-center justify-center group-hover:from-[#CBA135]/30 group-hover:to-[#F4D03F]/30 transition-all duration-500 shadow-lg group-hover:shadow-xl"
-                      whileHover={{ rotate: 360, scale: 1.1 }}
-                      transition={{ duration: 0.6 }}
-                    >
-                      <span className="text-3xl sm:text-4xl">{category.icon}</span>
-                    </motion.div>
-                    
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-[#CBA135] transition-colors duration-300 mb-2">
-                      {category.name}
-                    </h3>
-                    
-                    <div className="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                      <span className="w-2 h-2 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] rounded-full animate-pulse"></span>
-                      <span>{category.count} ürün</span>
-                    </div>
-                    
-                    {/* Hover Arrow */}
-                    <motion.div
-                      initial={{ opacity: 0, x: -10 }}
-                      whileHover={{ opacity: 1, x: 0 }}
-                      className="absolute top-4 right-4 w-6 h-6 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-white rounded-full flex items-center justify-center shadow-lg"
-                    >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </motion.div>
+              <Link
+                href={`/categories/${category.slug}`}
+                className="group block p-6 bg-white/70 backdrop-blur-sm rounded-3xl border border-white/50 hover:bg-white/90 transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/10 relative overflow-hidden"
+              >
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-500/0 via-purple-500/0 to-pink-500/0 group-hover:from-gray-500/5 group-hover:via-purple-500/5 group-hover:to-pink-500/5 transition-all duration-500"></div>
+                
+                <div className="relative z-10 text-center">
+                  <motion.div 
+                    className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl flex items-center justify-center group-hover:from-indigo-200 group-hover:to-purple-200 transition-all duration-500 shadow-lg group-hover:shadow-xl"
+                    whileHover={{ rotate: 5 }}
+                  >
+                    <span className="text-3xl sm:text-4xl group-hover:scale-110 transition-transform duration-300">{category.icon}</span>
+                  </motion.div>
+                  
+                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-indigo-600 transition-colors duration-300 mb-2">
+                    {category.name}
+                  </h3>
+                  
+                  <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+                    <span className="w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></span>
+                    <span>{category.count} ürün</span>
                   </div>
-                </GlassCard>
+                  
+                  {/* Hover Arrow */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    whileHover={{ opacity: 1, x: 0 }}
+                    className="absolute top-4 right-4 w-6 h-6 bg-indigo-500 text-white rounded-full flex items-center justify-center"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </motion.div>
+                </div>
               </Link>
-            </ScrollReveal>
+            </motion.div>
           ))}
         </div>
 
