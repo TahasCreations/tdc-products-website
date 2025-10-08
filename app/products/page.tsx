@@ -9,6 +9,77 @@ import Breadcrumb from '../../src/components/ui/Breadcrumb';
 import { EmptyProductsState } from '../../src/components/empty/EmptyState';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
 
+// Category Item Component
+function CategoryItem({ cat, index, category }: any) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  return (
+    <div>
+      <div className="flex items-center">
+        <motion.a
+          href={cat.href}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: index * 0.05 }}
+          className={`group flex-1 flex items-center justify-between p-2 rounded-lg transition-all duration-200 ${
+            category === cat.name.toLowerCase().replace(/\s+/g, '-')
+              ? 'bg-[#CBA135]/10 text-[#CBA135]'
+              : 'hover:bg-gray-50'
+          }`}
+        >
+          <div className="flex items-center space-x-2">
+            <span className="text-base">{cat.icon}</span>
+            <div>
+              <span className="text-xs font-medium text-gray-900 group-hover:text-[#CBA135] transition-colors">{cat.name}</span>
+              <p className="text-[10px] text-gray-500">{cat.count} ürün</p>
+            </div>
+          </div>
+        </motion.a>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="p-1 hover:bg-gray-100 rounded transition-colors"
+        >
+          <motion.svg 
+            className="w-3 h-3 text-gray-400" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+            animate={{ rotate: isExpanded ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </motion.svg>
+        </button>
+      </div>
+      
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="ml-8 mt-1 space-y-1 overflow-hidden"
+          >
+            {cat.subcategories.map((subcat: any, subIndex: number) => (
+              <motion.a
+                key={subcat.href}
+                href={subcat.href}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: subIndex * 0.03 }}
+                className="block px-2 py-1 text-[11px] text-gray-600 hover:text-[#CBA135] hover:bg-gray-50 rounded transition-all duration-200"
+              >
+                • {subcat.label}
+              </motion.a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 // Note: metadata cannot be exported from a Client Component; moved to head via JSON-LD only.
 const pageMeta = {
   title: 'Tüm Ürünler - TDC Market',
@@ -181,58 +252,94 @@ export default function ProductsPage({
                 transition={{ duration: 0.2 }}
                 className="p-4 space-y-6"
               >
-                {/* Categories - Premium Design */}
-                <div className="space-y-4">
+                {/* Categories - Compact Design with Subcategories */}
+                <div className="space-y-3">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                 </div>
-                <h4 className="text-sm font-bold text-gray-900">Kategoriler</h4>
+                <h4 className="text-xs font-bold text-gray-900">Kategoriler</h4>
               </div>
               
-              <div className="space-y-2 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+              <div className="space-y-1 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {[
-                  { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', icon: '🎭', count: 0, color: 'from-purple-500 to-pink-500' },
-                  { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', icon: '👗', count: 0, color: 'from-pink-500 to-rose-500' },
-                  { name: 'Elektronik', href: '/products?category=elektronik', icon: '📱', count: 0, color: 'from-blue-500 to-cyan-500' },
-                  { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', icon: '🏠', count: 0, color: 'from-green-500 to-emerald-500' },
-                  { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', icon: '🎨', count: 0, color: 'from-orange-500 to-yellow-500' },
-                  { name: 'Hediyelik', href: '/products?category=hediyelik', icon: '🎁', count: 0, color: 'from-red-500 to-pink-500' }
+                  { 
+                    name: 'Figür & Koleksiyon', 
+                    href: '/categories/figur-koleksiyon', 
+                    icon: '🎭', 
+                    count: 0,
+                    subcategories: [
+                      { label: 'Koleksiyon Figürleri', href: '/categories/figur-koleksiyon/koleksiyon-figurleri' },
+                      { label: 'Anime / Manga', href: '/categories/figur-koleksiyon/anime' },
+                      { label: 'Model Kit', href: '/categories/figur-koleksiyon/model-kit' },
+                      { label: 'Aksiyon Figür', href: '/categories/figur-koleksiyon/aksiyon' },
+                      { label: 'Funko / Nendoroid', href: '/categories/figur-koleksiyon/funko' },
+                    ]
+                  },
+                  { 
+                    name: 'Moda & Aksesuar', 
+                    href: '/categories/moda-aksesuar', 
+                    icon: '👗', 
+                    count: 0,
+                    subcategories: [
+                      { label: 'Tişört & Hoodie', href: '/categories/moda-aksesuar/tisort-hoodie' },
+                      { label: 'Takı & Saat', href: '/categories/moda-aksesuar/taki-saat' },
+                      { label: 'Çanta & Cüzdan', href: '/categories/moda-aksesuar/canta' },
+                      { label: 'Ayakkabı', href: '/categories/moda-aksesuar/ayakkabi' },
+                    ]
+                  },
+                  { 
+                    name: 'Elektronik', 
+                    href: '/categories/elektronik', 
+                    icon: '📱', 
+                    count: 0,
+                    subcategories: [
+                      { label: 'Kulaklık & Ses', href: '/categories/elektronik/kulaklik' },
+                      { label: 'Akıllı Ev', href: '/categories/elektronik/akilli-ev' },
+                      { label: 'Bilgisayar Aksesuarları', href: '/categories/elektronik/pc-aksesuar' },
+                      { label: 'Oyun & Konsol', href: '/categories/elektronik/oyun' },
+                    ]
+                  },
+                  { 
+                    name: 'Ev & Yaşam', 
+                    href: '/categories/ev-yasam', 
+                    icon: '🏠', 
+                    count: 0,
+                    subcategories: [
+                      { label: 'Dekorasyon', href: '/categories/ev-yasam/dekorasyon' },
+                      { label: 'Mutfak', href: '/categories/ev-yasam/mutfak' },
+                      { label: 'Aydınlatma', href: '/categories/ev-yasam/aydinlatma' },
+                      { label: 'Mobilya', href: '/categories/ev-yasam/mobilya' },
+                    ]
+                  },
+                  { 
+                    name: 'Sanat & Hobi', 
+                    href: '/categories/sanat-hobi', 
+                    icon: '🎨', 
+                    count: 0,
+                    subcategories: [
+                      { label: 'Tablo & Poster', href: '/categories/sanat-hobi/poster' },
+                      { label: 'El Sanatları', href: '/categories/sanat-hobi/el-sanatlari' },
+                      { label: 'Boyama & Çizim', href: '/categories/sanat-hobi/boyama' },
+                      { label: 'Müzik & Enstrüman', href: '/categories/sanat-hobi/muzik' },
+                    ]
+                  },
+                  { 
+                    name: 'Hediyelik', 
+                    href: '/categories/hediyelik', 
+                    icon: '🎁', 
+                    count: 0,
+                    subcategories: [
+                      { label: 'Kişiye Özel', href: '/categories/hediyelik/kisiye-ozel' },
+                      { label: 'Doğum Günü', href: '/categories/hediyelik/dogum-gunu' },
+                      { label: 'Ofis & Masaüstü', href: '/categories/hediyelik/ofis' },
+                      { label: 'Mini Setler', href: '/categories/hediyelik/mini-set' },
+                    ]
+                  }
                 ].map((cat, index) => (
-                  <motion.a
-                    key={cat.name}
-                    href={cat.href}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className={`group relative flex items-center justify-between p-4 rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${
-                      category === cat.name.toLowerCase().replace(/\s+/g, '-')
-                        ? 'bg-gradient-to-r from-[#CBA135]/10 to-[#F4D03F]/10 border-2 border-[#CBA135]/30 shadow-lg shadow-[#CBA135]/10'
-                        : 'bg-white border border-gray-200/60 hover:border-gray-300 hover:shadow-md'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-12 h-12 bg-gradient-to-br ${cat.color} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                        <span className="text-xl">{cat.icon}</span>
-                      </div>
-                      <div>
-                        <span className="font-semibold text-gray-900 group-hover:text-[#CBA135] transition-colors">{cat.name}</span>
-                        <p className="text-xs text-gray-500">{cat.count} ürün</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${
-                        category === cat.name.toLowerCase().replace(/\s+/g, '-')
-                          ? 'bg-[#CBA135] animate-pulse'
-                          : 'bg-gray-300 group-hover:bg-[#CBA135]/50'
-                      } transition-colors`}></div>
-                      <svg className="w-4 h-4 text-gray-400 group-hover:text-[#CBA135] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </motion.a>
+                  <CategoryItem key={cat.name} cat={cat} index={index} category={category} />
                 ))}
               </div>
             </div>
@@ -423,8 +530,8 @@ export default function ProductsPage({
                   
                   {/* Mobile Filter Content */}
                   <div className="p-6 overflow-y-auto h-[calc(100%-120px)] space-y-6">
-                    {/* Categories */}
-                    <div className="space-y-4">
+                    {/* Categories - Mobile */}
+                    <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
                           <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -434,38 +541,83 @@ export default function ProductsPage({
                         <h4 className="text-sm font-bold text-gray-900">Kategoriler</h4>
                       </div>
                       
-                      <div className="grid grid-cols-1 gap-3">
+                      <div className="space-y-2">
                         {[
-                          { name: 'Figür & Koleksiyon', href: '/products?category=figur-koleksiyon', icon: '🎭', count: 0, color: 'from-purple-500 to-pink-500' },
-                          { name: 'Moda & Aksesuar', href: '/products?category=moda-aksesuar', icon: '👗', count: 0, color: 'from-pink-500 to-rose-500' },
-                          { name: 'Elektronik', href: '/products?category=elektronik', icon: '📱', count: 0, color: 'from-blue-500 to-cyan-500' },
-                          { name: 'Ev & Yaşam', href: '/products?category=ev-yasam', icon: '🏠', count: 0, color: 'from-green-500 to-emerald-500' },
-                          { name: 'Sanat & Hobi', href: '/products?category=sanat-hobi', icon: '🎨', count: 0, color: 'from-orange-500 to-yellow-500' },
-                          { name: 'Hediyelik', href: '/products?category=hediyelik', icon: '🎁', count: 0, color: 'from-red-500 to-pink-500' }
+                          { 
+                            name: 'Figür & Koleksiyon', 
+                            href: '/categories/figur-koleksiyon', 
+                            icon: '🎭', 
+                            count: 0,
+                            subcategories: [
+                              { label: 'Koleksiyon Figürleri', href: '/categories/figur-koleksiyon/koleksiyon-figurleri' },
+                              { label: 'Anime / Manga', href: '/categories/figur-koleksiyon/anime' },
+                              { label: 'Model Kit', href: '/categories/figur-koleksiyon/model-kit' },
+                              { label: 'Aksiyon Figür', href: '/categories/figur-koleksiyon/aksiyon' },
+                              { label: 'Funko / Nendoroid', href: '/categories/figur-koleksiyon/funko' },
+                            ]
+                          },
+                          { 
+                            name: 'Moda & Aksesuar', 
+                            href: '/categories/moda-aksesuar', 
+                            icon: '👗', 
+                            count: 0,
+                            subcategories: [
+                              { label: 'Tişört & Hoodie', href: '/categories/moda-aksesuar/tisort-hoodie' },
+                              { label: 'Takı & Saat', href: '/categories/moda-aksesuar/taki-saat' },
+                              { label: 'Çanta & Cüzdan', href: '/categories/moda-aksesuar/canta' },
+                              { label: 'Ayakkabı', href: '/categories/moda-aksesuar/ayakkabi' },
+                            ]
+                          },
+                          { 
+                            name: 'Elektronik', 
+                            href: '/categories/elektronik', 
+                            icon: '📱', 
+                            count: 0,
+                            subcategories: [
+                              { label: 'Kulaklık & Ses', href: '/categories/elektronik/kulaklik' },
+                              { label: 'Akıllı Ev', href: '/categories/elektronik/akilli-ev' },
+                              { label: 'Bilgisayar Aksesuarları', href: '/categories/elektronik/pc-aksesuar' },
+                              { label: 'Oyun & Konsol', href: '/categories/elektronik/oyun' },
+                            ]
+                          },
+                          { 
+                            name: 'Ev & Yaşam', 
+                            href: '/categories/ev-yasam', 
+                            icon: '🏠', 
+                            count: 0,
+                            subcategories: [
+                              { label: 'Dekorasyon', href: '/categories/ev-yasam/dekorasyon' },
+                              { label: 'Mutfak', href: '/categories/ev-yasam/mutfak' },
+                              { label: 'Aydınlatma', href: '/categories/ev-yasam/aydinlatma' },
+                              { label: 'Mobilya', href: '/categories/ev-yasam/mobilya' },
+                            ]
+                          },
+                          { 
+                            name: 'Sanat & Hobi', 
+                            href: '/categories/sanat-hobi', 
+                            icon: '🎨', 
+                            count: 0,
+                            subcategories: [
+                              { label: 'Tablo & Poster', href: '/categories/sanat-hobi/poster' },
+                              { label: 'El Sanatları', href: '/categories/sanat-hobi/el-sanatlari' },
+                              { label: 'Boyama & Çizim', href: '/categories/sanat-hobi/boyama' },
+                              { label: 'Müzik & Enstrüman', href: '/categories/sanat-hobi/muzik' },
+                            ]
+                          },
+                          { 
+                            name: 'Hediyelik', 
+                            href: '/categories/hediyelik', 
+                            icon: '🎁', 
+                            count: 0,
+                            subcategories: [
+                              { label: 'Kişiye Özel', href: '/categories/hediyelik/kisiye-ozel' },
+                              { label: 'Doğum Günü', href: '/categories/hediyelik/dogum-gunu' },
+                              { label: 'Ofis & Masaüstü', href: '/categories/hediyelik/ofis' },
+                              { label: 'Mini Setler', href: '/categories/hediyelik/mini-set' },
+                            ]
+                          }
                         ].map((cat, index) => (
-                          <motion.a
-                            key={cat.name}
-                            href={cat.href}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className={`group flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 ${
-                              category === cat.name.toLowerCase().replace(/\s+/g, '-')
-                                ? 'bg-gradient-to-r from-[#CBA135]/10 to-[#F4D03F]/10 border-2 border-[#CBA135]/30 shadow-lg shadow-[#CBA135]/10'
-                                : 'bg-white border border-gray-200/60 hover:border-gray-300 hover:shadow-md'
-                            }`}
-                          >
-                            <div className={`w-12 h-12 bg-gradient-to-br ${cat.color} rounded-xl flex items-center justify-center shadow-lg`}>
-                              <span className="text-xl">{cat.icon}</span>
-                            </div>
-                            <div className="flex-1">
-                              <span className="font-semibold text-gray-900 group-hover:text-[#CBA135] transition-colors">{cat.name}</span>
-                              <p className="text-xs text-gray-500">{cat.count} ürün</p>
-                            </div>
-                            <svg className="w-5 h-5 text-gray-400 group-hover:text-[#CBA135] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </motion.a>
+                          <CategoryItem key={cat.name} cat={cat} index={index} category={category} />
                         ))}
                       </div>
                     </div>
