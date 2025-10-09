@@ -134,6 +134,7 @@ export default function ProductsPage({
   const minPrice = selectedMinPrice;
   const maxPrice = selectedMaxPrice;
   const inStock = selectedInStock;
+  const seller = searchParams.seller as string | undefined;
 
   // Filter products based on local state
   let filteredProducts = [...mockProducts];

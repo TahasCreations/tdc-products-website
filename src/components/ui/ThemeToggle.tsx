@@ -58,50 +58,75 @@ export default function ThemeToggle() {
 // Floating theme toggle
 export function FloatingThemeToggle() {
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   if (!mounted) {
-    return null;
+    return (
+      <div className="fixed bottom-6 left-6 z-50 w-14 h-14 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center backdrop-blur-sm border border-gray-200 dark:border-gray-700 animate-pulse" />
+    );
   }
 
-  const isDark = theme === 'dark';
+  const isDark = resolvedTheme === 'dark';
 
   return (
     <motion.button
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
-      className="fixed bottom-6 left-6 z-50 w-14 h-14 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center backdrop-blur-sm border border-gray-200 dark:border-gray-700"
-      whileHover={{ scale: 1.1, rotate: 180 }}
+      className="fixed bottom-6 left-6 z-50 w-14 h-14 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center backdrop-blur-sm border border-gray-200 dark:border-gray-700 group"
+      whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      aria-label="Toggle theme"
+      aria-label={isDark ? "Aydınlık moda geç" : "Karanlık moda geç"}
+      title={isDark ? "Aydınlık Mod" : "Karanlık Mod"}
     >
       <AnimatePresence mode="wait">
         {isDark ? (
           <motion.div
             key="moon"
-            initial={{ rotate: -180, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            exit={{ rotate: 180, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="relative"
           >
-            <Moon className="w-6 h-6 text-[#CBA135]" />
+            <Moon className="w-6 h-6 text-[#CBA135] group-hover:text-[#F4D03F] transition-colors" />
+            <motion.div
+              className="absolute inset-0 bg-[#CBA135] rounded-full blur-xl opacity-0 group-hover:opacity-30"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </motion.div>
         ) : (
           <motion.div
             key="sun"
-            initial={{ rotate: -180, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            exit={{ rotate: 180, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="relative"
           >
-            <Sun className="w-6 h-6 text-[#F4D03F]" />
+            <Sun className="w-6 h-6 text-[#F4D03F] group-hover:text-[#CBA135] transition-colors" />
+            <motion.div
+              className="absolute inset-0 bg-[#F4D03F] rounded-full blur-xl opacity-0 group-hover:opacity-30"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Tooltip */}
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        whileHover={{ opacity: 1, x: 0 }}
+        className="absolute left-full ml-3 px-3 py-1.5 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-lg whitespace-nowrap pointer-events-none"
+      >
+        {isDark ? "Aydınlık Mod" : "Karanlık Mod"}
+        <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-gray-100" />
+      </motion.div>
     </motion.button>
   );
 }

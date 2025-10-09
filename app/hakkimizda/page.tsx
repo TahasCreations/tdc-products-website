@@ -10,12 +10,12 @@ import FAQSection from '@/components/about/FAQSection';
 import ContactCTA from '@/components/about/ContactCTA';
 
 export const metadata: Metadata = {
-  title: 'Hakkımızda | TDC Market',
-  description: 'TDC Market\'in misyonu, güvenilir alışveriş ve sürdürülebilir üretim yaklaşımıyla topluluğa değer katmaktır. Ekibimizi tanıyın, süreçlerimizi görün, güvenle alışveriş yapın.',
-  keywords: 'TDC Market, hakkımızda, misyon, vizyon, değerler, ekip, süreç, güven, kalite',
+  title: 'Hakkımızda | TDC Products',
+  description: 'TDC Products\'ın misyonu, güvenilir alışveriş ve sürdürülebilir üretim yaklaşımıyla topluluğa değer katmaktır. Ekibimizi tanıyın, süreçlerimizi görün, güvenle alışveriş yapın.',
+  keywords: 'TDC Products, hakkımızda, misyon, vizyon, değerler, ekip, süreç, güven, kalite, İzmir, Bornova',
   openGraph: {
-    title: 'Hakkımızda | TDC Market',
-    description: 'TDC Market\'in misyonu, güvenilir alışveriş ve sürdürülebilir üretim yaklaşımıyla topluluğa değer katmaktır.',
+    title: 'Hakkımızda | TDC Products',
+    description: 'TDC Products\'ın misyonu, güvenilir alışveriş ve sürdürülebilir üretim yaklaşımıyla topluluğa değer katmaktır.',
     type: 'website',
     url: 'https://tdcmarket.com/hakkimizda',
     images: [
@@ -23,14 +23,14 @@ export const metadata: Metadata = {
         url: 'https://tdcmarket.com/og-hakkimizda.jpg',
         width: 1200,
         height: 630,
-        alt: 'TDC Market Hakkımızda'
+        alt: 'TDC Products Hakkımızda'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Hakkımızda | TDC Market',
-    description: 'TDC Market\'in misyonu, güvenilir alışveriş ve sürdürülebilir üretim yaklaşımıyla topluluğa değer katmaktır.',
+    title: 'Hakkımızda | TDC Products',
+    description: 'TDC Products\'ın misyonu, güvenilir alışveriş ve sürdürülebilir üretim yaklaşımıyla topluluğa değer katmaktır.',
     images: ['https://tdcmarket.com/og-hakkimizda.jpg']
   }
 };
@@ -39,23 +39,25 @@ export const metadata: Metadata = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'TDC Market',
+  name: 'TDC Products',
   url: 'https://tdcmarket.com',
   logo: 'https://tdcmarket.com/logo.png',
-  description: 'TDC Market - Özel figürlerden elektroniğe, tasarımdan ev yaşamına kadar her alanda kaliteli ürünler ve güvenilir hizmet sunuyoruz.',
+  description: 'TDC Products - Özel figürlerden elektroniğe, tasarımdan ev yaşamına kadar her alanda kaliteli ürünler ve güvenilir hizmet sunuyoruz.',
   foundingDate: '2019',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: 'Maslak Mahallesi, Büyükdere Caddesi No: 123',
-    addressLocality: 'Sarıyer',
-    addressRegion: 'İstanbul',
+    streetAddress: 'Erzene, 66. Sk. No:5 D:1A',
+    addressLocality: 'Bornova',
+    addressRegion: 'İzmir',
+    postalCode: '35040',
     addressCountry: 'TR'
   },
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+90-850-123-45-67',
+    telephone: '+90-555-899-82-42',
     contactType: 'customer service',
-    availableLanguage: 'Turkish'
+    availableLanguage: 'Turkish',
+    areaServed: 'TR'
   },
   sameAs: [
     'https://instagram.com/tdcmarket',
@@ -67,7 +69,19 @@ const jsonLd = {
     '@type': 'AggregateRating',
     ratingValue: '4.8',
     reviewCount: '1250'
-  }
+  },
+  founder: [
+    {
+      '@type': 'Person',
+      name: 'Muhammet Taha Sarı',
+      jobTitle: 'Kurucu & CEO'
+    },
+    {
+      '@type': 'Person',
+      name: 'Aydın Recep Sarı',
+      jobTitle: 'Operasyon Müdürü'
+    }
+  ]
 };
 
 export default function AboutPage() {

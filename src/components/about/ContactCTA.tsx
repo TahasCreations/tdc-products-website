@@ -8,25 +8,25 @@ export default function ContactCTA() {
     {
       icon: Phone,
       title: 'Telefon',
-      value: '+90 (555) 123 45 67',
+      value: '0555 899 82 42',
       description: 'Pazartesi - Cuma: 09:00 - 18:00',
-      action: 'tel:+905551234567',
+      action: 'tel:05558998242',
       highlight: true
     },
     {
       icon: MessageCircle,
       title: 'WhatsApp',
-      value: '+90 (555) 123 45 67',
+      value: '0555 899 82 42',
       description: '7/24 Anında Destek',
-      action: 'https://wa.me/905551234567',
+      action: 'https://wa.me/905558998242',
       highlight: true
     },
     {
       icon: Mail,
       title: 'E-posta',
-      value: 'destek@tdcmarket.com',
+      value: 'bentahasarii@gmail.com',
       description: '24 saat içinde yanıt',
-      action: 'mailto:destek@tdcmarket.com'
+      action: 'mailto:bentahasarii@gmail.com'
     },
     {
       icon: Clock,
@@ -40,15 +40,9 @@ export default function ContactCTA() {
 
   const offices = [
     {
-      city: 'İstanbul',
-      address: 'Maslak Mahallesi, Büyükdere Caddesi No:123, Sarıyer/İstanbul',
-      phone: '+90 (212) 123 45 67',
-      hours: 'Pazartesi - Cuma: 09:00 - 18:00'
-    },
-    {
-      city: 'Ankara',
-      address: 'Çankaya Mahallesi, Tunalı Hilmi Caddesi No:456, Çankaya/Ankara',
-      phone: '+90 (312) 123 45 67',
+      city: 'İzmir – Bornova',
+      address: 'Erzene, 66. Sk. No:5 D:1A, 35040 Bornova/İzmir',
+      phone: '0555 899 82 42',
       hours: 'Pazartesi - Cuma: 09:00 - 18:00'
     }
   ];
@@ -150,7 +144,7 @@ export default function ContactCTA() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           viewport={{ once: true }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16"
+          className="grid grid-cols-1 gap-8 mb-16 max-w-2xl mx-auto"
         >
           {offices.map((office, index) => (
             <motion.div
@@ -168,7 +162,7 @@ export default function ContactCTA() {
                 
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-white mb-3">
-                    {office.city} Ofisi
+                    TDC Products - {office.city}
                   </h3>
                   <div className="space-y-3">
                     <p className="text-gray-300 leading-relaxed">
@@ -204,25 +198,18 @@ export default function ContactCTA() {
             Konumumuzu Görün
           </h3>
           <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-            İstanbul ve Ankara ofislerimizin konumlarını haritada görebilir, 
-            ziyaret etmek istediğiniz ofisi seçerek yol tarifi alabilirsiniz.
+            TDC Products İzmir - Bornova ofisimizin konumunu haritada görebilir, 
+            ziyaret etmek için yol tarifi alabilirsiniz.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="https://maps.google.com/?q=Maslak+Mahallesi+Büyükdere+Caddesi+İstanbul"
+              href="https://maps.google.com/?q=TDC+Products+Erzene+66+Sk+No+5+Bornova+İzmir"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-6 py-3 bg-[#CBA135] text-black rounded-xl hover:bg-[#F4D03F] transition-colors"
+              className="inline-flex items-center justify-center px-8 py-4 bg-[#CBA135] text-black rounded-xl hover:bg-[#F4D03F] transition-colors font-semibold shadow-lg hover:shadow-xl"
             >
-              İstanbul Ofisi Harita
-            </a>
-            <a
-              href="https://maps.google.com/?q=Çankaya+Mahallesi+Tunalı+Hilmi+Caddesi+Ankara"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors border border-white/20"
-            >
-              Ankara Ofisi Harita
+              <MapPin className="w-5 h-5 mr-2" />
+              Haritada Görüntüle
             </a>
           </div>
         </motion.div>
@@ -243,11 +230,11 @@ export default function ContactCTA() {
               Kritik sorunlarınız için 7/24 acil destek hattımız mevcuttur.
             </p>
             <a
-              href="tel:+905551234567"
+              href="tel:05558998242"
               className="inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium"
             >
               <Phone className="w-4 h-4 mr-2" />
-              Acil Destek: +90 (555) 123 45 67
+              Acil Destek: 0555 899 82 42
             </a>
           </div>
         </motion.div>

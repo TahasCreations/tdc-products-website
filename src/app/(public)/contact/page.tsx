@@ -50,26 +50,26 @@ export default function ContactPage() {
     {
       icon: '📧',
       title: 'E-posta',
-      value: 'info@tdcproducts.com',
-      action: () => window.open('mailto:info@tdcproducts.com')
+      value: 'bentahasarii@gmail.com',
+      action: () => window.open('mailto:bentahasarii@gmail.com')
     },
     {
       icon: '📞',
       title: 'Telefon',
-      value: '+90 212 555 0123',
-      action: () => window.open('tel:+902125550123')
+      value: '0555 899 82 42',
+      action: () => window.open('tel:05558998242')
     },
     {
       icon: '📍',
       title: 'Adres',
-      value: 'İstanbul, Türkiye',
-      action: () => window.open('https://maps.google.com')
+      value: 'Erzene, 66. Sk. No:5 D:1A, Bornova/İzmir',
+      action: () => window.open('https://maps.google.com/?q=TDC+Products+Erzene+66+Sk+No+5+Bornova+İzmir')
     },
     {
       icon: '💬',
       title: 'WhatsApp',
-      value: '+90 212 555 0123',
-      action: () => window.open('https://wa.me/902125550123')
+      value: '0555 899 82 42',
+      action: () => window.open('https://wa.me/905558998242')
     }
   ];
 

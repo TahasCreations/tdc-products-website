@@ -6,40 +6,22 @@ import { Users, Linkedin, Mail, Award, Heart, Zap } from 'lucide-react';
 export default function TeamSection() {
   const teamMembers = [
     {
-      name: 'Ahmet Yılmaz',
+      name: 'Muhammet Taha Sarı',
       role: 'Kurucu & CEO',
-      description: 'E-ticaret ve teknoloji alanında 10+ yıl deneyim',
+      description: 'TDC Products\'ın vizyonunu ve stratejisini belirler',
       image: '/images/team/ceo.jpg',
-      linkedin: 'https://linkedin.com/in/ahmetyilmaz',
-      email: 'ahmet@tdcmarket.com',
-      achievements: ['E-ticaret Uzmanı', 'Teknoloji Lideri']
+      linkedin: 'https://linkedin.com/in/muhammet-taha-sari',
+      email: 'taha@tdcproducts.com',
+      achievements: ['Kurucu', 'Strateji Lideri']
     },
     {
-      name: 'Ayşe Kaya',
-      role: 'CTO',
-      description: 'Yazılım geliştirme ve sistem mimarisi uzmanı',
-      image: '/images/team/cto.jpg',
-      linkedin: 'https://linkedin.com/in/aysekaya',
-      email: 'ayse@tdcmarket.com',
-      achievements: ['Sistem Mimarisi', 'Güvenlik Uzmanı']
-    },
-    {
-      name: 'Mehmet Demir',
+      name: 'Aydın Recep Sarı',
       role: 'Operasyon Müdürü',
-      description: 'Lojistik ve operasyon yönetimi konusunda uzman',
+      description: 'Günlük operasyonları yönetir ve süreçleri optimize eder',
       image: '/images/team/ops.jpg',
-      linkedin: 'https://linkedin.com/in/mehmetdemir',
-      email: 'mehmet@tdcmarket.com',
-      achievements: ['Lojistik Uzmanı', 'Süreç Optimizasyonu']
-    },
-    {
-      name: 'Fatma Özkan',
-      role: 'Müşteri Hizmetleri Müdürü',
-      description: 'Müşteri memnuniyeti ve deneyim uzmanı',
-      image: '/images/team/customer.jpg',
-      linkedin: 'https://linkedin.com/in/fatmaozkan',
-      email: 'fatma@tdcmarket.com',
-      achievements: ['Müşteri Deneyimi', 'İletişim Uzmanı']
+      linkedin: 'https://linkedin.com/in/aydin-recep-sari',
+      email: 'aydin@tdcproducts.com',
+      achievements: ['Operasyon', 'Süreç Yönetimi']
     }
   ];
 
@@ -79,12 +61,12 @@ export default function TeamSection() {
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            TDC Market'i oluşturan deneyimli ekibimiz ve paylaştığımız değerler.
+            Hız, şeffaflık ve müşteri odaklılık TDC Products kültürünün temelidir.
           </p>
         </motion.div>
 
         {/* Team Members */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20 max-w-4xl mx-auto">
           {teamMembers.map((member, index) => (
             <motion.div
               key={index}
@@ -200,9 +182,9 @@ export default function TeamSection() {
               Kültürümüz
             </h3>
             <p className="text-lg text-gray-300 leading-relaxed">
-              TDC Market olarak, açık iletişim, karşılıklı saygı ve sürekli öğrenme 
-              kültürünü benimsiyoruz. Her ekip üyemiz, müşteri memnuniyeti ve 
-              şirket başarısı için özveriyle çalışır.
+              TDC Products olarak, hız, şeffaflık ve müşteri odaklılık kültürünü 
+              benimsiyoruz. Her ekip üyemiz, müşteri memnuniyeti ve şirket başarısı 
+              için özveriyle çalışır.
             </p>
           </div>
         </motion.div>
