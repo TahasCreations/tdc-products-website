@@ -8,17 +8,17 @@ export default function ContactCTA() {
     {
       icon: Phone,
       title: 'Telefon',
-      value: '0555 899 82 42',
+      value: '0555 898 82 42',
       description: 'Pazartesi - Cuma: 09:00 - 18:00',
-      action: 'tel:05558998242',
+      action: 'tel:05558988242',
       highlight: true
     },
     {
       icon: MessageCircle,
       title: 'WhatsApp',
-      value: '0555 899 82 42',
+      value: '0555 898 82 42',
       description: '7/24 Anında Destek',
-      action: 'https://wa.me/905558998242',
+      action: 'https://wa.me/905558988242',
       highlight: true
     },
     {
@@ -42,7 +42,7 @@ export default function ContactCTA() {
     {
       city: 'İzmir – Bornova',
       address: 'Erzene, 66. Sk. No:5 D:1A, 35040 Bornova/İzmir',
-      phone: '0555 899 82 42',
+      phone: '0555 898 82 42',
       hours: 'Pazartesi - Cuma: 09:00 - 18:00'
     }
   ];
@@ -230,11 +230,11 @@ export default function ContactCTA() {
               Kritik sorunlarınız için 7/24 acil destek hattımız mevcuttur.
             </p>
             <a
-              href="tel:05558998242"
+              href="tel:05558988242"
               className="inline-flex items-center justify-center px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium"
             >
               <Phone className="w-4 h-4 mr-2" />
-              Acil Destek: 0555 899 82 42
+              Acil Destek: 0555 898 82 42
             </a>
           </div>
         </motion.div>

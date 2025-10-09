@@ -1201,7 +1201,7 @@ export default function SellerApplyPage() {
                   <Phone className="w-5 h-5 text-[#CBA135]" />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">Telefon</p>
-                    <a href="tel:05558998242" className="text-[#CBA135] hover:underline">0555 899 82 42</a>
+                    <a href="tel:05558988242" className="text-[#CBA135] hover:underline">0555 898 82 42</a>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
@@ -1215,7 +1215,7 @@ export default function SellerApplyPage() {
                   <MessageCircle className="w-5 h-5 text-[#CBA135]" />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">WhatsApp</p>
-                    <a href="https://wa.me/905558998242" target="_blank" className="text-[#CBA135] hover:underline">Hemen Yaz</a>
+                    <a href="https://wa.me/905558988242" target="_blank" className="text-[#CBA135] hover:underline">Hemen Yaz</a>
                   </div>
                 </div>
               </div>

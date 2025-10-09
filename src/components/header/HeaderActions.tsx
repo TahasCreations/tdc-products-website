@@ -196,7 +196,7 @@ export default function HeaderActions({
               alt={session.user?.name || 'User'}
               className="w-7 h-7 rounded-full"
             />
-            <span className="hidden lg:block text-sm font-medium truncate max-w-20">{session.user?.name}</span>
+            <span className="hidden lg:block text-sm font-bold truncate max-w-20 text-gray-900 dark:text-white">{session.user?.name}</span>
           </motion.button>
 
           <AnimatePresence>

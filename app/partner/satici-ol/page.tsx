@@ -276,7 +276,7 @@ export default function SellerApplyPage() {
                       id="storeName"
                       name="storeName"
                       required
-                      className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all text-lg"
+                      className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all text-lg font-medium"
                       placeholder="Örn: Anime Figür Dünyası"
                     />
                     <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center">
@@ -337,7 +337,7 @@ export default function SellerApplyPage() {
                       <select
                         name="storeCategory"
                         required
-                        className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all text-lg font-medium"
+                        className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all text-lg font-semibold"
                       >
                         <option value="">Kategori seçin</option>
                         <option value="figur-koleksiyon">🎭 Figür & Koleksiyon</option>
@@ -358,7 +358,7 @@ export default function SellerApplyPage() {
                         id="businessYears"
                         name="businessYears"
                         required
-                        className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all text-lg font-medium"
+                        className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all text-lg font-semibold"
                       >
                         <option value="">Deneyim seçin</option>
                         <option value="0">Yeni başlıyorum</option>
@@ -475,7 +475,7 @@ export default function SellerApplyPage() {
                       name="address"
                       required
                       rows={3}
-                      className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all resize-none text-lg"
+                      className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all resize-none text-lg font-medium"
                       placeholder="Mahalle, Sokak, Bina No, Daire No"
                     />
                   </div>
@@ -704,7 +704,7 @@ export default function SellerApplyPage() {
                         id="bankName"
                         name="bankName"
                         required
-                        className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all text-lg font-medium"
+                        className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all text-lg font-semibold"
                       >
                         <option value="">Banka seçin</option>
                         <option value="Ziraat Bankası">Ziraat Bankası</option>
@@ -781,7 +781,7 @@ export default function SellerApplyPage() {
                         id="preparationTime"
                         name="preparationTime"
                         required
-                        className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all text-lg font-medium"
+                        className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all text-lg font-semibold"
                       >
                         <option value="">Süre seçin</option>
                         <option value="same-day">⚡ Aynı gün</option>
@@ -803,7 +803,7 @@ export default function SellerApplyPage() {
                       <select
                         name="returnPolicy"
                         required
-                        className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all text-lg font-medium"
+                        className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all text-lg font-semibold"
                       >
                         <option value="">Politika seçin</option>
                         <option value="14-days">14 gün içinde iade</option>
@@ -823,7 +823,7 @@ export default function SellerApplyPage() {
                       name="returnAddress"
                       required
                       rows={3}
-                      className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all resize-none text-lg"
+                      className="w-full px-4 py-4 border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-2xl focus:ring-2 focus:ring-[#CBA135] transition-all resize-none text-lg font-medium"
                       placeholder="Müşteri iadeleri için adres (iş yeri adresi ile aynıysa tekrar yazın)"
                     />
                   </div>
@@ -1100,16 +1100,16 @@ export default function SellerApplyPage() {
                 <span>Yardıma mı İhtiyacınız Var?</span>
               </h3>
               <div className="space-y-3">
-                <a href="tel:05558998242" className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl hover:shadow-md transition-all group">
+                <a href="tel:05558988242" className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl hover:shadow-md transition-all group">
                   <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
                     <Phone className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">Telefon</p>
-                    <p className="text-[#CBA135] font-bold group-hover:underline">0555 899 82 42</p>
+                    <p className="text-[#CBA135] font-bold group-hover:underline">0555 898 82 42</p>
                   </div>
                 </a>
-                <a href="https://wa.me/905558998242" target="_blank" className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl hover:shadow-md transition-all group">
+                <a href="https://wa.me/905558988242" target="_blank" className="flex items-center space-x-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl hover:shadow-md transition-all group">
                   <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
                     <MessageCircle className="w-5 h-5 text-white" />
                   </div>

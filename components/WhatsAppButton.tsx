@@ -3,7 +3,7 @@
 export default function WhatsAppButton() {
   const handleWhatsAppClick = () => {
     const message = encodeURIComponent('Merhaba! TDC Products ürünleri hakkında bilgi almak istiyorum.');
-    window.open(`https://wa.me/905558998242?text=${message}`, '_blank');
+    window.open(`https://wa.me/905558988242?text=${message}`, '_blank');
   };
 
   return (

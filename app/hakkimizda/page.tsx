@@ -54,7 +54,7 @@ const jsonLd = {
   },
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: '+90-555-899-82-42',
+    telephone: '+90-555-898-82-42',
     contactType: 'customer service',
     availableLanguage: 'Turkish',
     areaServed: 'TR'

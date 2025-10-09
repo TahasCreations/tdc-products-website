@@ -56,8 +56,8 @@ export default function ContactPage() {
     {
       icon: '📞',
       title: 'Telefon',
-      value: '0555 899 82 42',
-      action: () => window.open('tel:05558998242')
+      value: '0555 898 82 42',
+      action: () => window.open('tel:05558988242')
     },
     {
       icon: '📍',
@@ -68,8 +68,8 @@ export default function ContactPage() {
     {
       icon: '💬',
       title: 'WhatsApp',
-      value: '0555 899 82 42',
-      action: () => window.open('https://wa.me/905558998242')
+      value: '0555 898 82 42',
+      action: () => window.open('https://wa.me/905558988242')
     }
   ];
 

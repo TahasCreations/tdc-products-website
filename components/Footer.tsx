@@ -60,9 +60,9 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">İletişim</h3>
             <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-              <a href="tel:05558998242" className="flex items-center space-x-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-300">
+              <a href="tel:05558988242" className="flex items-center space-x-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-300">
                 <i className="ri-phone-line w-4 h-4 flex items-center justify-center"></i>
-                <span>0555 899 82 42</span>
+                <span>0555 898 82 42</span>
               </a>
               <p className="flex items-center space-x-2 hover:text-orange-600 dark:hover:text-orange-400 transition-colors duration-300">
                 <i className="ri-mail-line w-4 h-4 flex items-center justify-center"></i>
