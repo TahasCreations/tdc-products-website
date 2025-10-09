@@ -135,13 +135,9 @@ function KayitForm() {
   };
 
   const handleGoogleSignUp = () => {
-    // Store user type in localStorage before Google OAuth
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('pendingUserType', userType);
-    }
-    signIn('google', { 
-      callbackUrl: userType === 'seller' ? '/seller/apply' : '/' 
-    });
+    // Redirect URL based on user type
+    const callbackUrl = userType === 'seller' ? '/seller/apply' : '/';
+    signIn('google', { callbackUrl });
   };
 
   return (

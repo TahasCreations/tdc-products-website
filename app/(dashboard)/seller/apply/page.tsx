@@ -20,7 +20,14 @@ import {
   ArrowLeft,
   Sparkles,
   MessageCircle,
-  Check
+  Check,
+  Building2,
+  FileText,
+  Truck,
+  Shield,
+  Globe,
+  Camera,
+  Upload
 } from 'lucide-react';
 
 export default function SellerApplyPage() {
@@ -29,8 +36,11 @@ export default function SellerApplyPage() {
   const [state, formAction] = useFormState(applySeller, { ok: false, error: null });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoUrl, setLogoUrl] = useState('');
+  const [bannerUrl, setBannerUrl] = useState('');
+  const [idFrontUrl, setIdFrontUrl] = useState('');
+  const [idBackUrl, setIdBackUrl] = useState('');
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -40,9 +50,10 @@ export default function SellerApplyPage() {
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
-    if (logoUrl) {
-      formData.set('logoUrl', logoUrl);
-    }
+    if (logoUrl) formData.set('logoUrl', logoUrl);
+    if (bannerUrl) formData.set('bannerUrl', bannerUrl);
+    if (idFrontUrl) formData.set('idFrontUrl', idFrontUrl);
+    if (idBackUrl) formData.set('idBackUrl', idBackUrl);
     await formAction(formData);
     setIsSubmitting(false);
   };
@@ -64,15 +75,16 @@ export default function SellerApplyPage() {
   }
 
   const steps = [
-    { num: 1, title: 'Mağaza Bilgileri', icon: Store },
+    { num: 1, title: 'Mağaza', icon: Store },
     { num: 2, title: 'İletişim', icon: Phone },
-    { num: 3, title: 'Kimlik & Vergi', icon: CreditCard },
-    { num: 4, title: 'Onay', icon: CheckCircle2 }
+    { num: 3, title: 'Kimlik', icon: CreditCard },
+    { num: 4, title: 'Lojistik', icon: Truck },
+    { num: 5, title: 'Onay', icon: CheckCircle2 }
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950/30 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -123,7 +135,7 @@ export default function SellerApplyPage() {
                         {step.title}
                       </p>
                     </div>
-                    {index < 3 && (
+                    {index < 4 && (
                       <div className={`flex-1 h-1 mx-2 rounded-full transition-all duration-500 ${
                         isCompleted ? 'bg-[#CBA135]' : 'bg-gray-200 dark:bg-gray-700'
                       }`} />
@@ -176,6 +188,7 @@ export default function SellerApplyPage() {
 
           <form action={handleSubmit} className="p-8">
             <AnimatePresence mode="wait">
+              {/* Step 1: Mağaza Bilgileri */}
               {currentStep === 1 && (
                 <motion.div
                   key="step1"
@@ -206,6 +219,9 @@ export default function SellerApplyPage() {
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
                       placeholder="Örn: Anime Figür Dünyası"
                     />
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Müşterilerin göreceği mağaza ismi
+                    </p>
                   </div>
 
                   <div>
@@ -241,31 +257,108 @@ export default function SellerApplyPage() {
                       required
                       rows={4}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all resize-none"
-                      placeholder="Mağazanızı tanıtın: Ne tür ürünler satıyorsunuz? Neden sizi tercih etmeliler?"
+                      placeholder="Mağazanızı tanıtın: Ne tür ürünler satıyorsunuz? Neden sizi tercih etmeliler? Hangi markaları satıyorsunuz?"
                     />
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Minimum 50 karakter
+                      Minimum 100 karakter (detaylı açıklama müşteri güveni için önemli)
                     </p>
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Mağaza Kategorisi *
+                      </label>
+                      <select
+                        name="storeCategory"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                      >
+                        <option value="">Kategori seçin</option>
+                        <option value="figur-koleksiyon">Figür & Koleksiyon</option>
+                        <option value="moda-aksesuar">Moda & Aksesuar</option>
+                        <option value="elektronik">Elektronik</option>
+                        <option value="ev-yasam">Ev & Yaşam</option>
+                        <option value="sanat-hobi">Sanat & Hobi</option>
+                        <option value="hediyelik">Hediyelik</option>
+                        <option value="diger">Diğer</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="businessYears" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        İş Deneyimi (Yıl) *
+                      </label>
+                      <input
+                        type="number"
+                        id="businessYears"
+                        name="businessYears"
+                        required
+                        min="0"
+                        max="50"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                        placeholder="5"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <Camera className="w-4 h-4 inline mr-1" />
+                        Mağaza Logosu *
+                      </label>
+                      <ImageUpload
+                        onUpload={setLogoUrl}
+                        onUploadSuccess={setLogoUrl}
+                        initialImageUrl={logoUrl}
+                        label="Logo Yükle"
+                        folder="seller-logos"
+                        type="image/png,image/jpeg"
+                        maxSize={2}
+                      />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        400x400px, PNG (şeffaf arka plan önerilir)
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <Camera className="w-4 h-4 inline mr-1" />
+                        Mağaza Banner (Opsiyonel)
+                      </label>
+                      <ImageUpload
+                        onUpload={setBannerUrl}
+                        onUploadSuccess={setBannerUrl}
+                        initialImageUrl={bannerUrl}
+                        label="Banner Yükle"
+                        folder="seller-banners"
+                        type="image/png,image/jpeg"
+                        maxSize={5}
+                      />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        1920x400px, mağaza sayfası başlığı
+                      </p>
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Mağaza Logosu
+                    <label htmlFor="website" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      <Globe className="w-4 h-4 inline mr-1" />
+                      Web Sitesi / Sosyal Medya (Opsiyonel)
                     </label>
-                    <ImageUpload
-                      onUpload={setLogoUrl}
-                      onUploadSuccess={setLogoUrl}
-                      initialImageUrl={logoUrl}
-                      label="Logo Yükle (PNG, JPG - Max 2MB)"
-                      folder="seller-logos"
-                      type="image/png,image/jpeg"
-                      maxSize={2}
-                      className="w-full"
+                    <input
+                      type="url"
+                      id="website"
+                      name="website"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                      placeholder="https://www.orneksite.com"
                     />
                   </div>
                 </motion.div>
               )}
 
+              {/* Step 2: İletişim Bilgileri */}
               {currentStep === 2 && (
                 <motion.div
                   key="step2"
@@ -280,13 +373,21 @@ export default function SellerApplyPage() {
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">İletişim Bilgileri</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Müşterilerinizle iletişim için</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Müşterileriniz ve platformumuzla iletişim için</p>
                     </div>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      <Shield className="w-4 h-4 inline mr-1" />
+                      Bu bilgiler müşteri desteği, sipariş takibi ve acil durumlar için kullanılacaktır.
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="contactName" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <User className="w-4 h-4 inline mr-1" />
                         Yetkili Adı Soyadı *
                       </label>
                       <input
@@ -301,7 +402,24 @@ export default function SellerApplyPage() {
                     </div>
 
                     <div>
+                      <label htmlFor="contactTitle" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Ünvan / Pozisyon *
+                      </label>
+                      <input
+                        type="text"
+                        id="contactTitle"
+                        name="contactTitle"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                        placeholder="Genel Müdür / Kurucu / Satış Müdürü"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
                       <label htmlFor="contactEmail" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <Mail className="w-4 h-4 inline mr-1" />
                         E-posta Adresi *
                       </label>
                       <input
@@ -313,12 +431,29 @@ export default function SellerApplyPage() {
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                         placeholder="ornek@email.com"
                       />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Sipariş bildirimleri bu adrese gelecek
+                      </p>
+                    </div>
+
+                    <div>
+                      <label htmlFor="alternativeEmail" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Alternatif E-posta
+                      </label>
+                      <input
+                        type="email"
+                        id="alternativeEmail"
+                        name="alternativeEmail"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                        placeholder="yedek@email.com"
+                      />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <Phone className="w-4 h-4 inline mr-1" />
                         Telefon Numarası *
                       </label>
                       <input
@@ -329,25 +464,34 @@ export default function SellerApplyPage() {
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                         placeholder="0555 XXX XX XX"
                       />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Müşteri desteği ve acil durumlar için
+                      </p>
                     </div>
 
                     <div>
                       <label htmlFor="whatsapp" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        WhatsApp (Opsiyonel)
+                        <MessageCircle className="w-4 h-4 inline mr-1" />
+                        WhatsApp Business *
                       </label>
                       <input
                         type="tel"
                         id="whatsapp"
                         name="whatsapp"
+                        required
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                         placeholder="0555 XXX XX XX"
                       />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Hızlı müşteri iletişimi için önemli
+                      </p>
                     </div>
                   </div>
 
                   <div>
                     <label htmlFor="address" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      İş Adresi *
+                      <MapPin className="w-4 h-4 inline mr-1" />
+                      İş Yeri Adresi (Tam) *
                     </label>
                     <textarea
                       id="address"
@@ -355,11 +499,11 @@ export default function SellerApplyPage() {
                       required
                       rows={3}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all resize-none"
-                      placeholder="Mahalle, Sokak, Bina No, Daire No"
+                      placeholder="Mahalle, Sokak, Bina No, Daire No, İlçe"
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                       <label htmlFor="city" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                         İl *
@@ -375,13 +519,28 @@ export default function SellerApplyPage() {
                     </div>
 
                     <div>
+                      <label htmlFor="district" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        İlçe *
+                      </label>
+                      <input
+                        type="text"
+                        id="district"
+                        name="district"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                        placeholder="Bornova"
+                      />
+                    </div>
+
+                    <div>
                       <label htmlFor="postalCode" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Posta Kodu
+                        Posta Kodu *
                       </label>
                       <input
                         type="text"
                         id="postalCode"
                         name="postalCode"
+                        required
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                         placeholder="35040"
                       />
@@ -390,6 +549,7 @@ export default function SellerApplyPage() {
                 </motion.div>
               )}
 
+              {/* Step 3: Kimlik & Vergi Bilgileri */}
               {currentStep === 3 && (
                 <motion.div
                   key="step3"
@@ -404,7 +564,7 @@ export default function SellerApplyPage() {
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Kimlik & Vergi Bilgileri</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Yasal işlemler için gerekli</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Yasal işlemler ve ödeme alımları için</p>
                     </div>
                   </div>
 
@@ -423,7 +583,7 @@ export default function SellerApplyPage() {
                         />
                         <div className="ml-3">
                           <p className="font-semibold text-gray-900 dark:text-white">Bireysel</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Şahıs olarak satış</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Şahıs olarak satış (Basit muhasebe)</p>
                         </div>
                       </label>
 
@@ -436,76 +596,325 @@ export default function SellerApplyPage() {
                         />
                         <div className="ml-3">
                           <p className="font-semibold text-gray-900 dark:text-white">Kurumsal</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">Şirket olarak satış</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Şirket / Limited (Fatura kesebilir)</p>
                         </div>
                       </label>
                     </div>
                   </div>
 
-                  <div>
-                    <label htmlFor="taxId" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      TC Kimlik No / Vergi No *
-                    </label>
-                    <input
-                      type="text"
-                      id="taxId"
-                      name="taxId"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
-                      placeholder="XXXXXXXXXXX"
-                    />
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Bireysel: TC Kimlik No (11 haneli) | Kurumsal: Vergi No (10 haneli)
-                    </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="companyName" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <Building2 className="w-4 h-4 inline mr-1" />
+                        Şirket Ünvanı (Kurumsal için)
+                      </label>
+                      <input
+                        type="text"
+                        id="companyName"
+                        name="companyName"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                        placeholder="ABC Ticaret Ltd. Şti."
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="mersisNo" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        MERSİS No (Kurumsal için)
+                      </label>
+                      <input
+                        type="text"
+                        id="mersisNo"
+                        name="mersisNo"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                        placeholder="0000000000000000"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label htmlFor="taxOffice" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Vergi Dairesi (Kurumsal için zorunlu)
-                    </label>
-                    <input
-                      type="text"
-                      id="taxOffice"
-                      name="taxOffice"
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
-                      placeholder="Örn: Bornova Vergi Dairesi"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="taxId" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <FileText className="w-4 h-4 inline mr-1" />
+                        TC Kimlik No / Vergi No *
+                      </label>
+                      <input
+                        type="text"
+                        id="taxId"
+                        name="taxId"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                        placeholder="XXXXXXXXXXX"
+                      />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Bireysel: 11 haneli TC | Kurumsal: 10 haneli Vergi No
+                      </p>
+                    </div>
+
+                    <div>
+                      <label htmlFor="taxOffice" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Vergi Dairesi *
+                      </label>
+                      <input
+                        type="text"
+                        id="taxOffice"
+                        name="taxOffice"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                        placeholder="Bornova Vergi Dairesi"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label htmlFor="iban" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      IBAN (Ödeme alımları için) *
-                    </label>
-                    <input
-                      type="text"
-                      id="iban"
-                      name="iban"
-                      required
-                      pattern="^TR[0-9]{24}$"
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all font-mono"
-                      placeholder="TR00 0000 0000 0000 0000 0000 00"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="iban" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        IBAN (Ödeme Alımı) *
+                      </label>
+                      <input
+                        type="text"
+                        id="iban"
+                        name="iban"
+                        required
+                        pattern="^TR[0-9]{24}$"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all font-mono text-sm"
+                        placeholder="TR00 0000 0000 0000 0000 0000 00"
+                      />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Satış gelirleriniz bu hesaba aktarılacak
+                      </p>
+                    </div>
+
+                    <div>
+                      <label htmlFor="bankName" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Banka Adı *
+                      </label>
+                      <select
+                        id="bankName"
+                        name="bankName"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                      >
+                        <option value="">Banka seçin</option>
+                        <option value="Ziraat Bankası">Ziraat Bankası</option>
+                        <option value="İş Bankası">İş Bankası</option>
+                        <option value="Garanti BBVA">Garanti BBVA</option>
+                        <option value="Yapı Kredi">Yapı Kredi</option>
+                        <option value="Akbank">Akbank</option>
+                        <option value="QNB Finansbank">QNB Finansbank</option>
+                        <option value="Denizbank">Denizbank</option>
+                        <option value="TEB">TEB</option>
+                        <option value="Halkbank">Halkbank</option>
+                        <option value="Vakıfbank">Vakıfbank</option>
+                        <option value="Diğer">Diğer</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div>
-                    <label htmlFor="bankName" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      Banka Adı *
-                    </label>
-                    <input
-                      type="text"
-                      id="bankName"
-                      name="bankName"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
-                      placeholder="Örn: Ziraat Bankası"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <Upload className="w-4 h-4 inline mr-1" />
+                        Kimlik Ön Yüz *
+                      </label>
+                      <ImageUpload
+                        onUpload={setIdFrontUrl}
+                        onUploadSuccess={setIdFrontUrl}
+                        initialImageUrl={idFrontUrl}
+                        label="Kimlik Ön Yüz"
+                        folder="seller-documents"
+                        type="image/png,image/jpeg,application/pdf"
+                        maxSize={5}
+                      />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        TC Kimlik kartı veya pasaport ön yüzü
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <Upload className="w-4 h-4 inline mr-1" />
+                        Kimlik Arka Yüz *
+                      </label>
+                      <ImageUpload
+                        onUpload={setIdBackUrl}
+                        onUploadSuccess={setIdBackUrl}
+                        initialImageUrl={idBackUrl}
+                        label="Kimlik Arka Yüz"
+                        folder="seller-documents"
+                        type="image/png,image/jpeg,application/pdf"
+                        maxSize={5}
+                      />
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        TC Kimlik kartı arka yüzü
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               )}
 
+              {/* Step 4: Lojistik & Operasyon */}
               {currentStep === 4 && (
                 <motion.div
                   key="step4"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-10 h-10 bg-[#CBA135]/20 rounded-xl flex items-center justify-center">
+                      <Truck className="w-5 h-5 text-[#CBA135]" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Lojistik & Operasyon</h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Kargo ve stok yönetimi bilgileri</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                      Kargo Firması Tercihleri * (Birden fazla seçebilirsiniz)
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {[
+                        { value: 'yurtici', label: 'Yurtiçi Kargo', popular: true },
+                        { value: 'aras', label: 'Aras Kargo', popular: true },
+                        { value: 'mng', label: 'MNG Kargo', popular: true },
+                        { value: 'ptt', label: 'PTT Kargo', popular: false },
+                        { value: 'surat', label: 'Sürat Kargo', popular: false },
+                        { value: 'ups', label: 'UPS', popular: false },
+                      ].map((cargo) => (
+                        <label key={cargo.value} className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all">
+                          <input
+                            type="checkbox"
+                            name="cargoCompanies"
+                            value={cargo.value}
+                            className="w-5 h-5 text-[#CBA135] border-gray-300 rounded focus:ring-[#CBA135]"
+                          />
+                          <span className="ml-3 text-gray-900 dark:text-white font-medium">{cargo.label}</span>
+                          {cargo.popular && (
+                            <span className="ml-auto text-xs bg-[#CBA135]/20 text-[#CBA135] px-2 py-1 rounded-full">Popüler</span>
+                          )}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="warehouseAddress" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Depo/Stok Adresi
+                      </label>
+                      <textarea
+                        id="warehouseAddress"
+                        name="warehouseAddress"
+                        rows={3}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all resize-none"
+                        placeholder="İş yeri adresi ile aynıysa boş bırakabilirsiniz"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="returnAddress" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        İade Adresi *
+                      </label>
+                      <textarea
+                        id="returnAddress"
+                        name="returnAddress"
+                        required
+                        rows={3}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all resize-none"
+                        placeholder="Müşteri iadeleri için adres"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="preparationTime" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Kargo Hazırlık Süresi *
+                      </label>
+                      <select
+                        id="preparationTime"
+                        name="preparationTime"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                      >
+                        <option value="">Süre seçin</option>
+                        <option value="same-day">Aynı gün</option>
+                        <option value="1-day">1 iş günü</option>
+                        <option value="2-days">2 iş günü</option>
+                        <option value="3-days">3 iş günü</option>
+                        <option value="5-days">5 iş günü</option>
+                        <option value="7-days">7 iş günü</option>
+                      </select>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Sipariş sonrası kargoya verme süresi
+                      </p>
+                    </div>
+
+                    <div>
+                      <label htmlFor="estimatedStock" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Tahmini Ürün Adedi *
+                      </label>
+                      <select
+                        id="estimatedStock"
+                        name="estimatedStock"
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
+                      >
+                        <option value="">Adet seçin</option>
+                        <option value="1-50">1-50 ürün</option>
+                        <option value="51-100">51-100 ürün</option>
+                        <option value="101-500">101-500 ürün</option>
+                        <option value="501-1000">501-1000 ürün</option>
+                        <option value="1000+">1000+ ürün</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                      İade Politikası *
+                    </label>
+                    <div className="space-y-2">
+                      <label className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all">
+                        <input
+                          type="radio"
+                          name="returnPolicy"
+                          value="14-days"
+                          defaultChecked
+                          className="w-5 h-5 text-[#CBA135] border-gray-300 focus:ring-[#CBA135]"
+                        />
+                        <span className="ml-3 text-gray-900 dark:text-white">14 gün içinde iade (Standart)</span>
+                      </label>
+                      <label className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all">
+                        <input
+                          type="radio"
+                          name="returnPolicy"
+                          value="30-days"
+                          className="w-5 h-5 text-[#CBA135] border-gray-300 focus:ring-[#CBA135]"
+                        />
+                        <span className="ml-3 text-gray-900 dark:text-white">30 gün içinde iade (Önerilen)</span>
+                      </label>
+                      <label className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all">
+                        <input
+                          type="radio"
+                          name="returnPolicy"
+                          value="no-return"
+                          className="w-5 h-5 text-[#CBA135] border-gray-300 focus:ring-[#CBA135]"
+                        />
+                        <span className="ml-3 text-gray-900 dark:text-white">İade kabul etmiyorum</span>
+                      </label>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 5: Onay & Sözleşme */}
+              {currentStep === 5 && (
+                <motion.div
+                  key="step5"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -517,7 +926,7 @@ export default function SellerApplyPage() {
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Son Adım!</h2>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Sözleşmeleri onaylayın</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Sözleşmeleri onaylayın ve başvurunuzu tamamlayın</p>
                     </div>
                   </div>
 
@@ -525,31 +934,72 @@ export default function SellerApplyPage() {
                     <div className="flex items-start space-x-3 mb-4">
                       <Sparkles className="w-6 h-6 text-[#CBA135] flex-shrink-0 mt-1" />
                       <div>
-                        <h3 className="font-bold text-gray-900 dark:text-white mb-2">Satıcı Avantajları</h3>
-                        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                          <li className="flex items-center space-x-2">
-                            <Check className="w-4 h-4 text-green-600" />
-                            <span>Sınırsız ürün listeleme</span>
-                          </li>
-                          <li className="flex items-center space-x-2">
-                            <Check className="w-4 h-4 text-green-600" />
-                            <span>Profesyonel mağaza yönetim paneli</span>
-                          </li>
-                          <li className="flex items-center space-x-2">
-                            <Check className="w-4 h-4 text-green-600" />
-                            <span>Detaylı satış raporları</span>
-                          </li>
-                          <li className="flex items-center space-x-2">
-                            <Check className="w-4 h-4 text-green-600" />
-                            <span>Pazarlama araçları</span>
-                          </li>
-                        </ul>
+                        <h3 className="font-bold text-gray-900 dark:text-white mb-3 text-lg">Satıcı Avantajları</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="flex items-center space-x-2">
+                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Sınırsız ürün listeleme</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Profesyonel mağaza paneli</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Detaylı satış raporları</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Pazarlama ve reklam araçları</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Otomatik fatura kesimi</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">7/24 satıcı desteği</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Hızlı ödeme (haftalık)</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Ücretsiz eğitim ve danışmanlık</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
 
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                    <h3 className="font-bold text-amber-900 dark:text-amber-300 mb-2 flex items-center">
+                      <AlertCircle className="w-5 h-5 mr-2" />
+                      Komisyon ve Ücretler
+                    </h3>
+                    <ul className="space-y-2 text-sm text-amber-800 dark:text-amber-200">
+                      <li className="flex items-start space-x-2">
+                        <span className="font-bold">•</span>
+                        <span><strong>Platform Komisyonu:</strong> %15 (KDV dahil)</span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <span className="font-bold">•</span>
+                        <span><strong>Ödeme İşlem Ücreti:</strong> %2.5 (Banka/Kart işlemleri)</span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <span className="font-bold">•</span>
+                        <span><strong>Kargo Ücreti:</strong> Müşteriden tahsil edilir</span>
+                      </li>
+                      <li className="flex items-start space-x-2">
+                        <span className="font-bold">•</span>
+                        <span><strong>Ödeme Zamanı:</strong> Her Pazartesi (haftalık)</span>
+                      </li>
+                    </ul>
+                  </div>
+
                   <div className="space-y-4">
-                    <label className="flex items-start space-x-3 p-4 border border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all">
+                    <label className="flex items-start space-x-3 p-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all bg-white dark:bg-gray-800">
                       <input
                         type="checkbox"
                         name="acceptTerms"
@@ -557,14 +1007,19 @@ export default function SellerApplyPage() {
                         className="mt-1 h-5 w-5 text-[#CBA135] border-gray-300 rounded focus:ring-[#CBA135]"
                       />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900 dark:text-white">Satıcı Sözleşmesi</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          Satıcı sözleşmesini okudum ve kabul ediyorum.
+                        <p className="font-bold text-gray-900 dark:text-white mb-1">
+                          Satıcı Sözleşmesi *
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <a href="/seller-agreement" target="_blank" className="text-[#CBA135] hover:underline font-medium">
+                            Satıcı sözleşmesini
+                          </a>
+                          {' '}okudum, anladım ve kabul ediyorum.
                         </p>
                       </div>
                     </label>
 
-                    <label className="flex items-start space-x-3 p-4 border border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all">
+                    <label className="flex items-start space-x-3 p-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all bg-white dark:bg-gray-800">
                       <input
                         type="checkbox"
                         name="acceptCommission"
@@ -572,12 +1027,64 @@ export default function SellerApplyPage() {
                         className="mt-1 h-5 w-5 text-[#CBA135] border-gray-300 rounded focus:ring-[#CBA135]"
                       />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900 dark:text-white">Komisyon Oranları</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          %15 platform komisyon oranını kabul ediyorum.
+                        <p className="font-bold text-gray-900 dark:text-white mb-1">
+                          Komisyon Oranları *
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          %15 platform komisyon oranını ve %2.5 ödeme işlem ücretini kabul ediyorum.
                         </p>
                       </div>
                     </label>
+
+                    <label className="flex items-start space-x-3 p-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all bg-white dark:bg-gray-800">
+                      <input
+                        type="checkbox"
+                        name="acceptKVKK"
+                        required
+                        className="mt-1 h-5 w-5 text-[#CBA135] border-gray-300 rounded focus:ring-[#CBA135]"
+                      />
+                      <div className="flex-1">
+                        <p className="font-bold text-gray-900 dark:text-white mb-1">
+                          KVKK Aydınlatma Metni *
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <a href="/kvkk" target="_blank" className="text-[#CBA135] hover:underline font-medium">
+                            KVKK aydınlatma metnini
+                          </a>
+                          {' '}okudum ve kişisel verilerimin işlenmesini kabul ediyorum.
+                        </p>
+                      </div>
+                    </label>
+
+                    <label className="flex items-start space-x-3 p-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all bg-white dark:bg-gray-800">
+                      <input
+                        type="checkbox"
+                        name="acceptQuality"
+                        required
+                        className="mt-1 h-5 w-5 text-[#CBA135] border-gray-300 rounded focus:ring-[#CBA135]"
+                      />
+                      <div className="flex-1">
+                        <p className="font-bold text-gray-900 dark:text-white mb-1">
+                          Kalite Standartları *
+                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Orijinal, kaliteli ve yasal ürünler satacağımı, sahte/korsan ürün satmayacağımı taahhüt ediyorum.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    <div className="flex items-start space-x-3">
+                      <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm text-blue-700 dark:text-blue-300">
+                        <p className="font-semibold mb-1">Başvuru Süreci</p>
+                        <p>
+                          Başvurunuz 1-3 iş günü içinde incelenecektir. Kimlik doğrulama ve vergi bilgileri kontrol edilecektir. 
+                          Onay sonrası e-posta ile bilgilendirilecek ve satıcı panelinize erişim sağlanacaktır.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -594,12 +1101,18 @@ export default function SellerApplyPage() {
                 className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center space-x-2 ${
                   currentStep === 1
                     ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
-                    : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50'
+                    : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 shadow-sm'
                 }`}
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Geri</span>
               </motion.button>
+
+              <div className="text-center flex-1 mx-4">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Adım <span className="font-bold text-[#CBA135]">{currentStep}</span> / {totalSteps}
+                </p>
+              </div>
 
               {currentStep < totalSteps ? (
                 <motion.button
@@ -618,11 +1131,11 @@ export default function SellerApplyPage() {
                   disabled={isSubmitting}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-8 py-3 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-black font-bold rounded-xl hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center space-x-2"
+                  className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center space-x-2"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
                       <span>Gönderiliyor...</span>
                     </>
                   ) : (
@@ -644,28 +1157,68 @@ export default function SellerApplyPage() {
           transition={{ delay: 0.3 }}
           className="mt-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 border border-white/50 dark:border-gray-700/50"
         >
-          <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
-            <AlertCircle className="w-5 h-5 text-[#CBA135]" />
-            <span>Başvuru Sonrası Ne Olacak?</span>
-          </h3>
-          <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-[#CBA135]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-[#CBA135]">1</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
+                <AlertCircle className="w-5 h-5 text-[#CBA135]" />
+                <span>Başvuru Sonrası</span>
+              </h3>
+              <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-[#CBA135]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-[#CBA135]">1</span>
+                  </div>
+                  <p>Başvurunuz 1-3 iş günü içinde incelenecek</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-[#CBA135]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-[#CBA135]">2</span>
+                  </div>
+                  <p>Kimlik ve vergi bilgileri doğrulanacak</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-[#CBA135]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-[#CBA135]">3</span>
+                  </div>
+                  <p>Onay e-postası gönderilecek</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-6 h-6 bg-[#CBA135]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-[#CBA135]">4</span>
+                  </div>
+                  <p>Hemen ürün eklemeye başlayabilirsiniz</p>
+                </div>
               </div>
-              <p>Başvurunuz 1-3 iş günü içinde incelenecek</p>
             </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-[#CBA135]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-[#CBA135]">2</span>
+
+            <div>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
+                <Phone className="w-5 h-5 text-[#CBA135]" />
+                <span>Yardıma mı İhtiyacınız Var?</span>
+              </h3>
+              <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <Phone className="w-5 h-5 text-[#CBA135]" />
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">Telefon</p>
+                    <a href="tel:05558998242" className="text-[#CBA135] hover:underline">0555 899 82 42</a>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <Mail className="w-5 h-5 text-[#CBA135]" />
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">E-posta</p>
+                    <a href="mailto:bentahasarii@gmail.com" className="text-[#CBA135] hover:underline">bentahasarii@gmail.com</a>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+                  <MessageCircle className="w-5 h-5 text-[#CBA135]" />
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">WhatsApp</p>
+                    <a href="https://wa.me/905558998242" target="_blank" className="text-[#CBA135] hover:underline">Hemen Yaz</a>
+                  </div>
+                </div>
               </div>
-              <p>Onay durumu e-posta ile bildirilecek</p>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-[#CBA135]/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-bold text-[#CBA135]">3</span>
-              </div>
-              <p>Onaylandıktan sonra hemen ürün eklemeye başlayabilirsiniz</p>
             </div>
           </div>
         </motion.div>

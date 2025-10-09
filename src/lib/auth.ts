@@ -14,7 +14,23 @@ const nextAuth = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account, profile }) {
+      // Allow sign in
+      return true;
+    },
+    async redirect({ url, baseUrl }) {
+      // If callbackUrl is explicitly set (from signIn call), use it
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      // If URL starts with /, it's a relative URL
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      // Default to base URL
+      return baseUrl;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         (token as any).id = (user as any).id;
         (token as any).role = (user as any).role || "BUYER";
