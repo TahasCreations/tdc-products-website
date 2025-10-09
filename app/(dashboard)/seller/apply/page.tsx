@@ -9,12 +9,9 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { 
   Store, 
-  Building2, 
   Phone, 
   Mail, 
   MapPin, 
-  FileText, 
-  Image as ImageIcon,
   CreditCard,
   User,
   CheckCircle2,
@@ -22,7 +19,8 @@ import {
   ArrowRight,
   ArrowLeft,
   Sparkles,
-  MessageCircle
+  MessageCircle,
+  Check
 } from 'lucide-react';
 
 export default function SellerApplyPage() {
@@ -34,7 +32,6 @@ export default function SellerApplyPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/kayit?type=seller');
@@ -51,15 +48,11 @@ export default function SellerApplyPage() {
   };
 
   const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    }
+    if (currentStep < totalSteps) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
   if (status === 'loading') {
@@ -69,6 +62,13 @@ export default function SellerApplyPage() {
       </div>
     );
   }
+
+  const steps = [
+    { num: 1, title: 'Mağaza Bilgileri', icon: Store },
+    { num: 2, title: 'İletişim', icon: Phone },
+    { num: 3, title: 'Kimlik & Vergi', icon: CreditCard },
+    { num: 4, title: 'Onay', icon: CheckCircle2 }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950/30 py-12 px-4">
@@ -98,12 +98,7 @@ export default function SellerApplyPage() {
         >
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50 dark:border-gray-700/50">
             <div className="flex items-center justify-between">
-              {[
-                { num: 1, title: 'Mağaza Bilgileri', icon: Store },
-                { num: 2, title: 'İletişim', icon: Phone },
-                { num: 3, title: 'Kimlik & Vergi', icon: CreditCard },
-                { num: 4, title: 'Onay', icon: CheckCircle2 }
-              ].map((step, index) => {
+              {steps.map((step, index) => {
                 const Icon = step.icon;
                 const isActive = currentStep === step.num;
                 const isCompleted = currentStep > step.num;
@@ -116,29 +111,22 @@ export default function SellerApplyPage() {
                           scale: isActive ? 1.1 : 1,
                           backgroundColor: isCompleted ? '#CBA135' : isActive ? '#F4D03F' : '#e5e7eb'
                         }}
-                        className={`
-                          w-12 h-12 rounded-xl flex items-center justify-center mb-2 shadow-md
-                          ${isCompleted || isActive ? 'text-black' : 'text-gray-400 dark:text-gray-500'}
-                        `}
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center mb-2 shadow-md ${
+                          isCompleted || isActive ? 'text-black' : 'text-gray-400'
+                        }`}
                       >
-                        {isCompleted ? (
-                          <CheckCircle2 className="w-6 h-6" />
-                        ) : (
-                          <Icon className="w-6 h-6" />
-                        )}
+                        {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : <Icon className="w-6 h-6" />}
                       </motion.div>
-                      <p className={`
-                        text-xs font-medium text-center hidden sm:block
-                        ${isActive ? 'text-[#CBA135]' : isCompleted ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}
-                      `}>
+                      <p className={`text-xs font-medium text-center hidden sm:block ${
+                        isActive ? 'text-[#CBA135]' : isCompleted ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400'
+                      }`}>
                         {step.title}
                       </p>
                     </div>
                     {index < 3 && (
-                      <div className={`
-                        flex-1 h-1 mx-2 rounded-full transition-all duration-500
-                        ${isCompleted ? 'bg-[#CBA135]' : 'bg-gray-200 dark:bg-gray-700'}
-                      `} />
+                      <div className={`flex-1 h-1 mx-2 rounded-full transition-all duration-500 ${
+                        isCompleted ? 'bg-[#CBA135]' : 'bg-gray-200 dark:bg-gray-700'
+                      }`} />
                     )}
                   </div>
                 );
@@ -153,9 +141,9 @@ export default function SellerApplyPage() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 dark:border-gray-700/50 overflow-hidden"
         >
-          {/* Success/Error Messages */}
+          {/* Messages */}
           <AnimatePresence>
-          {state.error && (
+            {state.error && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -163,18 +151,13 @@ export default function SellerApplyPage() {
                 className="bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800 p-4"
               >
                 <div className="flex items-center space-x-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
-                  <p className="text-red-700 dark:text-red-300">
-                {state.error === 'auth_required' && 'Giriş yapmanız gerekiyor'}
-                {state.error === 'invalid_data' && 'Lütfen tüm alanları doğru şekilde doldurun'}
-                {state.error === 'database_error' && 'Bir hata oluştu, lütfen tekrar deneyin'}
-                    {!['auth_required', 'invalid_data', 'database_error'].includes(state.error) && state.error}
-              </p>
-            </div>
+                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                  <p className="text-red-700 dark:text-red-300 text-sm">{state.error}</p>
+                </div>
               </motion.div>
-          )}
+            )}
 
-          {state.ok && (
+            {state.ok && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -182,18 +165,17 @@ export default function SellerApplyPage() {
                 className="bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800 p-4"
               >
                 <div className="flex items-center space-x-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
-                  <p className="text-green-700 dark:text-green-300">
-                    🎉 Başvurunuz alındı! En kısa sürede değerlendirilecek ve size dönüş yapılacaktır.
-              </p>
-            </div>
+                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <p className="text-green-700 dark:text-green-300 text-sm">
+                    🎉 Başvurunuz alındı! En kısa sürede değerlendirilecek.
+                  </p>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
 
           <form action={handleSubmit} className="p-8">
             <AnimatePresence mode="wait">
-              {/* Step 1: Mağaza Bilgileri */}
               {currentStep === 1 && (
                 <motion.div
                   key="step1"
@@ -212,60 +194,57 @@ export default function SellerApplyPage() {
                     </div>
                   </div>
 
-            <div>
+                  <div>
                     <label htmlFor="storeName" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Mağaza Adı *
-              </label>
-              <input
-                type="text"
-                id="storeName"
-                name="storeName"
-                required
+                      Mağaza Adı *
+                    </label>
+                    <input
+                      type="text"
+                      id="storeName"
+                      name="storeName"
+                      required
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
-                placeholder="Örn: Anime Figür Dünyası"
-              />
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Müşterilerin göreceği mağaza ismi
-                    </p>
-            </div>
+                      placeholder="Örn: Anime Figür Dünyası"
+                    />
+                  </div>
 
-            <div>
+                  <div>
                     <label htmlFor="storeSlug" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Mağaza URL'i *
-              </label>
+                      Mağaza URL'i *
+                    </label>
                     <div className="flex rounded-xl overflow-hidden border border-gray-300 dark:border-gray-600 focus-within:ring-2 focus-within:ring-[#CBA135]">
                       <span className="inline-flex items-center px-4 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-sm font-medium">
                         tdcproducts.com/
-                </span>
-                <input
-                  type="text"
-                  id="storeSlug"
-                  name="storeSlug"
-                  required
-                  pattern="^[a-z0-9-]+$"
+                      </span>
+                      <input
+                        type="text"
+                        id="storeSlug"
+                        name="storeSlug"
+                        required
+                        pattern="^[a-z0-9-]+$"
                         className="flex-1 px-4 py-3 dark:bg-gray-700 dark:text-white focus:outline-none"
-                  placeholder="anime-figur-dunyasi"
-                />
-              </div>
+                        placeholder="anime-figur-dunyasi"
+                      />
+                    </div>
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       Sadece küçük harf, rakam ve tire (-) kullanabilirsiniz
-              </p>
-            </div>
+                    </p>
+                  </div>
 
-            <div>
+                  <div>
                     <label htmlFor="description" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Mağaza Açıklaması *
-              </label>
-              <textarea
-                id="description"
-                name="description"
+                    </label>
+                    <textarea
+                      id="description"
+                      name="description"
                       required
-                rows={4}
+                      rows={4}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all resize-none"
                       placeholder="Mağazanızı tanıtın: Ne tür ürünler satıyorsunuz? Neden sizi tercih etmeliler?"
                     />
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Minimum 50 karakter (şu an: 0)
+                      Minimum 50 karakter
                     </p>
                   </div>
 
@@ -283,14 +262,10 @@ export default function SellerApplyPage() {
                       maxSize={2}
                       className="w-full"
                     />
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Önerilen boyut: 400x400px, şeffaf arka plan (PNG)
-                    </p>
                   </div>
                 </motion.div>
               )}
 
-              {/* Step 2: İletişim Bilgileri */}
               {currentStep === 2 && (
                 <motion.div
                   key="step2"
@@ -312,7 +287,6 @@ export default function SellerApplyPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="contactName" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        <User className="w-4 h-4 inline mr-1" />
                         Yetkili Adı Soyadı *
                       </label>
                       <input
@@ -321,14 +295,13 @@ export default function SellerApplyPage() {
                         name="contactName"
                         required
                         defaultValue={session?.user?.name || ''}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                         placeholder="Ahmet Yılmaz"
                       />
                     </div>
 
                     <div>
                       <label htmlFor="contactEmail" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        <Mail className="w-4 h-4 inline mr-1" />
                         E-posta Adresi *
                       </label>
                       <input
@@ -337,7 +310,7 @@ export default function SellerApplyPage() {
                         name="contactEmail"
                         required
                         defaultValue={session?.user?.email || ''}
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                         placeholder="ornek@email.com"
                       />
                     </div>
@@ -346,7 +319,6 @@ export default function SellerApplyPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        <Phone className="w-4 h-4 inline mr-1" />
                         Telefon Numarası *
                       </label>
                       <input
@@ -354,24 +326,20 @@ export default function SellerApplyPage() {
                         id="phone"
                         name="phone"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                         placeholder="0555 XXX XX XX"
                       />
-                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Müşteri desteği için kullanılacak
-                      </p>
                     </div>
 
                     <div>
                       <label htmlFor="whatsapp" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        <MessageCircle className="w-4 h-4 inline mr-1" />
                         WhatsApp (Opsiyonel)
                       </label>
                       <input
                         type="tel"
                         id="whatsapp"
                         name="whatsapp"
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                         placeholder="0555 XXX XX XX"
                       />
                     </div>
@@ -379,7 +347,6 @@ export default function SellerApplyPage() {
 
                   <div>
                     <label htmlFor="address" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      <MapPin className="w-4 h-4 inline mr-1" />
                       İş Adresi *
                     </label>
                     <textarea
@@ -387,13 +354,13 @@ export default function SellerApplyPage() {
                       name="address"
                       required
                       rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all resize-none"
-                      placeholder="Mahalle, Sokak, Bina No, Daire No, İlçe/İl"
-              />
-            </div>
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all resize-none"
+                      placeholder="Mahalle, Sokak, Bina No, Daire No"
+                    />
+                  </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
                       <label htmlFor="city" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                         İl *
                       </label>
@@ -402,7 +369,7 @@ export default function SellerApplyPage() {
                         id="city"
                         name="city"
                         required
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                         placeholder="İzmir"
                       />
                     </div>
@@ -415,7 +382,7 @@ export default function SellerApplyPage() {
                         type="text"
                         id="postalCode"
                         name="postalCode"
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                         placeholder="35040"
                       />
                     </div>
@@ -423,7 +390,6 @@ export default function SellerApplyPage() {
                 </motion.div>
               )}
 
-              {/* Step 3: Kimlik & Vergi Bilgileri */}
               {currentStep === 3 && (
                 <motion.div
                   key="step3"
@@ -447,40 +413,30 @@ export default function SellerApplyPage() {
                       Satıcı Tipi *
                     </label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <label className="relative flex items-center p-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all">
+                      <label className="relative flex items-center p-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all group">
                         <input
                           type="radio"
                           name="sellerType"
                           value="individual"
                           defaultChecked
-                          className="sr-only peer"
+                          className="w-5 h-5 text-[#CBA135] border-gray-300 focus:ring-[#CBA135]"
                         />
-                        <div className="flex items-center space-x-3 peer-checked:text-[#CBA135]">
-                          <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600 peer-checked:border-[#CBA135] peer-checked:bg-[#CBA135] flex items-center justify-center">
-                            <div className="w-2 h-2 bg-black rounded-full opacity-0 peer-checked:opacity-100"></div>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-900 dark:text-white">Bireysel</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Şahıs olarak satış</p>
-                          </div>
+                        <div className="ml-3">
+                          <p className="font-semibold text-gray-900 dark:text-white">Bireysel</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Şahıs olarak satış</p>
                         </div>
                       </label>
 
-                      <label className="relative flex items-center p-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all">
+                      <label className="relative flex items-center p-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all group">
                         <input
                           type="radio"
                           name="sellerType"
                           value="company"
-                          className="sr-only peer"
+                          className="w-5 h-5 text-[#CBA135] border-gray-300 focus:ring-[#CBA135]"
                         />
-                        <div className="flex items-center space-x-3 peer-checked:text-[#CBA135]">
-                          <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600 peer-checked:border-[#CBA135] peer-checked:bg-[#CBA135] flex items-center justify-center">
-                            <div className="w-2 h-2 bg-black rounded-full opacity-0 peer-checked:opacity-100"></div>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-900 dark:text-white">Kurumsal</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Şirket olarak satış</p>
-                          </div>
+                        <div className="ml-3">
+                          <p className="font-semibold text-gray-900 dark:text-white">Kurumsal</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Şirket olarak satış</p>
                         </div>
                       </label>
                     </div>
@@ -495,7 +451,7 @@ export default function SellerApplyPage() {
                       id="taxId"
                       name="taxId"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                       placeholder="XXXXXXXXXXX"
                     />
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -506,51 +462,47 @@ export default function SellerApplyPage() {
                   <div>
                     <label htmlFor="taxOffice" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Vergi Dairesi (Kurumsal için zorunlu)
-                </label>
-                <input
-                  type="text"
+                    </label>
+                    <input
+                      type="text"
                       id="taxOffice"
                       name="taxOffice"
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                       placeholder="Örn: Bornova Vergi Dairesi"
-                />
-              </div>
+                    />
+                  </div>
 
-              <div>
+                  <div>
                     <label htmlFor="iban" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       IBAN (Ödeme alımları için) *
-                </label>
-                <input
-                  type="text"
-                  id="iban"
-                  name="iban"
+                    </label>
+                    <input
+                      type="text"
+                      id="iban"
+                      name="iban"
                       required
                       pattern="^TR[0-9]{24}$"
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all font-mono"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all font-mono"
                       placeholder="TR00 0000 0000 0000 0000 0000 00"
                     />
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Satış gelirleriniz bu hesaba aktarılacak
-                    </p>
-            </div>
+                  </div>
 
-            <div>
+                  <div>
                     <label htmlFor="bankName" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                       Banka Adı *
-              </label>
+                    </label>
                     <input
                       type="text"
                       id="bankName"
                       name="bankName"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-[#CBA135] transition-all"
                       placeholder="Örn: Ziraat Bankası"
-              />
-            </div>
+                    />
+                  </div>
                 </motion.div>
               )}
 
-              {/* Step 4: Onay & Sözleşme */}
               {currentStep === 4 && (
                 <motion.div
                   key="step4"
@@ -567,9 +519,9 @@ export default function SellerApplyPage() {
                       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Son Adım!</h2>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Sözleşmeleri onaylayın</p>
                     </div>
-            </div>
+                  </div>
 
-                  <div className="bg-gradient-to-br from-[#CBA135]/10 to-[#F4D03F]/10 dark:from-[#CBA135]/20 dark:to-[#F4D03F]/20 border border-[#CBA135]/30 rounded-2xl p-6">
+                  <div className="bg-gradient-to-br from-[#CBA135]/10 to-[#F4D03F]/10 border border-[#CBA135]/30 rounded-2xl p-6">
                     <div className="flex items-start space-x-3 mb-4">
                       <Sparkles className="w-6 h-6 text-[#CBA135] flex-shrink-0 mt-1" />
                       <div>
@@ -585,18 +537,14 @@ export default function SellerApplyPage() {
                           </li>
                           <li className="flex items-center space-x-2">
                             <Check className="w-4 h-4 text-green-600" />
-                            <span>Detaylı satış raporları ve analizler</span>
+                            <span>Detaylı satış raporları</span>
                           </li>
                           <li className="flex items-center space-x-2">
                             <Check className="w-4 h-4 text-green-600" />
-                            <span>Pazarlama ve reklam araçları</span>
+                            <span>Pazarlama araçları</span>
                           </li>
-                          <li className="flex items-center space-x-2">
-                            <Check className="w-4 h-4 text-green-600" />
-                            <span>7/24 satıcı desteği</span>
-                          </li>
-              </ul>
-            </div>
+                        </ul>
+                      </div>
                     </div>
                   </div>
 
@@ -606,17 +554,12 @@ export default function SellerApplyPage() {
                         type="checkbox"
                         name="acceptTerms"
                         required
-                        className="mt-1 h-5 w-5 text-[#CBA135] border-gray-300 dark:border-gray-600 rounded focus:ring-[#CBA135]"
+                        className="mt-1 h-5 w-5 text-[#CBA135] border-gray-300 rounded focus:ring-[#CBA135]"
                       />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          Satıcı Sözleşmesi
-                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">Satıcı Sözleşmesi</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          <Link href="/seller-agreement" target="_blank" className="text-[#CBA135] hover:underline">
-                            Satıcı sözleşmesini
-                          </Link>
-                          {' '}okudum ve kabul ediyorum.
+                          Satıcı sözleşmesini okudum ve kabul ediyorum.
                         </p>
                       </div>
                     </label>
@@ -626,55 +569,21 @@ export default function SellerApplyPage() {
                         type="checkbox"
                         name="acceptCommission"
                         required
-                        className="mt-1 h-5 w-5 text-[#CBA135] border-gray-300 dark:border-gray-600 rounded focus:ring-[#CBA135]"
+                        className="mt-1 h-5 w-5 text-[#CBA135] border-gray-300 rounded focus:ring-[#CBA135]"
                       />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          Komisyon Oranları
-                        </p>
+                        <p className="font-medium text-gray-900 dark:text-white">Komisyon Oranları</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                           %15 platform komisyon oranını kabul ediyorum.
                         </p>
                       </div>
                     </label>
-
-                    <label className="flex items-start space-x-3 p-4 border border-gray-300 dark:border-gray-600 rounded-xl cursor-pointer hover:border-[#CBA135] transition-all">
-                      <input
-                        type="checkbox"
-                        name="acceptKVKK"
-                        required
-                        className="mt-1 h-5 w-5 text-[#CBA135] border-gray-300 dark:border-gray-600 rounded focus:ring-[#CBA135]"
-                      />
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900 dark:text-white">
-                          KVKK Aydınlatma Metni
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          <Link href="/kvkk" target="_blank" className="text-[#CBA135] hover:underline">
-                            KVKK aydınlatma metnini
-                          </Link>
-                          {' '}okudum ve kişisel verilerimin işlenmesini kabul ediyorum.
-                        </p>
-                      </div>
-                    </label>
-                  </div>
-
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                    <div className="flex items-start space-x-3">
-                      <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-blue-700 dark:text-blue-300">
-                        <p className="font-semibold mb-1">Başvuru Süreci</p>
-                        <p>
-                          Başvurunuz 1-3 iş günü içinde incelenecektir. Onay sonrası e-posta ile bilgilendirileceksiniz.
-                        </p>
-                      </div>
-                    </div>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Navigation Buttons */}
+            {/* Navigation */}
             <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
               <motion.button
                 type="button"
@@ -682,13 +591,11 @@ export default function SellerApplyPage() {
                 disabled={currentStep === 1}
                 whileHover={{ scale: currentStep === 1 ? 1 : 1.05 }}
                 whileTap={{ scale: currentStep === 1 ? 1 : 0.95 }}
-                className={`
-                  px-6 py-3 rounded-xl font-semibold transition-all flex items-center space-x-2
-                  ${currentStep === 1
-                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                    : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
-                  }
-                `}
+                className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center space-x-2 ${
+                  currentStep === 1
+                    ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                    : 'bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50'
+                }`}
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Geri</span>
@@ -707,8 +614,8 @@ export default function SellerApplyPage() {
                 </motion.button>
               ) : (
                 <motion.button
-              type="submit"
-              disabled={isSubmitting}
+                  type="submit"
+                  disabled={isSubmitting}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="px-8 py-3 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-black font-bold rounded-xl hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center space-x-2"
@@ -728,20 +635,7 @@ export default function SellerApplyPage() {
               )}
             </div>
           </form>
-
-          {/* Additional Info */}
-          <div className="px-8 pb-8">
-            <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-                Sorularınız mı var?{' '}
-                <a href="tel:05558998242" className="text-[#CBA135] hover:underline font-semibold">
-                  0555 899 82 42
-                </a>
-                {' '}numaralı telefondan bize ulaşabilirsiniz.
-              </p>
-            </div>
-          </div>
-        </div>
+        </motion.div>
 
         {/* Help Card */}
         <motion.div

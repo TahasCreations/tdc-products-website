@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShoppingBag, Store, Check } from 'lucide-react';
 
-export default function KayitPage() {
+function KayitForm() {
   const searchParams = useSearchParams();
   const [userType, setUserType] = useState<'buyer' | 'seller'>(
     (searchParams.get('type') as 'buyer' | 'seller') || 'buyer'
@@ -431,5 +431,17 @@ export default function KayitPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function KayitPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#CBA135] border-t-transparent"></div>
+      </div>
+    }>
+      <KayitForm />
+    </Suspense>
   );
 }
