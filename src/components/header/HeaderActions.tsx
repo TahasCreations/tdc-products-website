@@ -188,15 +188,18 @@ export default function HeaderActions({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleUserMenuToggle}
-            className="flex items-center space-x-1.5 p-1.5 text-gray-600 hover:text-[#CBA135] transition-colors rounded-lg hover:bg-gray-50"
+            className="flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-[#CBA135]/20 to-[#F4D03F]/20 hover:from-[#CBA135]/30 hover:to-[#F4D03F]/30 border border-[#CBA135]/30 rounded-xl transition-all shadow-sm hover:shadow-md"
             aria-label="Kullanıcı Menüsü"
           >
             <img
               src={session.user?.image || 'https://via.placeholder.com/32x32/4F46E5/FFFFFF?text=U'}
               alt={session.user?.name || 'User'}
-              className="w-7 h-7 rounded-full"
+              className="w-8 h-8 rounded-full border-2 border-[#CBA135]"
             />
-            <span className="hidden lg:block text-sm font-bold truncate max-w-20 text-gray-900 dark:text-white">{session.user?.name}</span>
+            <span className="hidden lg:block text-sm font-bold truncate max-w-32 text-gray-900 dark:text-white drop-shadow-sm">{session.user?.name}</span>
+            <svg className="hidden lg:block w-4 h-4 text-gray-900 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
           </motion.button>
 
           <AnimatePresence>
