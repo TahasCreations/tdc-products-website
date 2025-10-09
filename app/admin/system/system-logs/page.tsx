@@ -394,7 +394,7 @@ export default function SystemLogsPage() {
 										</span>
 									</div>
 									<div className="text-sm text-gray-700">
-										<strong>Kural:</strong> count(level = "error") > 10 in 5min<br/>
+										<strong>Kural:</strong> count(level = &quot;error&quot;) &gt; 10 in 5min<br/>
 										<strong>Bildirim:</strong> Email<br/>
 										<strong>Frekans:</strong> 15 dakikada bir
 									</div>
@@ -411,7 +411,7 @@ export default function SystemLogsPage() {
 										</span>
 									</div>
 									<div className="text-sm text-gray-700">
-										<strong>Kural:</strong> source = "Authentication" AND message contains "Failed login" count > 5<br/>
+										<strong>Kural:</strong> source = &quot;Authentication&quot; AND message contains &quot;Failed login&quot; count &gt; 5<br/>
 										<strong>Bildirim:</strong> Email<br/>
 										<strong>Frekans:</strong> Saatte bir
 									</div>

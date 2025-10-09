@@ -1,4 +1,4 @@
-import { requireRole } from "@/lib/guards";
+import { requireRole } from "../../../src/lib/guards";
 
 export const dynamic = 'force-dynamic';
 

@@ -4,17 +4,25 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface ImageUploadProps {
-  onUploadSuccess: (url: string) => void;
+  onUpload?: (url: string) => void;
+  onUploadSuccess?: (url: string) => void;
   initialImageUrl?: string;
   label?: string;
   folder?: string; // GCS folder
+  type?: string;
+  maxSize?: number;
+  className?: string;
 }
 
 export default function ImageUpload({ 
+  onUpload,
   onUploadSuccess, 
   initialImageUrl, 
   label = "Resim Yükle", 
-  folder = "uploads" 
+  folder = "uploads",
+  type,
+  maxSize,
+  className
 }: ImageUploadProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(initialImageUrl || null);
   const [isUploading, setIsUploading] = useState(false);
@@ -58,7 +66,8 @@ export default function ImageUpload({
 
       // 3. Update state and notify parent
       setImageUrl(publicUrl);
-      onUploadSuccess(publicUrl);
+      if (onUpload) onUpload(publicUrl);
+      if (onUploadSuccess) onUploadSuccess(publicUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
@@ -68,7 +77,8 @@ export default function ImageUpload({
 
   const handleRemove = () => {
     setImageUrl(null);
-    onUploadSuccess('');
+    if (onUpload) onUpload('');
+    if (onUploadSuccess) onUploadSuccess('');
   };
 
   return (

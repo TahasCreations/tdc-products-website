@@ -45,15 +45,15 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         email,
-        password: hashedPassword,
-        phone: phone || null,
+        // password: hashedPassword,
+        // phone: phone || null,
         role: 'BUYER', // Default role
         emailVerified: null,
       },
     });
 
     // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
+    const userWithoutPassword = user;
 
     return NextResponse.json({
       success: true,

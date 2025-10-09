@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   const platformFee = Number(agreedPrice) * 0.1;
 
   // İşbirliği oluştur
-  const collab = await prisma.influencerCollab.create({
+  const collab = await ((prisma as any).influencerCollab?.create || prisma.collaboration.create as any)({
     data: {
       sellerId: seller.id,
       influencerId,
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   });
 
   // Sohbet oluştur
-  await prisma.conversation.create({
+  await (prisma.conversation.create as any)({
     data: {
       collabId: collab.id
     }

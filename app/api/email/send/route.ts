@@ -13,7 +13,7 @@ const sendEmailSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions as any);
+    const session = await getServerSession(authOptions as any) as any;
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
 
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Geçersiz veri", details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: "Geçersiz veri", details: (error as any).errors }, { status: 400 });
     }
     
     console.error('Email gönderilirken hata:', error);

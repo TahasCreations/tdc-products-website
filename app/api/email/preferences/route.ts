@@ -14,7 +14,7 @@ const preferencesSchema = z.object({
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions as any);
+    const session = await getServerSession(authOptions as any) as any;
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -39,8 +39,8 @@ export async function GET() {
       weeklyNewsletter: false,
     };
 
-    const preferences = user.emailPreferences ? 
-      { ...defaultPreferences, ...user.emailPreferences } : 
+    const preferences = user.emailPreferences && typeof user.emailPreferences === 'object' ? 
+      { ...defaultPreferences, ...(user.emailPreferences as any) } : 
       defaultPreferences;
 
     return NextResponse.json(preferences);
@@ -53,7 +53,7 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   try {
-    const session = await getServerSession(authOptions as any);
+    const session = await getServerSession(authOptions as any) as any;
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -70,8 +70,8 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const currentPreferences = user.emailPreferences || {};
-    const updatedPreferences = { ...currentPreferences, ...validatedData };
+    const currentPreferences = (user.emailPreferences && typeof user.emailPreferences === 'object') ? user.emailPreferences : {};
+    const updatedPreferences = { ...(currentPreferences as any), ...validatedData };
 
     await prisma.user.update({
       where: { id: user.id },
@@ -85,7 +85,7 @@ export async function PUT(req: Request) {
 
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Geçersiz veri", details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: "Geçersiz veri", details: (error as any).errors }, { status: 400 });
     }
     
     console.error('Email preferences güncellenirken hata:', error);

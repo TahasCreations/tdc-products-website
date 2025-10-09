@@ -80,8 +80,6 @@ export default async function HomePage() {
       
       {/* Mixed Product Grid */}
       <MixedProductGrid />
-      {/* Cart Drawer (client) */}
-      {nextDynamic(() => import('../../src/components/cart/CartDrawer'), { ssr: false })({})}
     </main>
   );
 }

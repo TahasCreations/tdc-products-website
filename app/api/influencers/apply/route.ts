@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     status: "PENDING" as const,
   };
 
-  const app = await prisma.influencerApplication.create({
+  const app = await (prisma.influencerApplication.create as any)({
     data
   });
   return Response.json({ ok: true, application: app });

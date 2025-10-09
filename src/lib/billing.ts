@@ -1,12 +1,19 @@
-import { prisma } from '@/lib/prisma';
+import { prisma } from './prisma';
 
 export interface BillingPlan {
   id: string;
   name: string;
+  uiName?: string;
   description: string;
   price: number;
+  priceTRY?: number;
+  perMonthTRY?: number;
   currency: string;
   interval: 'monthly' | 'yearly';
+  billingCycle?: string;
+  commitmentMonths?: number;
+  entitlements?: string[];
+  includesDomain?: boolean;
   features: string[];
   limits: {
     products: number;
@@ -290,3 +297,20 @@ export const ENTITLEMENTS_DESC = {
 
 // Export PLANS as alias for BILLING_PLANS
 export const PLANS = BILLING_PLANS;
+
+// Export PLANS as object with extended properties for checkout
+export const PLANS_MAP: Record<string, any> = {
+  MONTHLY_800: {
+    plan: 'PRO' as any,
+    billingCycle: 'MONTHLY',
+    commitmentMonths: 1,
+    priceTRY: 800,
+  },
+  YEARLY_500_DOMAIN: {
+    plan: 'PRO' as any,
+    billingCycle: 'YEARLY',
+    commitmentMonths: 12,
+    priceTRY: 6000,
+    includesDomain: true,
+  },
+};

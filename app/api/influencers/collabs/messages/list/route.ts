@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   }
 
   // İşbirliği sahipliği kontrolü
-  const collab = await prisma.influencerCollab.findUnique({
+  const collab = await ((prisma as any).influencerCollab?.findUnique || prisma.collaboration.findUnique as any)({
     where: { id: collabId },
     include: { 
       seller: { select: { userId: true } },

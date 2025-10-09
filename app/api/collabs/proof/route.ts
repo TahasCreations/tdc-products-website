@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   if (!collab) return new Response("not_found", { status: 404 });
 
   // Kanıt URL'lerini güncelle
-  const updatedCollab = await prisma.collaboration.update({
+  const updatedCollab = await (prisma.collaboration.update as any)({
     where: { id: collabId },
     data: { proofUrls }
   });

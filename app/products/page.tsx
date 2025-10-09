@@ -10,19 +10,29 @@ import { EmptyProductsState } from '../../src/components/empty/EmptyState';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
 
 // Category Item Component
-function CategoryItem({ cat, index, category }: any) {
+function CategoryItem({ cat, index, selectedCategory, onCategorySelect }: any) {
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  const handleCategoryClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onCategorySelect(cat.slug);
+  };
+  
+  const handleSubcategoryClick = (e: React.MouseEvent, subcatSlug: string) => {
+    e.preventDefault();
+    onCategorySelect(subcatSlug);
+  };
   
   return (
     <div>
       <div className="flex items-center">
-        <motion.a
-          href={cat.href}
+        <motion.button
+          onClick={handleCategoryClick}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: index * 0.05 }}
-          className={`group flex-1 flex items-center justify-between p-2 rounded-lg transition-all duration-200 ${
-            category === cat.name.toLowerCase().replace(/\s+/g, '-')
+          className={`group flex-1 flex items-center justify-between p-2 rounded-lg transition-all duration-200 text-left ${
+            selectedCategory === cat.slug
               ? 'bg-[#CBA135]/10 text-[#CBA135]'
               : 'hover:bg-gray-50'
           }`}
@@ -34,7 +44,7 @@ function CategoryItem({ cat, index, category }: any) {
               <p className="text-[10px] text-gray-500">{cat.count} ürün</p>
             </div>
           </div>
-        </motion.a>
+        </motion.button>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="p-1 hover:bg-gray-100 rounded transition-colors"
@@ -62,16 +72,20 @@ function CategoryItem({ cat, index, category }: any) {
             className="ml-8 mt-1 space-y-1 overflow-hidden"
           >
             {cat.subcategories.map((subcat: any, subIndex: number) => (
-              <motion.a
-                key={subcat.href}
-                href={subcat.href}
+              <motion.button
+                key={subcat.slug}
+                onClick={(e) => handleSubcategoryClick(e, subcat.slug)}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: subIndex * 0.03 }}
-                className="block px-2 py-1 text-[11px] text-gray-600 hover:text-[#CBA135] hover:bg-gray-50 rounded transition-all duration-200"
+                className={`block w-full text-left px-2 py-1 text-[11px] rounded transition-all duration-200 ${
+                  selectedCategory === subcat.slug
+                    ? 'text-[#CBA135] bg-[#CBA135]/5 font-medium'
+                    : 'text-gray-600 hover:text-[#CBA135] hover:bg-gray-50'
+                }`}
               >
                 • {subcat.label}
-              </motion.a>
+              </motion.button>
             ))}
           </motion.div>
         )}
@@ -106,28 +120,30 @@ export default function ProductsPage({
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [showQuickFilters, setShowQuickFilters] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedMinPrice, setSelectedMinPrice] = useState<number | undefined>(undefined);
+  const [selectedMaxPrice, setSelectedMaxPrice] = useState<number | undefined>(undefined);
+  const [selectedInStock, setSelectedInStock] = useState(false);
+  
   const sortBy = (searchParams.sort as string) || 'recommended';
-  const category = searchParams.category as string;
-  const seller = searchParams.seller as string;
-  const minPrice = searchParams.minPrice ? Number(searchParams.minPrice) : undefined;
-  const maxPrice = searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined;
-  const inStock = searchParams.inStock === 'true';
   const page = Number(searchParams.page) || 1;
   const limit = 12;
+  
+  // Use local state for filtering instead of URL params
+  const category = selectedCategory;
+  const minPrice = selectedMinPrice;
+  const maxPrice = selectedMaxPrice;
+  const inStock = selectedInStock;
 
-  // Filter products based on search params
+  // Filter products based on local state
   let filteredProducts = [...mockProducts];
 
   if (category) {
-    filteredProducts = filteredProducts.filter(product => 
-      product.category.slug === category
-    );
-  }
-
-  if (seller) {
-    filteredProducts = filteredProducts.filter(product => 
-      product.seller.slug === seller
-    );
+    filteredProducts = filteredProducts.filter(product => {
+      // Check if product category matches main category or subcategory
+      return product.category?.slug === category || 
+             product.category?.parentSlug === category;
+    });
   }
 
   if (minPrice !== undefined) {
@@ -266,80 +282,86 @@ export default function ProductsPage({
               <div className="space-y-1 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
                 {[
                   { 
-                    name: 'Figür & Koleksiyon', 
-                    href: '/categories/figur-koleksiyon', 
+                    name: 'Figür & Koleksiyon',
+                    slug: 'figur-koleksiyon',
                     icon: '🎭', 
                     count: 0,
                     subcategories: [
-                      { label: 'Koleksiyon Figürleri', href: '/categories/figur-koleksiyon/koleksiyon-figurleri' },
-                      { label: 'Anime / Manga', href: '/categories/figur-koleksiyon/anime' },
-                      { label: 'Model Kit', href: '/categories/figur-koleksiyon/model-kit' },
-                      { label: 'Aksiyon Figür', href: '/categories/figur-koleksiyon/aksiyon' },
-                      { label: 'Funko / Nendoroid', href: '/categories/figur-koleksiyon/funko' },
+                      { label: 'Koleksiyon Figürleri', slug: 'koleksiyon-figurleri' },
+                      { label: 'Anime / Manga', slug: 'anime' },
+                      { label: 'Model Kit', slug: 'model-kit' },
+                      { label: 'Aksiyon Figür', slug: 'aksiyon' },
+                      { label: 'Funko / Nendoroid', slug: 'funko' },
                     ]
                   },
                   { 
-                    name: 'Moda & Aksesuar', 
-                    href: '/categories/moda-aksesuar', 
+                    name: 'Moda & Aksesuar',
+                    slug: 'moda-aksesuar',
                     icon: '👗', 
                     count: 0,
                     subcategories: [
-                      { label: 'Tişört & Hoodie', href: '/categories/moda-aksesuar/tisort-hoodie' },
-                      { label: 'Takı & Saat', href: '/categories/moda-aksesuar/taki-saat' },
-                      { label: 'Çanta & Cüzdan', href: '/categories/moda-aksesuar/canta' },
-                      { label: 'Ayakkabı', href: '/categories/moda-aksesuar/ayakkabi' },
+                      { label: 'Tişört & Hoodie', slug: 'tisort-hoodie' },
+                      { label: 'Takı & Saat', slug: 'taki-saat' },
+                      { label: 'Çanta & Cüzdan', slug: 'canta' },
+                      { label: 'Ayakkabı', slug: 'ayakkabi' },
                     ]
                   },
                   { 
-                    name: 'Elektronik', 
-                    href: '/categories/elektronik', 
+                    name: 'Elektronik',
+                    slug: 'elektronik',
                     icon: '📱', 
                     count: 0,
                     subcategories: [
-                      { label: 'Kulaklık & Ses', href: '/categories/elektronik/kulaklik' },
-                      { label: 'Akıllı Ev', href: '/categories/elektronik/akilli-ev' },
-                      { label: 'Bilgisayar Aksesuarları', href: '/categories/elektronik/pc-aksesuar' },
-                      { label: 'Oyun & Konsol', href: '/categories/elektronik/oyun' },
+                      { label: 'Kulaklık & Ses', slug: 'kulaklik' },
+                      { label: 'Akıllı Ev', slug: 'akilli-ev' },
+                      { label: 'Bilgisayar Aksesuarları', slug: 'pc-aksesuar' },
+                      { label: 'Oyun & Konsol', slug: 'oyun' },
                     ]
                   },
                   { 
-                    name: 'Ev & Yaşam', 
-                    href: '/categories/ev-yasam', 
+                    name: 'Ev & Yaşam',
+                    slug: 'ev-yasam',
                     icon: '🏠', 
                     count: 0,
                     subcategories: [
-                      { label: 'Dekorasyon', href: '/categories/ev-yasam/dekorasyon' },
-                      { label: 'Mutfak', href: '/categories/ev-yasam/mutfak' },
-                      { label: 'Aydınlatma', href: '/categories/ev-yasam/aydinlatma' },
-                      { label: 'Mobilya', href: '/categories/ev-yasam/mobilya' },
+                      { label: 'Dekorasyon', slug: 'dekorasyon' },
+                      { label: 'Mutfak', slug: 'mutfak' },
+                      { label: 'Aydınlatma', slug: 'aydinlatma' },
+                      { label: 'Mobilya', slug: 'mobilya' },
                     ]
                   },
                   { 
-                    name: 'Sanat & Hobi', 
-                    href: '/categories/sanat-hobi', 
+                    name: 'Sanat & Hobi',
+                    slug: 'sanat-hobi',
                     icon: '🎨', 
                     count: 0,
                     subcategories: [
-                      { label: 'Tablo & Poster', href: '/categories/sanat-hobi/poster' },
-                      { label: 'El Sanatları', href: '/categories/sanat-hobi/el-sanatlari' },
-                      { label: 'Boyama & Çizim', href: '/categories/sanat-hobi/boyama' },
-                      { label: 'Müzik & Enstrüman', href: '/categories/sanat-hobi/muzik' },
+                      { label: 'Tablo & Poster', slug: 'poster' },
+                      { label: 'El Sanatları', slug: 'el-sanatlari' },
+                      { label: 'Boyama & Çizim', slug: 'boyama' },
+                      { label: 'Müzik & Enstrüman', slug: 'muzik' },
                     ]
                   },
                   { 
-                    name: 'Hediyelik', 
-                    href: '/categories/hediyelik', 
+                    name: 'Hediyelik',
+                    slug: 'hediyelik',
                     icon: '🎁', 
                     count: 0,
                     subcategories: [
-                      { label: 'Kişiye Özel', href: '/categories/hediyelik/kisiye-ozel' },
-                      { label: 'Doğum Günü', href: '/categories/hediyelik/dogum-gunu' },
-                      { label: 'Ofis & Masaüstü', href: '/categories/hediyelik/ofis' },
-                      { label: 'Mini Setler', href: '/categories/hediyelik/mini-set' },
+                      { label: 'Kişiye Özel', slug: 'kisiye-ozel' },
+                      { label: 'Doğum Günü', slug: 'dogum-gunu' },
+                      { label: 'Ofis & Masaüstü', slug: 'ofis' },
+                      { label: 'Mini Setler', slug: 'mini-set' },
                     ]
                   }
                 ].map((cat, index) => (
-                  <CategoryItem key={cat.name} cat={cat} index={index} category={category} />
+                  <CategoryItem 
+                    key={cat.name} 
+                    cat={cat} 
+                    index={index} 
+                    selectedCategory={selectedCategory}
+                    onCategorySelect={setSelectedCategory}
+                  />
                 ))}
               </div>
             </div>
@@ -424,6 +446,12 @@ export default function ProductsPage({
 
                 {/* Clear Filters - Premium Button */}
                 <motion.button 
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setSelectedMinPrice(undefined);
+                    setSelectedMaxPrice(undefined);
+                    setSelectedInStock(false);
+                  }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="w-full bg-gradient-to-r from-gray-100 to-gray-200 hover:from-[#CBA135]/10 hover:to-[#F4D03F]/10 border border-gray-200 hover:border-[#CBA135]/30 text-gray-700 hover:text-[#CBA135] font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm hover:shadow-lg text-sm"
@@ -544,80 +572,86 @@ export default function ProductsPage({
                       <div className="space-y-2">
                         {[
                           { 
-                            name: 'Figür & Koleksiyon', 
-                            href: '/categories/figur-koleksiyon', 
+                            name: 'Figür & Koleksiyon',
+                            slug: 'figur-koleksiyon',
                             icon: '🎭', 
                             count: 0,
                             subcategories: [
-                              { label: 'Koleksiyon Figürleri', href: '/categories/figur-koleksiyon/koleksiyon-figurleri' },
-                              { label: 'Anime / Manga', href: '/categories/figur-koleksiyon/anime' },
-                              { label: 'Model Kit', href: '/categories/figur-koleksiyon/model-kit' },
-                              { label: 'Aksiyon Figür', href: '/categories/figur-koleksiyon/aksiyon' },
-                              { label: 'Funko / Nendoroid', href: '/categories/figur-koleksiyon/funko' },
+                              { label: 'Koleksiyon Figürleri', slug: 'koleksiyon-figurleri' },
+                              { label: 'Anime / Manga', slug: 'anime' },
+                              { label: 'Model Kit', slug: 'model-kit' },
+                              { label: 'Aksiyon Figür', slug: 'aksiyon' },
+                              { label: 'Funko / Nendoroid', slug: 'funko' },
                             ]
                           },
                           { 
-                            name: 'Moda & Aksesuar', 
-                            href: '/categories/moda-aksesuar', 
+                            name: 'Moda & Aksesuar',
+                            slug: 'moda-aksesuar',
                             icon: '👗', 
                             count: 0,
                             subcategories: [
-                              { label: 'Tişört & Hoodie', href: '/categories/moda-aksesuar/tisort-hoodie' },
-                              { label: 'Takı & Saat', href: '/categories/moda-aksesuar/taki-saat' },
-                              { label: 'Çanta & Cüzdan', href: '/categories/moda-aksesuar/canta' },
-                              { label: 'Ayakkabı', href: '/categories/moda-aksesuar/ayakkabi' },
+                              { label: 'Tişört & Hoodie', slug: 'tisort-hoodie' },
+                              { label: 'Takı & Saat', slug: 'taki-saat' },
+                              { label: 'Çanta & Cüzdan', slug: 'canta' },
+                              { label: 'Ayakkabı', slug: 'ayakkabi' },
                             ]
                           },
                           { 
-                            name: 'Elektronik', 
-                            href: '/categories/elektronik', 
+                            name: 'Elektronik',
+                            slug: 'elektronik',
                             icon: '📱', 
                             count: 0,
                             subcategories: [
-                              { label: 'Kulaklık & Ses', href: '/categories/elektronik/kulaklik' },
-                              { label: 'Akıllı Ev', href: '/categories/elektronik/akilli-ev' },
-                              { label: 'Bilgisayar Aksesuarları', href: '/categories/elektronik/pc-aksesuar' },
-                              { label: 'Oyun & Konsol', href: '/categories/elektronik/oyun' },
+                              { label: 'Kulaklık & Ses', slug: 'kulaklik' },
+                              { label: 'Akıllı Ev', slug: 'akilli-ev' },
+                              { label: 'Bilgisayar Aksesuarları', slug: 'pc-aksesuar' },
+                              { label: 'Oyun & Konsol', slug: 'oyun' },
                             ]
                           },
                           { 
-                            name: 'Ev & Yaşam', 
-                            href: '/categories/ev-yasam', 
+                            name: 'Ev & Yaşam',
+                            slug: 'ev-yasam',
                             icon: '🏠', 
                             count: 0,
                             subcategories: [
-                              { label: 'Dekorasyon', href: '/categories/ev-yasam/dekorasyon' },
-                              { label: 'Mutfak', href: '/categories/ev-yasam/mutfak' },
-                              { label: 'Aydınlatma', href: '/categories/ev-yasam/aydinlatma' },
-                              { label: 'Mobilya', href: '/categories/ev-yasam/mobilya' },
+                              { label: 'Dekorasyon', slug: 'dekorasyon' },
+                              { label: 'Mutfak', slug: 'mutfak' },
+                              { label: 'Aydınlatma', slug: 'aydinlatma' },
+                              { label: 'Mobilya', slug: 'mobilya' },
                             ]
                           },
                           { 
-                            name: 'Sanat & Hobi', 
-                            href: '/categories/sanat-hobi', 
+                            name: 'Sanat & Hobi',
+                            slug: 'sanat-hobi',
                             icon: '🎨', 
                             count: 0,
                             subcategories: [
-                              { label: 'Tablo & Poster', href: '/categories/sanat-hobi/poster' },
-                              { label: 'El Sanatları', href: '/categories/sanat-hobi/el-sanatlari' },
-                              { label: 'Boyama & Çizim', href: '/categories/sanat-hobi/boyama' },
-                              { label: 'Müzik & Enstrüman', href: '/categories/sanat-hobi/muzik' },
+                              { label: 'Tablo & Poster', slug: 'poster' },
+                              { label: 'El Sanatları', slug: 'el-sanatlari' },
+                              { label: 'Boyama & Çizim', slug: 'boyama' },
+                              { label: 'Müzik & Enstrüman', slug: 'muzik' },
                             ]
                           },
                           { 
-                            name: 'Hediyelik', 
-                            href: '/categories/hediyelik', 
+                            name: 'Hediyelik',
+                            slug: 'hediyelik',
                             icon: '🎁', 
                             count: 0,
                             subcategories: [
-                              { label: 'Kişiye Özel', href: '/categories/hediyelik/kisiye-ozel' },
-                              { label: 'Doğum Günü', href: '/categories/hediyelik/dogum-gunu' },
-                              { label: 'Ofis & Masaüstü', href: '/categories/hediyelik/ofis' },
-                              { label: 'Mini Setler', href: '/categories/hediyelik/mini-set' },
+                              { label: 'Kişiye Özel', slug: 'kisiye-ozel' },
+                              { label: 'Doğum Günü', slug: 'dogum-gunu' },
+                              { label: 'Ofis & Masaüstü', slug: 'ofis' },
+                              { label: 'Mini Setler', slug: 'mini-set' },
                             ]
                           }
                         ].map((cat, index) => (
-                          <CategoryItem key={cat.name} cat={cat} index={index} category={category} />
+                          <CategoryItem 
+                            key={cat.name} 
+                            cat={cat} 
+                            index={index} 
+                            selectedCategory={selectedCategory}
+                            onCategorySelect={setSelectedCategory}
+                          />
                         ))}
                       </div>
                     </div>
@@ -697,6 +731,13 @@ export default function ProductsPage({
 
                     {/* Clear Filters Button */}
                     <motion.button 
+                      onClick={() => {
+                        setSelectedCategory(null);
+                        setSelectedMinPrice(undefined);
+                        setSelectedMaxPrice(undefined);
+                        setSelectedInStock(false);
+                        setIsFiltersOpen(false);
+                      }}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="w-full bg-gradient-to-r from-gray-100 to-gray-200 hover:from-[#CBA135]/10 hover:to-[#F4D03F]/10 border border-gray-200 hover:border-[#CBA135]/30 text-gray-700 hover:text-[#CBA135] font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center space-x-3 shadow-sm hover:shadow-lg"

@@ -17,7 +17,7 @@ interface ProductFormData {
 }
 
 interface ProductCreateFormProps {
-  onSubmit: (data: ProductFormData) => void;
+  onSubmit?: (data: ProductFormData) => void;
   loading?: boolean;
   initialData?: Partial<ProductFormData>;
 }
@@ -109,7 +109,9 @@ export default function ProductCreateForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (onSubmit) {
+      onSubmit(formData);
+    }
   };
 
   return (

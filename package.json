@@ -15,7 +15,11 @@
     "demo:purge": "set ALLOW_DEMO_PURGE=I_UNDERSTAND && tsx prisma/purge-demo.ts",
     "demo:purge:force": "set ALLOW_DEMO_PURGE=I_UNDERSTAND && tsx prisma/purge-demo.ts --force",
     "seed": "tsx prisma/seed.ts",
-    "seed:demo": "set SEED_DEMO=true && tsx prisma/seed.ts"
+    "seed:demo": "set SEED_DEMO=true && tsx prisma/seed.ts",
+    "db:index": "psql -U postgres -d tdc_market -f prisma/migrations/add_performance_indexes.sql",
+    "test:load": "k6 run tests/load-test.js",
+    "test:load:artillery": "artillery run tests/load-test.yml",
+    "analyze": "cross-env ANALYZE=true npm run build"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -58,6 +62,7 @@
     "@types/react-dom": "^18.3.0",
     "@types/react-dropzone": "^4.2.2",
     "@types/uuid": "^10.0.0",
+    "@upstash/redis": "^1.35.5",
     "@vercel/analytics": "^1.5.0",
     "@vercel/og": "^0.8.5",
     "@vercel/speed-insights": "^1.2.0",

@@ -56,13 +56,13 @@ export async function GET(request: NextRequest) {
       });
 
       // Create demo invoice (TODO: Replace with real PSP integration)
-      await prisma.invoice.create({
-        data: {
-          sellerId: subscription.sellerId,
-          amount: subscription.price,
-          currency: subscription.currency,
-          status: 'PENDING',
-          dueDate: newPeriodEnd,
+        await (prisma.invoice.create as any)({
+          data: {
+            sellerId: subscription.sellerId,
+            amount: subscription.price,
+            currency: subscription.currency,
+            status: 'PENDING',
+            dueDate: newPeriodEnd,
           description: `Subscription renewal - ${subscription.plan} (${subscription.billingCycle})`,
           meta: {
             subscriptionId: subscription.id,

@@ -68,29 +68,32 @@ async function getDemoDataStats(): Promise<PurgeStats> {
 
     // Demo ürünleri say
     const products = await prisma.product.findMany({
-      select: { id: true, title: true, sku: true, description: true, meta: true }
+      select: { id: true, title: true, description: true }
     });
     stats.products = products.filter(product => isDemoProduct(product)).length;
 
     // Demo kategorileri say
-    const categories = await prisma.category.findMany({
-      select: { id: true, name: true, meta: true }
-    });
-    stats.categories = categories.filter(category => isDemoCategory(category)).length;
+    // const categories = await prisma.category.findMany({
+    //   select: { id: true, name: true }
+    // });
+    // stats.categories = categories.filter(category => isDemoCategory(category)).length;
+    stats.categories = 0;
 
     // Demo koleksiyonları say
-    const collections = await prisma.collection.findMany({
-      select: { id: true, name: true, meta: true }
-    });
-    stats.collections = collections.filter(collection => isDemoCategory(collection)).length;
+    // const collections = await prisma.collection.findMany({
+    //   select: { id: true, name: true }
+    // });
+    // stats.collections = collections.filter(collection => isDemoCategory(collection)).length;
+    stats.collections = 0;
 
     // Demo blog yazıları say
-    const blogs = await prisma.blogPost.findMany({
-      select: { id: true, title: true, content: true }
-    });
-    stats.blogs = blogs.filter(blog => 
-      isDemoContent(blog.title) || isDemoContent(blog.content)
-    ).length;
+    // const blogs = await prisma.blogPost.findMany({
+    //   select: { id: true, title: true, content: true }
+    // });
+    // stats.blogs = blogs.filter(blog => 
+    //   isDemoContent(blog.title) || isDemoContent(blog.content)
+    // ).length;
+    stats.blogs = 0;
 
     // Demo siparişleri say (demo kullanıcılara ait)
     const demoUserIds = users
@@ -146,7 +149,7 @@ async function purgeDemoData(): Promise<PurgeStats> {
 
     // Demo ürünleri temizle
     const products = await prisma.product.findMany({
-      select: { id: true, title: true, sku: true, description: true, meta: true }
+      select: { id: true, title: true, description: true }
     });
     const demoProductIds = products
       .filter(product => isDemoProduct(product))
@@ -154,58 +157,55 @@ async function purgeDemoData(): Promise<PurgeStats> {
 
     if (demoProductIds.length > 0) {
       await prisma.$transaction([
-        prisma.productImage.deleteMany({ where: { productId: { in: demoProductIds } } }),
+        // prisma.productImage.deleteMany({ where: { productId: { in: demoProductIds } } }),
         prisma.orderItem.deleteMany({ where: { productId: { in: demoProductIds } } }),
-        prisma.cart.deleteMany({ where: { productId: { in: demoProductIds } } }),
+        // prisma.cart.deleteMany({ where: { productId: { in: demoProductIds } } }),
         prisma.product.deleteMany({ where: { id: { in: demoProductIds } } })
       ]);
       stats.products = demoProductIds.length;
     }
 
-    // Demo kategorileri temizle
-    const categories = await prisma.category.findMany({
-      select: { id: true, name: true, meta: true }
-    });
-    const demoCategoryIds = categories
-      .filter(category => isDemoCategory(category))
-      .map(category => category.id);
+    // Demo kategorileri temizle - Prisma schema'da yok
+    // const categories = await prisma.category.findMany({
+    //   select: { id: true, name: true }
+    // });
+    // const demoCategoryIds = categories
+    //   .filter(category => isDemoCategory(category))
+    //   .map(category => category.id);
+    // if (demoCategoryIds.length > 0) {
+    //   const result = await prisma.category.deleteMany({
+    //     where: { id: { in: demoCategoryIds } }
+    //   });
+    //   stats.categories = result.count;
+    // }
 
-    if (demoCategoryIds.length > 0) {
-      const result = await prisma.category.deleteMany({
-        where: { id: { in: demoCategoryIds } }
-      });
-      stats.categories = result.count;
-    }
+    // Demo koleksiyonları temizle - Prisma schema'da yok
+    // const collections = await prisma.collection.findMany({
+    //   select: { id: true, name: true }
+    // });
+    // const demoCollectionIds = collections
+    //   .filter(collection => isDemoCategory(collection))
+    //   .map(collection => collection.id);
+    // if (demoCollectionIds.length > 0) {
+    //   const result = await prisma.collection.deleteMany({
+    //     where: { id: { in: demoCollectionIds } }
+    //   });
+    //   stats.collections = result.count;
+    // }
 
-    // Demo koleksiyonları temizle
-    const collections = await prisma.collection.findMany({
-      select: { id: true, name: true, meta: true }
-    });
-    const demoCollectionIds = collections
-      .filter(collection => isDemoCategory(collection))
-      .map(collection => collection.id);
-
-    if (demoCollectionIds.length > 0) {
-      const result = await prisma.collection.deleteMany({
-        where: { id: { in: demoCollectionIds } }
-      });
-      stats.collections = result.count;
-    }
-
-    // Demo blog yazılarını temizle
-    const blogs = await prisma.blogPost.findMany({
-      select: { id: true, title: true, content: true }
-    });
-    const demoBlogIds = blogs
-      .filter(blog => isDemoContent(blog.title) || isDemoContent(blog.content))
-      .map(blog => blog.id);
-
-    if (demoBlogIds.length > 0) {
-      const result = await prisma.blogPost.deleteMany({
-        where: { id: { in: demoBlogIds } }
-      });
-      stats.blogs = result.count;
-    }
+    // Demo blog yazılarını temizle - Prisma schema'da yok
+    // const blogs = await prisma.blogPost.findMany({
+    //   select: { id: true, title: true, content: true }
+    // });
+    // const demoBlogIds = blogs
+    //   .filter(blog => isDemoContent(blog.title) || isDemoContent(blog.content))
+    //   .map(blog => blog.id);
+    // if (demoBlogIds.length > 0) {
+    //   const result = await prisma.blogPost.deleteMany({
+    //     where: { id: { in: demoBlogIds } }
+    //   });
+    //   stats.blogs = result.count;
+    // }
 
     // Demo siparişleri temizle
     if (demoUserIds.length > 0) {

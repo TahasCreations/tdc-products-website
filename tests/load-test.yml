@@ -1,0 +1,160 @@
+# Artillery Load Test Configuration
+# 
+# Usage:
+# npm install -g artillery
+# artillery run tests/load-test.yml
+# 
+# Or with custom target:
+# artillery run tests/load-test.yml --target https://yourdomain.com
+
+config:
+  target: "http://localhost:3000"
+  phases:
+    # Warm-up phase
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm up"
+    
+    # Ramp up phase
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 50
+      name: "Ramp up to 50 users/sec"
+    
+    # Sustained load
+    - duration: 180
+      arrivalRate: 50
+      name: "Sustained load"
+    
+    # Spike test
+    - duration: 30
+      arrivalRate: 100
+      name: "Spike test"
+    
+    # Ramp down
+    - duration: 60
+      arrivalRate: 50
+      rampTo: 0
+      name: "Ramp down"
+  
+  # Performance thresholds
+  ensure:
+    maxErrorRate: 1  # Max 1% error rate
+    p95: 500         # 95th percentile < 500ms
+    p99: 1000        # 99th percentile < 1000ms
+  
+  # HTTP settings
+  http:
+    timeout: 10
+    pool: 50
+  
+  # Plugins
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+  
+  # Custom variables
+  variables:
+    searchQueries:
+      - "laptop"
+      - "phone"
+      - "headphones"
+      - "camera"
+      - "watch"
+    categories:
+      - "figur-koleksiyon"
+      - "moda-aksesuar"
+      - "elektronik"
+      - "ev-yasam"
+      - "sanat-hobi"
+
+scenarios:
+  # Homepage scenario
+  - name: "Homepage Visit"
+    weight: 30
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+            - contentType: text/html
+            - hasProperty: body
+      - think: 2
+
+  # Product browsing scenario
+  - name: "Product Browsing"
+    weight: 25
+    flow:
+      - get:
+          url: "/products"
+          expect:
+            - statusCode: 200
+      - think: 1
+      - get:
+          url: "/api/products"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      - think: 2
+
+  # Search scenario
+  - name: "Search Products"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/search?q={{ searchQueries }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+      - think: 1
+
+  # Category browsing scenario
+  - name: "Category Browsing"
+    weight: 15
+    flow:
+      - get:
+          url: "/categories/{{ categories }}"
+          expect:
+            - statusCode: 200
+      - think: 2
+
+  # API health check scenario
+  - name: "Health Check"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: status
+      - think: 1
+
+  # User journey scenario
+  - name: "Complete User Journey"
+    weight: 5
+    flow:
+      # Visit homepage
+      - get:
+          url: "/"
+      - think: 2
+      
+      # Browse products
+      - get:
+          url: "/products"
+      - think: 1
+      
+      # Search for something
+      - get:
+          url: "/api/search?q=laptop"
+      - think: 1
+      
+      # View category
+      - get:
+          url: "/categories/elektronik"
+      - think: 2
+      
+      # View product (simulated)
+      - get:
+          url: "/products"
+      - think: 3

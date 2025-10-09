@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const influencerAmount = influencerTake(priceNum);
 
   // İşbirliği oluştur
-  const collab = await prisma.collaboration.create({
+  const collab = await (prisma.collaboration.create as any)({
     data: {
       sellerId: seller.id,
       influencerId,
