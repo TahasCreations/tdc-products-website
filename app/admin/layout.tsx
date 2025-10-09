@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
@@ -221,7 +221,36 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState<string[]>(['overview', 'commerce']);
   const [searchQuery, setSearchQuery] = useState('');
-	const pathname = usePathname();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const pathname = usePathname();
+	const router = useRouter();
+
+  // Check authentication on mount
+	useEffect(() => {
+    const checkAuth = async () => {
+      // Skip auth check for login page
+      if (pathname === '/admin/login' || pathname === '/admin') {
+        setIsAuthenticated(true);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin/auth/verify');
+        const data = await response.json();
+
+        if (!data.authenticated) {
+          router.push('/admin/login');
+        } else {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        router.push('/admin/login');
+      }
+    };
+
+    checkAuth();
+  }, [pathname, router]);
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev => 
@@ -238,7 +267,23 @@ export default function AdminLayout({
     )
   })).filter(group => group.items.length > 0);
 
-  return (
+  // Show loading while checking authentication
+  if (isAuthenticated === null && pathname !== '/admin/login' && pathname !== '/admin') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="w-16 h-16 border-4 border-[#CBA135] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white text-lg font-semibold">Yetkilendirme kontrol ediliyor...</p>
+        </motion.div>
+      </div>
+    );
+	}
+
+	return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Mobile sidebar overlay */}
       <AnimatePresence>
@@ -366,9 +411,14 @@ export default function AdminLayout({
         {/* Footer */}
         <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
           <button 
-            onClick={() => {
-              // Logout logic
-              window.location.href = '/';
+            onClick={async () => {
+              try {
+                await fetch('/api/admin/auth/logout', { method: 'POST' });
+                window.location.href = '/admin/login';
+              } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/admin/login';
+              }
             }}
             className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           >
