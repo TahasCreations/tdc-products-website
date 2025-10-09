@@ -1,12 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ShoppingBag, Store, Check } from 'lucide-react';
 
 export default function KayitPage() {
+  const searchParams = useSearchParams();
+  const [userType, setUserType] = useState<'buyer' | 'seller'>(
+    (searchParams.get('type') as 'buyer' | 'seller') || 'buyer'
+  );
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -85,7 +90,6 @@ export default function KayitPage() {
     setIsLoading(true);
 
     try {
-      // TODO: Implement actual registration API
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -97,6 +101,7 @@ export default function KayitPage() {
           password: formData.password,
           phone: formData.phone,
           recaptchaToken,
+          userType,
         }),
       });
 
@@ -109,7 +114,12 @@ export default function KayitPage() {
         });
 
         if (result?.ok) {
+          // Redirect based on user type
+          if (userType === 'seller') {
+            router.push('/seller/apply');
+          } else {
           router.push('/');
+          }
         } else {
           router.push('/giris?message=Kayıt başarılı, lütfen giriş yapın');
         }
@@ -125,31 +135,140 @@ export default function KayitPage() {
   };
 
   const handleGoogleSignUp = () => {
-    signIn('google', { callbackUrl: '/' });
+    // Store user type in localStorage before Google OAuth
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pendingUserType', userType);
+    }
+    signIn('google', { 
+      callbackUrl: userType === 'seller' ? '/seller/apply' : '/' 
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-950/30 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="w-full max-w-md"
       >
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/50">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/50 dark:border-gray-700/50">
           {/* Header */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center space-x-2 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-coral-500 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-2xl">T</span>
+              <div className="w-12 h-12 bg-gradient-to-br from-[#CBA135] to-[#F4D03F] rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-black font-bold text-2xl">T</span>
               </div>
               <div>
-                <span className="text-2xl font-bold text-gray-900 font-serif">TDC Market</span>
-                <p className="text-xs text-gray-600 -mt-1">Özel figürlerden elektroniğe</p>
+                <span className="text-2xl font-bold text-gray-900 dark:text-white font-serif">TDC Products</span>
+                <p className="text-xs text-gray-600 dark:text-gray-400 -mt-1">Özel figürlerden elektroniğe</p>
               </div>
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Hesap Oluştur</h1>
-            <p className="text-gray-600">TDC Market'e katılın ve alışverişe başlayın</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Hesap Oluştur</h1>
+            <p className="text-gray-600 dark:text-gray-400">TDC Products'a katılın ve başlayın</p>
+          </div>
+
+          {/* User Type Selection */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              Hesap Tipi Seçin
+            </label>
+            <div className="grid grid-cols-2 gap-4">
+              <motion.button
+                type="button"
+                onClick={() => setUserType('buyer')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`
+                  relative p-4 rounded-xl border-2 transition-all duration-300
+                  ${userType === 'buyer'
+                    ? 'border-[#CBA135] bg-[#CBA135]/10 dark:bg-[#CBA135]/20'
+                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                  }
+                `}
+              >
+                <div className="flex flex-col items-center space-y-2">
+                  <div className={`
+                    w-12 h-12 rounded-xl flex items-center justify-center
+                    ${userType === 'buyer' 
+                      ? 'bg-[#CBA135] text-black' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    }
+                  `}>
+                    <ShoppingBag className="w-6 h-6" />
+                  </div>
+                  <div className="text-center">
+                    <p className={`font-semibold ${userType === 'buyer' ? 'text-[#CBA135]' : 'text-gray-700 dark:text-gray-300'}`}>
+                      Alıcı
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Alışveriş yapmak için</p>
+                  </div>
+                </div>
+                {userType === 'buyer' && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-[#CBA135] rounded-full flex items-center justify-center"
+                  >
+                    <Check className="w-4 h-4 text-black" />
+                  </motion.div>
+                )}
+              </motion.button>
+
+              <motion.button
+                type="button"
+                onClick={() => setUserType('seller')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`
+                  relative p-4 rounded-xl border-2 transition-all duration-300
+                  ${userType === 'seller'
+                    ? 'border-[#CBA135] bg-[#CBA135]/10 dark:bg-[#CBA135]/20'
+                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                  }
+                `}
+              >
+                <div className="flex flex-col items-center space-y-2">
+                  <div className={`
+                    w-12 h-12 rounded-xl flex items-center justify-center
+                    ${userType === 'seller' 
+                      ? 'bg-[#CBA135] text-black' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    }
+                  `}>
+                    <Store className="w-6 h-6" />
+                  </div>
+                  <div className="text-center">
+                    <p className={`font-semibold ${userType === 'seller' ? 'text-[#CBA135]' : 'text-gray-700 dark:text-gray-300'}`}>
+                      Satıcı
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Ürün satmak için</p>
+                  </div>
+                </div>
+                {userType === 'seller' && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-[#CBA135] rounded-full flex items-center justify-center"
+                  >
+                    <Check className="w-4 h-4 text-black" />
+                  </motion.div>
+                )}
+              </motion.button>
+            </div>
+            
+            {userType === 'seller' && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg"
+              >
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  ℹ️ Satıcı olarak kayıt olduktan sonra mağaza bilgilerinizi tamamlamanız gerekecek.
+                </p>
+              </motion.div>
+            )}
           </div>
 
           {/* Error Message */}
@@ -157,16 +276,16 @@ export default function KayitPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+              className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
             >
-              <p className="text-red-700 text-sm">{error}</p>
+              <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
             </motion.div>
           )}
 
           {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Ad Soyad
               </label>
               <input
@@ -175,13 +294,13 @@ export default function KayitPage() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
                 placeholder="Adınız ve soyadınız"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 E-posta
               </label>
               <input
@@ -190,27 +309,28 @@ export default function KayitPage() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
                 placeholder="ornek@email.com"
               />
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                Telefon (Opsiyonel)
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Telefon {userType === 'seller' && '*'}
               </label>
               <input
                 type="tel"
                 id="phone"
+                required={userType === 'seller'}
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
-                placeholder="+90 5XX XXX XX XX"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
+                placeholder="0555 XXX XX XX"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Şifre
               </label>
               <input
@@ -220,14 +340,13 @@ export default function KayitPage() {
                 minLength={6}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
                 placeholder="En az 6 karakter"
-                style={{ color: 'black', WebkitTextSecurity: 'disc' }}
               />
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Şifre Tekrar
               </label>
               <input
@@ -236,9 +355,8 @@ export default function KayitPage() {
                 required
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
                 placeholder="Şifrenizi tekrar girin"
-                style={{ color: 'black', WebkitTextSecurity: 'disc' }}
               />
             </div>
 
@@ -248,14 +366,14 @@ export default function KayitPage() {
                 id="acceptTerms"
                 checked={formData.acceptTerms}
                 onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
-                className="mt-1 h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                className="mt-1 h-4 w-4 text-[#CBA135] border-gray-300 dark:border-gray-600 rounded focus:ring-[#CBA135]"
               />
-              <label htmlFor="acceptTerms" className="text-sm text-gray-600">
-                <Link href="/terms" className="text-indigo-600 hover:underline">
+              <label htmlFor="acceptTerms" className="text-sm text-gray-600 dark:text-gray-400">
+                <Link href="/terms" className="text-[#CBA135] hover:underline">
                   Kullanım Şartları
                 </Link>
                 {' ve '}
-                <Link href="/privacy" className="text-indigo-600 hover:underline">
+                <Link href="/privacy" className="text-[#CBA135] hover:underline">
                   Gizlilik Politikası
                 </Link>
                 'nı okudum ve kabul ediyorum.
@@ -272,7 +390,7 @@ export default function KayitPage() {
               disabled={isLoading}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full py-3 px-4 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl"
+              className="w-full py-3 px-4 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-black font-semibold rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
               {isLoading ? 'Hesap Oluşturuluyor...' : 'Hesap Oluştur'}
             </motion.button>
@@ -280,9 +398,9 @@ export default function KayitPage() {
 
           {/* Divider */}
           <div className="my-6 flex items-center">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="px-4 text-sm text-gray-500">veya</span>
-            <div className="flex-1 h-px bg-gray-200" />
+            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-600" />
+            <span className="px-4 text-sm text-gray-500 dark:text-gray-400">veya</span>
+            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-600" />
           </div>
 
           {/* Google Sign Up */}
@@ -290,7 +408,7 @@ export default function KayitPage() {
             onClick={handleGoogleSignUp}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full py-3 px-4 bg-white border border-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center space-x-2"
+            className="w-full py-3 px-4 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center space-x-2"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -303,9 +421,9 @@ export default function KayitPage() {
 
           {/* Login Link */}
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Zaten hesabınız var mı?{' '}
-              <Link href="/giris" className="text-indigo-600 hover:text-indigo-700 font-semibold">
+              <Link href="/giris" className="text-[#CBA135] hover:text-[#F4D03F] font-semibold">
                 Giriş Yap
               </Link>
             </p>
