@@ -226,10 +226,10 @@ export default function AdminLayout({
 	const router = useRouter();
 
   // Check authentication on mount
-	useEffect(() => {
+  useEffect(() => {
     const checkAuth = async () => {
-      // Skip auth check for login page
-      if (pathname === '/admin/login' || pathname === '/admin') {
+      // Skip auth check for main admin page (login page)
+      if (pathname === '/admin') {
         setIsAuthenticated(true);
         return;
       }
@@ -239,13 +239,13 @@ export default function AdminLayout({
         const data = await response.json();
 
         if (!data.authenticated) {
-          router.push('/admin/login');
+          router.push('/admin');
         } else {
           setIsAuthenticated(true);
         }
       } catch (error) {
         console.error('Auth check error:', error);
-        router.push('/admin/login');
+        router.push('/admin');
       }
     };
 
@@ -267,8 +267,8 @@ export default function AdminLayout({
     )
   })).filter(group => group.items.length > 0);
 
-  // Show loading while checking authentication
-  if (isAuthenticated === null && pathname !== '/admin/login' && pathname !== '/admin') {
+  // Show loading while checking authentication (skip for main admin page)
+  if (isAuthenticated === null && pathname !== '/admin') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center">
         <motion.div
@@ -281,7 +281,7 @@ export default function AdminLayout({
         </motion.div>
       </div>
     );
-	}
+  }
 
 	return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -414,10 +414,10 @@ export default function AdminLayout({
             onClick={async () => {
               try {
                 await fetch('/api/admin/auth/logout', { method: 'POST' });
-                window.location.href = '/admin/login';
+                window.location.href = '/admin';
               } catch (error) {
                 console.error('Logout error:', error);
-                window.location.href = '/admin/login';
+                window.location.href = '/admin';
               }
             }}
             className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
