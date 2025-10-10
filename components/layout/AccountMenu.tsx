@@ -69,7 +69,7 @@ export default function AccountMenu() {
         ) : (
           <span className="text-lg">👤</span>
         )}
-        <span className="text-sm">
+        <span className="text-sm text-black">
           {me?.name || session.user?.name || "Hesap"}
         </span>
         <svg 
