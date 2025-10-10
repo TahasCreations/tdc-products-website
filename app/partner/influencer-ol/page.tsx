@@ -46,11 +46,19 @@ const Schema = z.object({
 
 export default function InfluencerApplyPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const steps = [
+    { key: 'profile', title: 'Profil & Sosyal', icon: '👤' },
+    { key: 'audience', title: 'Kitle & Performans', icon: '📈' },
+    { key: 'preferences', title: 'Tercihler & Portföy', icon: '🎯' },
+    { key: 'consents', title: 'Onaylar & Gönder', icon: '✅' },
+  ];
   
   const { 
     register, 
     handleSubmit, 
     formState: { errors, isSubmitting }, 
+    trigger,
     reset 
   } = useForm({
     resolver: zodResolver(Schema),
@@ -123,6 +131,33 @@ export default function InfluencerApplyPage() {
     }
   }
 
+  async function handleNext() {
+    // Validate step-specific fields before proceeding
+    let fieldsToValidate: string[] = [];
+    if (currentStep === 0) {
+      fieldsToValidate = [
+        'fullName', 'phone', 'country', 'city',
+        'instagram', 'tiktok', 'youtube', 'website',
+      ];
+    } else if (currentStep === 1) {
+      fieldsToValidate = [
+        'followerEst', 'avgViews', 'avgLikes', 'audienceAge', 'audienceGender', 'topCountries',
+        'primaryPlatform', 'postingFrequency',
+      ];
+    } else if (currentStep === 2) {
+      fieldsToValidate = [
+        'category', 'collaborationTypes', 'compensationPreference', 'portfolio', 'pastCollaborations', 'notes',
+      ];
+    }
+    const isValid = await trigger(fieldsToValidate as any);
+    if (!isValid) return;
+    setCurrentStep(s => Math.min(s + 1, steps.length - 1));
+  }
+
+  function handleBack() {
+    setCurrentStep(s => Math.max(s - 1, 0));
+  }
+
   if (isSubmitted) {
     return (
       <main className="mx-auto max-w-5xl px-4 py-16">
@@ -152,9 +187,9 @@ export default function InfluencerApplyPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-16">
+    <main className="mx-auto max-w-6xl px-4 py-16 bg-[linear-gradient(180deg,rgba(244,244,248,0.9)_0%,rgba(255,255,255,1)_40%)]">
       {/* Hero */}
-      <section className="mb-10 rounded-2xl overflow-hidden border border-gray-200 bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50">
+      <section className="mb-10 rounded-2xl overflow-hidden border border-gray-200 bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 shadow-lg">
         <div className="px-8 py-12 md:px-12 md:py-16 flex flex-col md:flex-row items-center gap-8">
           <div className="flex-1">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 text-sm mb-4">
@@ -183,9 +218,31 @@ export default function InfluencerApplyPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left: Steps and FAQ */}
-        <section className="space-y-6">
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Nasıl çalışır?</h2>
+        <section className="space-y-6 lg:sticky lg:top-24 self-start">
+          {/* Stepper */}
+          <div className="rounded-xl border border-gray-200 bg-white/90 backdrop-blur p-6 shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              {steps.map((step, idx) => (
+                <div key={step.key} className="flex-1 flex items-center">
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${idx <= currentStep ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                    {idx + 1}
+                  </div>
+                  {idx < steps.length - 1 && (
+                    <div className={`h-1 mx-2 flex-1 rounded ${idx < currentStep ? 'bg-purple-600' : 'bg-gray-200'}`} />
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 text-sm text-black">
+              <span>{steps[currentStep].icon}</span>
+              <span className="font-medium">{steps[currentStep].title}</span>
+            </div>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white/90 backdrop-blur p-6 shadow-lg">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <span>🧭</span>
+              <span>Nasıl çalışır?</span>
+            </h2>
             <ol className="space-y-4">
               <li className="flex items-start gap-3">
                 <span className="h-7 w-7 flex items-center justify-center rounded-full bg-gray-900 text-white text-sm">1</span>
@@ -211,8 +268,11 @@ export default function InfluencerApplyPage() {
             </ol>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Sık sorulanlar</h2>
+          <div className="rounded-xl border border-gray-200 bg-white/90 backdrop-blur p-6 shadow-lg">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <span>❓</span>
+              <span>Sık sorulanlar</span>
+            </h2>
             <div className="space-y-4 text-sm text-black">
               <div>
                 <p className="font-medium text-gray-900">Minimum takipçi şartı var mı?</p>
@@ -228,35 +288,48 @@ export default function InfluencerApplyPage() {
 
         {/* Right: Form Card */}
         <section>
-          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 lg:p-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-1">Başvuru Formu</h2>
+          <div className="rounded-2xl border border-gray-200 bg-white/95 backdrop-blur shadow-xl p-6 lg:p-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-1 flex items-center gap-2">
+              <span>📝</span>
+              <span>Başvuru Formu</span>
+            </h2>
             <p className="text-black text-sm mb-6">Temel bilgilerinizi paylaşın; 24‑72 saat içinde dönüş yapıyoruz.</p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
               {/* Profile */}
+              {currentStep === 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Profil Bilgileri</h3>
+                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                  <span>👤</span>
+                  <span>Profil Bilgileri</span>
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Ad Soyad</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black"
-                      placeholder="Adınız Soyadınız"
-                      {...register("fullName")} 
-                    />
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">👤</span>
+                      <input 
+                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent text-black placeholder-black"
+                        placeholder="Adınız Soyadınız"
+                        {...register("fullName")} 
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Telefon</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black"
-                      placeholder="+90 5xx xxx xx xx"
-                      {...register("phone")} 
-                    />
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">📞</span>
+                      <input 
+                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black"
+                        placeholder="+90 5xx xxx xx xx"
+                        {...register("phone")} 
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Ülke</label>
                     <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black"
                       placeholder="Türkiye"
                       {...register("country")} 
                     />
@@ -264,57 +337,79 @@ export default function InfluencerApplyPage() {
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Şehir</label>
                     <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black"
                       placeholder="İstanbul"
                       {...register("city")} 
                     />
                   </div>
                 </div>
               </div>
+              )}
+              {currentStep === 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Sosyal Medya Hesapları</h3>
+                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                  <span>🌐</span>
+                  <span>Sosyal Medya Hesapları</span>
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Instagram</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
-                      placeholder="https://instagram.com/kullaniciadi"
-                      {...register("instagram")} 
-                    />
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">📸</span>
+                      <input 
+                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black" 
+                        placeholder="https://instagram.com/kullaniciadi"
+                        {...register("instagram")} 
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">TikTok</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
-                      placeholder="https://tiktok.com/@kullaniciadi"
-                      {...register("tiktok")} 
-                    />
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">🎵</span>
+                      <input 
+                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black" 
+                        placeholder="https://tiktok.com/@kullaniciadi"
+                        {...register("tiktok")} 
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">YouTube</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
-                      placeholder="https://youtube.com/@kanaladi"
-                      {...register("youtube")} 
-                    />
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">▶️</span>
+                      <input 
+                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black" 
+                        placeholder="https://youtube.com/@kanaladi"
+                        {...register("youtube")} 
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Website/Blog</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
-                      placeholder="https://website.com"
-                      {...register("website")} 
-                    />
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">🔗</span>
+                      <input 
+                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black" 
+                        placeholder="https://website.com"
+                        {...register("website")} 
+                      />
+                    </div>
                   </div>
                 </div>
                 {errors.instagram && (
                   <p className="text-red-500 text-sm mt-2">{errors.instagram.message}</p>
                 )}
               </div>
+              )}
 
               {/* Audience & Metrics */}
+              {currentStep === 1 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Kitle ve Metrikler</h3>
+                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                  <span>📈</span>
+                  <span>Kitle ve Metrikler</span>
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Toplam Takipçi (Tahmini)</label>
@@ -372,10 +467,15 @@ export default function InfluencerApplyPage() {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Performance & Platforms */}
+              {currentStep === 1 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Performans ve Platformlar</h3>
+                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                  <span>🚀</span>
+                  <span>Performans ve Platformlar</span>
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Ana Platform</label>
@@ -405,10 +505,15 @@ export default function InfluencerApplyPage() {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Preferences */}
+              {currentStep === 2 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Tercihler</h3>
+                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                  <span>🎯</span>
+                  <span>Tercihler</span>
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Kategori/Niş</label>
@@ -452,40 +557,53 @@ export default function InfluencerApplyPage() {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Portfolio & Notes */}
+              {currentStep === 2 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3">Portföy ve Notlar</h3>
+                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                  <span>🗂️</span>
+                  <span>Portföy ve Notlar</span>
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Portföy URL</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-400" 
-                      placeholder="https://behance.net/..., Google Drive..."
-                      {...register("portfolio")} 
-                    />
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">📁</span>
+                      <input 
+                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent text-black placeholder-gray-400" 
+                        placeholder="https://behance.net/..., Google Drive..."
+                        {...register("portfolio")} 
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Önceki İşbirlikleri</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-400" 
-                      placeholder="Marka X (2024), Marka Y (2023) ..."
-                      {...register("pastCollaborations")} 
-                    />
+                    <div className="relative">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">🤝</span>
+                      <input 
+                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent text-black placeholder-gray-400" 
+                        placeholder="Marka X (2024), Marka Y (2023) ..."
+                        {...register("pastCollaborations")} 
+                      />
+                    </div>
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-black mb-1">Ek Notlar</label>
                     <textarea 
                       rows={3}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black" 
                       placeholder="Bize iletmek istediğiniz ek bilgiler..."
                       {...register("notes")} 
                     />
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Consents */}
+              {currentStep === 3 && (
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
                   <input 
@@ -527,14 +645,38 @@ export default function InfluencerApplyPage() {
                   <p className="text-red-500 text-sm">{(errors as any).dataProcessingConsent?.message}</p>
                 )}
               </div>
+              )}
 
-              <button 
-                type="submit"
-                disabled={isSubmitting} 
-                className="w-full px-6 py-3 rounded-lg bg-gray-900 text-white font-medium hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-              >
-                {isSubmitting ? "Gönderiliyor..." : "Başvuruyu Gönder"}
-              </button>
+              {/* Navigation Buttons */}
+              <div className="flex items-center gap-3 pt-2">
+                {currentStep > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="px-5 py-3 rounded-lg border border-gray-300 text-black hover:bg-gray-50"
+                  >
+                    Geri
+                  </button>
+                )}
+                {currentStep < steps.length - 1 && (
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="ml-auto px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white font-semibold shadow-lg"
+                  >
+                    İleri
+                  </button>
+                )}
+                {currentStep === steps.length - 1 && (
+                  <button 
+                    type="submit"
+                    disabled={isSubmitting} 
+                    className="ml-auto px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white font-semibold shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? "Gönderiliyor..." : "Başvuruyu Gönder"}
+                  </button>
+                )}
+              </div>
             </form>
           </div>
         </section>
