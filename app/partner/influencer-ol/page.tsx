@@ -380,7 +380,7 @@ export default function InfluencerApplyPage() {
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Ana Platform</label>
                     <select 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent text-black"
                       {...register("primaryPlatform")}
                     >
                       <option value="">Seçiniz</option>
@@ -393,7 +393,7 @@ export default function InfluencerApplyPage() {
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Paylaşım Sıklığı</label>
                     <select 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent text-black"
                       {...register("postingFrequency")}
                     >
                       <option value="">Seçiniz</option>
@@ -421,7 +421,7 @@ export default function InfluencerApplyPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">İşbirliği Türleri</label>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="grid grid-cols-2 gap-2 text-sm text-black">
                       <label className="inline-flex items-center gap-2">
                         <input type="checkbox" value="sponsored" {...register("collaborationTypes")} /> Sponsorlu İçerik
                       </label>
@@ -438,7 +438,7 @@ export default function InfluencerApplyPage() {
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-black mb-1">Ücret Tercihi</label>
-                    <div className="grid grid-cols-3 gap-2 text-sm">
+                    <div className="grid grid-cols-3 gap-2 text-sm text-black">
                       <label className="inline-flex items-center gap-2">
                         <input type="radio" value="fixed" {...register("compensationPreference")} /> Sabit Ücret
                       </label>
