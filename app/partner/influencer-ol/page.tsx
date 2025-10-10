@@ -413,7 +413,7 @@ export default function InfluencerApplyPage() {
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Kategori/Niş</label>
                     <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-400" 
                       placeholder="Moda, Teknoloji, Lifestyle, Güzellik, Fitness..."
                       {...register("category")} 
                     />
@@ -460,7 +460,7 @@ export default function InfluencerApplyPage() {
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Portföy URL</label>
                     <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-400" 
                       placeholder="https://behance.net/..., Google Drive..."
                       {...register("portfolio")} 
                     />
@@ -468,7 +468,7 @@ export default function InfluencerApplyPage() {
                   <div>
                     <label className="block text-sm font-medium text-black mb-1">Önceki İşbirlikleri</label>
                     <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-400" 
                       placeholder="Marka X (2024), Marka Y (2023) ..."
                       {...register("pastCollaborations")} 
                     />
