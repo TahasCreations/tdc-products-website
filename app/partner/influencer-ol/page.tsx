@@ -164,7 +164,7 @@ export default function InfluencerApplyPage() {
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3 text-gray-900">
               TDC Market ile işbirliği yapın, kitlenizle gelir yaratın
             </h1>
-            <p className="text-gray-600 max-w-2xl">
+            <p className="text-black max-w-2xl">
               Markalarımızla içerik ortaklıkları kurun, özel kampanyalara katılın ve satıştan pay alın. Hızlı başvuru, şeffaf kazanç.
             </p>
           </div>
@@ -191,21 +191,21 @@ export default function InfluencerApplyPage() {
                 <span className="h-7 w-7 flex items-center justify-center rounded-full bg-gray-900 text-white text-sm">1</span>
                 <div>
                   <p className="font-medium text-gray-900">Başvurunuzu gönderin</p>
-                  <p className="text-gray-600 text-sm">Sosyal hesaplarınızı ve nişinizi paylaşın.</p>
+                  <p className="text-black text-sm">Sosyal hesaplarınızı ve nişinizi paylaşın.</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <span className="h-7 w-7 flex items-center justify-center rounded-full bg-gray-900 text-white text-sm">2</span>
                 <div>
                   <p className="font-medium text-gray-900">Onay ve kurulum</p>
-                  <p className="text-gray-600 text-sm">Özel link ve indirim kodunuz tanımlanır.</p>
+                  <p className="text-black text-sm">Özel link ve indirim kodunuz tanımlanır.</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <span className="h-7 w-7 flex items-center justify-center rounded-full bg-gray-900 text-white text-sm">3</span>
                 <div>
                   <p className="font-medium text-gray-900">Paylaş ve kazan</p>
-                  <p className="text-gray-600 text-sm">Satışlar üzerinden performans payı kazanın.</p>
+                  <p className="text-black text-sm">Satışlar üzerinden performans payı kazanın.</p>
                 </div>
               </li>
             </ol>
@@ -213,14 +213,14 @@ export default function InfluencerApplyPage() {
 
           <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Sık sorulanlar</h2>
-            <div className="space-y-4 text-sm text-gray-700">
+            <div className="space-y-4 text-sm text-black">
               <div>
                 <p className="font-medium text-gray-900">Minimum takipçi şartı var mı?</p>
-                <p className="text-gray-600">Belirli bir alt limit yok; kitle uyumu ve içerik kalitesine bakıyoruz.</p>
+                <p className="text-black">Belirli bir alt limit yok; kitle uyumu ve içerik kalitesine bakıyoruz.</p>
               </div>
               <div>
                 <p className="font-medium text-gray-900">Ödeme modeli nedir?</p>
-                <p className="text-gray-600">Satıştan performans bazlı komisyon + dönemsel kampanya bonusları.</p>
+                <p className="text-black">Satıştan performans bazlı komisyon + dönemsel kampanya bonusları.</p>
               </div>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default function InfluencerApplyPage() {
         <section>
           <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 lg:p-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-1">Başvuru Formu</h2>
-            <p className="text-gray-600 text-sm mb-6">Temel bilgilerinizi paylaşın; 24‑72 saat içinde dönüş yapıyoruz.</p>
+            <p className="text-black text-sm mb-6">Temel bilgilerinizi paylaşın; 24‑72 saat içinde dönüş yapıyoruz.</p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
               {/* Profile */}
@@ -238,7 +238,7 @@ export default function InfluencerApplyPage() {
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Profil Bilgileri</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Ad Soyad</label>
+                    <label className="block text-sm font-medium text-black mb-1">Ad Soyad</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent"
                       placeholder="Adınız Soyadınız"
@@ -246,7 +246,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+                    <label className="block text-sm font-medium text-black mb-1">Telefon</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent"
                       placeholder="+90 5xx xxx xx xx"
@@ -254,7 +254,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Ülke</label>
+                    <label className="block text-sm font-medium text-black mb-1">Ülke</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent"
                       placeholder="Türkiye"
@@ -262,7 +262,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Şehir</label>
+                    <label className="block text-sm font-medium text-black mb-1">Şehir</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent"
                       placeholder="İstanbul"
@@ -275,7 +275,7 @@ export default function InfluencerApplyPage() {
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Sosyal Medya Hesapları</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Instagram</label>
+                    <label className="block text-sm font-medium text-black mb-1">Instagram</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
                       placeholder="https://instagram.com/kullaniciadi"
@@ -283,7 +283,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">TikTok</label>
+                    <label className="block text-sm font-medium text-black mb-1">TikTok</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
                       placeholder="https://tiktok.com/@kullaniciadi"
@@ -291,7 +291,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">YouTube</label>
+                    <label className="block text-sm font-medium text-black mb-1">YouTube</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
                       placeholder="https://youtube.com/@kanaladi"
@@ -299,7 +299,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Website/Blog</label>
+                    <label className="block text-sm font-medium text-black mb-1">Website/Blog</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
                       placeholder="https://website.com"
@@ -317,7 +317,7 @@ export default function InfluencerApplyPage() {
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Kitle ve Metrikler</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Toplam Takipçi (Tahmini)</label>
+                    <label className="block text-sm font-medium text-black mb-1">Toplam Takipçi (Tahmini)</label>
                     <input 
                       type="number"
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
@@ -329,7 +329,7 @@ export default function InfluencerApplyPage() {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Ortalama Görüntüleme/Sayı</label>
+                    <label className="block text-sm font-medium text-black mb-1">Ortalama Görüntüleme/Sayı</label>
                     <input 
                       type="number"
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
@@ -338,7 +338,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Ortalama Beğeni/Sayı</label>
+                    <label className="block text-sm font-medium text-black mb-1">Ortalama Beğeni/Sayı</label>
                     <input 
                       type="number"
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
@@ -347,7 +347,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Kitle Yaş Aralığı</label>
+                    <label className="block text-sm font-medium text-black mb-1">Kitle Yaş Aralığı</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
                       placeholder="18-24, 25-34 ..."
@@ -355,7 +355,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Kitle Cinsiyet Dağılımı</label>
+                    <label className="block text-sm font-medium text-black mb-1">Kitle Cinsiyet Dağılımı</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
                       placeholder="%60 Kadın / %40 Erkek"
@@ -363,7 +363,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">En Çok Takipçi Ülkeleri</label>
+                    <label className="block text-sm font-medium text-black mb-1">En Çok Takipçi Ülkeleri</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
                       placeholder="TR, DE, NL"
@@ -378,7 +378,7 @@ export default function InfluencerApplyPage() {
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Performans ve Platformlar</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Ana Platform</label>
+                    <label className="block text-sm font-medium text-black mb-1">Ana Platform</label>
                     <select 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent"
                       {...register("primaryPlatform")}
@@ -391,7 +391,7 @@ export default function InfluencerApplyPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Paylaşım Sıklığı</label>
+                    <label className="block text-sm font-medium text-black mb-1">Paylaşım Sıklığı</label>
                     <select 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent"
                       {...register("postingFrequency")}
@@ -411,16 +411,16 @@ export default function InfluencerApplyPage() {
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Tercihler</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Kategori/Niş</label>
+                    <label className="block text-sm font-medium text-black mb-1">Kategori/Niş</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
                       placeholder="Moda, Teknoloji, Lifestyle, Güzellik, Fitness..."
                       {...register("category")} 
                     />
-                    <p className="text-gray-500 text-xs mt-1">Hangi konularda içerik ürettiğinizi belirtin</p>
+                    <p className="text-black text-xs mt-1">Hangi konularda içerik ürettiğinizi belirtin</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">İşbirliği Türleri</label>
+                    <label className="block text-sm font-medium text-black mb-1">İşbirliği Türleri</label>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <label className="inline-flex items-center gap-2">
                         <input type="checkbox" value="sponsored" {...register("collaborationTypes")} /> Sponsorlu İçerik
@@ -437,7 +437,7 @@ export default function InfluencerApplyPage() {
                     </div>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Ücret Tercihi</label>
+                    <label className="block text-sm font-medium text-black mb-1">Ücret Tercihi</label>
                     <div className="grid grid-cols-3 gap-2 text-sm">
                       <label className="inline-flex items-center gap-2">
                         <input type="radio" value="fixed" {...register("compensationPreference")} /> Sabit Ücret
@@ -458,7 +458,7 @@ export default function InfluencerApplyPage() {
                 <h3 className="text-sm font-medium text-gray-900 mb-3">Portföy ve Notlar</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Portföy URL</label>
+                    <label className="block text-sm font-medium text-black mb-1">Portföy URL</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
                       placeholder="https://behance.net/..., Google Drive..."
@@ -466,7 +466,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Önceki İşbirlikleri</label>
+                    <label className="block text-sm font-medium text-black mb-1">Önceki İşbirlikleri</label>
                     <input 
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
                       placeholder="Marka X (2024), Marka Y (2023) ..."
@@ -474,7 +474,7 @@ export default function InfluencerApplyPage() {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Ek Notlar</label>
+                    <label className="block text-sm font-medium text-black mb-1">Ek Notlar</label>
                     <textarea 
                       rows={3}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent" 
@@ -493,7 +493,7 @@ export default function InfluencerApplyPage() {
                     className="mt-1"
                     {...register("agreement")} 
                   />
-                  <label className="text-sm text-gray-600">
+                  <label className="text-sm text-black">
                     <span className="text-red-500">*</span> Influencer sözleşmesini okudum ve kabul ediyorum. Marka işbirlikleri için belirlenen kurallara uyacağımı beyan ederim.
                   </label>
                 </div>
@@ -506,7 +506,7 @@ export default function InfluencerApplyPage() {
                     className="mt-1"
                     {...register("communicationConsent")} 
                   />
-                  <label className="text-sm text-gray-600">
+                  <label className="text-sm text-black">
                     <span className="text-red-500">*</span> Başvurumla ilgili e‑posta/telefon yoluyla iletişim kurulmasına izin veriyorum.
                   </label>
                 </div>
@@ -519,7 +519,7 @@ export default function InfluencerApplyPage() {
                     className="mt-1"
                     {...register("dataProcessingConsent")} 
                   />
-                  <label className="text-sm text-gray-600">
+                  <label className="text-sm text-black">
                     <span className="text-red-500">*</span> KVKK/GDPR kapsamında verilerimin işlenmesine onay veriyorum.
                   </label>
                 </div>
