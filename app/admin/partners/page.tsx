@@ -33,27 +33,8 @@ export default function PartnersPage() {
       // const response = await fetch('/api/admin/applications');
       // const data = await response.json();
       
-      // Mock data for now
-      const mockApplications: Application[] = [
-        {
-          id: '1',
-          type: 'seller',
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-          user: { id: '1', name: 'Ahmet Yılmaz', email: 'ahmet@example.com' },
-          data: { storeName: 'Ahmet Mağazası', taxId: '1234567890', iban: 'TR1234567890123456789012345' }
-        },
-        {
-          id: '2',
-          type: 'influencer',
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-          user: { id: '2', name: 'Ayşe Demir', email: 'ayse@example.com' },
-          data: { socialLinks: { instagram: 'https://instagram.com/ayse', tiktok: 'https://tiktok.com/ayse' }, followerEst: 50000 }
-        }
-      ];
-      
-      setApplications(mockApplications);
+      // Demo veriler temizlendi - API'den gerçek veriler gelecek
+      setApplications([]);
     } catch (error) {
       console.error('Başvurular yüklenirken hata:', error);
     } finally {

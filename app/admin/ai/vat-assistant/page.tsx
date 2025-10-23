@@ -19,12 +19,8 @@ export default function VatAssistantPage() {
     { value: '2024-04', label: 'Nisan 2024' },
   ];
 
-  const mockVatData = {
-    '2024-01': { outputVat: 15000, inputVat: 8000, netVat: 7000, capacity: 5000 },
-    '2024-02': { outputVat: 18000, inputVat: 9500, netVat: 8500, capacity: 3000 },
-    '2024-03': { outputVat: 22000, inputVat: 12000, netVat: 10000, capacity: 2000 },
-    '2024-04': { outputVat: 25000, inputVat: 14000, netVat: 11000, capacity: 1000 },
-  };
+  // Demo veriler temizlendi - API'den gerçek veriler gelecek
+  const mockVatData: Record<string, any> = {};
 
   useEffect(() => {
     setVatData(mockVatData[selectedPeriod as keyof typeof mockVatData] || mockVatData['2024-01']);

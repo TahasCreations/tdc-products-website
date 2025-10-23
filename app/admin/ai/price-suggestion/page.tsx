@@ -13,7 +13,9 @@ export default function PriceSuggestionPage() {
 		{ id: 'PRD-003', name: 'Vintage Poster Seti', currentPrice: '₺89.90' }
 	];
 
-	const mockResults = {
+	// Demo veriler temizlendi - API'den gerçek veriler gelecek
+	const mockResults: any = null;
+	const oldMockResults = {
 		currentPrice: 149.90,
 		suggestedPrice: 164.50,
 		confidence: 87,

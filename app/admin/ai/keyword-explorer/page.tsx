@@ -7,7 +7,9 @@ export default function KeywordExplorerPage() {
 	const [results, setResults] = useState<any[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const mockResults = [
+	// Demo veriler temizlendi - API'den gerçek veriler gelecek
+	const mockResults: any[] = [];
+	const oldMockResults = [
 		{ keyword: 'figür koleksiyon', volume: 8900, difficulty: 45, cpc: '₺2.30', trend: '+12%' },
 		{ keyword: 'anime figür', volume: 12400, difficulty: 62, cpc: '₺3.45', trend: '+8%' },
 		{ keyword: 'koleksiyon ürünleri', volume: 5600, difficulty: 38, cpc: '₺1.80', trend: '+15%' },

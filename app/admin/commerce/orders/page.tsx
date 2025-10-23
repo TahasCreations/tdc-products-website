@@ -1,11 +1,38 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+import { Package } from 'lucide-react';
+
+interface Order {
+	id: string;
+	customer: string;
+	total: string;
+	status: string;
+	date: string;
+}
+
 export default function OrdersPage() {
-	const orders = [
-		{ id: '#12345', customer: 'Ahmet Yılmaz', total: '₺156.50', status: 'Hazırlanıyor', date: '2024-01-15' },
-		{ id: '#12346', customer: 'Fatma Kaya', total: '₺89.90', status: 'Kargoda', date: '2024-01-15' },
-		{ id: '#12347', customer: 'Mehmet Demir', total: '₺234.75', status: 'Teslim Edildi', date: '2024-01-14' },
-		{ id: '#12348', customer: 'Ayşe Şahin', total: '₺67.25', status: 'İptal Edildi', date: '2024-01-14' },
-		{ id: '#12349', customer: 'Ali Özkan', total: '₺445.80', status: 'Beklemede', date: '2024-01-13' },
-	];
+	const [orders, setOrders] = useState<Order[]>([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		fetchOrders();
+	}, []);
+
+	const fetchOrders = async () => {
+		try {
+			setLoading(true);
+			const response = await fetch('/api/orders');
+			if (response.ok) {
+				const data = await response.json();
+				setOrders(data.orders || []);
+			}
+		} catch (error) {
+			console.error('Siparişler yüklenirken hata:', error);
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -17,6 +44,14 @@ export default function OrdersPage() {
 			default: return 'bg-gray-100 text-gray-800';
 		}
 	};
+
+	if (loading) {
+		return (
+			<div className="flex items-center justify-center min-h-screen">
+				<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#CBA135]"></div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="p-6 space-y-6">
@@ -30,19 +65,19 @@ export default function OrdersPage() {
 			{/* Stats */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-2xl font-bold text-blue-600">1,247</div>
+					<div className="text-2xl font-bold text-blue-600">0</div>
 					<div className="text-sm text-gray-600">Toplam Sipariş</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-2xl font-bold text-yellow-600">89</div>
+					<div className="text-2xl font-bold text-yellow-600">0</div>
 					<div className="text-sm text-gray-600">Hazırlanıyor</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-2xl font-bold text-green-600">1,098</div>
+					<div className="text-2xl font-bold text-green-600">0</div>
 					<div className="text-sm text-gray-600">Tamamlandı</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-2xl font-bold text-red-600">15</div>
+					<div className="text-2xl font-bold text-red-600">0</div>
 					<div className="text-sm text-gray-600">İptal Edildi</div>
 				</div>
 			</div>
@@ -73,84 +108,83 @@ export default function OrdersPage() {
 				</div>
 			</div>
 
-			{/* Orders Table */}
-			<div className="bg-white rounded-lg border overflow-hidden">
-				<div className="overflow-x-auto">
-					<table className="w-full">
-						<thead className="bg-gray-50">
-							<tr>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Sipariş No
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Müşteri
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Tutar
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Durum
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Tarih
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İşlemler
-								</th>
-							</tr>
-						</thead>
-						<tbody className="bg-white divide-y divide-gray-200">
-							{orders.map((order) => (
-								<tr key={order.id} className="hover:bg-gray-50">
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-										{order.id}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{order.customer}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-										{order.total}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap">
-										<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
-											{order.status}
-										</span>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-										{order.date}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-										<button className="text-indigo-600 hover:text-indigo-900 mr-3">
-											Görüntüle
-										</button>
-										<button className="text-green-600 hover:text-green-900 mr-3">
-											Düzenle
-										</button>
-										<button className="text-red-600 hover:text-red-900">
-											İptal Et
-										</button>
-									</td>
+			{/* Orders Table or Empty State */}
+			{orders.length === 0 ? (
+				<div className="bg-white rounded-lg border p-12 text-center">
+					<div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+						<Package className="w-8 h-8 text-gray-400" />
+					</div>
+					<h3 className="text-lg font-semibold text-gray-900 mb-2">
+						Henüz Sipariş Yok
+					</h3>
+					<p className="text-gray-600 text-sm max-w-md mx-auto">
+						İlk sipariş geldiğinde burada görünecek
+					</p>
+				</div>
+			) : (
+				<div className="bg-white rounded-lg border overflow-hidden">
+					<div className="overflow-x-auto">
+						<table className="w-full">
+							<thead className="bg-gray-50">
+								<tr>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Sipariş No
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Müşteri
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Tutar
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Durum
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Tarih
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İşlemler
+									</th>
 								</tr>
-							))}
-						</tbody>
-					</table>
+							</thead>
+							<tbody className="bg-white divide-y divide-gray-200">
+								{orders.map((order) => (
+									<tr key={order.id} className="hover:bg-gray-50">
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+											{order.id}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{order.customer}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+											{order.total}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap">
+											<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.status)}`}>
+												{order.status}
+											</span>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+											{order.date}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+											<button className="text-indigo-600 hover:text-indigo-900 mr-3">
+												Görüntüle
+											</button>
+											<button className="text-green-600 hover:text-green-900 mr-3">
+												Düzenle
+											</button>
+											<button className="text-red-600 hover:text-red-900">
+												İptal Et
+											</button>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
 				</div>
-			</div>
-
-			{/* Pagination */}
-			<div className="flex items-center justify-between">
-				<div className="text-sm text-gray-700">
-					<span className="font-medium">1</span> - <span className="font-medium">5</span> of{' '}
-					<span className="font-medium">1,247</span> sonuç gösteriliyor
-				</div>
-				<div className="flex space-x-2">
-					<button className="px-3 py-2 border rounded-lg hover:bg-gray-50">Önceki</button>
-					<button className="px-3 py-2 bg-indigo-600 text-white rounded-lg">1</button>
-					<button className="px-3 py-2 border rounded-lg hover:bg-gray-50">2</button>
-					<button className="px-3 py-2 border rounded-lg hover:bg-gray-50">3</button>
-					<button className="px-3 py-2 border rounded-lg hover:bg-gray-50">Sonraki</button>
-				</div>
-			</div>
+			)}
 		</div>
 	)
 }

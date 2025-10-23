@@ -21,8 +21,13 @@ export default function ProductCategoriesPage() {
   const [expandedCategories, setExpandedCategories] = useState<string[]>(['cat-1', 'cat-2']);
   const [showInactive, setShowInactive] = useState(false);
 
-  // Mock data - gerçek uygulamada API'den gelecek
+  // Veriler API'den gelecek - şimdilik boş
   const categories: Category[] = [
+    /* Demo veriler temizlendi */
+  ];
+  
+  // Eski mock data temizlendi
+  const oldMockCategories: Category[] = [
     {
       id: 'cat-1',
       name: 'Elektronik',

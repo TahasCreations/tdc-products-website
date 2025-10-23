@@ -8,79 +8,8 @@ export default function ProductInventoryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  // Mock data - gerçek uygulamada API'den gelecek
-  const inventoryItems = [
-    {
-      id: 'PRD-001',
-      name: 'iPhone 15 Pro Max',
-      sku: 'APL-IP15PM-256-BLK',
-      category: 'Elektronik',
-      stock: 45,
-      minStock: 10,
-      maxStock: 100,
-      price: '₺52,999',
-      status: 'Stokta',
-      lastUpdate: '2024-01-15',
-      supplier: 'Apple Turkey',
-      location: 'Depo A - Raf 12'
-    },
-    {
-      id: 'PRD-002',
-      name: 'Samsung Galaxy S24 Ultra',
-      sku: 'SAM-S24U-512-TIT',
-      category: 'Elektronik',
-      stock: 8,
-      minStock: 10,
-      maxStock: 80,
-      price: '₺48,999',
-      status: 'Düşük Stok',
-      lastUpdate: '2024-01-14',
-      supplier: 'Samsung Electronics',
-      location: 'Depo A - Raf 13'
-    },
-    {
-      id: 'PRD-003',
-      name: 'MacBook Pro 16"',
-      sku: 'APL-MBP16-M3-1TB',
-      category: 'Bilgisayar',
-      stock: 0,
-      minStock: 5,
-      maxStock: 50,
-      price: '₺89,999',
-      status: 'Tükendi',
-      lastUpdate: '2024-01-13',
-      supplier: 'Apple Turkey',
-      location: 'Depo B - Raf 5'
-    },
-    {
-      id: 'PRD-004',
-      name: 'Sony WH-1000XM5',
-      sku: 'SNY-WH1000XM5-BLK',
-      category: 'Ses Sistemleri',
-      stock: 125,
-      minStock: 20,
-      maxStock: 100,
-      price: '₺12,999',
-      status: 'Fazla Stok',
-      lastUpdate: '2024-01-15',
-      supplier: 'Sony Turkey',
-      location: 'Depo C - Raf 8'
-    },
-    {
-      id: 'PRD-005',
-      name: 'LG OLED C3 55"',
-      sku: 'LG-C3-55-OLED',
-      category: 'TV & Monitör',
-      stock: 32,
-      minStock: 15,
-      maxStock: 60,
-      price: '₺45,999',
-      status: 'Stokta',
-      lastUpdate: '2024-01-14',
-      supplier: 'LG Electronics',
-      location: 'Depo D - Raf 2'
-    }
-  ];
+  // Veriler API'den gelecek - şimdilik boş
+  const inventoryItems: any[] = [];
 
   const getStatusColor = (status: string) => {
     switch (status) {

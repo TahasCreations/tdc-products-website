@@ -7,7 +7,9 @@ export default function SEOAssistantPage() {
 	const [isAnalyzing, setIsAnalyzing] = useState(false);
 	const [results, setResults] = useState<any>(null);
 
-	const mockResults = {
+	// Demo veriler temizlendi - API'den gerçek veriler gelecek
+	const mockResults: any = null;
+	const oldMockResults = {
 		score: 78,
 		issues: [
 			{ type: 'error', title: 'Meta description eksik', description: '3 sayfada meta description bulunamadı' },
