@@ -36,17 +36,16 @@ export default function AdminDashboard() {
       // const response = await fetch('/api/admin/dashboard/stats');
       // const data = await response.json();
       
-      // Demo veriler temizlendi for now
+      // Demo veriler temizlendi - Veritabanından gerçek veri gelecek
       const mockStats: DashboardStats = {
-      totalRevenue: 0,
-      totalOrders: 0,
-      totalCustomers: 0,
-      totalProducts: 0,
-      monthlyGrowth: 0,
-      conversionRate: 0,
-      averageOrderValue: 0,
-      activeUsers: 0
-    };
+        totalUsers: 0,
+        totalProducts: 0,
+        totalOrders: 0,
+        totalRevenue: 0,
+        pendingApplications: 0,
+        approvedApplications: 0,
+        rejectedApplications: 0
+      };
       
       setStats(mockStats);
     } catch (error) {
@@ -244,33 +243,16 @@ export default function AdminDashboard() {
         >
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Son Aktiviteler</h2>
           <div className="space-y-4">
-            {[
-              { action: 'Yeni satıcı başvurusu', user: 'Ahmet Yılmaz', time: '2 saat önce', type: 'seller' },
-              { action: 'Influencer başvurusu onaylandı', user: 'Ayşe Demir', time: '4 saat önce', type: 'influencer' },
-              { action: 'Yeni ürün eklendi', user: 'Mehmet Kaya', time: '6 saat önce', type: 'product' },
-              { action: 'Sipariş tamamlandı', user: 'Fatma Öz', time: '8 saat önce', type: 'order' }
-            ].map((activity, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 + 0.1 * index }}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.type === 'seller' ? 'bg-blue-500' :
-                    activity.type === 'influencer' ? 'bg-purple-500' :
-                    activity.type === 'product' ? 'bg-green-500' : 'bg-yellow-500'
-                  }`} />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                    <p className="text-xs text-gray-600">{activity.user}</p>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-500">{activity.time}</p>
-              </motion.div>
-            ))}
+            {/* Demo veriler temizlendi - Gerçek aktiviteler burada gösterilecek */}
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Aktivite Yok</h3>
+              <p className="text-gray-600 text-sm">
+                Sistemde aktivite olduğunda burada görüntülenecek
+              </p>
+            </div>
           </div>
         </motion.div>
       </div>
