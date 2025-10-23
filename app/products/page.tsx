@@ -923,7 +923,6 @@ export default function ProductsPage({
             </Suspense>
           )}
         </div>
-          </div>
         </div>
       </div>
 
