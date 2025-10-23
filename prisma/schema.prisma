@@ -805,3 +805,61 @@ model InfluencerApplication {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
+
+// === MEDIA MANAGEMENT ===
+enum MediaStorage {
+  LOCAL
+  GCS
+  REMOTE
+}
+
+enum MediaStatus {
+  ACTIVE
+  DEPRECATED
+  MISSING
+}
+
+model MediaAsset {
+  id            String       @id @default(cuid())
+  url           String       @unique  // Tam URL veya path
+  storage       MediaStorage @default(LOCAL)  // local|gcs|remote
+  path          String?      // Bucket key veya public path
+  filename      String       // Dosya adı
+  width         Int?
+  height        Int?
+  format        String?      // jpg, png, webp, svg, etc.
+  sizeBytes     Int?
+  dominantColor String?      // Hex color
+  alt           String?
+  title         String?
+  tags          String       @default("[]")  // JSON array
+  license       String?
+  status        MediaStatus  @default(ACTIVE)
+  usedIn        String       @default("[]")  // JSON array of usage locations
+  metadata      Json?        // EXIF, custom metadata
+  lastIndexedAt DateTime     @default(now())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  
+  history       MediaHistory[]
+  
+  @@index([status])
+  @@index([storage])
+  @@index([format])
+  @@index([lastIndexedAt])
+}
+
+model MediaHistory {
+  id          String   @id @default(cuid())
+  assetId     String
+  action      String   // replace|update|optimize|deprecate
+  performedBy String?  // Admin user email/id
+  oldValue    Json?    // Önceki değerler (rollback için)
+  newValue    Json?    // Yeni değerler
+  metadata    Json?    // İşlem detayları
+  createdAt   DateTime @default(now())
+  
+  asset       MediaAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  
+  @@index([assetId, createdAt])
+}
