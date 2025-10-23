@@ -152,6 +152,7 @@ const navigationGroups = [
     icon: Edit3,
     color: 'teal',
     items: [
+      { name: 'Medya Yönetimi', href: '/admin/media', icon: Eye, badge: null },
       { name: 'Blog Moderasyonu', href: '/admin/blog-moderasyon', icon: Edit3, badge: 'NEW' },
       { name: 'Blog Kontrolü', href: '/admin/content/blog-control', icon: Edit3, badge: null },
       { name: 'İçerik Onayı', href: '/admin/content-approval', icon: CheckCircle, badge: null },

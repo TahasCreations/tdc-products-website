@@ -21,60 +21,8 @@ export default function BlogModerationPage() {
       setIsAuthenticated(true);
       setIsLoading(false);
       
-      // Mock data
-      setPosts([
-        {
-          id: 1,
-          title: 'TDC Market\'te En Popüler Figür Koleksiyonları',
-          author: { name: 'Ahmet Yılmaz', handle: 'ahmet_yilmaz' },
-          topic: { name: 'Koleksiyon' },
-          status: 'pending',
-          submittedAt: '2024-10-30T10:00:00Z',
-          content: 'Bu yıl TDC Market\'te en çok tercih edilen figür koleksiyonlarını sizler için derledik...',
-          tags: ['figür', 'koleksiyon', 'trend'],
-          coverImage: '🎭',
-          readingTime: 5
-        },
-        {
-          id: 2,
-          title: 'Elektronik Ürünlerde Kalite Rehberi',
-          author: { name: 'Sarah Johnson', handle: 'sarah_j' },
-          topic: { name: 'Elektronik' },
-          status: 'pending',
-          submittedAt: '2024-10-30T09:30:00Z',
-          content: 'TDC Market\'te elektronik ürün seçerken dikkat edilmesi gerekenler...',
-          tags: ['elektronik', 'kalite', 'rehber'],
-          coverImage: '📱',
-          readingTime: 8
-        },
-        {
-          id: 3,
-          title: 'Moda Trendleri: Bu Sezonun Favorileri',
-          author: { name: 'Mehmet Kaya', handle: 'mehmet_k' },
-          topic: { name: 'Moda' },
-          status: 'approved',
-          submittedAt: '2024-10-29T15:20:00Z',
-          approvedAt: '2024-10-29T16:45:00Z',
-          content: 'Sonbahar-kış sezonu için moda önerileri ve trend analizi...',
-          tags: ['moda', 'trend', 'stil'],
-          coverImage: '👗',
-          readingTime: 6
-        },
-        {
-          id: 4,
-          title: 'Spam İçerik - Silinecek',
-          author: { name: 'Spam User', handle: 'spam_user' },
-          topic: { name: 'Diğer' },
-          status: 'rejected',
-          submittedAt: '2024-10-28T20:00:00Z',
-          rejectedAt: '2024-10-28T20:15:00Z',
-          content: 'Bu spam içerik...',
-          tags: ['spam'],
-          coverImage: '🚫',
-          readingTime: 1,
-          rejectionReason: 'Spam içerik'
-        }
-      ]);
+      // Demo veriler temizlendi
+      setPosts([]);
     } else {
       router.push('/admin');
     }

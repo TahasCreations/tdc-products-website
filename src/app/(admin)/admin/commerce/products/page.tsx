@@ -23,55 +23,7 @@ export default function ProductManagement() {
       setIsLoading(false);
       
       // Mock product data
-      setProducts([
-        {
-          id: 'P001',
-          name: 'Premium Dragon Figür',
-          category: 'Fantasy',
-          variants: [
-            { id: 'V001', name: 'Kırmızı Dragon', price: 299, stock: 15, sku: 'DRG-RED-001' },
-            { id: 'V002', name: 'Mavi Dragon', price: 299, stock: 8, sku: 'DRG-BLU-001' },
-            { id: 'V003', name: 'Altın Dragon', price: 399, stock: 3, sku: 'DRG-GLD-001' }
-          ],
-          totalStock: 26,
-          totalRevenue: 7485,
-          status: 'active',
-          images: ['/images/dragon-1.jpg', '/images/dragon-2.jpg'],
-          description: 'El yapımı premium dragon figürü',
-          tags: ['fantasy', 'dragon', 'premium', 'handmade']
-        },
-        {
-          id: 'P002',
-          name: 'Anime Character Collection',
-          category: 'Anime',
-          variants: [
-            { id: 'V004', name: 'Naruto Uzumaki', price: 199, stock: 25, sku: 'ANM-NAR-001' },
-            { id: 'V005', name: 'Goku', price: 199, stock: 20, sku: 'ANM-GOK-001' },
-            { id: 'V006', name: 'Luffy', price: 199, stock: 18, sku: 'ANM-LUF-001' }
-          ],
-          totalStock: 63,
-          totalRevenue: 12537,
-          status: 'active',
-          images: ['/images/anime-1.jpg', '/images/anime-2.jpg'],
-          description: 'Popüler anime karakterleri koleksiyonu',
-          tags: ['anime', 'characters', 'collection', 'popular']
-        },
-        {
-          id: 'P003',
-          name: 'Limited Edition Warrior',
-          category: 'Fantasy',
-          variants: [
-            { id: 'V007', name: 'Savaşçı - Gümüş', price: 599, stock: 5, sku: 'WAR-SLV-001' },
-            { id: 'V008', name: 'Savaşçı - Bronz', price: 499, stock: 8, sku: 'WAR-BRZ-001' }
-          ],
-          totalStock: 13,
-          totalRevenue: 6995,
-          status: 'limited',
-          images: ['/images/warrior-1.jpg', '/images/warrior-2.jpg'],
-          description: 'Sınırlı sayıda üretilen savaşçı figürü',
-          tags: ['limited', 'warrior', 'exclusive', 'collectible']
-        }
-      ]);
+      setProducts([]);
     } else {
       router.push('/admin');
     }

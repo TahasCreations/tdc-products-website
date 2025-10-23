@@ -36,16 +36,17 @@ export default function AdminDashboard() {
       // const response = await fetch('/api/admin/dashboard/stats');
       // const data = await response.json();
       
-      // Mock data for now
+      // Demo veriler temizlendi for now
       const mockStats: DashboardStats = {
-        totalUsers: 1250,
-        totalProducts: 8500,
-        totalOrders: 3200,
-        totalRevenue: 125000,
-        pendingApplications: 15,
-        approvedApplications: 45,
-        rejectedApplications: 8
-      };
+      totalRevenue: 0,
+      totalOrders: 0,
+      totalCustomers: 0,
+      totalProducts: 0,
+      monthlyGrowth: 0,
+      conversionRate: 0,
+      averageOrderValue: 0,
+      activeUsers: 0
+    };
       
       setStats(mockStats);
     } catch (error) {

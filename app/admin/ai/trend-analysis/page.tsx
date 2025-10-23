@@ -8,44 +8,7 @@ export default function TrendAnalysisPage() {
 	const [isAnalyzing, setIsAnalyzing] = useState(false);
 	const [results, setResults] = useState<any>(null);
 
-	const trendData = [
-		{
-			keyword: 'Anime Figür',
-			category: 'Koleksiyon',
-			searchVolume: 12500,
-			trend: '+15%',
-			competition: 'Yüksek',
-			opportunity: 85,
-			products: 23
-		},
-		{
-			keyword: 'El Yapımı Takı',
-			category: 'Aksesuar',
-			searchVolume: 8900,
-			trend: '+8%',
-			competition: 'Orta',
-			opportunity: 72,
-			products: 15
-		},
-		{
-			keyword: 'Vintage Poster',
-			category: 'Dekorasyon',
-			searchVolume: 6700,
-			trend: '+22%',
-			competition: 'Düşük',
-			opportunity: 91,
-			products: 8
-		},
-		{
-			keyword: 'Seramik Vazo',
-			category: 'Ev Dekor',
-			searchVolume: 4500,
-			trend: '-3%',
-			competition: 'Orta',
-			opportunity: 45,
-			products: 12
-		}
-	];
+	const trendData = [];
 
 	const handleAnalyze = async () => {
 		setIsAnalyzing(true);

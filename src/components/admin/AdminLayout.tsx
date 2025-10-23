@@ -37,30 +37,30 @@ const menuGroups: MenuGroup[] = [
     title: 'E-Ticaret',
     icon: '🛒',
     items: [
-      { title: 'Ürünler', href: '/admin/products', icon: '📦', badge: '89', badgeColor: 'blue' },
-      { title: 'Kategoriler', href: '/admin/categories', icon: '🏷️', badge: '12', badgeColor: 'green' },
-      { title: 'Siparişler', href: '/admin/orders', icon: '🛍️', badge: '1.2K', badgeColor: 'purple' },
-      { title: 'Stok Yönetimi', href: '/admin/inventory', icon: '📦', badge: '45', badgeColor: 'orange' },
-      { title: 'Kuponlar', href: '/admin/coupons', icon: '🎫', badge: '8', badgeColor: 'pink' }
+      { title: 'Ürünler', href: '/admin/products', icon: '📦', badge: null, badgeColor: 'blue' },
+      { title: 'Kategoriler', href: '/admin/categories', icon: '🏷️', badge: null, badgeColor: 'green' },
+      { title: 'Siparişler', href: '/admin/orders', icon: '🛍️', badge: null, badgeColor: 'purple' },
+      { title: 'Stok Yönetimi', href: '/admin/inventory', icon: '📦', badge: null, badgeColor: 'orange' },
+      { title: 'Kuponlar', href: '/admin/coupons', icon: '🎫', badge: null, badgeColor: 'pink' }
     ]
   },
   {
     title: 'Kullanıcılar',
     icon: '👥',
     items: [
-      { title: 'Müşteriler', href: '/admin/customers', icon: '👤', badge: '567', badgeColor: 'blue' },
-      { title: 'Satıcılar', href: '/admin/sellers', icon: '🏪', badge: '23', badgeColor: 'green' },
-      { title: 'Yorumlar', href: '/admin/reviews', icon: '💬', badge: '234', badgeColor: 'purple' },
-      { title: 'Destek Talepleri', href: '/admin/support', icon: '🎧', badge: '12', badgeColor: 'red' }
+      { title: 'Müşteriler', href: '/admin/customers', icon: '👤', badge: null, badgeColor: 'blue' },
+      { title: 'Satıcılar', href: '/admin/sellers', icon: '🏪', badge: null, badgeColor: 'green' },
+      { title: 'Yorumlar', href: '/admin/reviews', icon: '💬', badge: null, badgeColor: 'purple' },
+      { title: 'Destek Talepleri', href: '/admin/support', icon: '🎧', badge: null, badgeColor: 'red' }
     ]
   },
   {
     title: 'İçerik',
     icon: '📝',
     items: [
+      { title: 'Medya Yönetimi', href: '/admin/media', icon: '🖼️' },
       { title: 'Blog Yazıları', href: '/admin/blog', icon: '📰' },
       { title: 'Sayfalar', href: '/admin/pages', icon: '📄' },
-      { title: 'Medya Kütüphanesi', href: '/admin/media', icon: '🖼️' },
       { title: 'Menüler', href: '/admin/menus', icon: '🔗' }
     ]
   },

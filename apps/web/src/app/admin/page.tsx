@@ -64,7 +64,7 @@ export default function AdminDashboard() {
   const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Mock data - Gerçek API'den gelecek
+  // Demo veriler temizlendi - Veritabanından gerçek veri gelecek
   useEffect(() => {
     const mockStats: DashboardStats = {
       totalRevenue: 0,
@@ -77,24 +77,7 @@ export default function AdminDashboard() {
       activeUsers: 0
     };
 
-    const mockActivities: RecentActivity[] = [
-      {
-        id: '1',
-        type: 'order',
-        title: 'Yeni Sipariş',
-        description: 'Henüz ürün eklenmemiş',
-        timestamp: 'Az önce',
-        status: 'info'
-      },
-      {
-        id: '2',
-        type: 'product',
-        title: 'Ürün Ekleme',
-        description: 'İlk ürününüzü ekleyin',
-        timestamp: 'Az önce',
-        status: 'info'
-      }
-    ];
+    const mockActivities: RecentActivity[] = [];
 
     setTimeout(() => {
       setStats(mockStats);
