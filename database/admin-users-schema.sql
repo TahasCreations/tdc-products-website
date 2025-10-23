@@ -123,5 +123,6 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_update_admin_users_password_changed_at
     BEFORE UPDATE ON admin_users
-    FOR EACH ROW
+    FOR EACH ROW,
+
     EXECUTE FUNCTION update_admin_users_password_changed_at();

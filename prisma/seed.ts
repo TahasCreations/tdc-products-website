@@ -5,10 +5,15 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Seeding database...')
 
+  // Demo veri üretimi tamamen devre dışı bırakıldı
+  // Projeyi canlıya almadan önce demo veriler temizlendi
+  console.log('ℹ️  Demo veri üretimi devre dışı - Projeyi canlıya hazırlamak için')
+  console.log('💡 Sadece gerekli admin kullanıcısı oluşturulacak')
+  
   // Demo veri üretimini kontrol et
-  if (process.env.SEED_DEMO !== 'true') {
-    console.log('ℹ️  Demo veri üretimi devre dışı (SEED_DEMO != true)')
-    console.log('💡 Demo veri üretmek için SEED_DEMO=true environment variable kullanın')
+  if (process.env.SEED_DEMO === 'true') {
+    console.log('⚠️  Demo veri üretimi için SEED_DEMO=true kullanıldı')
+    console.log('❌ Güvenlik nedeniyle demo veri üretimi devre dışı bırakıldı')
     return
   }
 
