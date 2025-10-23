@@ -70,6 +70,16 @@ const menuItems = [
     ]
   },
   {
+    title: 'Medya Yönetimi',
+    href: '/admin/media',
+    icon: '🖼️',
+    subItems: [
+      { title: 'Tüm Görseller', href: '/admin/media' },
+      { title: 'Görsel Yükle', href: '/admin/media/upload' },
+      { title: 'Görsel Optimizasyonu', href: '/admin/media/optimize' }
+    ]
+  },
+  {
     title: 'Muhasebe',
     href: '/admin/accounting',
     icon: '🧮',
