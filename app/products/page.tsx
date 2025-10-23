@@ -8,6 +8,7 @@ import ProductSorting from '../../src/components/products/ProductSorting';
 import Breadcrumb from '../../src/components/ui/Breadcrumb';
 import { EmptyProductsState } from '../../src/components/empty/EmptyState';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
+import ModernCategorySidebar from '@/components/products/ModernCategorySidebar';
 
 // Category Item Component
 function CategoryItem({ cat, index, selectedCategory, onCategorySelect }: any) {
@@ -196,14 +197,107 @@ export default function ProductsPage({
     { label: 'Tüm Ürünler', href: '/products' }
   ];
 
+  // Modern categories with colors
+  const modernCategories = [
+    { 
+      name: 'Figür & Koleksiyon',
+      slug: 'figur-koleksiyon',
+      icon: '🎭', 
+      count: 0,
+      color: 'from-purple-500 to-indigo-600',
+      subcategories: [
+        { label: 'Koleksiyon Figürleri', slug: 'koleksiyon-figurleri' },
+        { label: 'Anime / Manga', slug: 'anime' },
+        { label: 'Model Kit', slug: 'model-kit' },
+        { label: 'Aksiyon Figür', slug: 'aksiyon' },
+        { label: 'Funko / Nendoroid', slug: 'funko' },
+      ]
+    },
+    { 
+      name: 'Moda & Aksesuar',
+      slug: 'moda-aksesuar',
+      icon: '👗', 
+      count: 0,
+      color: 'from-pink-500 to-rose-600',
+      subcategories: [
+        { label: 'Tişört & Hoodie', slug: 'tisort-hoodie' },
+        { label: 'Takı & Saat', slug: 'taki-saat' },
+        { label: 'Çanta & Cüzdan', slug: 'canta' },
+        { label: 'Ayakkabı', slug: 'ayakkabi' },
+      ]
+    },
+    { 
+      name: 'Elektronik',
+      slug: 'elektronik',
+      icon: '📱', 
+      count: 0,
+      color: 'from-blue-500 to-cyan-600',
+      subcategories: [
+        { label: 'Kulaklık & Ses', slug: 'kulaklik' },
+        { label: 'Akıllı Ev', slug: 'akilli-ev' },
+        { label: 'Bilgisayar Aksesuarları', slug: 'pc-aksesuar' },
+        { label: 'Oyun & Konsol', slug: 'oyun' },
+      ]
+    },
+    { 
+      name: 'Ev & Yaşam',
+      slug: 'ev-yasam',
+      icon: '🏠', 
+      count: 0,
+      color: 'from-emerald-500 to-teal-600',
+      subcategories: [
+        { label: 'Dekorasyon', slug: 'dekorasyon' },
+        { label: 'Mutfak', slug: 'mutfak' },
+        { label: 'Aydınlatma', slug: 'aydinlatma' },
+        { label: 'Mobilya', slug: 'mobilya' },
+      ]
+    },
+    { 
+      name: 'Sanat & Hobi',
+      slug: 'sanat-hobi',
+      icon: '🎨', 
+      count: 0,
+      color: 'from-orange-500 to-amber-600',
+      subcategories: [
+        { label: 'Tablo & Poster', slug: 'poster' },
+        { label: 'El Sanatları', slug: 'el-sanatlari' },
+        { label: 'Boyama & Çizim', slug: 'boyama' },
+        { label: 'Müzik & Enstrüman', slug: 'muzik' },
+      ]
+    },
+    { 
+      name: 'Hediyelik',
+      slug: 'hediyelik',
+      icon: '🎁', 
+      count: 0,
+      color: 'from-red-500 to-pink-600',
+      subcategories: [
+        { label: 'Kişiye Özel', slug: 'kisiye-ozel' },
+        { label: 'Doğum Günü', slug: 'dogum-gunu' },
+        { label: 'Ofis & Masaüstü', slug: 'ofis' },
+        { label: 'Mini Setler', slug: 'mini-set' },
+      ]
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       
       <div className="flex">
-        {/* Desktop Filters Sidebar - Collapsible Design */}
-        <div className={`hidden lg:block flex-shrink-0 bg-gradient-to-b from-white via-gray-50/30 to-white backdrop-blur-xl border-r border-gray-200/60 sticky top-32 h-[calc(100vh-8rem)] overflow-y-auto shadow-2xl shadow-gray-900/5 transition-all duration-300 ${
-          isSidebarCollapsed ? 'w-16' : 'w-64'
-        }`}>
+        {/* Modern Sidebar */}
+        <ModernCategorySidebar
+          categories={modernCategories}
+          selectedCategory={selectedCategory}
+          onCategorySelect={setSelectedCategory}
+          minPrice={selectedMinPrice}
+          maxPrice={selectedMaxPrice}
+          inStock={selectedInStock}
+          onPriceChange={(min, max) => {
+            setSelectedMinPrice(min);
+            setSelectedMaxPrice(max);
+          }}
+          onStockChange={setSelectedInStock}
+        />
           {/* Collapsible Header */}
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-[#CBA135]/5 via-[#F4D03F]/10 to-[#CBA135]/5"></div>
