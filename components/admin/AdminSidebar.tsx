@@ -102,6 +102,16 @@ const menuItems = [
     ]
   },
   {
+    title: 'Influencer Yönetimi',
+    href: '/admin/influencers',
+    icon: '💫',
+    subItems: [
+      { title: 'Tüm Başvurular', href: '/admin/influencers/applications' },
+      { title: 'Onaylanan Influencer\'lar', href: '/admin/influencers/approved' },
+      { title: 'İşbirlikleri', href: '/admin/influencers/collaborations' }
+    ]
+  },
+  {
     title: 'AI Lab',
     href: '/admin/ai',
     icon: '🤖',
