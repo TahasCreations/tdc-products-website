@@ -70,6 +70,17 @@ const menuItems = [
     ]
   },
   {
+    title: 'Visual Site Builder',
+    href: '/admin/site-builder/pages',
+    icon: '✨',
+    subItems: [
+      { title: '🎨 Site Builder', href: '/admin/site-builder/pages' },
+      { title: 'Sayfalar', href: '/admin/site-builder/pages' },
+      { title: 'Medya Kütüphanesi', href: '/admin/media' },
+      { title: 'Şablonlar', href: '/admin/site-builder/templates' }
+    ]
+  },
+  {
     title: 'Medya Yönetimi',
     href: '/admin/media',
     icon: '🖼️',

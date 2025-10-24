@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { motion } from "framer-motion";
+import { CheckCircle, Instagram, Youtube, Globe, TrendingUp, Users, DollarSign, Sparkles, ArrowRight, ArrowLeft } from "lucide-react";
 
 const Schema = z.object({
   // Profile
@@ -48,10 +50,10 @@ export default function InfluencerApplyPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const steps = [
-    { key: 'profile', title: 'Profil & Sosyal', icon: '👤' },
-    { key: 'audience', title: 'Kitle & Performans', icon: '📈' },
-    { key: 'preferences', title: 'Tercihler & Portföy', icon: '🎯' },
-    { key: 'consents', title: 'Onaylar & Gönder', icon: '✅' },
+    { key: 'profile', title: 'Profil Bilgileri', icon: Users },
+    { key: 'audience', title: 'Kitle & Performans', icon: TrendingUp },
+    { key: 'preferences', title: 'Tercihler & İşbirliği', icon: DollarSign },
+    { key: 'consents', title: 'Onaylar', icon: CheckCircle },
   ];
   
   const { 
@@ -132,22 +134,13 @@ export default function InfluencerApplyPage() {
   }
 
   async function handleNext() {
-    // Validate step-specific fields before proceeding
     let fieldsToValidate: string[] = [];
     if (currentStep === 0) {
-      fieldsToValidate = [
-        'fullName', 'phone', 'country', 'city',
-        'instagram', 'tiktok', 'youtube', 'website',
-      ];
+      fieldsToValidate = ['fullName', 'phone', 'country', 'city', 'instagram', 'tiktok', 'youtube', 'website'];
     } else if (currentStep === 1) {
-      fieldsToValidate = [
-        'followerEst', 'avgViews', 'avgLikes', 'audienceAge', 'audienceGender', 'topCountries',
-        'primaryPlatform', 'postingFrequency',
-      ];
+      fieldsToValidate = ['followerEst', 'avgViews', 'avgLikes', 'audienceAge', 'audienceGender', 'topCountries', 'primaryPlatform', 'postingFrequency'];
     } else if (currentStep === 2) {
-      fieldsToValidate = [
-        'category', 'collaborationTypes', 'compensationPreference', 'portfolio', 'pastCollaborations', 'notes',
-      ];
+      fieldsToValidate = ['category', 'collaborationTypes', 'compensationPreference', 'portfolio', 'pastCollaborations', 'notes'];
     }
     const isValid = await trigger(fieldsToValidate as any);
     if (!isValid) return;
@@ -160,327 +153,280 @@ export default function InfluencerApplyPage() {
 
   if (isSubmitted) {
     return (
-      <main className="mx-auto max-w-5xl px-4 py-16">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-          <div className="bg-gradient-to-r from-emerald-500 to-teal-600 p-10 text-white text-center">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold mb-2">Başvurunuz Alındı</h1>
-            <p className="text-emerald-50">
-              Influencer başvurunuz başarıyla gönderildi. İnceleme sonrasında e‑posta ile bilgilendireceğiz.
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden"
+        >
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-12 text-white text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring" }}
+              className="w-20 h-20 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mx-auto mb-6"
+            >
+              <CheckCircle className="w-10 h-10" />
+            </motion.div>
+            <h1 className="text-4xl font-bold mb-3">Başvurunuz Alındı! 🎉</h1>
+            <p className="text-green-50 text-lg">
+              Influencer başvurunuz başarıyla gönderildi. 24-72 saat içinde e-posta ile bilgilendireceğiz.
             </p>
           </div>
           <div className="p-8 text-center">
             <button 
               onClick={() => setIsSubmitted(false)}
-              className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-black text-white font-medium hover:bg-gray-800 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold hover:shadow-lg transition-all"
             >
-              Yeni Başvuru Oluştur
+              <ArrowLeft className="w-5 h-5" />
+              Anasayfaya Dön
             </button>
           </div>
-        </div>
-      </main>
+        </motion.div>
+      </div>
     );
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-16 bg-[linear-gradient(180deg,rgba(244,244,248,0.9)_0%,rgba(255,255,255,1)_40%)]">
-      {/* Hero */}
-      <section className="mb-10 rounded-2xl overflow-hidden border border-gray-200 bg-gradient-to-r from-purple-50 via-pink-50 to-orange-50 shadow-lg">
-        <div className="px-8 py-12 md:px-12 md:py-16 flex flex-col md:flex-row items-center gap-8">
-          <div className="flex-1">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 text-sm mb-4">
-              <span className="text-purple-600">Yeni</span>
-              <span className="text-purple-600">Influencer Programı</span>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 text-white">
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur text-sm mb-6">
+              <Sparkles className="w-4 h-4" />
+              <span>Influencer Ortaklık Programı</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3 text-gray-900">
-              TDC Market ile işbirliği yapın, kitlenizle gelir yaratın
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+              Kitlenizle Gelir Yaratın
             </h1>
-            <p className="text-black max-w-2xl">
-              Markalarımızla içerik ortaklıkları kurun, özel kampanyalara katılın ve satıştan pay alın. Hızlı başvuru, şeffaf kazanç.
+            <p className="text-xl md:text-2xl text-white/90 mb-8">
+              TDC Market'le işbirliği yapın, markalarla ortaklık kurun ve performans bazlı gelir elde edin
             </p>
-          </div>
-          <div className="flex-1 w-full">
-            <div className="rounded-xl bg-white border border-gray-200 shadow-sm p-6">
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-black">
-                <li className="flex items-center gap-2"><span>✅</span><span>Satıştan performans bazlı gelir</span></li>
-                <li className="flex items-center gap-2"><span>✅</span><span>Özel indirim kodları</span></li>
-                <li className="flex items-center gap-2"><span>✅</span><span>Kişiselleştirilmiş linkler</span></li>
-                <li className="flex items-center gap-2"><span>✅</span><span>Aylık performans raporları</span></li>
-              </ul>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-white/10 backdrop-blur rounded-2xl p-6"
+              >
+                <TrendingUp className="w-8 h-8 mb-3 mx-auto" />
+                <h3 className="font-bold text-lg mb-2">Performans Bazlı Gelir</h3>
+                <p className="text-white/80 text-sm">Satışlardan komisyon kazanın</p>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-white/10 backdrop-blur rounded-2xl p-6"
+              >
+                <Sparkles className="w-8 h-8 mb-3 mx-auto" />
+                <h3 className="font-bold text-lg mb-2">Özel Kampanyalar</h3>
+                <p className="text-white/80 text-sm">Kişiselleştirilmiş linkler ve kodlar</p>
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white/10 backdrop-blur rounded-2xl p-6"
+              >
+                <DollarSign className="w-8 h-8 mb-3 mx-auto" />
+                <h3 className="font-bold text-lg mb-2">Şeffaf Raporlama</h3>
+                <p className="text-white/80 text-sm">Aylık detaylı performans raporları</p>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left: Steps and FAQ */}
-        <section className="space-y-6 lg:sticky lg:top-24 self-start">
-          {/* Stepper */}
-          <div className="rounded-xl border border-gray-200 bg-white/90 backdrop-blur p-6 shadow-lg">
+      {/* Form Section */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl shadow-2xl overflow-hidden"
+        >
+          {/* Progress Bar */}
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
             <div className="flex items-center justify-between mb-4">
               {steps.map((step, idx) => (
-                <div key={step.key} className="flex-1 flex items-center">
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${idx <= currentStep ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
-                    {idx + 1}
+                <div key={step.key} className="flex items-center flex-1">
+                  <div className={`flex flex-col items-center ${idx <= currentStep ? 'text-white' : 'text-white/40'}`}>
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-all ${
+                      idx <= currentStep ? 'bg-white text-purple-600 shadow-lg' : 'bg-white/20'
+                    }`}>
+                      <step.icon className="w-6 h-6" />
+                    </div>
+                    <span className="text-xs font-medium hidden md:block">{step.title}</span>
                   </div>
                   {idx < steps.length - 1 && (
-                    <div className={`h-1 mx-2 flex-1 rounded ${idx < currentStep ? 'bg-purple-600' : 'bg-gray-200'}`} />
+                    <div className={`h-1 flex-1 mx-2 rounded-full transition-all ${
+                      idx < currentStep ? 'bg-white' : 'bg-white/20'
+                    }`} />
                   )}
                 </div>
               ))}
             </div>
-            <div className="flex items-center gap-2 text-sm text-black">
-              <span>{steps[currentStep].icon}</span>
-              <span className="font-medium">{steps[currentStep].title}</span>
-            </div>
-          </div>
-          <div className="rounded-xl border border-gray-200 bg-white/90 backdrop-blur p-6 shadow-lg">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span>🧭</span>
-              <span>Nasıl çalışır?</span>
-            </h2>
-            <ol className="space-y-4">
-              <li className="flex items-start gap-3">
-                <span className="h-7 w-7 flex items-center justify-center rounded-full bg-gray-900 text-white text-sm">1</span>
-                <div>
-                  <p className="font-medium text-gray-900">Başvurunuzu gönderin</p>
-                  <p className="text-black text-sm">Sosyal hesaplarınızı ve nişinizi paylaşın.</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="h-7 w-7 flex items-center justify-center rounded-full bg-gray-900 text-white text-sm">2</span>
-                <div>
-                  <p className="font-medium text-gray-900">Onay ve kurulum</p>
-                  <p className="text-black text-sm">Özel link ve indirim kodunuz tanımlanır.</p>
-                </div>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="h-7 w-7 flex items-center justify-center rounded-full bg-gray-900 text-white text-sm">3</span>
-                <div>
-                  <p className="font-medium text-gray-900">Paylaş ve kazan</p>
-                  <p className="text-black text-sm">Satışlar üzerinden performans payı kazanın.</p>
-                </div>
-              </li>
-            </ol>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white/90 backdrop-blur p-6 shadow-lg">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <span>❓</span>
-              <span>Sık sorulanlar</span>
-            </h2>
-            <div className="space-y-4 text-sm text-black">
-              <div>
-                <p className="font-medium text-gray-900">Minimum takipçi şartı var mı?</p>
-                <p className="text-black">Belirli bir alt limit yok; kitle uyumu ve içerik kalitesine bakıyoruz.</p>
-              </div>
-              <div>
-                <p className="font-medium text-gray-900">Ödeme modeli nedir?</p>
-                <p className="text-black">Satıştan performans bazlı komisyon + dönemsel kampanya bonusları.</p>
-              </div>
-            </div>
-          </div>
-        </section>
+          <form onSubmit={handleSubmit(onSubmit)} className="p-8 md:p-12">
+            {/* Step 0: Profile */}
+            {currentStep === 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-8"
+              >
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Profil Bilgileriniz</h2>
+                  <p className="text-gray-600">Sizinle iletişime geçebilmemiz için temel bilgilerinizi paylaşın</p>
+                </div>
 
-        {/* Right: Form Card */}
-        <section>
-          <div className="rounded-2xl border border-gray-200 bg-white/95 backdrop-blur shadow-xl p-6 lg:p-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-1 flex items-center gap-2">
-              <span>📝</span>
-              <span>Başvuru Formu</span>
-            </h2>
-            <p className="text-black text-sm mb-6">Temel bilgilerinizi paylaşın; 24‑72 saat içinde dönüş yapıyoruz.</p>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-              {/* Profile */}
-              {currentStep === 0 && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                  <span>👤</span>
-                  <span>Profil Bilgileri</span>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-black mb-1">Ad Soyad</label>
-                    <div className="relative">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">👤</span>
-                      <input 
-                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent text-black placeholder-black"
-                        placeholder="Adınız Soyadınız"
-                        {...register("fullName")} 
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">Telefon</label>
-                    <div className="relative">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">📞</span>
-                      <input 
-                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black"
-                        placeholder="+90 5xx xxx xx xx"
-                        {...register("phone")} 
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">Ülke</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Ad Soyad</label>
                     <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                      placeholder="Adınız Soyadınız"
+                      {...register("fullName")} 
+                    />
+                    {errors.fullName && <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Telefon</label>
+                    <input 
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                      placeholder="+90 5xx xxx xx xx"
+                      {...register("phone")} 
+                    />
+                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Ülke</label>
+                    <input 
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
                       placeholder="Türkiye"
                       {...register("country")} 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-black mb-1">Şehir</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Şehir</label>
                     <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
                       placeholder="İstanbul"
                       {...register("city")} 
                     />
                   </div>
                 </div>
-              </div>
-              )}
-              {currentStep === 0 && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                  <span>🌐</span>
-                  <span>Sosyal Medya Hesapları</span>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">Instagram</label>
-                    <div className="relative">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">📸</span>
+
+                <div className="border-t pt-8">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Instagram className="w-6 h-6 text-pink-600" />
+                    Sosyal Medya Hesaplarınız
+                  </h3>
+                  <p className="text-gray-600 mb-6">En az bir platform bağlantısı paylaşmalısınız</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                        <Instagram className="w-4 h-4 text-pink-600" />
+                        Instagram
+                      </label>
                       <input 
-                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black" 
+                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all" 
                         placeholder="https://instagram.com/kullaniciadi"
                         {...register("instagram")} 
                       />
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">TikTok</label>
-                    <div className="relative">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">🎵</span>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-purple-600" />
+                        TikTok
+                      </label>
                       <input 
-                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black" 
+                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all" 
                         placeholder="https://tiktok.com/@kullaniciadi"
                         {...register("tiktok")} 
                       />
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">YouTube</label>
-                    <div className="relative">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">▶️</span>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                        <Youtube className="w-4 h-4 text-red-600" />
+                        YouTube
+                      </label>
                       <input 
-                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black" 
+                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all" 
                         placeholder="https://youtube.com/@kanaladi"
                         {...register("youtube")} 
                       />
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">Website/Blog</label>
-                    <div className="relative">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">🔗</span>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-blue-600" />
+                        Website/Blog
+                      </label>
                       <input 
-                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black" 
+                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all" 
                         placeholder="https://website.com"
                         {...register("website")} 
                       />
                     </div>
                   </div>
+                  {errors.instagram && <p className="text-red-500 text-sm mt-2">{errors.instagram.message}</p>}
                 </div>
-                {errors.instagram && (
-                  <p className="text-red-500 text-sm mt-2">{errors.instagram.message}</p>
-                )}
-              </div>
-              )}
+              </motion.div>
+            )}
 
-              {/* Audience & Metrics */}
-              {currentStep === 1 && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                  <span>📈</span>
-                  <span>Kitle ve Metrikler</span>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">Toplam Takipçi (Tahmini)</label>
+            {/* Step 1: Audience */}
+            {currentStep === 1 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-8"
+              >
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Kitle & Performans Metrikleri</h2>
+                  <p className="text-gray-600">Kitleniz ve içerik performansınız hakkında bilgi verin</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Toplam Takipçi Sayısı (Tahmini)</label>
                     <input 
                       type="number"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
-                      placeholder="10000"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                      placeholder="örn: 50000"
                       {...register("followerEst")} 
                     />
-                    {errors.followerEst && (
-                      <p className="text-red-500 text-sm mt-1">{errors.followerEst.message}</p>
-                    )}
+                    {errors.followerEst && <p className="text-red-500 text-sm mt-1">{errors.followerEst.message}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-black mb-1">Ortalama Görüntüleme/Sayı</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Ortalama Görüntüleme</label>
                     <input 
                       type="number"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
-                      placeholder="5000"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                      placeholder="örn: 5000"
                       {...register("avgViews")} 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-black mb-1">Ortalama Beğeni/Sayı</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Ortalama Beğeni</label>
                     <input 
                       type="number"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
-                      placeholder="300"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                      placeholder="örn: 300"
                       {...register("avgLikes")} 
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-black mb-1">Kitle Yaş Aralığı</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
-                      placeholder="18-24, 25-34 ..."
-                      {...register("audienceAge")} 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">Kitle Cinsiyet Dağılımı</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
-                      placeholder="%60 Kadın / %40 Erkek"
-                      {...register("audienceGender")} 
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">En Çok Takipçi Ülkeleri</label>
-                    <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent placeholder-black" 
-                      placeholder="TR, DE, NL"
-                      {...register("topCountries")} 
-                    />
-                  </div>
-                </div>
-              </div>
-              )}
-
-              {/* Performance & Platforms */}
-              {currentStep === 1 && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                  <span>🚀</span>
-                  <span>Performans ve Platformlar</span>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">Ana Platform</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Ana Platform</label>
                     <select 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent text-black"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
                       {...register("primaryPlatform")}
                     >
                       <option value="">Seçiniz</option>
@@ -491,9 +437,9 @@ export default function InfluencerApplyPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-black mb-1">Paylaşım Sıklığı</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Paylaşım Sıklığı</label>
                     <select 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent text-black"
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
                       {...register("postingFrequency")}
                     >
                       <option value="">Seçiniz</option>
@@ -503,184 +449,228 @@ export default function InfluencerApplyPage() {
                       <option value="monthly">Aylık</option>
                     </select>
                   </div>
-                </div>
-              </div>
-              )}
-
-              {/* Preferences */}
-              {currentStep === 2 && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                  <span>🎯</span>
-                  <span>Tercihler</span>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-black mb-1">Kategori/Niş</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Kitle Yaş Aralığı</label>
                     <input 
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-400" 
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                      placeholder="18-24, 25-34..."
+                      {...register("audienceAge")} 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Cinsiyet Dağılımı</label>
+                    <input 
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                      placeholder="%60 Kadın / %40 Erkek"
+                      {...register("audienceGender")} 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">En Çok Takipçi Ülkeleri</label>
+                    <input 
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                      placeholder="TR, DE, NL"
+                      {...register("topCountries")} 
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 2: Preferences */}
+            {currentStep === 2 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-8"
+              >
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Tercihler & İşbirliği</h2>
+                  <p className="text-gray-600">İçerik kategoriniz ve işbirliği tercihleriniz</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Kategori/Niş</label>
+                    <input 
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
                       placeholder="Moda, Teknoloji, Lifestyle, Güzellik, Fitness..."
                       {...register("category")} 
                     />
-                    <p className="text-black text-xs mt-1">Hangi konularda içerik ürettiğinizi belirtin</p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">İşbirliği Türleri</label>
-                    <div className="grid grid-cols-2 gap-2 text-sm text-black">
-                      <label className="inline-flex items-center gap-2">
-                        <input type="checkbox" value="sponsored" {...register("collaborationTypes")} /> Sponsorlu İçerik
-                      </label>
-                      <label className="inline-flex items-center gap-2">
-                        <input type="checkbox" value="affiliate" {...register("collaborationTypes")} /> Affiliate
-                      </label>
-                      <label className="inline-flex items-center gap-2">
-                        <input type="checkbox" value="giveaway" {...register("collaborationTypes")} /> Çekiliş
-                      </label>
-                      <label className="inline-flex items-center gap-2">
-                        <input type="checkbox" value="review" {...register("collaborationTypes")} /> Ürün İncelemesi
-                      </label>
-                    </div>
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-black mb-1">Ücret Tercihi</label>
-                    <div className="grid grid-cols-3 gap-2 text-sm text-black">
-                      <label className="inline-flex items-center gap-2">
-                        <input type="radio" value="fixed" {...register("compensationPreference")} /> Sabit Ücret
-                      </label>
-                      <label className="inline-flex items-center gap-2">
-                        <input type="radio" value="performance" {...register("compensationPreference")} /> Performans Bazlı
-                      </label>
-                      <label className="inline-flex items-center gap-2">
-                        <input type="radio" value="hybrid" {...register("compensationPreference")} /> Hibrit
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              )}
 
-              {/* Portfolio & Notes */}
-              {currentStep === 2 && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
-                  <span>🗂️</span>
-                  <span>Portföy ve Notlar</span>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">Portföy URL</label>
-                    <div className="relative">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">📁</span>
-                      <input 
-                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent text-black placeholder-gray-400" 
-                        placeholder="https://behance.net/..., Google Drive..."
-                        {...register("portfolio")} 
-                      />
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-900 mb-3">İşbirliği Türleri</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-purple-600 transition-all cursor-pointer">
+                        <input type="checkbox" value="sponsored" {...register("collaborationTypes")} className="w-5 h-5 text-purple-600" />
+                        <span className="font-medium">Sponsorlu İçerik</span>
+                      </label>
+                      <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-purple-600 transition-all cursor-pointer">
+                        <input type="checkbox" value="affiliate" {...register("collaborationTypes")} className="w-5 h-5 text-purple-600" />
+                        <span className="font-medium">Affiliate</span>
+                      </label>
+                      <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-purple-600 transition-all cursor-pointer">
+                        <input type="checkbox" value="giveaway" {...register("collaborationTypes")} className="w-5 h-5 text-purple-600" />
+                        <span className="font-medium">Çekiliş</span>
+                      </label>
+                      <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-purple-600 transition-all cursor-pointer">
+                        <input type="checkbox" value="review" {...register("collaborationTypes")} className="w-5 h-5 text-purple-600" />
+                        <span className="font-medium">Ürün İncelemesi</span>
+                      </label>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-1">Önceki İşbirlikleri</label>
-                    <div className="relative">
-                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">🤝</span>
-                      <input 
-                        className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent text-black placeholder-gray-400" 
-                        placeholder="Marka X (2024), Marka Y (2023) ..."
-                        {...register("pastCollaborations")} 
-                      />
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-900 mb-3">Ücret Tercihi</label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-purple-600 transition-all cursor-pointer">
+                        <input type="radio" value="fixed" {...register("compensationPreference")} className="w-5 h-5 text-purple-600" />
+                        <span className="font-medium">Sabit Ücret</span>
+                      </label>
+                      <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-purple-600 transition-all cursor-pointer">
+                        <input type="radio" value="performance" {...register("compensationPreference")} className="w-5 h-5 text-purple-600" />
+                        <span className="font-medium">Performans</span>
+                      </label>
+                      <label className="flex items-center gap-3 p-4 border-2 border-gray-200 rounded-xl hover:border-purple-600 transition-all cursor-pointer">
+                        <input type="radio" value="hybrid" {...register("compensationPreference")} className="w-5 h-5 text-purple-600" />
+                        <span className="font-medium">Hibrit</span>
+                      </label>
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Portföy URL</label>
+                    <input 
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                      placeholder="https://behance.net/..."
+                      {...register("portfolio")} 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Önceki İşbirlikleri</label>
+                    <input 
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                      placeholder="Marka X (2024), Marka Y (2023)..."
+                      {...register("pastCollaborations")} 
+                    />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-black mb-1">Ek Notlar</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Ek Notlar</label>
                     <textarea 
-                      rows={3}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-600 focus:border-transparent placeholder-black" 
+                      rows={4}
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
                       placeholder="Bize iletmek istediğiniz ek bilgiler..."
                       {...register("notes")} 
                     />
                   </div>
                 </div>
-              </div>
-              )}
+              </motion.div>
+            )}
 
-              {/* Consents */}
-              {currentStep === 3 && (
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <input 
-                    type="checkbox" 
-                    className="mt-1"
-                    {...register("agreement")} 
-                  />
-                  <label className="text-sm text-black">
-                    <span className="text-red-500">*</span> Influencer sözleşmesini okudum ve kabul ediyorum. Marka işbirlikleri için belirlenen kurallara uyacağımı beyan ederim.
-                  </label>
+            {/* Step 3: Consents */}
+            {currentStep === 3 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-6"
+              >
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Son Adım: Onaylar</h2>
+                  <p className="text-gray-600">Lütfen aşağıdaki onayları okuyun ve işaretleyin</p>
                 </div>
-                {errors.agreement && (
-                  <p className="text-red-500 text-sm">{errors.agreement.message}</p>
-                )}
-                <div className="flex items-start gap-3">
-                  <input 
-                    type="checkbox" 
-                    className="mt-1"
-                    {...register("communicationConsent")} 
-                  />
-                  <label className="text-sm text-black">
-                    <span className="text-red-500">*</span> Başvurumla ilgili e‑posta/telefon yoluyla iletişim kurulmasına izin veriyorum.
-                  </label>
-                </div>
-                {errors.communicationConsent && (
-                  <p className="text-red-500 text-sm">{(errors as any).communicationConsent?.message}</p>
-                )}
-                <div className="flex items-start gap-3">
-                  <input 
-                    type="checkbox" 
-                    className="mt-1"
-                    {...register("dataProcessingConsent")} 
-                  />
-                  <label className="text-sm text-black">
-                    <span className="text-red-500">*</span> KVKK/GDPR kapsamında verilerimin işlenmesine onay veriyorum.
-                  </label>
-                </div>
-                {errors.dataProcessingConsent && (
-                  <p className="text-red-500 text-sm">{(errors as any).dataProcessingConsent?.message}</p>
-                )}
-              </div>
-              )}
 
-              {/* Navigation Buttons */}
-              <div className="flex items-center gap-3 pt-2">
-                {currentStep > 0 && (
-                  <button
-                    type="button"
-                    onClick={handleBack}
-                    className="px-5 py-3 rounded-lg border border-gray-300 text-black hover:bg-gray-50"
-                  >
-                    Geri
-                  </button>
-                )}
-                {currentStep < steps.length - 1 && (
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="ml-auto px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white font-semibold shadow-lg"
-                  >
-                    İleri
-                  </button>
-                )}
-                {currentStep === steps.length - 1 && (
-                  <button 
-                    type="submit"
-                    disabled={isSubmitting} 
-                    className="ml-auto px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white font-semibold shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? "Gönderiliyor..." : "Başvuruyu Gönder"}
-                  </button>
-                )}
-              </div>
-            </form>
-          </div>
-        </section>
-      </div>
-    </main>
+                <div className="space-y-4">
+                  <label className="flex items-start gap-4 p-6 border-2 border-gray-200 rounded-xl hover:border-purple-600 transition-all cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="mt-1 w-5 h-5 text-purple-600"
+                      {...register("agreement")} 
+                    />
+                    <div>
+                      <span className="text-gray-900 font-medium block mb-1">
+                        <span className="text-red-500">*</span> Influencer Sözleşmesi
+                      </span>
+                      <span className="text-gray-600 text-sm">
+                        Influencer sözleşmesini okudum ve kabul ediyorum. Marka işbirlikleri için belirlenen kurallara uyacağımı beyan ederim.
+                      </span>
+                    </div>
+                  </label>
+                  {errors.agreement && <p className="text-red-500 text-sm">{errors.agreement.message}</p>}
+
+                  <label className="flex items-start gap-4 p-6 border-2 border-gray-200 rounded-xl hover:border-purple-600 transition-all cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="mt-1 w-5 h-5 text-purple-600"
+                      {...register("communicationConsent")} 
+                    />
+                    <div>
+                      <span className="text-gray-900 font-medium block mb-1">
+                        <span className="text-red-500">*</span> İletişim İzni
+                      </span>
+                      <span className="text-gray-600 text-sm">
+                        Başvurumla ilgili e-posta/telefon yoluyla iletişim kurulmasına izin veriyorum.
+                      </span>
+                    </div>
+                  </label>
+                  {errors.communicationConsent && <p className="text-red-500 text-sm">{(errors as any).communicationConsent?.message}</p>}
+
+                  <label className="flex items-start gap-4 p-6 border-2 border-gray-200 rounded-xl hover:border-purple-600 transition-all cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="mt-1 w-5 h-5 text-purple-600"
+                      {...register("dataProcessingConsent")} 
+                    />
+                    <div>
+                      <span className="text-gray-900 font-medium block mb-1">
+                        <span className="text-red-500">*</span> KVKK/GDPR Onayı
+                      </span>
+                      <span className="text-gray-600 text-sm">
+                        KVKK/GDPR kapsamında verilerimin işlenmesine onay veriyorum.
+                      </span>
+                    </div>
+                  </label>
+                  {errors.dataProcessingConsent && <p className="text-red-500 text-sm">{(errors as any).dataProcessingConsent?.message}</p>}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex items-center gap-4 pt-8 border-t mt-8">
+              {currentStep > 0 && (
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="px-6 py-3 rounded-xl border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-all flex items-center gap-2"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  Geri
+                </button>
+              )}
+              {currentStep < steps.length - 1 && (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="ml-auto px-8 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
+                >
+                  İleri
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              )}
+              {currentStep === steps.length - 1 && (
+                <button 
+                  type="submit"
+                  disabled={isSubmitting} 
+                  className="ml-auto px-8 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isSubmitting ? "Gönderiliyor..." : "Başvuruyu Gönder"}
+                  {!isSubmitting && <CheckCircle className="w-5 h-5" />}
+                </button>
+              )}
+            </div>
+          </form>
+        </motion.div>
+      </section>
+    </div>
   );
 }

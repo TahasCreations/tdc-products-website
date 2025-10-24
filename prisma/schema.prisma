@@ -806,6 +806,27 @@ model InfluencerApplication {
   updatedAt    DateTime @updatedAt
 }
 
+// === SITE BUILDER ===
+model BuilderPage {
+  id                String   @id
+  name              String
+  slug              String   @unique
+  title             String?
+  description       String?
+  components        String   @default("{}") // JSON
+  rootComponentIds  String   @default("[]") // JSON array
+  seo               String?  // JSON
+  settings          String?  // JSON
+  status            String   @default("draft") // draft|published
+  publishedAt       DateTime?
+  version           Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([status])
+}
+
 // === MEDIA MANAGEMENT ===
 enum MediaStorage {
   LOCAL
@@ -821,10 +842,15 @@ enum MediaStatus {
 
 model MediaAsset {
   id            String       @id @default(cuid())
+  name          String       // Friendly name
   url           String       @unique  // Tam URL veya path
+  thumbnailUrl  String?      // Thumbnail URL
   storage       MediaStorage @default(LOCAL)  // local|gcs|remote
   path          String?      // Bucket key veya public path
   filename      String       // Dosya adı
+  type          String       @default("other") // image|video|document|other
+  mimeType      String       // image/jpeg, video/mp4, etc.
+  size          Int          // File size in bytes
   width         Int?
   height        Int?
   format        String?      // jpg, png, webp, svg, etc.
@@ -833,6 +859,7 @@ model MediaAsset {
   alt           String?
   title         String?
   tags          String       @default("[]")  // JSON array
+  folder        String?      // Folder/category
   license       String?
   status        MediaStatus  @default(ACTIVE)
   usedIn        String       @default("[]")  // JSON array of usage locations
@@ -846,6 +873,8 @@ model MediaAsset {
   @@index([status])
   @@index([storage])
   @@index([format])
+  @@index([type])
+  @@index([folder])
   @@index([lastIndexedAt])
 }
 

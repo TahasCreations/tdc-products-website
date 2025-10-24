@@ -8,44 +8,17 @@ export default function MarketIntelligencePage() {
 	const [isAnalyzing, setIsAnalyzing] = useState(false);
 	const [results, setResults] = useState<any>(null);
 
+	// Demo veriler temizlendi - API'den gerçek veriler gelecek
 	const marketData = {
-		marketSize: 15600000000, // 15.6B TL
-		growth: 12.5,
-		competitors: 247,
-		marketShare: 3.2,
-		opportunities: 8,
-		threats: 4
+		marketSize: 0,
+		growth: 0,
+		competitors: 0,
+		marketShare: 0,
+		opportunities: 0,
+		threats: 0
 	};
 
-	const competitors = [
-		{
-			name: 'Rakip A',
-			marketShare: 18.5,
-			revenue: 2890000000,
-			growth: 8.2,
-			strengths: ['Güçlü marka', 'Geniş ürün yelpazesi'],
-			weaknesses: ['Yüksek fiyatlar', 'Zayıf müşteri hizmetleri'],
-			threat: 'high'
-		},
-		{
-			name: 'Rakip B',
-			marketShare: 12.3,
-			revenue: 1920000000,
-			growth: 15.7,
-			strengths: ['Hızlı büyüme', 'İnovatif ürünler'],
-			weaknesses: ['Sınırlı dağıtım', 'Yeni marka'],
-			threat: 'medium'
-		},
-		{
-			name: 'Rakip C',
-			marketShare: 9.8,
-			revenue: 1530000000,
-			growth: 5.4,
-			strengths: ['Düşük fiyatlar', 'Yaygın dağıtım'],
-			weaknesses: ['Düşük kalite algısı', 'Sınırlı inovasyon'],
-			threat: 'low'
-		}
-	];
+	const competitors: any[] = [];
 
 	const handleAnalyze = async () => {
 		setIsAnalyzing(true);

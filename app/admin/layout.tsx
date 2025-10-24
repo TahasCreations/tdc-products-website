@@ -147,13 +147,24 @@ const navigationGroups = [
     ]
   },
   {
+    id: 'sitebuilder',
+    title: 'Visual Site Builder',
+    icon: Sparkles,
+    color: 'purple',
+    items: [
+      { name: '✨ Site Builder', href: '/admin/site-builder/pages', icon: Sparkles, badge: 'NEW' },
+      { name: 'Sayfalar', href: '/admin/site-builder/pages', icon: FileText, badge: null },
+      { name: 'Medya Kütüphanesi', href: '/admin/media', icon: Eye, badge: null },
+      { name: 'Şablonlar', href: '/admin/site-builder/templates', icon: LayoutDashboard, badge: null },
+    ]
+  },
+  {
     id: 'content',
     title: 'İçerik Yönetimi',
     icon: Edit3,
     color: 'teal',
     items: [
-      { name: 'Medya Yönetimi', href: '/admin/media', icon: Eye, badge: null },
-      { name: 'Blog Moderasyonu', href: '/admin/blog-moderasyon', icon: Edit3, badge: 'NEW' },
+      { name: 'Blog Moderasyonu', href: '/admin/blog-moderasyon', icon: Edit3, badge: null },
       { name: 'Blog Kontrolü', href: '/admin/content/blog-control', icon: Edit3, badge: null },
       { name: 'İçerik Onayı', href: '/admin/content-approval', icon: CheckCircle, badge: null },
       { name: 'İçerik Onay', href: '/admin/content/content-approval', icon: CheckCircle, badge: null },

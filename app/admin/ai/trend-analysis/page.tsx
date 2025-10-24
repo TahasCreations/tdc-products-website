@@ -8,7 +8,8 @@ export default function TrendAnalysisPage() {
 	const [isAnalyzing, setIsAnalyzing] = useState(false);
 	const [results, setResults] = useState<any>(null);
 
-	const trendData = [];
+	// Demo veriler temizlendi - API'den gerçek veriler gelecek
+	const trendData: any[] = [];
 
 	const handleAnalyze = async () => {
 		setIsAnalyzing(true);
