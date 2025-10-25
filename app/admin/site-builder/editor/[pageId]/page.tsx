@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { EditorToolbar } from '@/components/site-builder/EditorToolbar';
 import { ComponentLibrary } from '@/components/site-builder/ComponentLibrary';
 import { EditorCanvas } from '@/components/site-builder/EditorCanvas';
@@ -68,67 +68,94 @@ export default function SiteBuilderEditorPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="fixed inset-0 flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
       {/* Keyboard Shortcuts Handler */}
       <KeyboardShortcuts />
 
-      {/* Toolbar */}
+      {/* Toolbar - Daha şık */}
       <EditorToolbar />
 
-      {/* Main Editor Area */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Main Editor Area - Tam genişlik */}
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Left: Layers Panel */}
-        {showLayers && <LayersPanel />}
+        <AnimatePresence>
+          {showLayers && (
+            <motion.div
+              initial={{ x: -320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -320, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="w-80 flex-shrink-0 border-r border-gray-700"
+            >
+              <LayersPanel />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Component Library */}
-        {showComponentLibrary && <ComponentLibrary />}
+        <AnimatePresence>
+          {showComponentLibrary && (
+            <motion.div
+              initial={{ x: -320, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -320, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="w-80 flex-shrink-0 border-r border-gray-700"
+            >
+              <ComponentLibrary />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Center: Canvas */}
-        <EditorCanvas />
+        {/* Center: Canvas - Daha geniş */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-gray-100">
+          <EditorCanvas />
+        </div>
 
-        {/* Right: Properties Panel */}
-        {showProperties && <PropertiesPanel />}
+        {/* Right: Properties Panel - Daha geniş */}
+        <AnimatePresence>
+          {showProperties && (
+            <motion.div
+              initial={{ x: 400, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 400, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25 }}
+              className="w-96 flex-shrink-0 border-l border-gray-700"
+            >
+              <PropertiesPanel />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Keyboard Shortcuts Help */}
+      {/* Keyboard Shortcuts Help - Modernize */}
       <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="absolute bottom-4 left-4 bg-white/95 backdrop-blur rounded-xl shadow-xl p-4 text-xs text-gray-700 max-w-xs border border-gray-200"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1 }}
+        className="absolute bottom-6 left-6 bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl p-5 text-xs text-gray-300 max-w-xs border border-gray-700"
       >
-        <p className="font-bold mb-3 text-sm flex items-center gap-2">
-          <span>⌨️</span>
+        <p className="font-bold mb-4 text-sm flex items-center gap-2 text-white">
+          <span className="text-lg">⌨️</span>
           Klavye Kısayolları
         </p>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span>Geri Al</span>
-            <kbd className="px-2 py-1 bg-gray-100 rounded font-mono text-xs">Ctrl+Z</kbd>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Yinele</span>
-            <kbd className="px-2 py-1 bg-gray-100 rounded font-mono text-xs">Ctrl+Y</kbd>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Kaydet</span>
-            <kbd className="px-2 py-1 bg-gray-100 rounded font-mono text-xs">Ctrl+S</kbd>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Kopyala</span>
-            <kbd className="px-2 py-1 bg-gray-100 rounded font-mono text-xs">Ctrl+C</kbd>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Yapıştır</span>
-            <kbd className="px-2 py-1 bg-gray-100 rounded font-mono text-xs">Ctrl+V</kbd>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Sil</span>
-            <kbd className="px-2 py-1 bg-gray-100 rounded font-mono text-xs">Delete</kbd>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Çoğalt</span>
-            <kbd className="px-2 py-1 bg-gray-100 rounded font-mono text-xs">Ctrl+D</kbd>
-          </div>
+        <div className="space-y-2.5">
+          {[
+            { label: 'Geri Al', keys: 'Ctrl+Z' },
+            { label: 'Yinele', keys: 'Ctrl+Y' },
+            { label: 'Kaydet', keys: 'Ctrl+S' },
+            { label: 'Kopyala', keys: 'Ctrl+C' },
+            { label: 'Yapıştır', keys: 'Ctrl+V' },
+            { label: 'Sil', keys: 'Delete' },
+            { label: 'Çoğalt', keys: 'Ctrl+D' },
+          ].map((shortcut) => (
+            <div key={shortcut.keys} className="flex items-center justify-between group">
+              <span className="text-gray-400 group-hover:text-gray-200 transition-colors">{shortcut.label}</span>
+              <kbd className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg font-mono text-xs text-gray-300 group-hover:bg-gray-700 group-hover:border-gray-600 transition-all">
+                {shortcut.keys}
+              </kbd>
+            </div>
+          ))}
         </div>
       </motion.div>
     </div>

@@ -79,12 +79,26 @@ export default function SiteBuilderPagesPage() {
     }
   };
 
-  const handleCreatePage = () => {
-    router.push('/admin/site-builder/editor/new');
+  const handleCreatePage = (openInNewTab: boolean = true) => {
+    const editorUrl = '/admin/site-builder/editor/new';
+    
+    if (openInNewTab) {
+      // Yeni sekmede aç
+      window.open(editorUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      router.push(editorUrl);
+    }
   };
 
-  const handleEditPage = (pageId: string) => {
-    router.push(`/admin/site-builder/editor/${pageId}`);
+  const handleEditPage = (pageId: string, openInNewTab: boolean = true) => {
+    const editorUrl = `/admin/site-builder/editor/${pageId}`;
+    
+    if (openInNewTab) {
+      // Yeni sekmede aç
+      window.open(editorUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      router.push(editorUrl);
+    }
   };
 
   const handleDuplicatePage = async (pageId: string) => {
@@ -116,6 +130,42 @@ export default function SiteBuilderPagesPage() {
       }
     } catch (error) {
       console.error('Error deleting page:', error);
+    }
+  };
+
+  const handleEditExistingPage = async (existingPage: ExistingPage) => {
+    // Mevcut sayfayı builder formatına dönüştür ve editörde aç
+    try {
+      // Yeni bir builder sayfası oluştur
+      const newPage = {
+        name: existingPage.name,
+        slug: existingPage.slug,
+        components: {},
+        rootComponentIds: [],
+        status: 'draft' as const,
+        seo: {
+          title: existingPage.metadata.title || existingPage.name,
+          description: existingPage.metadata.description || '',
+        },
+      };
+
+      // Sayfayı kaydet
+      const response = await fetch('/api/site-builder/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPage),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Yeni sekmede editörü aç
+        window.open(`/admin/site-builder/editor/${data.page.id}`, '_blank', 'noopener,noreferrer');
+        // Sayfaları yenile
+        fetchPages();
+      }
+    } catch (error) {
+      console.error('Error creating page from existing:', error);
+      alert('Sayfa oluşturulurken hata oluştu');
     }
   };
 
@@ -434,17 +484,16 @@ export default function SiteBuilderPagesPage() {
                         {page.isEditable ? (
                           <>
                             <button
-                              onClick={() => {
-                                alert('Bu sayfa yakında Visual Builder\'da düzenlenebilecek!');
-                              }}
+                              onClick={() => handleEditExistingPage(page)}
                               className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all font-medium text-sm flex items-center justify-center gap-2"
                             >
                               <Palette className="w-4 h-4" />
-                              Builder'da Aç
+                              Builder'da Düzenle
                             </button>
                             <button
                               onClick={() => window.open(page.slug, '_blank')}
                               className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                              title="Görüntüle"
                             >
                               <ExternalLink className="w-4 h-4" />
                             </button>
