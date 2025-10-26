@@ -1,8 +1,5 @@
 "use client";
 
-// Force dynamic rendering to avoid prerendering errors
-export const dynamic = 'force-dynamic';
-
 import { useState } from 'react';
 
 export default function NewBlogPostPage() {

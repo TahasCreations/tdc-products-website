@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const config = {
+const nextConfig = {
   // Disable type checking during build (types will be checked separately)
   typescript: {
     ignoreBuildErrors: true,
@@ -9,9 +9,6 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-
-  // Output configuration for Vercel
-  output: 'standalone',
 
   // Image optimization
   images: {
@@ -147,13 +144,16 @@ const config = {
   // Skip static generation for pages that require client-side context
   skipTrailingSlashRedirect: true,
 
+  // Generate build ID for Vercel
+  generateBuildId: async () => {
+    return process.env.VERCEL_GIT_COMMIT_SHA || 'development';
+  },
+
   experimental: {
     esmExternals: false,
     // Enable experimental features for better performance
     // optimizeCss: true, // Disabled - requires critters package
     optimizePackageImports: ['lucide-react', 'framer-motion', '@prisma/client'],
-    // These pages should not be prerendered
-    skipMiddlewareUrlNormalize: true,
     // Turbopack for faster dev builds (Next.js 14+)
     turbo: {
       rules: {
@@ -231,4 +231,4 @@ const config = {
   },
 };
 
-module.exports = config;
+module.exports = nextConfig;

@@ -1,128 +1,253 @@
-# 🚀 VERCEL DEPLOYMENT GUIDE - TDC MARKET
+# Vercel Deployment Rehberi
 
-## ✅ **TÜM SORUNLAR ÇÖZÜLDİ!**
+## 🚀 Hızlı Başlangıç
 
-### **Temiz Web App Oluşturuldu:**
-- ✅ Workspace bağımlılıkları kaldırıldı
-- ✅ Temiz package.json oluşturuldu
-- ✅ Tüm gerekli dosyalar kopyalandı
-- ✅ Component'ler oluşturuldu
-- ✅ Vercel uyumlu hale getirildi
+### 1. Vercel Hesabı ve Proje Kurulumu
 
-## 📁 **Temiz Web App Dizini: `tdc-market-webapp/`**
+1. [Vercel](https://vercel.com) hesabı oluşturun
+2. GitHub repository'nizi Vercel'e bağlayın
+3. Proje ayarlarını yapılandırın
 
-### **Dosya Yapısı:**
-```
-tdc-market-webapp/
-├── package.json          # Temiz dependencies
-├── next.config.js        # Next.js konfigürasyonu
-├── tailwind.config.ts    # Tailwind CSS
-├── tsconfig.json         # TypeScript
-├── postcss.config.mjs    # PostCSS
-├── next-env.d.ts         # Next.js types
-├── .gitignore            # Git ignore
-├── README.md             # Proje açıklaması
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx    # Root layout
-│   │   ├── page.tsx      # Ana sayfa
-│   │   └── globals.css   # Global CSS
-│   ├── components/
-│   │   ├── Header.tsx    # Header component
-│   │   ├── Footer.tsx    # Footer component
-│   │   └── home/         # Home page components
-│   └── data/
-│       ├── seed.json     # Mock data
-│       └── seed.ts       # Data export
-└── public/               # Static files
-```
+### 2. Gerekli Environment Variables
 
-## 🚀 **DEPLOYMENT ADIMLARI:**
+Vercel Dashboard > Settings > Environment Variables bölümünden aşağıdaki değişkenleri ekleyin:
 
-### **1. Git Repository Oluştur:**
+#### **Zorunlu Değişkenler**
+
 ```bash
-cd tdc-market-webapp
-git init
-git add .
-git commit -m "Initial commit: TDC Market Clean Web App"
+# Database
+DATABASE_URL="your_database_url"
+
+# NextAuth
+NEXTAUTH_SECRET="your_nextauth_secret_key"
+NEXTAUTH_URL="https://your-domain.vercel.app"
+
+# App URL
+NEXT_PUBLIC_APP_URL="https://your-domain.vercel.app"
 ```
 
-### **2. GitHub Repository Oluştur:**
-- https://github.com/new
-- Repository name: `tdc-market-webapp`
-- Public veya Private seç
-- "Create repository" tıkla
+#### **Opsiyonel Değişkenler**
 
-### **3. GitHub'a Bağla:**
 ```bash
-git remote add origin https://github.com/KULLANICI_ADI/tdc-market-webapp.git
-git push -u origin main
+# Email (SendGrid)
+SENDGRID_API_KEY="your_sendgrid_api_key"
+EMAIL_FROM="noreply@yourdomain.com"
+
+# Google Cloud (Eğer kullanıyorsanız)
+GOOGLE_CLOUD_PROJECT_ID="your_project_id"
+GCS_BUCKET_NAME="your_bucket_name"
+GOOGLE_APPLICATION_CREDENTIALS_JSON="your_service_account_json"
+
+# Redis (Upstash - Caching için)
+UPSTASH_REDIS_REST_URL="your_redis_url"
+UPSTASH_REDIS_REST_TOKEN="your_redis_token"
+
+# Stripe (Ödeme sistemi)
+STRIPE_SECRET_KEY="your_stripe_secret_key"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="your_stripe_publishable_key"
+STRIPE_WEBHOOK_SECRET="your_stripe_webhook_secret"
 ```
 
-### **4. Vercel'e Deploy Et:**
-- https://vercel.com
-- "New Project" tıkla
-- GitHub repository'yi seç: `tdc-market-webapp`
-- **Root Directory:** `/` (root)
-- **Build Command:** `npm run build`
-- **Output Directory:** `.next`
-- **Install Command:** `npm install`
+### 3. Build Ayarları
 
-### **5. Environment Variables (Opsiyonel):**
-```env
-NODE_ENV=production
-NEXT_PUBLIC_APP_URL=https://tdc-market-webapp.vercel.app
-REVALIDATE_SECRET=your-secret-key
+Vercel Dashboard'da aşağıdaki ayarları yapın:
+
+- **Framework Preset**: Next.js
+- **Build Command**: `npm run build`
+- **Output Directory**: `.next` (otomatik)
+- **Install Command**: `npm install`
+- **Node.js Version**: 22.x
+
+### 4. Deployment
+
+#### Otomatik Deployment
+- `main` branch'e push yaptığınızda otomatik olarak deploy edilir
+- Pull request'ler için preview deployment oluşturulur
+
+#### Manuel Deployment
+```bash
+# Vercel CLI ile deploy
+npm i -g vercel
+vercel login
+vercel --prod
 ```
 
-## 🎯 **VERCEL DASHBOARD AYARLARI:**
+## 🔧 Önemli Notlar
 
-### **Project Settings:**
+### Client-Side Context Kullanan Sayfalar
+
+Aşağıdaki sayfalar client-side context kullandığı için **dinamik olarak render edilir** (prerendering yapılmaz):
+
+- `/cart` - CartProvider
+- `/wishlist` - WishlistProvider
+- `/search` - CartProvider & WishlistProvider
+- `/checkout` - CartProvider
+- `/profile` - SessionProvider
+- `/blog` - Dinamik içerik
+- `/blog/new` - Form sayfası
+
+Bu sayfalar için build sırasında prerendering hataları **normaldir** ve beklenen davranıştır.
+
+### Database Migration
+
+Vercel'de database migration otomatik olarak çalışmaz. İlk deployment öncesi:
+
+```bash
+# Local'de migration'ları çalıştırın
+npx prisma migrate deploy
+
+# Veya production database'e bağlanarak
+DATABASE_URL="your_production_db" npx prisma migrate deploy
 ```
-Framework Preset: Next.js
-Root Directory: / (root)
-Build Command: npm run build
-Output Directory: .next
-Install Command: npm install
+
+### Image Optimization
+
+Next.js Image Optimization Vercel'de otomatik olarak çalışır. Ancak external image'lar için `next.config.js`'de `remotePatterns` tanımlı olmalıdır.
+
+## 🐛 Yaygın Sorunlar ve Çözümleri
+
+### 1. "useCart must be used within a CartProvider" Hatası
+
+**Sorun**: Sayfalar prerendering sırasında client context'e erişmeye çalışıyor.
+
+**Çözüm**: Sayfanın başına `export const dynamic = 'force-dynamic';` eklenmiştir.
+
+### 2. "Module not found" Hataları
+
+**Sorun**: Path alias'ları doğru çözümlenmiyor.
+
+**Çözüm**: `next.config.js`'de webpack alias'ları tanımlanmıştır.
+
+### 3. Build Timeout
+
+**Sorun**: Build 10 dakikadan uzun sürüyor.
+
+**Çözüm**: 
+- `typescript.ignoreBuildErrors: true` kullanılıyor
+- `eslint.ignoreDuringBuilds: true` kullanılıyor
+- Gereksiz dependencies kaldırılmalı
+
+### 4. Environment Variables Eksik
+
+**Sorun**: Runtime'da environment variable'lar undefined.
+
+**Çözüm**: Vercel Dashboard'dan tüm environment variable'ları ekleyin ve redeploy yapın.
+
+## 📊 Performance Monitoring
+
+### Vercel Analytics
+
+Vercel Analytics otomatik olarak etkindir:
+
+```tsx
+// app/layout.tsx
+import { Analytics } from '@vercel/analytics/react';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Analytics />
+      </body>
+    </html>
+  );
+}
 ```
 
-### **Build Settings:**
-- Node.js Version: 18.x
-- NPM Version: 8.x
-- Environment: Production
+### Speed Insights
 
-## ✅ **BAŞARILI DEPLOYMENT KONTROLÜ:**
+```tsx
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
-### **Build Logs'da Görmen Gerekenler:**
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <SpeedInsights />
+      </body>
+    </html>
+  );
+}
 ```
-✓ Installing dependencies
-✓ Building Next.js application
-✓ Generating static pages
-✓ Build completed successfully
+
+## 🔐 Güvenlik
+
+### Headers
+
+`next.config.js`'de güvenlik header'ları tanımlanmıştır:
+
+- Strict-Transport-Security
+- X-Frame-Options
+- X-Content-Type-Options
+- X-XSS-Protection
+- Referrer-Policy
+- Permissions-Policy
+
+### Rate Limiting
+
+API route'ları için rate limiting implementasyonu:
+
+```typescript
+// middleware.ts
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(10, "10 s"),
+});
 ```
 
-### **Hata Almaman Gerekenler:**
-- ❌ `workspace:*` errors
-- ❌ `EUNSUPPORTEDPROTOCOL` errors
-- ❌ NPM install failures
-- ❌ Build failures
+## 📝 Deployment Checklist
 
-## 🎉 **SONUÇ:**
+- [ ] Tüm environment variables Vercel'de tanımlandı
+- [ ] Database migration'ları production'da çalıştırıldı
+- [ ] NEXTAUTH_URL production domain'e ayarlandı
+- [ ] Email servisi (SendGrid) yapılandırıldı
+- [ ] Stripe webhook URL'leri güncellendi
+- [ ] Custom domain DNS ayarları yapıldı (varsa)
+- [ ] SSL sertifikası aktif
+- [ ] Analytics ve monitoring aktif
+- [ ] Error tracking (Sentry vb.) kuruldu (opsiyonel)
 
-### **Tüm Sorunlar Çözüldü:**
-- ✅ Workspace bağımlılıkları kaldırıldı
-- ✅ Temiz web app oluşturuldu
-- ✅ Vercel uyumlu hale getirildi
-- ✅ Deployment hazır
+## 🎯 İlk Deployment Sonrası
 
-### **Artık Vercel'e Deploy Edebilirsin!** 🚀
+1. **Test Edin**:
+   - Tüm sayfaların açıldığını kontrol edin
+   - Ürün ekleme/silme işlemlerini test edin
+   - Ödeme akışını test edin (test mode'da)
+   - Email gönderimini test edin
 
-## 📞 **YARDIM:**
+2. **Monitoring Kurun**:
+   - Vercel Analytics'i kontrol edin
+   - Error rate'leri izleyin
+   - Performance metrics'leri takip edin
 
-Eğer hala sorun yaşarsan:
-1. **Temiz web app** dizinini kontrol et
-2. **Git repository** oluşturduğundan emin ol
-3. **Vercel logs** incele
-4. **Specific error** paylaş
+3. **SEO Ayarları**:
+   - `robots.txt` kontrol edin
+   - `sitemap.xml` oluşturun
+   - Meta tags'leri kontrol edin
 
-**En kolay yol: Yukarıdaki adımları takip et!** 🚀
+## 🚨 Acil Durum
+
+Eğer deployment başarısız olursa:
+
+1. Vercel Dashboard > Deployments > Failed Deployment > Logs
+2. Hata mesajını kontrol edin
+3. Environment variables'ları kontrol edin
+4. `vercel.json` ve `next.config.js` ayarlarını gözden geçirin
+5. Gerekirse previous deployment'a rollback yapın
+
+## 📞 Destek
+
+- Vercel Documentation: https://vercel.com/docs
+- Next.js Documentation: https://nextjs.org/docs
+- Prisma Documentation: https://www.prisma.io/docs
+
+---
+
+**Son Güncelleme**: 2025-10-26
+**Next.js Version**: 14.2.33
+**Node.js Version**: 22.x

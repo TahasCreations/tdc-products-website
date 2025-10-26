@@ -1,8 +1,5 @@
 "use client";
 
-// Force dynamic rendering to avoid prerendering errors
-export const dynamic = 'force-dynamic';
-
 import { useCart } from '@/contexts/CartContext';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';

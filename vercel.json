@@ -1,55 +1,38 @@
 {
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "env": {
-    "NEXT_PUBLIC_APP_URL": "@next_public_app_url",
-    "DATABASE_URL": "@database_url",
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "NEXTAUTH_URL": "@nextauth_url"
-  },
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "build": {
     "env": {
-      "SKIP_ENV_VALIDATION": "1"
+      "SKIP_ENV_VALIDATION": "1",
+      "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
     }
   },
   "functions": {
-    "app/**/*.{js,ts,tsx}": {
+    "app/cart/page.tsx": {
       "memory": 1024,
       "maxDuration": 10
     },
-    "api/**/*.{js,ts}": {
+    "app/wishlist/page.tsx": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/search/page.tsx": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/checkout/page.tsx": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/profile/page.tsx": {
+      "memory": 1024,
+      "maxDuration": 10
+    },
+    "app/blog/new/page.tsx": {
       "memory": 1024,
       "maxDuration": 10
     }
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    }
-  ],
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./"
+  }
 }
 

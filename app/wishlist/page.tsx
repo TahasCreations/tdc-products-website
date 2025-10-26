@@ -1,8 +1,5 @@
 "use client";
 
-// Force dynamic rendering to avoid prerendering errors
-export const dynamic = 'force-dynamic';
-
 import { useState } from 'react';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { motion } from 'framer-motion';
