@@ -21,6 +21,9 @@ import { ComponentProps, StyleProps } from '@/lib/site-builder/types';
 import { AnimationPresets } from './AnimationPresets';
 import { SEOPanel } from './SEOPanel';
 import { GlobalThemePanel } from './GlobalThemePanel';
+import { AIContentAssistant } from './AIContentAssistant';
+import { ColorPalettePicker } from './ColorPalettePicker';
+import { TypographyManager } from './TypographyManager';
 
 export const PropertiesPanel: React.FC = () => {
   const {
@@ -32,16 +35,15 @@ export const PropertiesPanel: React.FC = () => {
   } = useEditorStore();
 
   const [expandedSections, setExpandedSections] = useState<string[]>(['content', 'layout', 'style']);
-  const [activeTab, setActiveTab] = useState<'properties' | 'animations' | 'seo' | 'theme'>('properties');
+  const [activeTab, setActiveTab] = useState<'properties' | 'animations' | 'seo'>('properties');
 
   const selectedComponent = selectedComponentId && currentPage?.components[selectedComponentId];
 
-  // Tab Navigation
+  // Tab Navigation (Tema butonu sağ alt köşeye taşındı - FloatingThemeButton)
   const tabs = [
     { key: 'properties', name: 'Properties', icon: <Layout className="w-4 h-4" /> },
     { key: 'animations', name: 'Animations', icon: <Sparkles className="w-4 h-4" /> },
     { key: 'seo', name: 'SEO', icon: <Search className="w-4 h-4" /> },
-    { key: 'theme', name: 'Theme', icon: <Palette className="w-4 h-4" /> },
   ];
 
   // Render different panels based on active tab
@@ -87,29 +89,6 @@ export const PropertiesPanel: React.FC = () => {
           ))}
         </div>
         <SEOPanel />
-      </div>
-    );
-  }
-
-  if (activeTab === 'theme') {
-    return (
-      <div className="w-80 bg-white border-l border-gray-200 flex flex-col h-full overflow-hidden">
-        <div className="flex border-b border-gray-200">
-          {tabs.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key as any)}
-              className={`flex-1 px-3 py-3 text-xs font-medium flex items-center justify-center gap-1 transition-colors ${
-                activeTab === tab.key
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              {tab.icon}
-            </button>
-          ))}
-        </div>
-        <GlobalThemePanel />
       </div>
     );
   }
@@ -222,6 +201,12 @@ export const PropertiesPanel: React.FC = () => {
             onToggle={() => toggleSection('content')}
           >
             <div className="space-y-3">
+              {/* AI Content Assistant */}
+              <AIContentAssistant
+                contentType={selectedComponent.type === 'heading' ? 'heading' : selectedComponent.type === 'button' ? 'button' : 'text'}
+                onContentGenerated={(content) => updateContent('text', content)}
+              />
+              
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">Metin</label>
                 <textarea
@@ -566,43 +551,17 @@ export const PropertiesPanel: React.FC = () => {
           onToggle={() => toggleSection('colors')}
         >
           <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Text Color</label>
-              <div className="flex gap-2">
-                <input
-                  type="color"
-                  value={selectedComponent.styles?.color || '#000000'}
-                  onChange={(e) => updateStyle('color', e.target.value)}
-                  className="w-12 h-8 rounded border border-gray-300"
-                />
-                <input
-                  type="text"
-                  value={selectedComponent.styles?.color || ''}
-                  onChange={(e) => updateStyle('color', e.target.value)}
-                  className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
-                  placeholder="#000000"
-                />
-              </div>
-            </div>
+            <ColorPalettePicker
+              label="Text Color"
+              value={selectedComponent.styles?.color || '#000000'}
+              onChange={(color) => updateStyle('color', color)}
+            />
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Background</label>
-              <div className="flex gap-2">
-                <input
-                  type="color"
-                  value={selectedComponent.styles?.backgroundColor || '#ffffff'}
-                  onChange={(e) => updateStyle('backgroundColor', e.target.value)}
-                  className="w-12 h-8 rounded border border-gray-300"
-                />
-                <input
-                  type="text"
-                  value={selectedComponent.styles?.backgroundColor || ''}
-                  onChange={(e) => updateStyle('backgroundColor', e.target.value)}
-                  className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
-                  placeholder="#ffffff"
-                />
-              </div>
-            </div>
+            <ColorPalettePicker
+              label="Background Color"
+              value={selectedComponent.styles?.backgroundColor || '#ffffff'}
+              onChange={(color) => updateStyle('backgroundColor', color)}
+            />
 
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Gradient (advanced)</label>

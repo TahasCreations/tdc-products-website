@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useEditorStore } from '@/lib/site-builder/store';
 import { useRouter } from 'next/navigation';
+import { PreviewMode } from './PreviewMode';
 
 export const EditorToolbar: React.FC = () => {
   const router = useRouter();
@@ -36,6 +37,7 @@ export const EditorToolbar: React.FC = () => {
 
   const [isSaving, setIsSaving] = React.useState(false);
   const [isPublishing, setIsPublishing] = React.useState(false);
+  const [showPreview, setShowPreview] = React.useState(false);
 
   const handleSave = async () => {
     try {
@@ -65,7 +67,13 @@ export const EditorToolbar: React.FC = () => {
   };
 
   return (
-    <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+    <>
+      {/* Preview Mode Modal */}
+      {showPreview && (
+        <PreviewMode onClose={() => setShowPreview(false)} />
+      )}
+
+      <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
       {/* Left: Back & Title */}
       <div className="flex items-center gap-4">
         <button
@@ -116,15 +124,11 @@ export const EditorToolbar: React.FC = () => {
 
         {/* Preview Mode */}
         <button
-          onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-            mode === 'preview'
-              ? 'bg-green-100 text-green-700 hover:bg-green-200'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
+          onClick={() => setShowPreview(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all bg-green-100 text-green-700 hover:bg-green-200"
         >
-          {mode === 'preview' ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          {mode === 'preview' ? 'Preview' : 'Edit'}
+          <Eye className="w-4 h-4" />
+          Preview
         </button>
 
         <div className="h-8 w-px bg-gray-300"></div>
@@ -182,6 +186,7 @@ export const EditorToolbar: React.FC = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

@@ -80,10 +80,10 @@ export default function SiteBuilderPagesPage() {
   };
 
   const handleCreatePage = (openInNewTab: boolean = true) => {
-    const editorUrl = '/admin/site-builder/editor/new';
+    const editorUrl = '/admin/site-builder/editor-full';
     
     if (openInNewTab) {
-      // Yeni sekmede aç
+      // Yeni sekmede tam sayfa editörü aç
       window.open(editorUrl, '_blank', 'noopener,noreferrer');
     } else {
       router.push(editorUrl);
@@ -91,10 +91,10 @@ export default function SiteBuilderPagesPage() {
   };
 
   const handleEditPage = (pageId: string, openInNewTab: boolean = true) => {
-    const editorUrl = `/admin/site-builder/editor/${pageId}`;
+    const editorUrl = `/admin/site-builder/editor-full?page=${pageId}`;
     
     if (openInNewTab) {
-      // Yeni sekmede aç
+      // Yeni sekmede tam sayfa editörü aç
       window.open(editorUrl, '_blank', 'noopener,noreferrer');
     } else {
       router.push(editorUrl);
@@ -158,8 +158,8 @@ export default function SiteBuilderPagesPage() {
 
       if (response.ok) {
         const data = await response.json();
-        // Yeni sekmede editörü aç
-        window.open(`/admin/site-builder/editor/${data.page.id}`, '_blank', 'noopener,noreferrer');
+        // Yeni sekmede tam sayfa editörü aç
+        window.open(`/admin/site-builder/editor-full?page=${data.page.id}`, '_blank', 'noopener,noreferrer');
         // Sayfaları yenile
         fetchPages();
       }
