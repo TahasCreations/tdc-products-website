@@ -1,7 +1,7 @@
 'use server';
 
 import { PrismaClient } from '@prisma/client';
-import { requireUser } from '../../src/lib/guards';
+import { requireUser } from '../../../src/lib/guards';
 
 const prisma = new PrismaClient();
 

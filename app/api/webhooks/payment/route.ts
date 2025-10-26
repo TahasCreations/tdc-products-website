@@ -1,6 +1,6 @@
 // /app/api/webhooks/payment/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createOrder, handlePaymentSuccess, handlePaymentCancelled } from '../../../checkout/actions';
+import { createOrder, handlePaymentSuccess, handlePaymentCancelled } from '../../../(dynamic)/checkout/actions';
 import { PrismaClient } from '@prisma/client';
 
 // Prisma Client Edge'de çalışmaz, Node.js runtime kullan
