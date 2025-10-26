@@ -386,7 +386,7 @@ export default function AdminLayout({
                         const isActive = pathname === item.href;
                         const ItemIcon = item.icon;
 
-	return (
+                        return (
                           <Link
                             key={item.href}
                             href={item.href}
@@ -488,9 +488,9 @@ export default function AdminLayout({
 
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">
-			{children}
+          {children}
         </main>
       </div>
     </div>
-	);
+  );
 }

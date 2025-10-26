@@ -1,346 +1,173 @@
 /**
- * API Cache Layer with SWR (Stale-While-Revalidate)
- * 
- * Features:
- * - SWR pattern: serve stale data while fetching fresh data in background
- * - Distributed lock (SETNX emulation) to prevent cache stampede
- * - Hot-key limiter: rate limit per cache key to prevent abuse
- * - TTL jitter to prevent thundering herd
- * - Event-based invalidation matrix
- * 
- * @module lib/api-cache
+ * API Response Caching Utility
+ * Provides in-memory caching for API responses
  */
 
-import { kv, CACHE_TTL } from './redis';
-
-type CacheRecord<T> = {
-  ts: number;
-  data: T;
-  version?: string;
-};
-
-const BASE_TTL = Number(process.env.CACHE_DEFAULT_TTL_SEC ?? 120);
-const STALE_TTL = Number(process.env.CACHE_STALE_TTL_SEC ?? 360);
-const LOCK_TTL = 5; // seconds
-
-/**
- * Add jitter to TTL to prevent thundering herd
- * Randomizes TTL between 90% and 110% of original value
- */
-function jitter(sec: number): number {
-  const factor = 0.9 + Math.random() * 0.2;
-  return Math.max(1, Math.floor(sec * factor));
+interface CacheEntry {
+  data: any;
+  timestamp: number;
+  etag: string;
 }
 
-/**
- * Cache with SWR pattern
- * 
- * @param key - Cache key
- * @param ttlSec - Fresh TTL in seconds
- * @param fetcher - Function to fetch fresh data
- * @param opts - Additional options
- * @returns Cached or fresh data
- * 
- * @example
- * ```ts
- * const products = await cached(
- *   'products:list:v1:p1',
- *   120,
- *   () => db.product.findMany({ take: 24 }),
- *   { staleTtlSec: 360, hotLimitPerSec: 300 }
- * );
- * ```
- */
-export async function cached<T>(
-  key: string,
-  ttlSec: number = BASE_TTL,
-  fetcher: () => Promise<T>,
-  opts?: {
-    staleTtlSec?: number;
-    hotLimitPerSec?: number;
-    version?: string;
-  }
-): Promise<T> {
-  const now = Date.now();
-  const staleTtl = (opts?.staleTtlSec ?? STALE_TTL) * 1000;
+class APICache {
+  private cache: Map<string, CacheEntry>;
+  private defaultTTL: number;
 
-  // Hot-key limiter: prevent too many requests to same key per second
-  if (opts?.hotLimitPerSec) {
-    const rateLimitKey = `rl:cache:${key}:${Math.floor(now / 1000)}`;
-    const count = await kv.incr(rateLimitKey);
-    if (count === 1) {
-      await kv.expire(rateLimitKey, 2);
+  constructor(defaultTTL: number = 5 * 60 * 1000) {
+    // 5 minutes default
+    this.cache = new Map();
+    this.defaultTTL = defaultTTL;
+  }
+
+  /**
+   * Generate cache key from request
+   */
+  private generateKey(url: string, params?: Record<string, any>): string {
+    const paramString = params ? JSON.stringify(params) : '';
+    return `${url}:${paramString}`;
+  }
+
+  /**
+   * Generate ETag for response
+   */
+  private generateETag(data: any): string {
+    return Buffer.from(JSON.stringify(data)).toString('base64').substring(0, 32);
+  }
+
+  /**
+   * Get cached data
+   */
+  get(url: string, params?: Record<string, any>): CacheEntry | null {
+    const key = this.generateKey(url, params);
+    const entry = this.cache.get(key);
+
+    if (!entry) {
+      return null;
     }
-    if (count > opts.hotLimitPerSec) {
-      // Degrade: return stale cache if available
-      const rec = await kv.get<CacheRecord<T>>(key);
-      if (rec?.data) {
-        console.warn(`[cache] Hot key limit exceeded: ${key}, serving stale`);
-        return rec.data;
-      }
+
+    // Check if cache is still valid
+    if (Date.now() - entry.timestamp > this.defaultTTL) {
+      this.cache.delete(key);
+      return null;
     }
+
+    return entry;
   }
 
-  // Try to get cached data
-  const rec = await kv.get<CacheRecord<T>>(key);
+  /**
+   * Set cache data
+   */
+  set(url: string, data: any, params?: Record<string, any>, ttl?: number): void {
+    const key = this.generateKey(url, params);
+    const etag = this.generateETag(data);
 
-  // Check version mismatch
-  if (rec && opts?.version && rec.version !== opts.version) {
-    console.log(`[cache] Version mismatch for ${key}, invalidating`);
-    await kv.del(key);
-    return await revalidate(key, ttlSec, fetcher, opts?.version);
-  }
-
-  // Fresh cache hit
-  if (rec && now - rec.ts < ttlSec * 1000) {
-    return rec.data;
-  }
-
-  // Stale cache hit - serve stale and revalidate in background
-  if (rec && now - rec.ts < staleTtl) {
-    // Async revalidation (fire and forget)
-    revalidate(key, ttlSec, fetcher, opts?.version).catch((err) => {
-      console.error(`[cache] Background revalidation failed for ${key}:`, err);
-    });
-    return rec.data;
-  }
-
-  // Cache miss or expired - synchronous revalidation with lock
-  return await revalidate(key, ttlSec, fetcher, opts?.version);
-}
-
-/**
- * Revalidate cache with distributed lock to prevent stampede
- * 
- * Uses simple lock strategy (Upstash doesn't support SETNX directly)
- * For Memorystore migration, use: SET key val NX EX 5
- */
-async function revalidate<T>(
-  key: string,
-  ttlSec: number,
-  fetcher: () => Promise<T>,
-  version?: string
-): Promise<T> {
-  const lockKey = `lock:${key}`;
-
-  // Try to acquire lock
-  const lockExists = await kv.exists(lockKey);
-  if (lockExists) {
-    // Another process is already fetching, wait and retry
-    await sleep(100);
-    const rec = await kv.get<CacheRecord<T>>(key);
-    if (rec?.data) {
-      return rec.data;
-    }
-    // If still no data, proceed anyway (lock might be stale)
-  }
-
-  try {
-    // Set lock
-    await kv.set(lockKey, '1', { ex: LOCK_TTL });
-
-    // Fetch fresh data
-    const data = await fetcher();
-
-    // Store with jittered TTL
-    const record: CacheRecord<T> = {
-      ts: Date.now(),
+    this.cache.set(key, {
       data,
-      version,
-    };
-    await kv.set(key, record, { ex: jitter(ttlSec) });
+      timestamp: Date.now(),
+      etag,
+    });
 
-    return data;
-  } catch (error) {
-    console.error(`[cache] Revalidation error for ${key}:`, error);
-    throw error;
-  } finally {
-    // Release lock
-    await kv.del(lockKey);
+    // Auto-cleanup after TTL
+    setTimeout(() => {
+      this.cache.delete(key);
+    }, ttl || this.defaultTTL);
   }
-}
 
-/**
- * Invalidate cache keys
- * Supports single key, array of keys, or pattern
- * 
- * @example
- * ```ts
- * // Single key
- * await invalidate('products:list:v1:p1');
- * 
- * // Multiple keys
- * await invalidate(['products:list:v1:p1', 'products:list:v1:p2']);
- * 
- * // Pattern (use with caution in production)
- * await invalidatePattern('products:list:*');
- * ```
- */
-export async function invalidate(keys: string[] | string): Promise<void> {
-  try {
-    if (Array.isArray(keys)) {
-      if (keys.length > 0) {
-        await kv.del(keys);
+  /**
+   * Invalidate cache by URL pattern
+   */
+  invalidate(urlPattern: string): void {
+    const keys = Array.from(this.cache.keys());
+    keys.forEach((key) => {
+      if (key.startsWith(urlPattern)) {
+        this.cache.delete(key);
       }
-    } else {
-      await kv.del(keys);
-    }
-  } catch (error) {
-    console.error('[cache] Invalidation error:', error);
+    });
   }
-}
 
-/**
- * Invalidate cache keys by pattern
- * WARNING: Use with caution, KEYS command can be slow on large datasets
- * 
- * @param pattern - Redis pattern (e.g., 'products:*')
- */
-export async function invalidatePattern(pattern: string): Promise<void> {
-  try {
-    const keys = await kv.keys(pattern);
-    if (keys.length > 0) {
-      console.log(`[cache] Invalidating ${keys.length} keys matching ${pattern}`);
-      await kv.del(keys);
-    }
-  } catch (error) {
-    console.error('[cache] Pattern invalidation error:', error);
+  /**
+   * Clear all cache
+   */
+  clear(): void {
+    this.cache.clear();
   }
-}
 
-/**
- * Invalidation Matrix
- * Defines which cache keys to invalidate on specific events
- * 
- * Usage:
- * ```ts
- * import { invalidationMatrix } from '@/lib/api-cache';
- * 
- * // On product update
- * await invalidationMatrix.product.update(productId);
- * 
- * // On category update
- * await invalidationMatrix.category.update(categoryId);
- * ```
- */
-export const invalidationMatrix = {
-  product: {
-    async update(productId: string) {
-      await invalidate([
-        `product:${productId}`,
-        // Invalidate all product lists (could be optimized with category info)
-      ]);
-      await invalidatePattern('products:list:*');
-      await invalidatePattern('search:*');
-      await invalidatePattern('trending:*');
-    },
-    async delete(productId: string) {
-      await this.update(productId);
-    },
-  },
-  
-  category: {
-    async update(categoryId: string) {
-      await invalidate([`category:${categoryId}`]);
-      await invalidatePattern('categories:list*');
-      await invalidatePattern('products:list:*');
-    },
-    async delete(categoryId: string) {
-      await this.update(categoryId);
-    },
-  },
-  
-  user: {
-    async update(userId: string) {
-      await invalidate([
-        `user:${userId}`,
-        `cart:${userId}`,
-        `wishlist:${userId}`,
-      ]);
-    },
-  },
-  
-  cart: {
-    async update(userId: string) {
-      await invalidate([`cart:${userId}`]);
-    },
-  },
-  
-  wishlist: {
-    async update(userId: string) {
-      await invalidate([`wishlist:${userId}`]);
-    },
-  },
-  
-  search: {
-    async clear() {
-      await invalidatePattern('search:*');
-    },
-  },
-  
-  trending: {
-    async refresh() {
-      await invalidatePattern('trending:*');
-    },
-  },
-  
-  // Bulk invalidation for major updates
-  async clearAll() {
-    console.warn('[cache] Clearing ALL cache - use with caution!');
-    await invalidatePattern('*');
-  },
-};
+  /**
+   * Get cache size
+   */
+  size(): number {
+    return this.cache.size;
+  }
 
-/**
- * Cache statistics helper
- */
-export async function getCacheStats(keyPattern: string = '*'): Promise<{
-  totalKeys: number;
-  keys: string[];
-}> {
-  try {
-    const keys = await kv.keys(keyPattern);
+  /**
+   * Get cache stats
+   */
+  stats(): { size: number; keys: string[] } {
     return {
-      totalKeys: keys.length,
-      keys: keys.slice(0, 100), // Limit to first 100 for display
+      size: this.cache.size,
+      keys: Array.from(this.cache.keys()),
     };
-  } catch (error) {
-    console.error('[cache] Stats error:', error);
-    return { totalKeys: 0, keys: [] };
   }
 }
 
+// Singleton instance
+export const apiCache = new APICache();
+
 /**
- * Utility: sleep for async operations
+ * Cache middleware for API routes
  */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+export function withCache(
+  handler: (req: Request) => Promise<Response>,
+  options: { ttl?: number; key?: string } = {}
+) {
+  return async (req: Request): Promise<Response> => {
+    const url = new URL(req.url);
+    const cacheKey = options.key || url.pathname;
+
+    // Only cache GET requests
+    if (req.method !== 'GET') {
+      return handler(req);
+    }
+
+    // Check cache
+    const cached = apiCache.get(cacheKey);
+    if (cached) {
+      return new Response(JSON.stringify(cached.data), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, max-age=300',
+          'ETag': cached.etag,
+          'X-Cache': 'HIT',
+        },
+      });
+    }
+
+    // Execute handler
+    const response = await handler(req);
+    const data = await response.json();
+
+    // Cache successful responses
+    if (response.ok) {
+      apiCache.set(cacheKey, data, undefined, options.ttl);
+    }
+
+    return new Response(JSON.stringify(data), {
+      status: response.status,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=300',
+        'X-Cache': 'MISS',
+      },
+    });
+  };
 }
 
 /**
- * Backward compatibility with old ApiCache class
+ * Revalidate cache on mutation
  */
-export class ApiCache {
-  static async get<T>(key: string): Promise<T | null> {
-    const rec = await kv.get<CacheRecord<T>>(key);
-    return rec?.data ?? null;
-  }
-
-  static async set<T>(
-    key: string,
-    value: T,
-    ttl: number = BASE_TTL
-  ): Promise<"OK" | null> {
-    const record: CacheRecord<T> = {
-      ts: Date.now(),
-      data: value,
-    };
-    await kv.set(key, record, { ex: ttl });
-    return "OK";
-  }
-
-  static async invalidate(key: string): Promise<number> {
-    await kv.del(key);
-    return 1;
-  }
+export function revalidateCache(patterns: string[]): void {
+  patterns.forEach((pattern) => {
+    apiCache.invalidate(pattern);
+  });
 }

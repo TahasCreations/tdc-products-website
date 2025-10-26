@@ -64,14 +64,16 @@ export default function ModernCategorySidebar({
   }
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 overflow-y-auto sticky top-0 h-screen">
+    <div className="w-80 bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 overflow-y-auto sticky top-0 h-screen shadow-sm">
       <div className="p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Filtreler</h2>
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#CBA135] to-amber-600 bg-clip-text text-transparent">
+            Filtreler
+          </h2>
           <button
             onClick={() => setIsCollapsed(true)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-[#CBA135]/10 text-[#CBA135] rounded-lg transition-all duration-200"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -81,32 +83,43 @@ export default function ModernCategorySidebar({
 
         {/* Categories */}
         <div className="mb-8">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Kategoriler</h3>
+          <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center">
+            <span className="mr-2">📂</span>
+            Kategoriler
+          </h3>
           <div className="space-y-2">
             {categories.map((category) => (
               <div key={category.slug}>
                 <div className="flex items-center justify-between">
                   <button
                     onClick={() => onCategorySelect(selectedCategory === category.slug ? null : category.slug)}
-                    className={`flex-1 flex items-center space-x-3 p-3 rounded-lg transition-all ${
+                    className={`flex-1 flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 ${
                       selectedCategory === category.slug
-                        ? 'bg-gradient-to-r ' + category.color + ' text-white'
-                        : 'hover:bg-gray-50'
+                        ? 'bg-gradient-to-r ' + category.color + ' text-white shadow-lg shadow-' + category.color.split('-')[1] + '-500/30 scale-105'
+                        : 'hover:bg-gray-100 text-gray-700 hover:shadow-md'
                     }`}
                   >
-                    <span className="text-xl">{category.icon}</span>
+                    <span className="text-2xl">{category.icon}</span>
                     <div className="flex-1 text-left">
-                      <div className="text-sm font-medium">{category.name}</div>
-                      <div className="text-xs opacity-75">{category.count} ürün</div>
+                      <div className={`text-sm font-semibold ${selectedCategory === category.slug ? 'text-white' : 'text-gray-900'}`}>
+                        {category.name}
+                      </div>
+                      <div className={`text-xs ${selectedCategory === category.slug ? 'text-white/90' : 'text-gray-500'}`}>
+                        {category.count} ürün
+                      </div>
                     </div>
                   </button>
                   {category.subcategories.length > 0 && (
                     <button
                       onClick={() => toggleCategory(category.slug)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors ml-2"
+                      className={`p-2 rounded-lg transition-all duration-200 ml-2 ${
+                        selectedCategory === category.slug
+                          ? 'hover:bg-white/20 text-white'
+                          : 'hover:bg-[#CBA135]/10 text-[#CBA135]'
+                      }`}
                     >
                       <svg
-                        className={`w-4 h-4 transition-transform ${
+                        className={`w-4 h-4 transition-transform duration-200 ${
                           expandedCategories.includes(category.slug) ? 'rotate-180' : ''
                         }`}
                         fill="none"
@@ -132,13 +145,13 @@ export default function ModernCategorySidebar({
                         <button
                           key={subcat.slug}
                           onClick={() => onCategorySelect(selectedCategory === subcat.slug ? null : subcat.slug)}
-                          className={`block w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${
+                          className={`block w-full text-left px-4 py-2.5 text-sm rounded-lg transition-all duration-200 ${
                             selectedCategory === subcat.slug
-                              ? 'bg-indigo-50 text-indigo-600 font-medium'
-                              : 'text-gray-600 hover:bg-gray-50'
+                              ? 'bg-[#CBA135] text-white font-semibold shadow-md'
+                              : 'text-gray-700 hover:bg-[#CBA135]/10 hover:text-[#CBA135] font-medium'
                           }`}
                         >
-                          {subcat.label}
+                          • {subcat.label}
                         </button>
                       ))}
                     </motion.div>
@@ -150,52 +163,57 @@ export default function ModernCategorySidebar({
         </div>
 
         {/* Price Range */}
-        <div className="mb-8">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Fiyat Aralığı</h3>
+        <div className="mb-8 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200">
+          <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center">
+            <span className="mr-2">💰</span>
+            Fiyat Aralığı
+          </h3>
           <div className="space-y-4">
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <div className="flex-1">
-                <label className="text-xs text-gray-600 mb-1 block">Min</label>
+                <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Min Fiyat</label>
                 <input
                   type="number"
                   value={priceRange[0]}
                   onChange={(e) => handlePriceChange([Number(e.target.value), priceRange[1]])}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2.5 border-2 border-amber-200 rounded-lg text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] bg-white"
                   placeholder="0"
                 />
               </div>
               <div className="flex-1">
-                <label className="text-xs text-gray-600 mb-1 block">Max</label>
+                <label className="text-xs font-semibold text-gray-700 mb-1.5 block">Max Fiyat</label>
                 <input
                   type="number"
                   value={priceRange[1]}
                   onChange={(e) => handlePriceChange([priceRange[0], Number(e.target.value)])}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2.5 border-2 border-amber-200 rounded-lg text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-[#CBA135] bg-white"
                   placeholder="10000"
                 />
               </div>
             </div>
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <span>{priceRange[0]} ₺</span>
-              <span>{priceRange[1]} ₺</span>
+            <div className="flex items-center justify-between text-sm font-bold">
+              <span className="text-[#CBA135]">{priceRange[0]} ₺</span>
+              <span className="text-gray-400">—</span>
+              <span className="text-[#CBA135]">{priceRange[1]} ₺</span>
             </div>
           </div>
         </div>
 
         {/* Stock Filter */}
-        <div className="mb-8">
+        <div className="mb-8 p-4 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-200">
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
               id="inStock"
               checked={inStock}
               onChange={(e) => onStockChange(e.target.checked)}
-              className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              className="w-5 h-5 text-[#CBA135] border-2 border-gray-300 rounded focus:ring-2 focus:ring-[#CBA135] cursor-pointer"
             />
             <label
               htmlFor="inStock"
-              className="text-sm font-medium text-gray-900 cursor-pointer"
+              className="text-sm font-bold text-gray-800 cursor-pointer flex items-center"
             >
+              <span className="mr-2">✓</span>
               Sadece stokta olanlar
             </label>
           </div>
@@ -203,17 +221,22 @@ export default function ModernCategorySidebar({
 
         {/* Clear Filters */}
         {(selectedCategory || minPrice || maxPrice || inStock) && (
-          <button
+          <motion.button
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
             onClick={() => {
               onCategorySelect(null);
               onPriceChange(undefined, undefined);
               onStockChange(false);
               setPriceRange([0, 10000]);
             }}
-            className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+            className="w-full py-3 px-4 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-xl transition-all duration-200 text-sm font-bold shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center space-x-2"
           >
-            Filtreleri Temizle
-          </button>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>Filtreleri Temizle</span>
+          </motion.button>
         )}
       </div>
     </div>

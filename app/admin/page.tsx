@@ -24,8 +24,8 @@ export default function AdminLoginPage() {
 
 				if (data.authenticated) {
 					// Already logged in, redirect to dashboard
-			router.replace('/admin/dashboard');
-		} else {
+					router.replace('/admin/dashboard');
+				} else {
 					// Not logged in, show login form
 					setIsCheckingAuth(false);
 				}
