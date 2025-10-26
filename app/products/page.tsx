@@ -9,7 +9,7 @@ import Breadcrumb from '../../src/components/ui/Breadcrumb';
 import { EmptyProductsState } from '../../src/components/empty/EmptyState';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
 import { useSearchParams } from 'next/navigation';
-// import ModernCategorySidebar from '@/components/products/ModernCategorySidebar';
+import ModernCategorySidebar from '@/components/products/ModernCategorySidebar';
 
 // Category Item Component
 function CategoryItem({ cat, index, selectedCategory, onCategorySelect }: any) {
@@ -124,8 +124,9 @@ function ProductsPageContent() {
   const [selectedMaxPrice, setSelectedMaxPrice] = useState<number | undefined>(undefined);
   const [selectedInStock, setSelectedInStock] = useState(false);
   
-  const sortBy = searchParams.get('sort') || 'recommended';
-  const page = Number(searchParams.get('page')) || 1;
+  // Safely get search params with fallback
+  const sortBy = searchParams?.get('sort') || 'recommended';
+  const page = Number(searchParams?.get('page') || '1');
   const limit = 12;
   
   // Use local state for filtering instead of URL params
@@ -133,7 +134,7 @@ function ProductsPageContent() {
   const minPrice = selectedMinPrice;
   const maxPrice = selectedMaxPrice;
   const inStock = selectedInStock;
-  const seller = searchParams.get('seller') || undefined;
+  const seller = searchParams?.get('seller') || undefined;
 
   // Filter products based on local state
   let filteredProducts = [...mockProducts];
