@@ -1,4 +1,8 @@
 "use client";
+
+// Force dynamic rendering to avoid prerendering errors
+export const dynamic = 'force-dynamic';
+
 import { useCart } from '@/contexts/CartContext';
 import { motion } from 'framer-motion';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';

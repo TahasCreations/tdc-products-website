@@ -1,4 +1,8 @@
 "use client";
+
+// Force dynamic rendering to avoid prerendering errors
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Phone, MapPin, Edit, Save, X, Camera, Shield, Package, Heart } from 'lucide-react';

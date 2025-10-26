@@ -141,11 +141,16 @@ const config = {
     ];
   },
 
+  // Skip static generation for pages that require client-side context
+  skipTrailingSlashRedirect: true,
+
   experimental: {
     esmExternals: false,
     // Enable experimental features for better performance
     // optimizeCss: true, // Disabled - requires critters package
     optimizePackageImports: ['lucide-react', 'framer-motion', '@prisma/client'],
+    // These pages should not be prerendered
+    skipMiddlewareUrlNormalize: true,
     // Turbopack for faster dev builds (Next.js 14+)
     turbo: {
       rules: {

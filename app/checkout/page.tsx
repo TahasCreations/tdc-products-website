@@ -1,4 +1,8 @@
 "use client";
+
+// Force dynamic rendering to avoid prerendering errors
+export const dynamic = 'force-dynamic';
+
 import { useCart } from '@/contexts/CartContext';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -25,7 +29,7 @@ interface CheckoutForm {
 
 export default function CheckoutPage() {
   const { state, getTotalPrice } = useCart();
-  const { createOrder, processPayment, isProcessing, error } = usePayment();
+  const { createOrder, processPayment, error } = usePayment();
   const [form, setForm] = useState<CheckoutForm>({
     firstName: '',
     lastName: '',
@@ -73,6 +77,8 @@ export default function CheckoutPage() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

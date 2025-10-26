@@ -1,5 +1,8 @@
 "use client";
 
+// Force dynamic rendering to avoid prerendering errors
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, SlidersHorizontal, X, Star, Heart, ShoppingCart, TrendingUp, Clock, Sparkles, Grid, List } from 'lucide-react';
