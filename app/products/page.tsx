@@ -1,5 +1,5 @@
 "use client";
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import ProductFilters from '../../src/components/products/ProductFilters';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,6 +8,7 @@ import ProductSorting from '../../src/components/products/ProductSorting';
 import Breadcrumb from '../../src/components/ui/Breadcrumb';
 import { EmptyProductsState } from '../../src/components/empty/EmptyState';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
+import { useSearchParams } from 'next/navigation';
 // import ModernCategorySidebar from '@/components/products/ModernCategorySidebar';
 
 // Category Item Component
@@ -113,11 +114,8 @@ const mockProducts: any[] = [];
 const mockCategories: any[] = [];
 const mockSellers: any[] = [];
 
-export default function ProductsPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+function ProductsPageContent() {
+  const searchParams = useSearchParams();
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [showQuickFilters, setShowQuickFilters] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -126,8 +124,8 @@ export default function ProductsPage({
   const [selectedMaxPrice, setSelectedMaxPrice] = useState<number | undefined>(undefined);
   const [selectedInStock, setSelectedInStock] = useState(false);
   
-  const sortBy = (searchParams.sort as string) || 'recommended';
-  const page = Number(searchParams.page) || 1;
+  const sortBy = searchParams.get('sort') || 'recommended';
+  const page = Number(searchParams.get('page')) || 1;
   const limit = 12;
   
   // Use local state for filtering instead of URL params
@@ -135,7 +133,7 @@ export default function ProductsPage({
   const minPrice = selectedMinPrice;
   const maxPrice = selectedMaxPrice;
   const inStock = selectedInStock;
-  const seller = searchParams.seller as string | undefined;
+  const seller = searchParams.get('seller') || undefined;
 
   // Filter products based on local state
   let filteredProducts = [...mockProducts];
@@ -432,5 +430,20 @@ function ProductGridSkeleton() {
         </div>
       ))}
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Ürünler yükleniyor...</p>
+        </div>
+      </div>
+    }>
+      <ProductsPageContent />
+    </Suspense>
   );
 }
