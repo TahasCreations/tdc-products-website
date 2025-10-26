@@ -1,84 +1,76 @@
-/**
- * Next.js Middleware
- * 
- * Handles:
- * - Rate limiting for API routes
- * - Authentication checks (TODO)
- * - Request logging
- * 
- * @module middleware
- */
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { rateLimit, RATE_LIMITS } from "./lib/middleware/rate-limit";
+export async function middleware(request: NextRequest) {
+  const { pathname, hostname } = request.nextUrl;
 
-export async function middleware(req: NextRequest) {
-  const url = req.nextUrl;
-  const path = url.pathname;
+  // Get the hostname (domain)
+  const currentHost = hostname.replace('.localhost:3000', '').replace('.vercel.app', '');
   
-  // ===================================
-  // RATE LIMITING
-  // ===================================
-  
-  // Auth endpoints (login, register, password reset)
-  if (path.startsWith("/api/auth/register") || 
-      path.startsWith("/api/auth/login") ||
-      path.startsWith("/api/auth/reset")) {
-    const rateLimited = await rateLimit(req, RATE_LIMITS.AUTH);
-    if (rateLimited) return rateLimited;
+  // Check if this is a custom domain (not main domain)
+  const isMainDomain = hostname === 'localhost' || 
+                       hostname.includes('localhost:3000') ||
+                       hostname === 'tdcmarket.com' ||
+                       hostname.includes('vercel.app');
+
+  // If it's a custom domain, handle multi-tenant routing
+  if (!isMainDomain) {
+    try {
+      // In production, you would query your database here to find the seller
+      // For now, we'll pass the hostname in headers
+      const response = NextResponse.next();
+      response.headers.set('x-custom-domain', hostname);
+      response.headers.set('x-is-custom-domain', 'true');
+      
+      // Rewrite to the store page
+      return NextResponse.rewrite(new URL(`/store/${currentHost}${pathname}`, request.url));
+    } catch (error) {
+      console.error('Multi-tenant routing error:', error);
+    }
   }
-  
-  // Search endpoints
-  else if (path.startsWith("/api/search") || 
-           path.startsWith("/api/products/search")) {
-    const rateLimited = await rateLimit(req, RATE_LIMITS.SEARCH);
-    if (rateLimited) return rateLimited;
+
+  // Admin panel protection
+  if (pathname.startsWith('/admin')) {
+    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    
+    if (!token) {
+      return NextResponse.redirect(new URL('/giris?redirect=/admin', request.url));
+    }
+
+    const userRole = token.role as string;
+    if (userRole !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/403', request.url));
+    }
   }
-  
-  // Payment endpoints
-  else if (path.startsWith("/api/payment") || 
-           path.startsWith("/api/checkout")) {
-    const rateLimited = await rateLimit(req, RATE_LIMITS.PAYMENT);
-    if (rateLimited) return rateLimited;
+
+  // Seller panel protection
+  if (pathname.startsWith('/seller')) {
+    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    
+    if (!token) {
+      return NextResponse.redirect(new URL('/giris?redirect=/seller', request.url));
+    }
+
+    const userRole = token.role as string;
+    if (userRole !== 'SELLER' && userRole !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/403', request.url));
+    }
   }
-  
-  // Upload endpoints
-  else if (path.startsWith("/api/upload") || 
-           path.startsWith("/api/media")) {
-    const rateLimited = await rateLimit(req, RATE_LIMITS.UPLOAD);
-    if (rateLimited) return rateLimited;
-  }
-  
-  // Admin endpoints (more lenient)
-  else if (path.startsWith("/api/admin")) {
-    const rateLimited = await rateLimit(req, RATE_LIMITS.ADMIN);
-    if (rateLimited) return rateLimited;
-  }
-  
-  // Default rate limit for other API routes
-  else if (path.startsWith("/api/")) {
-    const rateLimited = await rateLimit(req, RATE_LIMITS.DEFAULT);
-    if (rateLimited) return rateLimited;
-  }
-  
-  // ===================================
-  // AUTHENTICATION (TODO)
-  // ===================================
-  // Simplified middleware without auth for now
-  // TODO: Implement proper auth middleware
-  
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    // API routes for rate limiting
-    "/api/:path*",
-    // Protected pages
-    "/(admin)/:path*",
-    "/(dashboard)/seller/:path*",
-    "/(dashboard)/influencer/:path*",
-    "/profile/:path*"
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*|public).*)',
   ],
 };

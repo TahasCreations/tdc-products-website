@@ -8,7 +8,7 @@ import ProductSorting from '../../src/components/products/ProductSorting';
 import Breadcrumb from '../../src/components/ui/Breadcrumb';
 import { EmptyProductsState } from '../../src/components/empty/EmptyState';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
-import ModernCategorySidebar from '@/components/products/ModernCategorySidebar';
+// import ModernCategorySidebar from '@/components/products/ModernCategorySidebar';
 
 // Category Item Component
 function CategoryItem({ cat, index, selectedCategory, onCategorySelect }: any) {
