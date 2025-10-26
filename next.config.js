@@ -10,6 +10,9 @@ const config = {
     ignoreDuringBuilds: true,
   },
 
+  // Output configuration for Vercel
+  output: 'standalone',
+
   // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
