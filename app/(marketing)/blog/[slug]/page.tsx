@@ -1,4 +1,4 @@
-import AuthorProfile from '../../../src/components/blog/AuthorProfile';
+import AuthorProfile from '../../../../src/components/blog/AuthorProfile';
 
 interface BlogPostPageProps {
 	params: {

@@ -1,12 +1,12 @@
 "use client";
 import { Suspense, useEffect } from 'react';
-import ProductFilters from '../../src/components/products/ProductFilters';
+import ProductFilters from '../../../src/components/products/ProductFilters';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ProductGrid from '../../src/components/products/ProductGrid';
-import ProductSorting from '../../src/components/products/ProductSorting';
-import Breadcrumb from '../../src/components/ui/Breadcrumb';
-import { EmptyProductsState } from '../../src/components/empty/EmptyState';
+import ProductGrid from '../../../src/components/products/ProductGrid';
+import ProductSorting from '../../../src/components/products/ProductSorting';
+import Breadcrumb from '../../../src/components/ui/Breadcrumb';
+import { EmptyProductsState } from '../../../src/components/empty/EmptyState';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
 import { useSearchParams } from 'next/navigation';
 import ModernCategorySidebar from '@/components/products/ModernCategorySidebar';

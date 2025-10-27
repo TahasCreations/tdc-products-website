@@ -1,7 +1,4 @@
 import { Metadata } from 'next';
-import Header from '../../src/components/Header';
-import Footer from '../../src/components/Footer';
-import { ThemeProvider } from '../../src/contexts/ThemeContext';
 
 export const metadata: Metadata = {
   title: {
@@ -25,15 +22,5 @@ export default function BlogLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <ThemeProvider>
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
-      </div>
-    </ThemeProvider>
-  );
+  return <>{children}</>;
 }
