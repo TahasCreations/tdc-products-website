@@ -1,13 +1,11 @@
 export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { cached, invalidationMatrix } from "@/lib/api-cache";
 import { withMetric, createRequestLogger } from "@/lib/monitoring";
 import { CACHE_TTL } from "@/lib/redis";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   const logger = createRequestLogger(req);

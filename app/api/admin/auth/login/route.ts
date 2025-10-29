@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { SignJWT } from 'jose';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 // Admin credentials - Production'da environment variable'dan alınmalı
 const ADMIN_CREDENTIALS = {
@@ -137,8 +135,6 @@ export async function POST(req: NextRequest) {
       { error: 'Giriş işlemi sırasında bir hata oluştu' },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
