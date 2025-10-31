@@ -1,10 +1,8 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
 import { requireRole } from "@/lib/guards";
-import { aiEmbed } from "@/lib/ai";
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
-
+impimport { prisma } from '@/lib/prisma';
+ort { aiEmbed } from "@/lib/ai";
 // Basit yaklaşım: mevcut ürün başlıklarına embedding olmadan hızla cosine approx (LLM embed ile geliştir)
 export async function POST(req: NextRequest) {
   await requireRole("SELLER","ADMIN");

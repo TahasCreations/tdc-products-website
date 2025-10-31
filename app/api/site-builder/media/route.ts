@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
-
+import { prisma } from '@/lib/prisma';
 // GET: List media assets
 export async function GET(request: NextRequest) {
   try {
@@ -33,8 +30,7 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
-  }
+    }
 }
 
 export const runtime = 'nodejs';

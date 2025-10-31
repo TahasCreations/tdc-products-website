@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/media/auth';
 
-const prisma = new PrismaClient();
-
+import { prisma } from '@/lib/prisma';
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -48,7 +46,6 @@ export async function GET(
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
-  }
+    }
 }
 

@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
+import { prisma } from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions as any) as any;
@@ -114,6 +111,5 @@ export async function POST(req: Request) {
       error: error.message || "Başvuru gönderilirken bir hata oluştu" 
     }, { status: 500 });
   } finally {
-    await prisma.$disconnect();
-  }
+    }
 }

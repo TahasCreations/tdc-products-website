@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
 import {
   isDemoEmail,
   isDemoContent,
@@ -9,10 +8,9 @@ import {
 } from '@/data/demo-purge.rules';
 import { cleanupDemoFiles } from '@/lib/gcp';
 
+import { prisma } from '@/lib/prisma';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient();
 
 interface PurgeStats {
   users: number;
@@ -276,8 +274,7 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
-  }
+    }
 }
 
 export async function POST(request: NextRequest) {
@@ -313,6 +310,5 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
-  }
+    }
 }

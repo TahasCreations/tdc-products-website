@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/media/auth';
 import { checkRateLimit, getRateLimitConfig } from '@/lib/media/rate-limit';
 import { OptimizeImageSchema } from '@/lib/media/validation';
 import { optimizeImage } from '@/lib/media/optimizer';
 import * as path from 'path';
 
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 const PUBLIC_DIR = path.join(process.cwd(), 'public');
 
 export async function POST(request: NextRequest) {
@@ -110,7 +109,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
-  }
+    }
 }
 

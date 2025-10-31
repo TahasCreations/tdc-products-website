@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient, MediaStatus, MediaStorage } from '@prisma/client';
+import { MediaStatus, MediaStorage } from '@prisma/client';
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/media/auth';
 import { checkRateLimit, getRateLimitConfig } from '@/lib/media/rate-limit';
 import { MediaFilterSchema } from '@/lib/media/validation';
 
-const prisma = new PrismaClient();
-
+import { prisma } from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     // Verify admin authentication
@@ -138,7 +137,6 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
-  }
+    }
 }
 

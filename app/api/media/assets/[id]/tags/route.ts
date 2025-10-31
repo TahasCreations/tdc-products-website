@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/media/auth';
 import { checkRateLimit, getRateLimitConfig } from '@/lib/media/rate-limit';
 import { UpdateTagsSchema } from '@/lib/media/validation';
 
-const prisma = new PrismaClient();
-
+import { prisma } from '@/lib/prisma';
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -98,7 +96,6 @@ export async function POST(
       { status: 500 }
     );
   } finally {
-    await prisma.$disconnect();
-  }
+    }
 }
 

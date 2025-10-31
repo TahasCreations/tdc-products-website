@@ -1,9 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '@/lib/prisma';
 import { shouldRateLimitClick } from "@/lib/ads";
-const prisma = new PrismaClient();
-
 export async function POST(req: NextRequest) {
   const { campaignId, productId, cost, idempotencyKey } = await req.json();
   if (!campaignId || !productId || !cost) return new Response("bad_request",{status:400});

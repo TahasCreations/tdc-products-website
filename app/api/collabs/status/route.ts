@@ -1,9 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '@/lib/prisma';
 import { auth, requireRole } from "@/lib/guards";
-const prisma = new PrismaClient();
-
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return new Response("auth_required", { status: 401 });

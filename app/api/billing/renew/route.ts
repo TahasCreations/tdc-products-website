@@ -1,9 +1,7 @@
 export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
-
+import { prisma } from '@/lib/prisma';
 export async function POST(req: NextRequest) {
   // Secret token kontrolü
   const authHeader = req.headers.get('authorization');

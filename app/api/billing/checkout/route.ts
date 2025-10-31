@@ -1,11 +1,10 @@
 export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
-import { PrismaClient, Plan } from "@prisma/client";
+import { Plan } from "@prisma/client";
 import { auth } from "@/lib/auth";
+import { prisma } from '@/lib/prisma';
 import { PLANS_MAP as PLANS } from "@/lib/billing";
-const prisma = new PrismaClient();
-
 const DEMO_MODE = process.env.DEMO_BILLING !== "false"; // default true
 
 export async function POST(req: NextRequest) {

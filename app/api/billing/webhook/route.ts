@@ -1,9 +1,8 @@
 export const runtime = "nodejs";
 
 import { NextRequest } from "next/server";
-import { PrismaClient, Plan } from "@prisma/client";
-const prisma = new PrismaClient();
-
+import { prisma } from '@/lib/prisma';
+import { Plan } from "@prisma/client";
 export async function POST(req: NextRequest) {
   // TODO: Gerçek PSP webhook işlemi
   // 1. Webhook imza doğrulaması (iyzico/PayTR/Stripe)

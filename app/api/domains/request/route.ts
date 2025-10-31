@@ -1,9 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from '@/lib/prisma';
 import { requireRole } from "@/lib/guards";
-const prisma = new PrismaClient();
-
 export async function POST(req: NextRequest) {
   const user = await requireRole("SELLER","ADMIN");
   const { hostname } = await req.json();
