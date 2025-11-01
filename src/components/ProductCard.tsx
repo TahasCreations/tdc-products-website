@@ -7,6 +7,8 @@ import { motion } from 'framer-motion';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useCompare } from '@/contexts/CompareContext';
+import StockIndicator from '@/components/products/StockIndicator';
+import { QuickBuyWithCart } from '@/components/products/QuickBuyButton';
 
 interface Product {
   id: string;
@@ -310,33 +312,18 @@ export default function ProductCard({ product, showSeller = false, className = '
               </div>
             </div>
 
-            {/* Add to Cart Button */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              disabled={product.stock === 0}
-              className={`w-full py-3 px-4 rounded-2xl font-semibold text-white transition-all duration-300 ${
-                product.stock === 0 
-                  ? 'bg-gray-300 cursor-not-allowed' 
-                  : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl'
-              }`}
-              onClick={(e) => {
-                e.preventDefault();
-                if (product.stock > 0) {
-                  addItem({ 
-                    id: product.id, 
-                    title: product.title, 
-                    price: product.price, 
-                    image: product.image,
-                    sellerId: product.seller?.name || 'unknown',
-                    sellerName: product.seller?.name || 'Bilinmiyor',
-                    maxStock: product.stock || 1
-                  });
-                }
+            {/* Quick Buy with Cart Buttons */}
+            <QuickBuyWithCart
+              product={{
+                id: product.id,
+                name: product.title,
+                price: product.price,
+                image: product.image,
+                stock: product.stock,
+                sellerId: product.seller?.name || 'unknown',
+                sellerName: product.seller?.name || 'TDC Market',
               }}
-            >
-              {product.stock === 0 ? 'Stokta Yok' : 'Sepete Ekle'}
-            </motion.button>
+            />
           </div>
         </div>
       </Link>

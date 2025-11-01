@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-import { requireIimport { prisma } from '@/lib/prisma';
-nfluencer } from "@/lib/guards";
+import { prisma } from '@/lib/prisma';
+import { requireInfluencer } from "@/lib/guards";
 export async function POST(req: NextRequest) {
   const { userId, profileId } = await requireInfluencer();
   const { displayName, bio, avatarUrl, basePrice, rates = [] } = await req.json();

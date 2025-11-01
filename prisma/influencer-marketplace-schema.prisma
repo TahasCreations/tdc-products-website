@@ -1,0 +1,132 @@
+// Influencer Marketplace & Chat System Schema
+// Add these to your main schema.prisma
+
+// Influencer Campaign İlanları
+model InfluencerCampaign {
+  id              String   @id @default(cuid())
+  influencerId    String
+  influencer      InfluencerProfile @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  
+  // İlan Detayları
+  title           String
+  description     String
+  category        String   // Hangi ürün kategorileri için
+  platform        String   // Instagram, TikTok, YouTube, etc.
+  
+  // Fiyatlandırma
+  pricePerPost    Float    // Gönderi başı fiyat
+  pricePerStory   Float?   // Story başı fiyat
+  pricePerReel    Float?   // Reel/Video başı fiyat
+  currency        String   @default("TRY")
+  
+  // Metrikler
+  followersCount  Int
+  engagementRate  Float    // Engagement oranı %
+  avgViews        Int?     // Ortalama görüntülenme
+  avgLikes        Int?     // Ortalama beğeni
+  
+  // İlan Durumu
+  status          String   @default("active") // active, paused, closed
+  isVerified      Boolean  @default(false)    // Admin onayı
+  
+  // Medya
+  portfolioImages String?  // JSON array of image URLs
+  sampleVideos    String?  // JSON array of video URLs
+  
+  // İlişkiler
+  proposals       CampaignProposal[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Satıcıdan Influencer'a Teklif
+model CampaignProposal {
+  id              String   @id @default(cuid())
+  campaignId      String
+  campaign        InfluencerCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  sellerId        String
+  seller          SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  
+  // Teklif Detayları
+  message         String
+  proposedPrice   Float?   // Özel fiyat teklifi
+  productDetails  String?  // Hangi ürün için
+  
+  // Durum
+  status          String   @default("pending") // pending, accepted, rejected, completed
+  
+  // Chat Room
+  chatRoomId      String?
+  chatRoom        ChatRoom? @relation(fields: [chatRoomId], references: [id])
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Chat Odaları
+model ChatRoom {
+  id              String   @id @default(cuid())
+  
+  // Katılımcılar
+  influencerId    String
+  influencer      InfluencerProfile @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  
+  sellerId        String
+  seller          SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  
+  // Bağlantılı Teklif
+  proposal        CampaignProposal?
+  
+  // Durum
+  status          String   @default("active") // active, closed, archived
+  lastMessageAt   DateTime?
+  
+  // Admin Notları
+  adminNotes      String?
+  isFlagged       Boolean  @default(false)
+  flagReason      String?
+  
+  // Mesajlar
+  messages        ChatMessage[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Chat Mesajları
+model ChatMessage {
+  id              String   @id @default(cuid())
+  roomId          String
+  room            ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  
+  // Gönderen
+  senderId        String
+  senderType      String   // SELLER, INFLUENCER, ADMIN
+  
+  // Mesaj İçeriği
+  content         String
+  messageType     String   @default("text") // text, image, file, system
+  attachments     String?  // JSON array
+  
+  // Düzenleme
+  isEdited        Boolean  @default(false)
+  editedAt        DateTime?
+  originalContent String?  // Düzenleme öncesi içerik
+  
+  // Durum
+  isRead          Boolean  @default(false)
+  readAt          DateTime?
+  isDeleted       Boolean  @default(false)
+  deletedAt       DateTime?
+  
+  // Admin Monitoring
+  isFlagged       Boolean  @default(false)
+  flagReason      String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+

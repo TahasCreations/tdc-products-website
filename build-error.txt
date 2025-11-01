@@ -1,0 +1,62 @@
+﻿
+> @tdc/web@1.0.0 build
+> prisma generate && next build
+
+node.exe : warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please 
+migrate to a Prisma config file (e.g., `prisma.config.ts`).
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\taha\AppData\Roaming\n ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (warn The config...ma.config.ts`).:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+For more information, see: https://pris.ly/prisma-config
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+ÔöîÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö
+ÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÉ
+Ôöé  Update available 6.16.3 -> 6.18.0                      Ôöé
+Ôöé  Run the following to update                            Ôöé
+Ôöé    npm i --save-dev prisma@latest                       Ôöé
+Ôöé    npm i @prisma/client@latest                          Ôöé
+ÔööÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö
+ÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöİ
+
+Ô£ö Generated Prisma Client (v6.16.3) to .\node_modules\@prisma\client in 254ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+
+  Ôû▓ Next.js 14.2.33
+  - Environments: .env.local, .env
+  - Experiments (use with caution):
+    ┬À turbo
+    ┬À esmExternals
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./app/(dynamic)/checkout/page.tsx
+Error: 
+  [31mx[0m Unexpected token `div`. Expected jsx identifier
+     ,-[[36;1;4mC:\Users\taha\tdc-products-website\app\(dynamic)\checkout\page.tsx[0m:255:1]
+ [2m255[0m |   };
+ [2m256[0m | 
+ [2m257[0m |   return (
+ [2m258[0m |     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+     : [31;1m     ^^^[0m
+ [2m259[0m |       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+ [2m260[0m |         {/* Header */}
+ [2m260[0m |         <div className="text-center mb-8">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/(dynamic)/checkout/page.tsx
+
+
+> Build failed because of webpack errors

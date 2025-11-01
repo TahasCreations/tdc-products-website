@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-import { reimport { prisma } from '@/lib/prisma';
-quireRole } from "@/lib/guards";
+import { prisma } from '@/lib/prisma';
+import { requireRole } from "@/lib/guards";
 export async function POST(req: NextRequest) {
   const { user } = await requireRole("ADMIN");
   const { applicationId, approve=true } = await req.json();

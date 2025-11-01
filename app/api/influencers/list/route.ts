@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-import { reimport { prisma } from '@/lib/prisma';
-quireRole } from "@/lib/guards";
+import { prisma } from '@/lib/prisma';
+import { requireRole } from "@/lib/guards";
 export async function POST(req: NextRequest) {
   await requireRole("SELLER","ADMIN");
   const { platform = "", minFollowers, maxPrice, niche = [], limit = 30, offset = 0 } = await req.json();

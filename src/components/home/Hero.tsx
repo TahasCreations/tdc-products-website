@@ -226,13 +226,63 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
                   className="absolute inset-0 bg-gradient-to-r from-coral-200/30 to-indigo-200/30 rounded-full w-60 h-60 -bottom-20 -left-20"
                 />
                 
-                {/* Main Icon */}
+                {/* Additional floating orbs */}
                 <motion.div
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                  className="text-6xl sm:text-7xl lg:text-8xl"
+                  animate={{ 
+                    y: [0, -20, 0],
+                    x: [0, 10, 0],
+                  }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-r from-yellow-300/40 to-orange-300/40 rounded-full blur-xl"
+                />
+                <motion.div
+                  animate={{ 
+                    y: [0, 15, 0],
+                    x: [0, -15, 0],
+                  }}
+                  transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                  className="absolute bottom-10 right-10 w-24 h-24 bg-gradient-to-r from-purple-300/40 to-pink-300/40 rounded-full blur-xl"
+                />
+                
+                {/* TDC Maskot */}
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ 
+                    scale: 1, 
+                    rotate: 0,
+                    y: [0, -15, 0]
+                  }}
+                  transition={{ 
+                    scale: { duration: 0.8, delay: 0.5 },
+                    rotate: { duration: 0.8, delay: 0.5 },
+                    y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }
+                  }}
+                  whileHover={{ 
+                    scale: 1.1,
+                    rotate: [0, -5, 5, -5, 0],
+                    transition: { duration: 0.5 }
+                  }}
+                  className="relative z-10 cursor-pointer"
                 >
-                  🎨
+                  <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
+                    <Image
+                      src="/images/hero/tdc-maskot.png"
+                      alt="TDC Market & Sarıkare Ajans Maskotu"
+                      fill
+                      className="object-contain drop-shadow-2xl"
+                      priority
+                    />
+                    
+                    {/* Glow Effect */}
+                    <motion.div
+                      animate={{ 
+                        opacity: [0.3, 0.6, 0.3],
+                        scale: [0.95, 1.05, 0.95]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-full blur-3xl -z-10"
+                    />
+                  </div>
                 </motion.div>
               </div>
               

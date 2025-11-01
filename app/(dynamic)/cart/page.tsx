@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { motion } from 'framer-motion';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
@@ -9,10 +10,18 @@ import GlassCard from '@/components/ui/GlassCard';
 import InteractiveButton from '@/components/ui/InteractiveButton';
 import ScrollReveal from '@/components/ui/ScrollReveal';
 import { useToast } from '@/components/ui/Toast';
+import CouponInput from '@/components/checkout/CouponInput';
+import WhatsAppButton from '@/components/support/WhatsAppButton';
+import SocialProof from '@/components/checkout/SocialProof';
 
 export default function CartPage() {
   const { state, updateQuantity, removeItem, clearCart, getTotalPrice } = useCart();
   const toast = useToast();
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discount: number;
+    type: 'percentage' | 'fixed';
+  } | null>(null);
 
   if (state.items.length === 0) {
     return (
@@ -39,9 +48,26 @@ export default function CartPage() {
     );
   }
 
-  const shipping = 0; // Ücretsiz kargo
-  const tax = getTotalPrice() * 0.18; // %18 KDV
-  const finalTotal = getTotalPrice() + shipping + tax;
+  const subtotal = getTotalPrice();
+  const couponDiscount = appliedCoupon?.discount || 0;
+  const subtotalAfterCoupon = Math.max(0, subtotal - couponDiscount);
+  const shipping = subtotalAfterCoupon >= 500 ? 0 : 125; // 500 TL ve üzeri ücretsiz kargo
+  const tax = subtotalAfterCoupon * 0.18; // %18 KDV
+  const finalTotal = subtotalAfterCoupon + shipping + tax;
+
+  const handleCouponApply = (code: string, discount: number) => {
+    setAppliedCoupon({
+      code,
+      discount,
+      type: 'fixed',
+    });
+    toast.success(`Kupon uygulandı! ₺${discount} indirim kazandınız 🎉`);
+  };
+
+  const handleCouponRemove = () => {
+    setAppliedCoupon(null);
+    toast.info('Kupon kaldırıldı');
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -145,31 +171,61 @@ export default function CartPage() {
             <GlassCard variant="premium" hover3d={false} className="p-6 sticky top-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Sipariş Özeti</h2>
               
+              {/* Coupon Input */}
+              <div className="mb-4">
+                <CouponInput
+                  onApply={handleCouponApply}
+                  onRemove={handleCouponRemove}
+                  appliedCoupon={appliedCoupon}
+                />
+              </div>
+
               {/* Price Breakdown */}
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Ara Toplam</span>
-                  <span className="text-gray-900">₺{getTotalPrice().toLocaleString()}</span>
+                  <span className="text-gray-900">₺{subtotal.toFixed(2)}</span>
                 </div>
+                
+                {appliedCoupon && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-600 font-semibold">İndirim ({appliedCoupon.code})</span>
+                    <span className="font-semibold text-green-600">-₺{couponDiscount.toFixed(2)}</span>
+                  </div>
+                )}
                 
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Kargo</span>
-                  <span className="text-green-600">
-                    {shipping === 0 ? 'Ücretsiz' : `₺${shipping.toLocaleString()}`}
+                  <span className={shipping === 0 ? 'text-green-600 font-semibold' : 'text-gray-900'}>
+                    {shipping === 0 ? '🎉 Ücretsiz' : `₺${shipping.toFixed(2)}`}
                   </span>
                 </div>
                 
+                {/* Ücretsiz Kargo Uyarısı */}
+                {shipping > 0 && subtotalAfterCoupon < 500 && (
+                  <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <p className="text-xs text-yellow-800">
+                      💡 <span className="font-semibold">₺{(500 - subtotalAfterCoupon).toFixed(2)}</span> daha alışveriş yaparak <span className="font-semibold">ücretsiz kargo</span> kazanın!
+                    </p>
+                  </div>
+                )}
+                
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">KDV (%18)</span>
-                  <span className="text-gray-900">₺{tax.toLocaleString()}</span>
+                  <span className="text-gray-900">₺{tax.toFixed(2)}</span>
                 </div>
                 
                 <div className="border-t border-gray-200 pt-3">
                   <div className="flex justify-between text-lg font-semibold">
                     <span className="text-gray-900">Toplam</span>
-                    <span className="text-gray-900">₺{finalTotal.toLocaleString()}</span>
+                    <span className="text-[#CBA135]">₺{finalTotal.toFixed(2)}</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Social Proof in Cart */}
+              <div className="mb-6">
+                <SocialProof />
               </div>
 
               {/* Checkout Button */}
@@ -205,6 +261,9 @@ export default function CartPage() {
           </ScrollReveal>
         </div>
       </div>
+
+      {/* WhatsApp Support */}
+      <WhatsAppButton />
     </div>
   );
 }

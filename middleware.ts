@@ -53,7 +53,21 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Seller panel protection
+  // Partner panel protection (Seller + Influencer)
+  if (pathname.startsWith('/partner')) {
+    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    
+    if (!token) {
+      return NextResponse.redirect(new URL('/giris?redirect=/partner', request.url));
+    }
+
+    const userRole = token.role as string;
+    if (!['SELLER', 'INFLUENCER', 'ADMIN'].includes(userRole)) {
+      return NextResponse.redirect(new URL('/403', request.url));
+    }
+  }
+
+  // Legacy seller panel support
   if (pathname.startsWith('/seller')) {
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
     

@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest } from "next/server";
-imimport { prisma } from '@/lib/prisma';
-port { auth } from "@/lib/auth";
+import { prisma } from '@/lib/prisma';
+import { auth } from "@/lib/auth";
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return new Response("auth_required", { status: 401 });

@@ -1,9 +1,12 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
 import { auth } from '@/lib/auth';
 import Hero from '../../src/components/home/Hero';
 import CategoryStrip from '../../src/components/home/CategoryStrip';
 import CollectionStrip from '../../src/components/home/CollectionStrip';
 import MixedProductGrid from '../../src/components/home/MixedProductGrid';
+import RecentlyViewedProducts from '../../components/products/RecentlyViewedProducts';
+import FirstPurchasePopup from '../../components/marketing/FirstPurchasePopup';
 // Note: Avoid revalidateTag in RSC to prevent runtime errors on home
 import ClientShim from './ClientShim';
 import nextDynamic from 'next/dynamic';
@@ -51,11 +54,15 @@ export default async function HomePage() {
         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center gap-3">
-              <img 
-                src={session.user.image ?? ""} 
-                alt={session.user.name ?? "User"} 
-                className="w-10 h-10 rounded-full border-2 border-white shadow-sm" 
-              />
+              {session.user.image && (
+                <Image 
+                  src={session.user.image} 
+                  alt={session.user.name ?? "User"} 
+                  width={40}
+                  height={40}
+                  className="rounded-full border-2 border-white shadow-sm" 
+                />
+              )}
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Merhaba, {session.user.name}!
@@ -80,6 +87,12 @@ export default async function HomePage() {
       
       {/* Mixed Product Grid */}
       <MixedProductGrid />
+      
+      {/* Recently Viewed Products */}
+      <RecentlyViewedProducts />
+      
+      {/* First Purchase Popup */}
+      <FirstPurchasePopup />
     </main>
   );
 }

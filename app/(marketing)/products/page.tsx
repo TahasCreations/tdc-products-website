@@ -129,21 +129,63 @@ function ProductsPageContent() {
   const page = Number(searchParams?.get('page') || '1');
   const limit = 12;
   
-  // Use local state for filtering instead of URL params
-  const category = selectedCategory;
+  // Get category from URL parameter
+  const urlCategory = searchParams?.get('category');
+  
+  // Use URL category or selected category
+  const category = urlCategory || selectedCategory;
   const minPrice = selectedMinPrice;
   const maxPrice = selectedMaxPrice;
   const inStock = selectedInStock;
   const seller = searchParams?.get('seller') || undefined;
+  
+  // Update selected category when URL changes
+  useEffect(() => {
+    if (urlCategory) {
+      setSelectedCategory(urlCategory);
+    }
+  }, [urlCategory]);
+
+  // Fetch products from API
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [category, sortBy, page]);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (category) params.append('category', category);
+      if (sortBy) params.append('sort', sortBy);
+      params.append('page', page.toString());
+      params.append('limit', limit.toString());
+
+      const response = await fetch(`/api/products?${params}`);
+      const data = await response.json();
+      
+      if (data.products) {
+        setProducts(data.products);
+        setTotalCount(data.pagination?.total || 0);
+      }
+    } catch (error) {
+      console.error('Fetch products error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter products based on local state
-  let filteredProducts = [...mockProducts];
+  let filteredProducts = [...products];
 
   if (category) {
     filteredProducts = filteredProducts.filter(product => {
-      // Check if product category matches main category or subcategory
-      return product.category?.slug === category || 
-             product.category?.parentSlug === category;
+      // Check if product category matches the filter
+      return product.category === category || 
+             product.subcategory === category;
     });
   }
 
@@ -191,9 +233,51 @@ function ProductsPageContent() {
   const startIndex = (page - 1) * limit;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + limit);
 
+  // Get category name for breadcrumb
+  const getCategoryName = (categorySlug: string | null) => {
+    if (!categorySlug) return null;
+    
+    const categoryNames: Record<string, string> = {
+      'figur-koleksiyon': 'Figür & Koleksiyon',
+      'koleksiyon-figurleri': 'Koleksiyon Figürleri',
+      'anime': 'Anime / Manga',
+      'model-kit': 'Model Kit',
+      'aksiyon-figur': 'Aksiyon Figür',
+      'funko': 'Funko / Nendoroid',
+      'moda-aksesuar': 'Moda & Aksesuar',
+      'tisort-hoodie': 'Tişört & Hoodie',
+      'taki-saat': 'Takı & Saat',
+      'canta': 'Çanta & Cüzdan',
+      'ayakkabi': 'Ayakkabı',
+      'elektronik': 'Elektronik',
+      'kulaklik': 'Kulaklık & Ses',
+      'akilli-ev': 'Akıllı Ev',
+      'pc-aksesuar': 'Bilgisayar Aksesuarları',
+      'oyun': 'Oyun & Konsol',
+      'ev-yasam': 'Ev & Yaşam',
+      'dekorasyon': 'Dekorasyon',
+      'mutfak': 'Mutfak',
+      'aydinlatma': 'Aydınlatma',
+      'mobilya': 'Mobilya',
+      'sanat-hobi': 'Sanat & Hobi',
+      'poster': 'Tablo & Poster',
+      'el-sanatlari': 'El Sanatları',
+      'boyama': 'Boyama & Çizim',
+      'muzik': 'Müzik & Enstrüman',
+      'hediyelik': 'Hediyelik',
+      'kisiye-ozel': 'Kişiye Özel',
+      'dogum-gunu': 'Doğum Günü',
+      'ofis': 'Ofis & Masaüstü',
+      'mini-set': 'Mini Setler',
+    };
+    
+    return categoryNames[categorySlug] || categorySlug;
+  };
+
   const breadcrumbItems = [
     { label: 'Ana Sayfa', href: '/' },
-    { label: 'Tüm Ürünler', href: '/products' }
+    { label: 'Tüm Ürünler', href: '/products' },
+    ...(category ? [{ label: getCategoryName(category) || category, href: '#' }] : [])
   ];
 
   // Modern categories with colors
