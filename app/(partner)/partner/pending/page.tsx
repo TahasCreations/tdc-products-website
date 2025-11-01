@@ -1,5 +1,3 @@
-'use client';
-
 import { Clock, CheckCircle2, MessageCircle, FileText } from 'lucide-react';
 import Link from 'next/link';
 
@@ -8,7 +6,7 @@ export const dynamic = 'force-dynamic';
 export default function PendingApprovalPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50/30 flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full animate-fade-in">
+      <div className="max-w-2xl w-full">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border-2 border-gray-100">
           {/* Header */}
           <div className="bg-gradient-to-r from-yellow-600 via-orange-600 to-red-600 p-6 sm:p-8 text-white text-center">

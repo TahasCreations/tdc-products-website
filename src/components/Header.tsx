@@ -67,21 +67,21 @@ export default function Header() {
           isScrolled ? 'shadow-lg' : 'shadow-sm'
         }`}
       >
-        {/* Main Header */}
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16 lg:h-20">
+        {/* Main Header - Mobile Optimized */}
+        <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
             {/* Logo */}
             <div className="flex-shrink-0">
               <HeaderLogo />
             </div>
 
-            {/* Desktop Navigation - Moved closer to logo */}
-            <div className="hidden lg:block flex-1 ml-6">
+            {/* Desktop Navigation */}
+            <div className="hidden lg:block flex-1 mx-6 xl:mx-8">
               <HeaderNav />
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-3 flex-shrink-0 ml-4">
+            {/* Actions - Mobile Optimized */}
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-shrink-0">
               <Link
                 href="/wishlist"
                 className="relative p-2 text-orange-400 hover:text-orange-300 focus:ring-2 focus:ring-orange-500 focus:outline-none rounded-lg transition-colors"
