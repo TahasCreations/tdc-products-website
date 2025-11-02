@@ -19,8 +19,16 @@ interface Product {
 export default function RecentlyViewedProducts() {
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
   const [isVisible, setIsVisible] = useState(true);
+  const [isMounted, setIsMounted] = useState(false); // Hydration fix
+
+  // Hydration fix - mount check
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!isMounted) return; // Guard clause for SSR
+    
     // Load from localStorage
     const stored = localStorage.getItem('recentlyViewed');
     if (stored) {
@@ -31,7 +39,7 @@ export default function RecentlyViewedProducts() {
         console.error('Failed to load recently viewed:', error);
       }
     }
-  }, []);
+  }, [isMounted]);
 
   // Ürün görüntülendiğinde kaydet
   const addToRecentlyViewed = (product: Omit<Product, 'viewedAt'>) => {
@@ -59,7 +67,8 @@ export default function RecentlyViewedProducts() {
     (window as any).addToRecentlyViewed = addToRecentlyViewed;
   }
 
-  if (!isVisible || recentProducts.length === 0) {
+  // Hydration fix - don't render on server
+  if (!isMounted || !isVisible || recentProducts.length === 0) {
     return null;
   }
 

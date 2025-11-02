@@ -9,11 +9,19 @@ export default function FirstPurchasePopup() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [copied, setCopied] = useState(false);
   const [timeLeft, setTimeLeft] = useState(600); // 10 dakika = 600 saniye
+  const [isMounted, setIsMounted] = useState(false); // Hydration fix
 
   const couponCode = 'HOSGELDIN';
   const discount = 10;
 
+  // Hydration fix - mount check
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return; // Guard clause for SSR
+    
     // Check if user has seen this popup before
     const hasSeenPopup = localStorage.getItem('firstPurchasePopupSeen');
     const hasPurchased = localStorage.getItem('hasPurchased');
@@ -30,10 +38,10 @@ export default function FirstPurchasePopup() {
 
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isMounted]);
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || !isMounted) return; // Guard clause for SSR
 
     // Countdown timer
     const interval = setInterval(() => {
@@ -48,17 +56,21 @@ export default function FirstPurchasePopup() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isVisible]);
+  }, [isVisible, isMounted]);
 
   const handleClose = () => {
     setIsVisible(false);
-    localStorage.setItem('firstPurchasePopupSeen', 'true');
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('firstPurchasePopupSeen', 'true');
+    }
   };
 
   const handleCopyCoupon = () => {
-    navigator.clipboard.writeText(couponCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(couponCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -66,6 +78,11 @@ export default function FirstPurchasePopup() {
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  // Hydration fix - don't render on server
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
