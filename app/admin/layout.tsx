@@ -231,11 +231,41 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [expandedGroups, setExpandedGroups] = useState<string[]>(['overview', 'commerce']);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const pathname = usePathname();
 	const router = useRouter();
+
+  // Hydration fix
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Load expanded groups from localStorage (SADECE İLK MOUNT'TA)
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const savedExpanded = localStorage.getItem('adminLayoutExpandedGroups');
+    if (savedExpanded) {
+      try {
+        setExpandedGroups(JSON.parse(savedExpanded));
+      } catch (e) {
+        // Hata olursa boş array - tüm sekmeler kapalı
+        setExpandedGroups([]);
+      }
+    } else {
+      // İlk kez giriliyorsa tüm sekmeler KAPALI
+      setExpandedGroups([]);
+    }
+  }, [isMounted]); // pathname yok - sayfa değişiminde resetlenmez
+
+  // Save expanded groups to localStorage
+  useEffect(() => {
+    if (!isMounted) return;
+    localStorage.setItem('adminLayoutExpandedGroups', JSON.stringify(expandedGroups));
+  }, [expandedGroups, isMounted]);
 
   // Check authentication on mount
   useEffect(() => {

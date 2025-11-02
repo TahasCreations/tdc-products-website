@@ -156,33 +156,23 @@ export default function AdminSidebar() {
       sidebarRef.current.scrollTop = parseInt(savedPosition, 10);
     }
 
-    // Expanded items'ı yükle
+    // Expanded items'ı yükle - YOKSA BOŞ ARRAY (TÜM KAPALI)
     const savedExpanded = localStorage.getItem('adminSidebarExpanded');
     if (savedExpanded) {
       try {
         setExpandedItems(JSON.parse(savedExpanded));
       } catch (e) {
-        // Ignore
+        // Hata olursa boş array
+        setExpandedItems([]);
       }
+    } else {
+      // İlk kez giriliyorsa tüm sekmeler kapalı
+      setExpandedItems([]);
     }
-  }, [isMounted]); // pathname dependency KALDIRILDI - bu resetlemeye sebep oluyordu
+  }, [isMounted]); // pathname yok - sayfa değişiminde resetlenmez
 
-  // Pathname değiştiğinde, aktif olan menüyü otomatik aç
-  useEffect(() => {
-    if (!isMounted) return;
-
-    // Hangi menü item'ının altında olduğumuzu bul
-    const currentMenuItem = menuItems.find(item => 
-      pathname.startsWith(item.href) && item.href !== '/admin'
-    );
-
-    // Eğer o menü kapalıysa aç
-    if (currentMenuItem && currentMenuItem.subItems.length > 0) {
-      if (!expandedItems.includes(currentMenuItem.title)) {
-        setExpandedItems(prev => [...prev, currentMenuItem.title]);
-      }
-    }
-  }, [pathname, isMounted]); // expandedItems dependency yok - sonsuz loop olmasın
+  // KALDIRILDI: Pathname değiştiğinde otomatik açma
+  // Kullanıcı manuel olarak açmalı, state korunmalı
 
   // Scroll pozisyonunu kaydet
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {

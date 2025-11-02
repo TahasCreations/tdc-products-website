@@ -25,7 +25,9 @@
     "analyze": "cross-env ANALYZE=true npm run build",
     "media:index": "tsx scripts/media-indexer.ts",
     "media:index:dry": "tsx scripts/media-indexer.ts --dry-run",
-    "media:optimize": "tsx scripts/media-optimizer.ts"
+    "media:optimize": "tsx scripts/media-optimizer.ts",
+    "admin:reset": "tsx scripts/reset-admin-data.ts",
+    "admin:reset:force": "set CONFIRM_RESET=YES_DELETE_ALL_DATA && tsx scripts/reset-admin-data.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
