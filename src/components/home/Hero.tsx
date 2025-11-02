@@ -267,16 +267,12 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
                   className="relative z-10 cursor-pointer group"
                 >
                   <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-[400px] lg:h-[400px]">
-                    {/* Hero Image */}
-                    <Image
+                    {/* Hero Image - Standard img for better compatibility */}
+                    <img
                       src="/images/hero/tdc-maskot.png"
                       alt="TDC Market Süper Kahramanı - Güvenli Alışverişin Sembolü"
-                      width={400}
-                      height={400}
                       className="w-full h-full object-contain drop-shadow-2xl filter group-hover:drop-shadow-[0_20px_40px_rgba(203,161,53,0.4)] transition-all duration-500"
-                      priority
-                      quality={100}
-                      unoptimized
+                      loading="eager"
                     />
                     
                     {/* Glow Effect - Sarı/Turuncu (TDC renkleri) */}
