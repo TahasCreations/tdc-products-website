@@ -70,21 +70,12 @@ const menuItems = [
     ]
   },
   {
-    title: 'Sayfalar',
-    href: '/admin/pages',
-    icon: '📄',
-    subItems: [
-      { title: 'Tüm Sayfalar', href: '/admin/pages' },
-      { title: 'Yeni Sayfa Oluştur', href: '/admin/pages/create' },
-      { title: 'Şablonlar', href: '/admin/pages/templates' }
-    ]
-  },
-  {
-    title: 'Visual Site Builder',
+    title: 'Site Builder',
     href: '/admin/site-builder/pages',
     icon: '✨',
     subItems: [
-      { title: '🎨 Site Builder', href: '/admin/site-builder/pages' },
+      { title: 'Tüm Sayfalar', href: '/admin/site-builder/pages' },
+      { title: 'Yeni Sayfa', href: '/admin/site-builder/pages/create' },
       { title: 'Medya Kütüphanesi', href: '/admin/media' },
       { title: 'Şablonlar', href: '/admin/site-builder/templates' }
     ]
