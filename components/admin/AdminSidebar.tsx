@@ -155,7 +155,7 @@ export default function AdminSidebar() {
     setIsMounted(true);
   }, []);
 
-  // Sidebar scroll position'ı localStorage'da koru
+  // Sidebar scroll position ve expanded items'ı yükle (SADECE İLK MOUNT'TA)
   useEffect(() => {
     if (!isMounted) return;
 
@@ -174,7 +174,24 @@ export default function AdminSidebar() {
         // Ignore
       }
     }
-  }, [isMounted]);
+  }, [isMounted]); // pathname dependency KALDIRILDI - bu resetlemeye sebep oluyordu
+
+  // Pathname değiştiğinde, aktif olan menüyü otomatik aç
+  useEffect(() => {
+    if (!isMounted) return;
+
+    // Hangi menü item'ının altında olduğumuzu bul
+    const currentMenuItem = menuItems.find(item => 
+      pathname.startsWith(item.href) && item.href !== '/admin'
+    );
+
+    // Eğer o menü kapalıysa aç
+    if (currentMenuItem && currentMenuItem.subItems.length > 0) {
+      if (!expandedItems.includes(currentMenuItem.title)) {
+        setExpandedItems(prev => [...prev, currentMenuItem.title]);
+      }
+    }
+  }, [pathname, isMounted]); // expandedItems dependency yok - sonsuz loop olmasın
 
   // Scroll pozisyonunu kaydet
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
