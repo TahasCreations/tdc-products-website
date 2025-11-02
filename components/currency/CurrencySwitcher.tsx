@@ -19,6 +19,7 @@ export const CurrencySwitcher: React.FC = () => {
   const [selectedCurrency, setSelectedCurrency] = useState<string>('USD');
   const [isOpen, setIsOpen] = useState(false);
   const [exchangeRate, setExchangeRate] = useState<number>(1);
+  const [isMounted, setIsMounted] = useState(false); // Hydration fix
 
   const currencies: Currency[] = [
     { code: 'USD', name: 'US Dollar', symbol: '$' },
@@ -33,7 +34,14 @@ export const CurrencySwitcher: React.FC = () => {
     { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
   ];
 
+  // Hydration fix
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return; // Guard clause for SSR
+    
     // Load saved currency preference
     const saved = localStorage.getItem('preferred-currency');
     if (saved) {
@@ -42,7 +50,7 @@ export const CurrencySwitcher: React.FC = () => {
       // Auto-detect based on location
       detectCurrency();
     }
-  }, []);
+  }, [isMounted]);
 
   const detectCurrency = async () => {
     try {

@@ -12,12 +12,20 @@ import { I18nService, supportedLanguages } from '@/lib/i18n/translations';
 export const LanguageSwitcher: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState('en');
+  const [isMounted, setIsMounted] = useState(false); // Hydration fix
+
+  // Hydration fix
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!isMounted) return; // Guard clause for SSR
+    
     const detected = I18nService.detectLanguage();
     setCurrentLang(detected);
     I18nService.setLanguage(detected);
-  }, []);
+  }, [isMounted]);
 
   const handleLanguageChange = (code: string) => {
     setCurrentLang(code);
@@ -25,7 +33,9 @@ export const LanguageSwitcher: React.FC = () => {
     setIsOpen(false);
     
     // Reload page to apply language
-    window.location.reload();
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
   };
 
   const current = supportedLanguages.find(l => l.code === currentLang);

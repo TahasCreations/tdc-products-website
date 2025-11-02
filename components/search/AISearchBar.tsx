@@ -22,15 +22,23 @@ export const AISearchBar: React.FC = () => {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [isMounted, setIsMounted] = useState(false); // Hydration fix
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Hydration fix
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return; // Guard clause for SSR
+    
     // Load recent searches from localStorage
     const recent = localStorage.getItem('recent-searches');
     if (recent) {
       setRecentSearches(JSON.parse(recent));
     }
-  }, []);
+  }, [isMounted]);
 
   useEffect(() => {
     if (query.length > 2) {
