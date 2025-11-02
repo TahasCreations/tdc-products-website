@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const menuItems = [
   {
@@ -70,12 +70,21 @@ const menuItems = [
     ]
   },
   {
+    title: 'Sayfalar',
+    href: '/admin/pages',
+    icon: '📄',
+    subItems: [
+      { title: 'Tüm Sayfalar', href: '/admin/pages' },
+      { title: 'Yeni Sayfa Oluştur', href: '/admin/pages/create' },
+      { title: 'Şablonlar', href: '/admin/pages/templates' }
+    ]
+  },
+  {
     title: 'Visual Site Builder',
     href: '/admin/site-builder/pages',
     icon: '✨',
     subItems: [
       { title: '🎨 Site Builder', href: '/admin/site-builder/pages' },
-      { title: 'Sayfalar', href: '/admin/site-builder/pages' },
       { title: 'Medya Kütüphanesi', href: '/admin/media' },
       { title: 'Şablonlar', href: '/admin/site-builder/templates' }
     ]
@@ -138,23 +147,47 @@ const menuItems = [
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const [scrollPosition, setScrollPosition] = useState(0);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Scroll position'ı koru
+  // Hydration fix
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollPosition(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    setIsMounted(true);
   }, []);
 
-  // Scroll position'ı restore et
+  // Sidebar scroll position'ı localStorage'da koru
   useEffect(() => {
-    if (scrollPosition > 0) {
-      window.scrollTo(0, scrollPosition);
+    if (!isMounted) return;
+
+    // Kaydedilmiş pozisyonu yükle
+    const savedPosition = localStorage.getItem('adminSidebarScrollPosition');
+    if (savedPosition && sidebarRef.current) {
+      sidebarRef.current.scrollTop = parseInt(savedPosition, 10);
     }
-  }, [pathname]);
+
+    // Expanded items'ı yükle
+    const savedExpanded = localStorage.getItem('adminSidebarExpanded');
+    if (savedExpanded) {
+      try {
+        setExpandedItems(JSON.parse(savedExpanded));
+      } catch (e) {
+        // Ignore
+      }
+    }
+  }, [isMounted]);
+
+  // Scroll pozisyonunu kaydet
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (!isMounted) return;
+    const scrollTop = e.currentTarget.scrollTop;
+    localStorage.setItem('adminSidebarScrollPosition', scrollTop.toString());
+  };
+
+  // Expanded items değiştiğinde kaydet
+  useEffect(() => {
+    if (!isMounted) return;
+    localStorage.setItem('adminSidebarExpanded', JSON.stringify(expandedItems));
+  }, [expandedItems, isMounted]);
 
   const toggleExpanded = (itemTitle: string) => {
     setExpandedItems(prev => 
@@ -176,7 +209,11 @@ export default function AdminSidebar() {
   };
 
   return (
-    <div className="fixed left-0 top-16 h-full w-64 bg-white shadow-lg z-40 overflow-y-auto">
+    <div 
+      ref={sidebarRef}
+      onScroll={handleScroll}
+      className="fixed left-0 top-16 h-full w-64 bg-white shadow-lg z-40 overflow-y-auto"
+    >
       <div className="p-4">
         <nav className="space-y-1">
           {menuItems.map((item) => {
