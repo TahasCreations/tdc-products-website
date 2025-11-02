@@ -5,7 +5,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "figures",
     label: "Figür & Koleksiyon",
-    href: "/products?category=figur-koleksiyon",
+    href: "/categories/figur-koleksiyon",
     children: [
       { label: "Koleksiyon Figürleri", href: "/products?category=koleksiyon-figurleri" },
       { label: "Anime / Manga", href: "/products?category=anime" },
@@ -17,7 +17,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "fashion",
     label: "Moda & Aksesuar",
-    href: "/products?category=moda-aksesuar",
+    href: "/categories/moda-aksesuar",
     children: [
       { label: "Tişört & Hoodie", href: "/products?category=tisort-hoodie" },
       { label: "Takı & Saat", href: "/products?category=taki-saat" },
@@ -28,7 +28,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "electronics",
     label: "Elektronik",
-    href: "/products?category=elektronik",
+    href: "/categories/elektronik",
     children: [
       { label: "Kulaklık & Ses", href: "/products?category=kulaklik" },
       { label: "Akıllı Ev", href: "/products?category=akilli-ev" },
@@ -39,7 +39,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "home",
     label: "Ev & Yaşam",
-    href: "/products?category=ev-yasam",
+    href: "/categories/ev-yasam",
     children: [
       { label: "Dekorasyon", href: "/products?category=dekorasyon" },
       { label: "Mutfak", href: "/products?category=mutfak" },
@@ -50,7 +50,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "art",
     label: "Sanat & Hobi",
-    href: "/products?category=sanat-hobi",
+    href: "/categories/sanat-hobi",
     children: [
       { label: "Tablo & Poster", href: "/products?category=poster" },
       { label: "El Sanatları", href: "/products?category=el-sanatlari" },
@@ -61,7 +61,7 @@ export const CATEGORIES: Cat[] = [
   {
     key: "gifts",
     label: "Hediyelik",
-    href: "/products?category=hediyelik",
+    href: "/categories/hediyelik",
     children: [
       { label: "Kişiye Özel", href: "/products?category=kisiye-ozel" },
       { label: "Doğum Günü", href: "/products?category=dogum-gunu" },

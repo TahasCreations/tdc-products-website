@@ -244,17 +244,19 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
                   className="absolute bottom-10 right-10 w-24 h-24 bg-gradient-to-r from-purple-300/40 to-pink-300/40 rounded-full blur-xl"
                 />
                 
-                {/* TDC Maskot - Placeholder */}
+                {/* TDC Maskot - Süper Kahraman */}
                 <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
+                  initial={{ scale: 0, rotate: -180, opacity: 0 }}
                   animate={{ 
                     scale: 1, 
                     rotate: 0,
+                    opacity: 1,
                     y: [0, -15, 0]
                   }}
                   transition={{ 
-                    scale: { duration: 0.8, delay: 0.5 },
+                    scale: { duration: 0.8, delay: 0.5, type: "spring", stiffness: 200 },
                     rotate: { duration: 0.8, delay: 0.5 },
+                    opacity: { duration: 0.6, delay: 0.5 },
                     y: { duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }
                   }}
                   whileHover={{ 
@@ -262,51 +264,73 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
                     rotate: [0, -5, 5, -5, 0],
                     transition: { duration: 0.5 }
                   }}
-                  className="relative z-10 cursor-pointer"
+                  className="relative z-10 cursor-pointer group"
                 >
-                  <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
-                    {/* Temporary Mascot - Beautiful Emoji/SVG Design */}
+                  <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-[400px] lg:h-[400px]">
+                    {/* Hero Image */}
+                    <Image
+                      src="/images/hero/tdc-maskot.png"
+                      alt="TDC Market Süper Kahramanı - Güvenli Alışverişin Sembolü"
+                      fill
+                      className="object-contain drop-shadow-2xl filter group-hover:drop-shadow-[0_20px_40px_rgba(203,161,53,0.4)] transition-all duration-500"
+                      priority
+                      quality={100}
+                    />
+                    
+                    {/* Glow Effect - Sarı/Turuncu (TDC renkleri) */}
                     <motion.div
                       animate={{ 
-                        rotate: [0, 5, -5, 0],
+                        opacity: [0.4, 0.7, 0.4],
+                        scale: [0.9, 1.1, 0.9]
                       }}
-                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                      className="text-9xl sm:text-[12rem] md:text-[14rem] lg:text-[16rem] filter drop-shadow-2xl"
-                    >
-                      🎨
-                    </motion.div>
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute inset-0 bg-gradient-to-r from-yellow-400/30 via-orange-400/30 to-yellow-400/30 rounded-full blur-3xl -z-10"
+                    />
                     
                     {/* Sparkle Effects */}
                     <motion.div
                       animate={{ 
-                        scale: [1, 1.2, 1],
-                        opacity: [0.5, 1, 0.5]
+                        scale: [1, 1.3, 1],
+                        opacity: [0.6, 1, 0.6],
+                        rotate: [0, 15, 0]
                       }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                      className="absolute top-0 right-0 text-4xl"
+                      transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
+                      className="absolute -top-4 -right-4 text-3xl sm:text-5xl"
                     >
-                      ✨
+                      ⭐
                     </motion.div>
                     <motion.div
                       animate={{ 
                         scale: [1, 1.2, 1],
-                        opacity: [0.5, 1, 0.5]
+                        opacity: [0.6, 1, 0.6],
+                        rotate: [0, -20, 0]
                       }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                      className="absolute bottom-0 left-0 text-4xl"
+                      transition={{ duration: 2.5, repeat: Infinity, delay: 0.8 }}
+                      className="absolute -bottom-2 -left-2 text-2xl sm:text-4xl"
                     >
                       💫
                     </motion.div>
-                    
-                    {/* Glow Effect */}
                     <motion.div
                       animate={{ 
-                        opacity: [0.3, 0.6, 0.3],
-                        scale: [0.95, 1.05, 0.95]
+                        scale: [1, 1.4, 1],
+                        opacity: [0.5, 1, 0.5],
+                        y: [0, -10, 0]
                       }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-full blur-3xl -z-10"
-                    />
+                      transition={{ duration: 2.2, repeat: Infinity, delay: 1.2 }}
+                      className="absolute top-1/4 -left-6 text-2xl sm:text-3xl"
+                    >
+                      ✨
+                    </motion.div>
+                    
+                    {/* Hero Badge - "Güvenilir" */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.5 }}
+                      className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg whitespace-nowrap"
+                    >
+                      🛡️ Güvenli Alışveriş
+                    </motion.div>
                   </div>
                 </motion.div>
               </div>
