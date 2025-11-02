@@ -99,12 +99,12 @@ export default function FirstPurchasePopup() {
                     <X className="w-5 h-5 text-gray-700" />
                   </button>
 
-                  {/* Header with Animation */}
-                  <div className="relative p-8 pb-6 text-center">
+                  {/* Header with Animation - Kompakt */}
+                  <div className="relative p-6 pb-4 text-center">
                     {/* Animated Background */}
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400 opacity-10" />
                     
-                    {/* Gift Icon */}
+                    {/* Gift Icon - Küçültüldü */}
                     <motion.div
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 0 }}
@@ -114,10 +114,10 @@ export default function FirstPurchasePopup() {
                         damping: 10,
                         delay: 0.2 
                       }}
-                      className="inline-block mb-4"
+                      className="inline-block mb-3"
                     >
-                      <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center shadow-xl">
-                        <Gift className="w-10 h-10 text-white" />
+                      <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center shadow-xl">
+                        <Gift className="w-8 h-8 text-white" />
                       </div>
                     </motion.div>
 
@@ -125,7 +125,7 @@ export default function FirstPurchasePopup() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
-                      className="text-3xl font-black text-gray-900 mb-2"
+                      className="text-2xl font-black text-gray-900 mb-1"
                     >
                       Hoş Geldiniz! 🎉
                     </motion.h2>
@@ -134,59 +134,59 @@ export default function FirstPurchasePopup() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4 }}
-                      className="text-gray-700 text-lg"
+                      className="text-gray-700 text-base"
                     >
                       İlk alışverişinize özel
                     </motion.p>
                   </div>
 
-                  {/* Discount Display */}
+                  {/* Discount Display - Kompakt */}
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.5 }}
-                    className="px-8 pb-6"
+                    className="px-6 pb-4"
                   >
-                    <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 rounded-2xl p-8 text-center shadow-2xl transform hover:scale-105 transition-transform">
-                      <div className="flex items-center justify-center space-x-2 mb-2">
-                        <Sparkles className="w-6 h-6 text-yellow-300" />
-                        <p className="text-white text-xl font-bold">ÖZEL İNDİRİM</p>
-                        <Sparkles className="w-6 h-6 text-yellow-300" />
+                    <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 rounded-2xl p-6 text-center shadow-2xl transform hover:scale-105 transition-transform">
+                      <div className="flex items-center justify-center space-x-2 mb-1">
+                        <Sparkles className="w-5 h-5 text-yellow-300" />
+                        <p className="text-white text-lg font-bold">ÖZEL İNDİRİM</p>
+                        <Sparkles className="w-5 h-5 text-yellow-300" />
                       </div>
-                      <p className="text-white text-6xl font-black mb-2">
+                      <p className="text-white text-5xl font-black mb-1">
                         %{discount}
                       </p>
-                      <p className="text-white/90 text-sm">
+                      <p className="text-white/90 text-xs">
                         İlk siparişinizde geçerli
                       </p>
                     </div>
                   </motion.div>
 
-                  {/* Coupon Code */}
+                  {/* Coupon Code - Kompakt */}
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
-                    className="px-8 pb-6"
+                    className="px-6 pb-4"
                   >
-                    <div className="bg-white rounded-xl border-2 border-dashed border-purple-400 p-4">
-                      <p className="text-sm text-gray-600 text-center mb-3">
+                    <div className="bg-white rounded-xl border-2 border-dashed border-purple-400 p-3">
+                      <p className="text-xs text-gray-600 text-center mb-2">
                         Kupon Kodunuz:
                       </p>
                       <div className="flex items-center space-x-2">
-                        <div className="flex-1 bg-gray-100 rounded-lg px-4 py-3 text-center">
-                          <p className="text-2xl font-black text-gray-900 tracking-wider">
+                        <div className="flex-1 bg-gray-100 rounded-lg px-3 py-2 text-center">
+                          <p className="text-xl font-black text-gray-900 tracking-wider">
                             {couponCode}
                           </p>
                         </div>
                         <button
                           onClick={handleCopyCoupon}
-                          className="px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all"
+                          className="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all"
                         >
                           {copied ? (
-                            <Check className="w-5 h-5" />
+                            <Check className="w-4 h-4" />
                           ) : (
-                            <Copy className="w-5 h-5" />
+                            <Copy className="w-4 h-4" />
                           )}
                         </button>
                       </div>
@@ -194,7 +194,7 @@ export default function FirstPurchasePopup() {
                         <motion.p
                           initial={{ opacity: 0, y: -5 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="text-sm text-green-600 text-center mt-2 font-semibold"
+                          className="text-xs text-green-600 text-center mt-1.5 font-semibold"
                         >
                           ✓ Kopyalandı!
                         </motion.p>
@@ -202,29 +202,29 @@ export default function FirstPurchasePopup() {
                     </div>
                   </motion.div>
 
-                  {/* Timer */}
+                  {/* Timer - Kompakt */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.7 }}
-                    className="px-8 pb-6"
+                    className="px-6 pb-4"
                   >
-                    <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
-                      <div className="flex items-center justify-center space-x-2">
-                        <Clock className="w-5 h-5 text-red-600" />
-                        <p className="text-sm text-red-800">
-                          Bu teklif <span className="font-bold text-xl">{formatTime(timeLeft)}</span> içinde sona erecek!
+                    <div className="bg-red-50 border-2 border-red-200 rounded-xl p-3">
+                      <div className="flex items-center justify-center space-x-1.5">
+                        <Clock className="w-4 h-4 text-red-600" />
+                        <p className="text-xs text-red-800">
+                          Bu teklif <span className="font-bold text-base">{formatTime(timeLeft)}</span> içinde sona erecek!
                         </p>
                       </div>
                     </div>
                   </motion.div>
 
-                  {/* Action Buttons */}
+                  {/* Action Buttons - Kompakt */}
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 }}
-                    className="px-8 pb-8 space-y-3"
+                    className="px-6 pb-4 space-y-2"
                   >
                     <button
                       onClick={() => {
@@ -232,39 +232,35 @@ export default function FirstPurchasePopup() {
                         // Navigate to products
                         window.location.href = '/products';
                       }}
-                      className="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all font-bold text-lg shadow-lg hover:shadow-xl"
+                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all font-bold text-base shadow-lg hover:shadow-xl"
                     >
                       Alışverişe Başla 🛍️
                     </button>
                     
                     <button
                       onClick={handleClose}
-                      className="w-full py-3 text-gray-600 hover:text-gray-900 transition-all font-medium text-sm"
+                      className="w-full py-2 text-gray-600 hover:text-gray-900 transition-all font-medium text-xs"
                     >
                       Daha Sonra
                     </button>
                   </motion.div>
 
-                  {/* Benefits */}
-                  <div className="px-8 pb-8">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 space-y-2">
-                      <p className="text-xs font-semibold text-gray-700 mb-2">Bu Kampanya ile:</p>
-                      <div className="space-y-1.5 text-xs text-gray-600">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                          <span>Minimum 100 TL alışverişte geçerli</span>
+                  {/* Benefits - Kompakt */}
+                  <div className="px-6 pb-4">
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-3 space-y-1.5">
+                      <p className="text-[10px] font-semibold text-gray-700 mb-1">Bu Kampanya ile:</p>
+                      <div className="space-y-1 text-[10px] text-gray-600">
+                        <div className="flex items-center space-x-1.5">
+                          <div className="w-1 h-1 bg-green-500 rounded-full" />
+                          <span>Min. 100 TL alışverişte geçerli</span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                        <div className="flex items-center space-x-1.5">
+                          <div className="w-1 h-1 bg-green-500 rounded-full" />
                           <span>Tüm ürünlerde kullanılabilir</span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                        <div className="flex items-center space-x-1.5">
+                          <div className="w-1 h-1 bg-green-500 rounded-full" />
                           <span>Ücretsiz kargo ile birleştirilebilir</span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
-                          <span>Sadece yeni müşterilere özel</span>
                         </div>
                       </div>
                     </div>
