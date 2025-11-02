@@ -57,6 +57,15 @@ model User {
   sellerApplications      SellerApplication[]
   influencerApplications  InfluencerApplication[]
   
+  // Support chat
+  chatMessages  ChatMessage[]
+  
+  // Gift cards purchased
+  giftCardsPurchased GiftCard[]
+  
+  // Loyalty program
+  loyaltyPoints LoyaltyPoints?
+  
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -891,4 +900,136 @@ model MediaHistory {
   asset       MediaAsset @relation(fields: [assetId], references: [id], onDelete: Cascade)
   
   @@index([assetId, createdAt])
+}
+
+// === CUSTOMER SUPPORT CHAT ===
+model ChatMessage {
+  id          String   @id @default(cuid())
+  userId      String?  // Null for guest users
+  sessionId   String   // Session identifier for guest tracking
+  message     String
+  response    String
+  intent      String?  // order_status, return, shipping, etc.
+  sentiment   String?  // positive, negative, neutral
+  isResolved  Boolean  @default(false)
+  needsHuman  Boolean  @default(false)
+  assignedTo  String?  // Admin/Support user ID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@index([createdAt])
+  @@index([needsHuman, isResolved])
+}
+
+// === GIFT CARDS ===
+model GiftCard {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  initialAmount Float
+  balance       Float
+  currency      String   @default("TRY")
+  status        String   @default("active") // active, used, expired, cancelled
+  
+  // Sender info
+  senderName    String?
+  senderEmail   String?
+  senderMessage String?
+  
+  // Recipient info
+  recipientName  String?
+  recipientEmail String?
+  
+  // Customization
+  design        String?  // Template design ID
+  customImage   String?  // Custom uploaded image URL
+  
+  // Usage tracking
+  usedBy        String?  // User ID who redeemed
+  usedAt        DateTime?
+  usedOrders    String?  // JSON array of order IDs
+  
+  // Validity
+  expiresAt     DateTime?
+  issuedAt      DateTime @default(now())
+  
+  // Relations
+  purchasedBy   String?
+  purchaser     User?    @relation(fields: [purchasedBy], references: [id], onDelete: SetNull)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([code])
+  @@index([status])
+  @@index([usedBy])
+  @@index([expiresAt])
+}
+
+// === LOYALTY PROGRAM ===
+model LoyaltyPoints {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  points      Int      @default(0)
+  level       String   @default("Bronze") // Bronze, Silver, Gold, Platinum
+  tier        Int      @default(1)
+  
+  // Lifetime stats
+  totalEarned Int      @default(0)
+  totalSpent  Int      @default(0)
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions LoyaltyTransaction[]
+  rewards     LoyaltyReward[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([level, points])
+}
+
+model LoyaltyTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  loyaltyId   String
+  points      Int
+  type        String   // earn, spend, expire, adjust
+  reason      String   // purchase, review, referral, birthday, etc.
+  orderId     String?
+  metadata    Json?
+  expiresAt   DateTime?
+  
+  loyalty     LoyaltyPoints @relation(fields: [loyaltyId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([loyaltyId])
+  @@index([createdAt])
+}
+
+model LoyaltyReward {
+  id            String   @id @default(cuid())
+  loyaltyId     String
+  name          String
+  description   String
+  pointsCost    Int
+  type          String   // discount, freeShipping, giftCard, product
+  value         Float?
+  isRedeemed    Boolean  @default(false)
+  redeemedAt    DateTime?
+  usedInOrder   String?
+  expiresAt     DateTime?
+  
+  loyalty       LoyaltyPoints @relation(fields: [loyaltyId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([loyaltyId])
+  @@index([isRedeemed])
 }

@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import '../src/app/globals.css';
 import { Providers } from './providers';
+import FloatingChatWidget from '@/components/chat/FloatingChatWidget';
+import RecentSalesPopup from '@/components/social-proof/RecentSalesPopup';
 
 // Optimize font loading
 const inter = Inter({
@@ -103,6 +105,8 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased`}>
         <Providers>
           {children}
+          <FloatingChatWidget />
+          <RecentSalesPopup />
         </Providers>
       </body>
     </html>
