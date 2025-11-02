@@ -271,10 +271,12 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
                     <Image
                       src="/images/hero/tdc-maskot.png"
                       alt="TDC Market Süper Kahramanı - Güvenli Alışverişin Sembolü"
-                      fill
-                      className="object-contain drop-shadow-2xl filter group-hover:drop-shadow-[0_20px_40px_rgba(203,161,53,0.4)] transition-all duration-500"
+                      width={400}
+                      height={400}
+                      className="w-full h-full object-contain drop-shadow-2xl filter group-hover:drop-shadow-[0_20px_40px_rgba(203,161,53,0.4)] transition-all duration-500"
                       priority
                       quality={100}
+                      unoptimized
                     />
                     
                     {/* Glow Effect - Sarı/Turuncu (TDC renkleri) */}
