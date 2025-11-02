@@ -171,3 +171,55 @@ export function revalidateCache(patterns: string[]): void {
     apiCache.invalidate(pattern);
   });
 }
+
+/**
+ * Generic cached function with SWR-like behavior
+ */
+export async function cached<T>(
+  key: string,
+  ttl: number,
+  fetcher: () => Promise<T>,
+  options?: {
+    staleTtlSec?: number;
+    hotLimitPerSec?: number;
+  }
+): Promise<T> {
+  const cached = apiCache.get(key);
+  
+  if (cached) {
+    return cached.data as T;
+  }
+  
+  const data = await fetcher();
+  apiCache.set(key, data, undefined, ttl * 1000);
+  
+  return data;
+}
+
+/**
+ * Invalidation matrix for cache dependencies
+ */
+export const invalidationMatrix = {
+  product: {
+    update: async (productId: string) => {
+      apiCache.invalidate('products:');
+      apiCache.invalidate(`product:${productId}`);
+    },
+    delete: async (productId: string) => {
+      apiCache.invalidate('products:');
+      apiCache.invalidate(`product:${productId}`);
+    }
+  },
+  seller: {
+    update: async (sellerId: string) => {
+      apiCache.invalidate(`seller:${sellerId}`);
+      apiCache.invalidate('sellers:');
+    }
+  },
+  category: {
+    update: async (categorySlug: string) => {
+      apiCache.invalidate(`category:${categorySlug}`);
+      apiCache.invalidate('categories:');
+    }
+  }
+};

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Type, Image as ImageIcon, Link as LinkIcon, Palette, Trash2 } from 'lucide-react';
+import { Type, Image as ImageIcon, Link as LinkIcon, Palette, Trash2, Upload } from 'lucide-react';
 
 interface ElementEditorProps {
   element: any;
