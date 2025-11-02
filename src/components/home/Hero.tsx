@@ -244,7 +244,7 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
                   className="absolute bottom-10 right-10 w-24 h-24 bg-gradient-to-r from-purple-300/40 to-pink-300/40 rounded-full blur-xl"
                 />
                 
-                {/* TDC Maskot */}
+                {/* TDC Maskot - Placeholder */}
                 <motion.div
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ 
@@ -264,14 +264,39 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
                   }}
                   className="relative z-10 cursor-pointer"
                 >
-                  <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
-                    <Image
-                      src="/images/hero/tdc-maskot.png"
-                      alt="TDC Market & Sarıkare Ajans Maskotu"
-                      fill
-                      className="object-contain drop-shadow-2xl"
-                      priority
-                    />
+                  <div className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 flex items-center justify-center">
+                    {/* Temporary Mascot - Beautiful Emoji/SVG Design */}
+                    <motion.div
+                      animate={{ 
+                        rotate: [0, 5, -5, 0],
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                      className="text-9xl sm:text-[12rem] md:text-[14rem] lg:text-[16rem] filter drop-shadow-2xl"
+                    >
+                      🎨
+                    </motion.div>
+                    
+                    {/* Sparkle Effects */}
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.5, 1, 0.5]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                      className="absolute top-0 right-0 text-4xl"
+                    >
+                      ✨
+                    </motion.div>
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.5, 1, 0.5]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                      className="absolute bottom-0 left-0 text-4xl"
+                    >
+                      💫
+                    </motion.div>
                     
                     {/* Glow Effect */}
                     <motion.div
