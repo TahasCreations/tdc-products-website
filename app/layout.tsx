@@ -3,13 +3,13 @@ import { Inter } from 'next/font/google';
 import '../src/app/globals.css';
 import { Providers } from './providers';
 import FloatingChatWidget from '@/components/chat/FloatingChatWidget';
-import RecentSalesPopup from '@/components/social-proof/RecentSalesPopup';
+// import RecentSalesPopup from '@/components/social-proof/RecentSalesPopup'; // DEVRE DIŞI
 import { ToastProvider } from '@/components/ui/Toast';
 import ScrollToTop from '@/components/ui/ScrollToTop';
 import ExitIntentPopup from '@/components/ui/ExitIntentPopup';
 import AnalyticsProvider from '@/components/analytics/AnalyticsProvider';
 import InteractiveOnboarding from '@/components/onboarding/InteractiveOnboarding';
-import LiveActivityWidget from '@/components/social-proof/LiveActivityWidget';
+// import LiveActivityWidget from '@/components/social-proof/LiveActivityWidget'; // DEVRE DIŞI
 import WhatsAppButton from '@/components/whatsapp/WhatsAppButton';
 import DailyChallenges from '@/components/challenges/DailyChallenges';
 import VirtualShoppingAssistant from '@/components/ai/VirtualShoppingAssistant';
@@ -117,11 +117,11 @@ export default function RootLayout({
             <Providers>
               {children}
               <FloatingChatWidget />
-              <RecentSalesPopup />
+              {/* <RecentSalesPopup /> */}
               <ScrollToTop />
               <ExitIntentPopup />
               <InteractiveOnboarding />
-              <LiveActivityWidget />
+              {/* <LiveActivityWidget /> */}
               <WhatsAppButton />
               <DailyChallenges />
               <VirtualShoppingAssistant />

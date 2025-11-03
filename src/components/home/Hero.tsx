@@ -183,7 +183,7 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
               </motion.button>
             </motion.div>
 
-            {/* Stats */}
+            {/* Stats - Demo data removed */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -191,15 +191,15 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
               className="mt-8 sm:mt-12 grid grid-cols-3 gap-4 sm:gap-8 max-w-md mx-auto lg:mx-0 px-4 sm:px-0"
             >
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-indigo-600 mb-1">10K+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-indigo-600 mb-1">0</div>
                 <div className="text-xs sm:text-sm text-ink-600">Ürün</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-coral-500 mb-1">500+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-coral-500 mb-1">0</div>
                 <div className="text-xs sm:text-sm text-ink-600">Satıcı</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl sm:text-3xl font-bold text-indigo-600 mb-1">50K+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-indigo-600 mb-1">0</div>
                 <div className="text-xs sm:text-sm text-ink-600">Müşteri</div>
               </div>
             </motion.div>

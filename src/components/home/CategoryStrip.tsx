@@ -96,7 +96,7 @@ export default function CategoryStrip() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Her zevke uygun <span className="text-indigo-600 font-semibold">1000+ satıcı</span> tarafından sunulan geniş ürün yelpazesi
+            Her zevke uygun geniş ürün yelpazesi
           </p>
         </motion.div>
 
