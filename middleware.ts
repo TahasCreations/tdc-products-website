@@ -13,6 +13,9 @@ export async function middleware(request: NextRequest) {
   const isMainDomain = hostname === 'localhost' || 
                        hostname.includes('localhost:3000') ||
                        hostname === 'tdcmarket.com' ||
+                       hostname === 'www.tdcmarket.com' ||
+                       hostname === 'tdcproductsonline.com' ||
+                       hostname === 'www.tdcproductsonline.com' ||
                        hostname.includes('vercel.app');
 
   // If it's a custom domain, handle multi-tenant routing
