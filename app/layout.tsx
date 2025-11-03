@@ -6,7 +6,7 @@ import FloatingChatWidget from '@/components/chat/FloatingChatWidget';
 // import RecentSalesPopup from '@/components/social-proof/RecentSalesPopup'; // DEVRE DIŞI
 import { ToastProvider } from '@/components/ui/Toast';
 import ScrollToTop from '@/components/ui/ScrollToTop';
-import ExitIntentPopup from '@/components/ui/ExitIntentPopup';
+// import ExitIntentPopup from '@/components/ui/ExitIntentPopup'; // DEVRE DIŞI
 import AnalyticsProvider from '@/components/analytics/AnalyticsProvider';
 import InteractiveOnboarding from '@/components/onboarding/InteractiveOnboarding';
 // import LiveActivityWidget from '@/components/social-proof/LiveActivityWidget'; // DEVRE DIŞI
@@ -119,7 +119,7 @@ export default function RootLayout({
               <FloatingChatWidget />
               {/* <RecentSalesPopup /> */}
               <ScrollToTop />
-              <ExitIntentPopup />
+              {/* <ExitIntentPopup /> */}
               <InteractiveOnboarding />
               {/* <LiveActivityWidget /> */}
               {/* <WhatsAppButton /> */}

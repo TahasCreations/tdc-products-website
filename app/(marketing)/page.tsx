@@ -6,7 +6,7 @@ import CategoryStrip from '../../src/components/home/CategoryStrip';
 import CollectionStrip from '../../src/components/home/CollectionStrip';
 import MixedProductGrid from '../../src/components/home/MixedProductGrid';
 import RecentlyViewedProducts from '../../components/products/RecentlyViewedProducts';
-import FirstPurchasePopup from '../../components/marketing/FirstPurchasePopup';
+// import FirstPurchasePopup from '../../components/marketing/FirstPurchasePopup'; // DEVRE DIŞI
 // Note: Avoid revalidateTag in RSC to prevent runtime errors on home
 import ClientShim from './ClientShim';
 import nextDynamic from 'next/dynamic';
@@ -91,8 +91,8 @@ export default async function HomePage() {
       {/* Recently Viewed Products */}
       <RecentlyViewedProducts />
       
-      {/* First Purchase Popup */}
-      <FirstPurchasePopup />
+      {/* First Purchase Popup - REMOVED */}
+      {/* <FirstPurchasePopup /> */}
     </main>
   );
 }
