@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Users, MessageSquare, Image as ImageIcon, Calendar, TrendingUp, Heart, Share2 } from 'lucide-react';
 import Image from 'next/image';

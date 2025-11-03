@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, XCircle, Clock, User, Store, TrendingUp, Mail, Phone, MapPin } from 'lucide-react';

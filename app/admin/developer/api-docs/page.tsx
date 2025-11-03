@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 
 export default function ApiDocsPage() {
 	const [selectedEndpoint, setSelectedEndpoint] = useState<string | null>(null);

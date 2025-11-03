@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { Gift, Send, Heart, Star, Sparkles } from 'lucide-react';
 import Image from 'next/image';

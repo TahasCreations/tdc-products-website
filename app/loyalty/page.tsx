@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Star, Gift, TrendingUp, Award, Zap, Crown } from 'lucide-react';
 

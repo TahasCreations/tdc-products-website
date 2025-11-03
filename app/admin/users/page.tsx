@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 
 export default function UsersPage() {
 	const [activeTab, setActiveTab] = useState('all');

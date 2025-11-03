@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 
 export default function ABTestingPage() {
 	const [activeTab, setActiveTab] = useState('tests');
