@@ -39,6 +39,8 @@ const nextConfig = {
   experimental: {
     // Enable modern features
     optimizePackageImports: ['framer-motion', 'lucide-react'],
+    // Disable useSearchParams() suspense warnings
+    missingSuspenseWithCSRBailout: false,
   },
 
   // Headers for security
@@ -82,11 +84,9 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // Output config for different deployment targets
-  // output: 'standalone', // For Docker/self-hosted
-  
-  // Enable if using Vercel
-  // No special config needed for Vercel
+  // Output config - Standalone mode for Vercel
+  // This prevents static export errors for dynamic pages
+  output: 'standalone',
 };
 
 module.exports = nextConfig;
