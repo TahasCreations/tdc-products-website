@@ -1,38 +1,49 @@
 {
-  "framework": "nextjs",
   "buildCommand": "npm run build",
+  "framework": "nextjs",
   "installCommand": "npm install",
+  "regions": ["iad1"],
+  "env": {
+    "NODE_ENV": "production"
+  },
   "build": {
     "env": {
-      "SKIP_ENV_VALIDATION": "1",
-      "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
+      "NEXT_PUBLIC_APP_URL": "@app_url",
+      "DATABASE_URL": "@database_url"
     }
   },
-  "functions": {
-    "app/cart/page.tsx": {
-      "memory": 1024,
-      "maxDuration": 10
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "s-maxage=0, stale-while-revalidate"
+        }
+      ]
     },
-    "app/wishlist/page.tsx": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "app/search/page.tsx": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "app/checkout/page.tsx": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "app/profile/page.tsx": {
-      "memory": 1024,
-      "maxDuration": 10
-    },
-    "app/blog/new/page.tsx": {
-      "memory": 1024,
-      "maxDuration": 10
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
     }
-  }
+  ],
+  "rewrites": [
+    {
+      "source": "/sw.js",
+      "destination": "/api/sw"
+    }
+  ]
 }
-

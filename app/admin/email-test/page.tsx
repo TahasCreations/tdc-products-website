@@ -1,4 +1,6 @@
 "use client";
+
+export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Send, CheckCircle, AlertCircle, Settings } from 'lucide-react';

@@ -1,4 +1,6 @@
 "use client";
+
+export const dynamic = 'force-dynamic';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, ShoppingBag, TrendingUp, DollarSign, Clock, CheckCircle, XCircle } from 'lucide-react';
