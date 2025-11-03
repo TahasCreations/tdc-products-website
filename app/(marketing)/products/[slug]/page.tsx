@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { gcsObjectPublicUrl } from '@/lib/gcs';
 import ReviewSection from '@/components/reviews/ReviewSection';
 import ProductActions from '@/components/products/ProductActions';
+import SellerInfo from '@/components/seller/SellerInfo';
 
 const mockProducts = {
   'naruto-uzumaki-figuru-shippuden': {
@@ -247,33 +248,20 @@ export default function ProductDetailPage({ params }: { params: { slug: string }
             />
 
             {/* Seller Info */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-gray-900 mb-3">Satıcı Bilgileri</h3>
-              <div className="flex items-center space-x-3 mb-3">
-                <img src={product.seller.logo} alt={product.seller.name} className="w-10 h-10 rounded-full" />
-                <div>
-                  <div className="font-medium">{product.seller.name}</div>
-                  <div className="text-sm text-gray-600">⭐ {product.seller.rating} (156 değerlendirme)</div>
-                </div>
-              </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Kargo:</span>
-                  <span className="font-medium">{product.seller.policies.shipping}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">İade:</span>
-                  <span className="font-medium">{product.seller.policies.returns}</span>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {product.seller.badges.map((badge, index) => (
-                  <span key={index} className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full">
-                    {badge}
-                  </span>
-                ))}
-              </div>
-            </div>
+            <SellerInfo
+              seller={{
+                id: '1',
+                name: product.seller.name,
+                slug: product.seller.slug,
+                logo: product.seller.logo,
+                rating: product.seller.rating,
+                reviewCount: 156,
+                totalSales: 2340,
+                policies: product.seller.policies,
+                badges: product.seller.badges
+              }}
+              showFullDetails={true}
+            />
           </div>
         </div>
 

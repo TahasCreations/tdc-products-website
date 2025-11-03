@@ -7,104 +7,21 @@ export default function MarketingAnalyticsPage() {
 	const [selectedPeriod, setSelectedPeriod] = useState('30d');
 
 	const marketingMetrics = {
-		totalSpend: 45230.50,
-		totalRevenue: 234567.80,
-		roas: 5.18,
-		cac: 125.75,
-		ltv: 1850.25,
-		conversionRate: 3.2,
-		impressions: 2450000,
-		clicks: 78400,
-		ctr: 3.2,
-		cpc: 0.58
+		totalSpend: 0,
+		totalRevenue: 0,
+		roas: 0,
+		cac: 0,
+		ltv: 0,
+		conversionRate: 0,
+		impressions: 0,
+		clicks: 0,
+		ctr: 0,
+		cpc: 0
 	};
 
-	const channels = [
-		{
-			name: 'Google Ads',
-			spend: 18500.00,
-			revenue: 95420.50,
-			roas: 5.16,
-			conversions: 245,
-			cpc: 0.75,
-			status: 'active'
-		},
-		{
-			name: 'Facebook Ads',
-			spend: 12750.00,
-			revenue: 68230.25,
-			roas: 5.35,
-			conversions: 189,
-			cpc: 0.67,
-			status: 'active'
-		},
-		{
-			name: 'Instagram Ads',
-			spend: 8900.00,
-			revenue: 42150.75,
-			roas: 4.74,
-			conversions: 134,
-			cpc: 0.66,
-			status: 'active'
-		},
-		{
-			name: 'Email Marketing',
-			spend: 2580.50,
-			revenue: 18766.30,
-			roas: 7.27,
-			conversions: 98,
-			cpc: 0.26,
-			status: 'active'
-		},
-		{
-			name: 'Influencer Marketing',
-			spend: 2500.00,
-			revenue: 10000.00,
-			roas: 4.00,
-			conversions: 45,
-			cpc: 0.55,
-			status: 'paused'
-		}
-	];
+	const channels: any[] = [];
 
-	const campaigns = [
-		{
-			id: 'CAM001',
-			name: 'Yaz Koleksiyonu 2024',
-			channel: 'Google Ads',
-			spend: 5420.00,
-			revenue: 28750.50,
-			roas: 5.30,
-			impressions: 450000,
-			clicks: 14500,
-			conversions: 89,
-			status: 'active'
-		},
-		{
-			id: 'CAM002',
-			name: 'Retargeting Kampanyası',
-			channel: 'Facebook Ads',
-			spend: 3200.00,
-			revenue: 19800.75,
-			roas: 6.19,
-			impressions: 280000,
-			clicks: 8900,
-			conversions: 67,
-			status: 'active'
-		},
-		{
-			id: 'CAM003',
-			name: 'Brand Awareness',
-			channel: 'Instagram Ads',
-			spend: 2800.00,
-			revenue: 12450.25,
-			roas: 4.45,
-			impressions: 650000,
-			clicks: 19500,
-			conversions: 45,
-			status: 'completed'
-		}
-	];
+	const campaigns: any[] = [];
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('tr-TR', {

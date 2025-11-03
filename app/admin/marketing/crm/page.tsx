@@ -6,71 +6,9 @@ export default function CRMPage() {
 	const [activeTab, setActiveTab] = useState('customers');
 	const [searchTerm, setSearchTerm] = useState('');
 
-	const customers = [
-		{
-			id: 'CUS001',
-			name: 'Ahmet Yılmaz',
-			email: 'ahmet@example.com',
-			phone: '+90 532 123 4567',
-			segment: 'VIP',
-			totalOrders: 15,
-			totalSpent: 12450.50,
-			lastOrder: '2024-01-10',
-			status: 'active'
-		},
-		{
-			id: 'CUS002',
-			name: 'Ayşe Demir',
-			email: 'ayse@example.com',
-			phone: '+90 533 987 6543',
-			segment: 'Regular',
-			totalOrders: 8,
-			totalSpent: 3200.00,
-			lastOrder: '2024-01-08',
-			status: 'active'
-		},
-		{
-			id: 'CUS003',
-			name: 'Mehmet Can',
-			email: 'mehmet@example.com',
-			phone: '+90 534 555 1234',
-			segment: 'New',
-			totalOrders: 2,
-			totalSpent: 450.75,
-			lastOrder: '2024-01-12',
-			status: 'active'
-		}
-	];
+	const customers: any[] = [];
 
-	const interactions = [
-		{
-			id: 'INT001',
-			customer: 'Ahmet Yılmaz',
-			type: 'email',
-			subject: 'Sipariş durumu sorgusu',
-			date: '2024-01-15 14:30',
-			status: 'resolved',
-			priority: 'medium'
-		},
-		{
-			id: 'INT002',
-			customer: 'Ayşe Demir',
-			type: 'phone',
-			subject: 'İade talebi',
-			date: '2024-01-15 11:15',
-			status: 'pending',
-			priority: 'high'
-		},
-		{
-			id: 'INT003',
-			customer: 'Mehmet Can',
-			type: 'chat',
-			subject: 'Ürün bilgisi',
-			date: '2024-01-15 09:45',
-			status: 'resolved',
-			priority: 'low'
-		}
-	];
+	const interactions: any[] = [];
 
 	const getSegmentColor = (segment: string) => {
 		switch (segment) {

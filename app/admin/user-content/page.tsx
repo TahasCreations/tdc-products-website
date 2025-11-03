@@ -6,131 +6,20 @@ export default function UserContentPage() {
 	const [activeTab, setActiveTab] = useState('overview');
 
 	const contentStats = {
-		totalContent: 2847,
-		blogPosts: 892,
-		productReviews: 1245,
-		comments: 567,
-		mediaUploads: 143,
-		activeContributors: 234,
-		monthlyGrowth: 18.5
+		totalContent: 0,
+		blogPosts: 0,
+		productReviews: 0,
+		comments: 0,
+		mediaUploads: 0,
+		activeContributors: 0,
+		monthlyGrowth: 0
 	};
 
-	const recentContent = [
-		{
-			id: 'UC001',
-			type: 'blog_post',
-			title: 'E-ticaret Pazarlama Stratejileri',
-			author: 'Ahmet Yılmaz',
-			authorEmail: 'ahmet@example.com',
-			createdAt: '2024-01-15 14:30',
-			status: 'published',
-			views: 1250,
-			likes: 89,
-			comments: 23
-		},
-		{
-			id: 'UC002',
-			type: 'product_review',
-			title: 'Kablosuz Kulaklık İncelemesi',
-			author: 'Ayşe Demir',
-			authorEmail: 'ayse@example.com',
-			createdAt: '2024-01-15 12:15',
-			status: 'published',
-			views: 567,
-			likes: 45,
-			comments: 12
-		},
-		{
-			id: 'UC003',
-			type: 'comment',
-			title: 'Ürün hakkında yorum',
-			author: 'Mehmet Can',
-			authorEmail: 'mehmet@example.com',
-			createdAt: '2024-01-15 10:45',
-			status: 'pending',
-			views: 0,
-			likes: 0,
-			comments: 0
-		},
-		{
-			id: 'UC004',
-			type: 'media_upload',
-			title: 'Ürün kullanım videosu',
-			author: 'Fatma Özkan',
-			authorEmail: 'fatma@example.com',
-			createdAt: '2024-01-14 16:20',
-			status: 'published',
-			views: 2340,
-			likes: 156,
-			comments: 34
-		}
-	];
+	const recentContent: any[] = [];
 
-	const topContributors = [
-		{
-			name: 'Ahmet Yılmaz',
-			email: 'ahmet@example.com',
-			contentCount: 45,
-			totalViews: 125000,
-			avgRating: 4.8,
-			joinDate: '2023-06-15',
-			badge: 'Expert Contributor'
-		},
-		{
-			name: 'Ayşe Demir',
-			email: 'ayse@example.com',
-			contentCount: 38,
-			totalViews: 89000,
-			avgRating: 4.6,
-			joinDate: '2023-08-20',
-			badge: 'Top Reviewer'
-		},
-		{
-			name: 'Mehmet Can',
-			email: 'mehmet@example.com',
-			contentCount: 29,
-			totalViews: 67000,
-			avgRating: 4.4,
-			joinDate: '2023-09-10',
-			badge: 'Active Writer'
-		}
-	];
+	const topContributors: any[] = [];
 
-	const campaigns = [
-		{
-			id: 'CAM001',
-			name: 'Yaz Koleksiyonu İnceleme Kampanyası',
-			description: 'Yaz ürünleri için kullanıcı inceleme kampanyası',
-			startDate: '2024-01-01',
-			endDate: '2024-01-31',
-			status: 'active',
-			participants: 156,
-			submissions: 89,
-			reward: '50 TL kupon'
-		},
-		{
-			id: 'CAM002',
-			name: 'Blog Yazarı Arama',
-			description: 'E-ticaret konularında blog yazarları arıyoruz',
-			startDate: '2024-01-10',
-			endDate: '2024-02-10',
-			status: 'active',
-			participants: 78,
-			submissions: 34,
-			reward: '200 TL ödeme'
-		},
-		{
-			id: 'CAM003',
-			name: 'Video İçerik Yarışması',
-			description: 'Ürün tanıtım videoları için yarışma',
-			startDate: '2023-12-15',
-			endDate: '2024-01-15',
-			status: 'completed',
-			participants: 234,
-			submissions: 67,
-			reward: '500 TL ödül'
-		}
-	];
+	const campaigns: any[] = [];
 
 	const getStatusColor = (status: string) => {
 		switch (status) {

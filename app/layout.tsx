@@ -4,6 +4,15 @@ import '../src/app/globals.css';
 import { Providers } from './providers';
 import FloatingChatWidget from '@/components/chat/FloatingChatWidget';
 import RecentSalesPopup from '@/components/social-proof/RecentSalesPopup';
+import { ToastProvider } from '@/components/ui/Toast';
+import ScrollToTop from '@/components/ui/ScrollToTop';
+import ExitIntentPopup from '@/components/ui/ExitIntentPopup';
+import AnalyticsProvider from '@/components/analytics/AnalyticsProvider';
+import InteractiveOnboarding from '@/components/onboarding/InteractiveOnboarding';
+import LiveActivityWidget from '@/components/social-proof/LiveActivityWidget';
+import WhatsAppButton from '@/components/whatsapp/WhatsAppButton';
+import DailyChallenges from '@/components/challenges/DailyChallenges';
+import VirtualShoppingAssistant from '@/components/ai/VirtualShoppingAssistant';
 
 // Optimize font loading
 const inter = Inter({
@@ -99,15 +108,26 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        {/* Manifest temporarily disabled to fix 404 errors */}
-        {/* <link rel="manifest" href="/manifest.json" /> */}
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <Providers>
-          {children}
-          <FloatingChatWidget />
-          <RecentSalesPopup />
-        </Providers>
+        <ToastProvider>
+          <AnalyticsProvider>
+            <Providers>
+              {children}
+              <FloatingChatWidget />
+              <RecentSalesPopup />
+              <ScrollToTop />
+              <ExitIntentPopup />
+              <InteractiveOnboarding />
+              <LiveActivityWidget />
+              <WhatsAppButton />
+              <DailyChallenges />
+              <VirtualShoppingAssistant />
+            </Providers>
+          </AnalyticsProvider>
+        </ToastProvider>
       </body>
     </html>
   );

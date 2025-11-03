@@ -1,104 +1,80 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Globe,
-  Check,
-  ChevronDown
-} from 'lucide-react';
-import { I18nService, supportedLanguages } from '@/lib/i18n/translations';
+import { Globe } from 'lucide-react';
+import { getCurrentLanguage, setLanguage, type Language } from '@/lib/i18n/translations';
 
-export const LanguageSwitcher: React.FC = () => {
+const languages = [
+  { code: 'tr' as Language, name: 'Türkçe', flag: '🇹🇷' },
+  { code: 'en' as Language, name: 'English', flag: '🇬🇧' },
+  { code: 'ar' as Language, name: 'العربية', flag: '🇸🇦' },
+  { code: 'ru' as Language, name: 'Русский', flag: '🇷🇺' }
+];
+
+export default function LanguageSwitcher() {
+  const [currentLang, setCurrentLang] = useState<Language>('tr');
   const [isOpen, setIsOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('en');
-  const [isMounted, setIsMounted] = useState(false); // Hydration fix
 
-  // Hydration fix
   useEffect(() => {
-    setIsMounted(true);
+    setCurrentLang(getCurrentLanguage());
   }, []);
 
-  useEffect(() => {
-    if (!isMounted) return; // Guard clause for SSR
-    
-    const detected = I18nService.detectLanguage();
-    setCurrentLang(detected);
-    I18nService.setLanguage(detected);
-  }, [isMounted]);
-
-  const handleLanguageChange = (code: string) => {
-    setCurrentLang(code);
-    I18nService.setLanguage(code);
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang);
     setIsOpen(false);
-    
-    // Reload page to apply language
-    if (typeof window !== 'undefined') {
-      window.location.reload();
-    }
   };
 
-  const current = supportedLanguages.find(l => l.code === currentLang);
+  const current = languages.find(l => l.code === currentLang) || languages[0];
 
   return (
     <div className="relative">
+      {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
+        className="flex items-center space-x-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-lg hover:border-indigo-300 transition-colors"
       >
         <Globe className="w-4 h-4 text-gray-600" />
-        <span className="text-lg">{current?.flag}</span>
-        <span className="text-sm font-medium text-gray-700">{current?.code.toUpperCase()}</span>
-        <ChevronDown className="w-4 h-4 text-gray-600" />
+        <span className="text-2xl">{current.flag}</span>
+        <span className="text-sm font-medium text-gray-700">{current.name}</span>
       </button>
 
+      {/* Dropdown */}
       <AnimatePresence>
         {isOpen && (
           <>
+            {/* Backdrop */}
             <div
               className="fixed inset-0 z-40"
               onClick={() => setIsOpen(false)}
             />
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="absolute top-full right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden"
-            >
-              {/* Header */}
-              <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
-                <h3 className="font-bold text-gray-900">Dil Seç</h3>
-                <p className="text-xs text-gray-600 mt-1">Tercih ettiğiniz dili seçin</p>
-              </div>
 
-              {/* Languages */}
-              <div className="max-h-80 overflow-y-auto">
-                {supportedLanguages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => handleLanguageChange(lang.code)}
-                    className={`w-full px-4 py-3 flex items-center justify-between hover:bg-gray-50 transition-colors ${
-                      currentLang === lang.code ? 'bg-blue-50' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{lang.flag}</span>
-                      <div className="text-left">
-                        <div className="text-sm font-semibold text-gray-900">{lang.nativeName}</div>
-                        <div className="text-xs text-gray-500">{lang.name}</div>
-                      </div>
-                    </div>
-                    {currentLang === lang.code && (
-                      <Check className="w-5 h-5 text-blue-600" />
-                    )}
-                  </button>
-                ))}
-              </div>
+            {/* Menu */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute top-full mt-2 right-0 bg-white rounded-xl shadow-2xl border-2 border-gray-200 overflow-hidden z-50 min-w-[200px]"
+            >
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => handleLanguageChange(lang.code)}
+                  className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-indigo-50 transition-colors ${
+                    lang.code === currentLang ? 'bg-indigo-50' : ''
+                  }`}
+                >
+                  <span className="text-2xl">{lang.flag}</span>
+                  <span className="font-medium text-gray-900">{lang.name}</span>
+                  {lang.code === currentLang && (
+                    <span className="ml-auto text-indigo-600">✓</span>
+                  )}
+                </button>
+              ))}
             </motion.div>
           </>
         )}
       </AnimatePresence>
     </div>
   );
-};
-
+}

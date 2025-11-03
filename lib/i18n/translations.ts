@@ -1,189 +1,221 @@
+/**
+ * Multi-Language Support
+ * Turkish, English, Arabic, Russian
+ */
+
+export type Language = 'tr' | 'en' | 'ar' | 'ru';
+
 export interface Translation {
   [key: string]: string | Translation;
 }
 
-export interface Language {
-  code: string;
-  name: string;
-  nativeName: string;
-  flag: string;
-  rtl: boolean;
-}
-
-export const supportedLanguages: Language[] = [
-  { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧', rtl: false },
-  { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', flag: '🇹🇷', rtl: false },
-  { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪', rtl: false },
-  { code: 'fr', name: 'French', nativeName: 'Français', flag: '🇫🇷', rtl: false },
-  { code: 'es', name: 'Spanish', nativeName: 'Español', flag: '🇪🇸', rtl: false },
-  { code: 'it', name: 'Italian', nativeName: 'Italiano', flag: '🇮🇹', rtl: false },
-  { code: 'pt', name: 'Portuguese', nativeName: 'Português', flag: '🇵🇹', rtl: false },
-  { code: 'ru', name: 'Russian', nativeName: 'Русский', flag: '🇷🇺', rtl: false },
-  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳', rtl: false },
-  { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵', rtl: false },
-  { code: 'ko', name: 'Korean', nativeName: '한국어', flag: '🇰🇷', rtl: false },
-  { code: 'ar', name: 'Arabic', nativeName: 'العربية', flag: '🇸🇦', rtl: true },
-  { code: 'he', name: 'Hebrew', nativeName: 'עברית', flag: '🇮🇱', rtl: true },
-];
-
-export const translations: Record<string, Translation> = {
-  en: {
-    common: {
-      home: 'Home',
-      products: 'Products',
-      cart: 'Cart',
-      checkout: 'Checkout',
-      search: 'Search',
-      login: 'Login',
-      signup: 'Sign Up',
-      logout: 'Logout',
-      profile: 'Profile',
-      settings: 'Settings',
-      save: 'Save',
-      cancel: 'Cancel',
-      delete: 'Delete',
-      edit: 'Edit',
-      add: 'Add',
-      remove: 'Remove',
-      loading: 'Loading...',
-      error: 'Error',
-      success: 'Success',
-    },
-    product: {
-      title: 'Products',
-      addToCart: 'Add to Cart',
-      buyNow: 'Buy Now',
-      price: 'Price',
-      description: 'Description',
-      reviews: 'Reviews',
-      related: 'Related Products',
-    },
-    cart: {
-      title: 'Shopping Cart',
-      empty: 'Your cart is empty',
-      subtotal: 'Subtotal',
-      shipping: 'Shipping',
-      total: 'Total',
-      checkout: 'Proceed to Checkout',
-    },
-  },
+export const translations: Record<Language, Translation> = {
+  // Turkish (Default)
   tr: {
     common: {
-      home: 'Ana Sayfa',
-      products: 'Ürünler',
-      cart: 'Sepet',
-      checkout: 'Ödeme',
       search: 'Ara',
+      cart: 'Sepet',
+      wishlist: 'Favoriler',
+      account: 'Hesabım',
+      logout: 'Çıkış',
       login: 'Giriş',
       signup: 'Kayıt Ol',
-      logout: 'Çıkış',
-      profile: 'Profil',
-      settings: 'Ayarlar',
-      save: 'Kaydet',
-      cancel: 'İptal',
-      delete: 'Sil',
-      edit: 'Düzenle',
-      add: 'Ekle',
-      remove: 'Kaldır',
-      loading: 'Yükleniyor...',
-      error: 'Hata',
-      success: 'Başarılı',
-    },
-    product: {
-      title: 'Ürünler',
       addToCart: 'Sepete Ekle',
       buyNow: 'Hemen Al',
+      outOfStock: 'Stokta Yok',
+      inStock: 'Stokta',
+      categories: 'Kategoriler',
       price: 'Fiyat',
-      description: 'Açıklama',
-      reviews: 'Yorumlar',
-      related: 'İlgili Ürünler',
+      rating: 'Değerlendirme',
+      reviews: 'Yorumlar'
     },
-    cart: {
-      title: 'Alışveriş Sepeti',
-      empty: 'Sepetiniz boş',
+    product: {
+      details: 'Ürün Detayları',
+      specifications: 'Özellikler',
+      reviews: 'Müşteri Yorumları',
+      relatedProducts: 'Benzer Ürünler',
+      shipping: 'Kargo Bilgisi',
+      returns: 'İade Koşulları'
+    },
+    checkout: {
+      title: 'Ödeme',
+      shippingAddress: 'Teslimat Adresi',
+      paymentMethod: 'Ödeme Yöntemi',
+      orderSummary: 'Sipariş Özeti',
+      placeOrder: 'Siparişi Tamamla',
+      total: 'Toplam',
       subtotal: 'Ara Toplam',
       shipping: 'Kargo',
-      total: 'Toplam',
-      checkout: 'Ödemeye Geç',
-    },
+      tax: 'KDV'
+    }
   },
+
+  // English
+  en: {
+    common: {
+      search: 'Search',
+      cart: 'Cart',
+      wishlist: 'Wishlist',
+      account: 'My Account',
+      logout: 'Logout',
+      login: 'Login',
+      signup: 'Sign Up',
+      addToCart: 'Add to Cart',
+      buyNow: 'Buy Now',
+      outOfStock: 'Out of Stock',
+      inStock: 'In Stock',
+      categories: 'Categories',
+      price: 'Price',
+      rating: 'Rating',
+      reviews: 'Reviews'
+    },
+    product: {
+      details: 'Product Details',
+      specifications: 'Specifications',
+      reviews: 'Customer Reviews',
+      relatedProducts: 'Related Products',
+      shipping: 'Shipping Info',
+      returns: 'Return Policy'
+    },
+    checkout: {
+      title: 'Checkout',
+      shippingAddress: 'Shipping Address',
+      paymentMethod: 'Payment Method',
+      orderSummary: 'Order Summary',
+      placeOrder: 'Place Order',
+      total: 'Total',
+      subtotal: 'Subtotal',
+      shipping: 'Shipping',
+      tax: 'Tax'
+    }
+  },
+
+  // Arabic
+  ar: {
+    common: {
+      search: 'بحث',
+      cart: 'عربة التسوق',
+      wishlist: 'المفضلة',
+      account: 'حسابي',
+      logout: 'تسجيل خروج',
+      login: 'تسجيل الدخول',
+      signup: 'إنشاء حساب',
+      addToCart: 'أضف إلى السلة',
+      buyNow: 'اشتر الآن',
+      outOfStock: 'غير متوفر',
+      inStock: 'متوفر',
+      categories: 'الفئات',
+      price: 'السعر',
+      rating: 'التقييم',
+      reviews: 'المراجعات'
+    },
+    product: {
+      details: 'تفاصيل المنتج',
+      specifications: 'المواصفات',
+      reviews: 'آراء العملاء',
+      relatedProducts: 'منتجات ذات صلة',
+      shipping: 'معلومات الشحن',
+      returns: 'سياسة الإرجاع'
+    },
+    checkout: {
+      title: 'الدفع',
+      shippingAddress: 'عنوان الشحن',
+      paymentMethod: 'طريقة الدفع',
+      orderSummary: 'ملخص الطلب',
+      placeOrder: 'إتمام الطلب',
+      total: 'المجموع',
+      subtotal: 'المجموع الفرعي',
+      shipping: 'الشحن',
+      tax: 'الضريبة'
+    }
+  },
+
+  // Russian
+  ru: {
+    common: {
+      search: 'Поиск',
+      cart: 'Корзина',
+      wishlist: 'Избранное',
+      account: 'Мой Аккаунт',
+      logout: 'Выход',
+      login: 'Вход',
+      signup: 'Регистрация',
+      addToCart: 'В корзину',
+      buyNow: 'Купить сейчас',
+      outOfStock: 'Нет в наличии',
+      inStock: 'В наличии',
+      categories: 'Категории',
+      price: 'Цена',
+      rating: 'Рейтинг',
+      reviews: 'Отзывы'
+    },
+    product: {
+      details: 'Детали продукта',
+      specifications: 'Характеристики',
+      reviews: 'Отзывы покупателей',
+      relatedProducts: 'Похожие товары',
+      shipping: 'Доставка',
+      returns: 'Возврат'
+    },
+    checkout: {
+      title: 'Оформление заказа',
+      shippingAddress: 'Адрес доставки',
+      paymentMethod: 'Способ оплаты',
+      orderSummary: 'Итого',
+      placeOrder: 'Оформить заказ',
+      total: 'Всего',
+      subtotal: 'Промежуточный итог',
+      shipping: 'Доставка',
+      tax: 'Налог'
+    }
+  }
 };
 
-export class I18nService {
-  private static currentLanguage = 'en';
+/**
+ * Get translation
+ */
+export function t(key: string, lang: Language = 'tr'): string {
+  const keys = key.split('.');
+  let value: any = translations[lang];
 
-  /**
-   * Get translation
-   */
-  static t(key: string, language?: string): string {
-    const lang = language || this.currentLanguage;
-    const keys = key.split('.');
-    let value: any = translations[lang];
-
-    for (const k of keys) {
-      value = value?.[k];
+  for (const k of keys) {
+    if (value && typeof value === 'object') {
+      value = value[k];
+    } else {
+      return key; // Fallback to key
     }
-
-    return value || key;
   }
 
-  /**
-   * Set current language
-   */
-  static setLanguage(language: string): void {
-    this.currentLanguage = language;
-    localStorage.setItem('preferred-language', language);
-  }
-
-  /**
-   * Get current language
-   */
-  static getLanguage(): string {
-    return this.currentLanguage;
-  }
-
-  /**
-   * Detect user language
-   */
-  static detectLanguage(): string {
-    // Check localStorage
-    const saved = localStorage.getItem('preferred-language');
-    if (saved) return saved;
-
-    // Check browser language
-    const browserLang = navigator.language.split('-')[0];
-    if (supportedLanguages.find(l => l.code === browserLang)) {
-      return browserLang;
-    }
-
-    return 'en';
-  }
-
-  /**
-   * Format currency
-   */
-  static formatCurrency(amount: number, currency: string, language?: string): string {
-    const lang = language || this.currentLanguage;
-    return new Intl.NumberFormat(lang, {
-      style: 'currency',
-      currency,
-    }).format(amount);
-  }
-
-  /**
-   * Format date
-   */
-  static formatDate(date: Date, language?: string): string {
-    const lang = language || this.currentLanguage;
-    return new Intl.DateTimeFormat(lang).format(date);
-  }
-
-  /**
-   * Format number
-   */
-  static formatNumber(number: number, language?: string): string {
-    const lang = language || this.currentLanguage;
-    return new Intl.NumberFormat(lang).format(number);
-  }
+  return typeof value === 'string' ? value : key;
 }
 
+/**
+ * Get current language from localStorage
+ */
+export function getCurrentLanguage(): Language {
+  if (typeof window === 'undefined') return 'tr';
+  return (localStorage.getItem('language') as Language) || 'tr';
+}
+
+/**
+ * Set language
+ */
+export function setLanguage(lang: Language): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('language', lang);
+  window.location.reload();
+}
+
+/**
+ * Detect browser language
+ */
+export function detectBrowserLanguage(): Language {
+  if (typeof window === 'undefined') return 'tr';
+  
+  const browserLang = navigator.language.split('-')[0];
+  const supportedLangs: Language[] = ['tr', 'en', 'ar', 'ru'];
+  
+  return supportedLangs.includes(browserLang as Language) 
+    ? (browserLang as Language)
+    : 'tr';
+}

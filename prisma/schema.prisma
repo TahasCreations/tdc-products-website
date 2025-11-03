@@ -11,6 +11,7 @@ datasource db {
 }
 
 // === USER MANAGEMENT ===
+// Not: User artık birden fazla role sahip olabilir (roles array)
 enum Role {
   BUYER
   SELLER
@@ -31,7 +32,8 @@ model User {
   email         String?  @unique
   emailVerified DateTime?
   image         String?
-  role          Role     @default(BUYER)
+  role          Role     @default(BUYER) // Ana role (geriye dönük uyumluluk)
+  roles         String?  // Multi-role: JSON array ["BUYER", "SELLER", "INFLUENCER"]
   isActive      Boolean  @default(true)
   emailPreferences Json?  // Email bildirim tercihleri
   
@@ -66,6 +68,15 @@ model User {
   // Loyalty program
   loyaltyPoints LoyaltyPoints?
   
+  // Seller reviews
+  sellerReviews SellerReview[]
+  
+  // Digital licenses
+  digitalLicenses DigitalLicense[]
+  
+  // Support tickets
+  supportTickets SupportTicket[]
+  
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -83,6 +94,7 @@ model SellerProfile {
   policiesJson   Json?   // shipping, returns, etc.
   rating         Float   @default(0)
   totalSales     Int     @default(0)
+  reviewCount    Int     @default(0)
   
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   products       Product[]
@@ -93,6 +105,7 @@ model SellerProfile {
   adCampaigns    AdCampaign[]
   domainAllowances DomainAllowance[]
   collaborations Collaboration[]
+  sellerReviews  SellerReview[]
   
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -121,23 +134,37 @@ model Subscription {
 }
 
 // === PRODUCT MANAGEMENT ===
+enum ProductType {
+  PHYSICAL   // Fiziksel ürün (kargo gerekir)
+  DIGITAL    // Dijital ürün (download)
+  SERVICE    // Hizmet
+}
+
 model Product {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   title       String
-  slug        String   @unique
+  slug        String      @unique
   description String?
-  category    String   // Ana kategori (figur-koleksiyon, moda-aksesuar, etc.)
-  subcategory String?  // Alt kategori
+  category    String      // Ana kategori (figur-koleksiyon, moda-aksesuar, etc.)
+  subcategory String?     // Alt kategori (stl-dosyalari, etc.)
+  productType ProductType @default(PHYSICAL) // Ürün tipi
   price       Float
-  listPrice   Float? // İndirimli fiyat için
-  currency    String   @default("TRY")
-  stock       Int      @default(0)
-  images      String   // JSON string olarak sakla
-  attributes  Json?    // Renk, beden, malzeme vb.
-  tags        String   // JSON string olarak sakla
-  rating      Float    @default(0)
-  reviewCount Int      @default(0)
-  isActive    Boolean  @default(true)
+  listPrice   Float?      // İndirimli fiyat için
+  currency    String      @default("TRY")
+  stock       Int         @default(0) // Dijital ürünlerde sınırsız olabilir (-1)
+  images      String      // JSON string olarak sakla
+  attributes  Json?       // Renk, beden, malzeme vb.
+  tags        String      // JSON string olarak sakla
+  rating      Float       @default(0)
+  reviewCount Int         @default(0)
+  isActive    Boolean     @default(true)
+  
+  // Dijital ürün özellikleri
+  fileUrl     String?     // Dijital dosya URL (güvenli download link)
+  fileSize    Int?        // Dosya boyutu (bytes)
+  fileFormat  String?     // zip, stl, pdf, etc.
+  downloadLimit Int?      // Download limiti (null = sınırsız)
+  licenseType String?     // personal, commercial, etc.
   
   sellerId    String
   seller      SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
@@ -152,9 +179,34 @@ model Product {
   recommendedBy ProductReco[] @relation("RecommendedProducts")
   shippingEstimate ShippingEstimate?
   variants      ProductVariant[]
+  digitalLicenses DigitalLicense[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// === DIGITAL PRODUCTS ===
+model DigitalLicense {
+  id          String   @id @default(cuid())
+  productId   String
+  orderId     String
+  userId      String
+  licenseKey  String   @unique // Benzersiz lisans anahtarı
+  downloadUrl String   // Güvenli, süreli download link
+  downloadCount Int    @default(0)
+  maxDownloads  Int    @default(5) // Maksimum download sayısı
+  expiresAt   DateTime? // Link son kullanma tarihi
+  isActive    Boolean  @default(true)
+  
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  lastDownloadAt DateTime?
+  
+  @@index([userId])
+  @@index([orderId])
+  @@index([licenseKey])
 }
 
 // === ORDER MANAGEMENT ===
@@ -284,6 +336,39 @@ model ReviewLike {
   createdAt DateTime @default(now())
   
   @@unique([userId, reviewId])
+}
+
+// === SELLER REVIEWS ===
+model SellerReview {
+  id        String   @id @default(cuid())
+  userId    String
+  sellerId  String
+  orderId   String?  // Sipariş referansı (verified purchase için)
+  rating    Int      // 1-5
+  
+  // Değerlendirme kriterleri
+  communicationRating  Int? // İletişim (1-5)
+  shippingSpeedRating  Int? // Kargo Hızı (1-5)
+  productQualityRating Int? // Ürün Kalitesi (1-5)
+  
+  title     String?  // Değerlendirme başlığı
+  comment   String?  // Değerlendirme yorumu
+  pros      String?  // JSON string olarak artıları
+  cons      String?  // JSON string olarak eksileri
+  isVerified Boolean @default(false) // Doğrulanmış alışveriş
+  isHelpful Int      @default(0) // Yararlı bulundu sayısı
+  sellerResponse String? // Satıcı yanıtı
+  sellerResponseAt DateTime? // Satıcı yanıt tarihi
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seller    SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([sellerId])
+  @@index([userId])
+  @@unique([userId, sellerId, orderId])
 }
 
 // === WEBHOOK EVENTS ===
@@ -902,18 +987,139 @@ model MediaHistory {
   @@index([assetId, createdAt])
 }
 
-// === CUSTOMER SUPPORT CHAT ===
+// === CUSTOMER SUPPORT SYSTEM ===
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  SYSTEM
+}
+
+model SupportTicket {
+  id          String         @id @default(cuid())
+  ticketNumber String        @unique // TDC-2024-00001
+  userId      String?
+  sessionId   String         // Guest tracking
+  subject     String
+  category    String         // order, product, payment, technical, other
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+  assignedTo  String?        // Agent user ID
+  tags        String?        // JSON array
+  rating      Int?           // 1-5 (after resolution)
+  ratingComment String?
+  
+  // AI Analysis
+  aiIntent    String?
+  aiSentiment String?
+  aiSummary   String?
+  
+  user        User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  messages    SupportMessage[]
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  resolvedAt  DateTime?
+  closedAt    DateTime?
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@index([status, priority])
+  @@index([assignedTo])
+  @@index([createdAt])
+}
+
+model SupportMessage {
+  id          String      @id @default(cuid())
+  ticketId    String
+  senderId    String?     // User or agent ID
+  senderType  String      // user, agent, system, ai
+  messageType MessageType @default(TEXT)
+  content     String
+  attachments String?     // JSON array of file URLs
+  isInternal  Boolean     @default(false) // Internal notes
+  readAt      DateTime?
+  
+  ticket      SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime    @default(now())
+  
+  @@index([ticketId, createdAt])
+  @@index([senderId])
+}
+
+model SupportAgent {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  name        String
+  email       String
+  avatar      String?
+  isOnline    Boolean  @default(false)
+  isAvailable Boolean  @default(true)
+  maxTickets  Int      @default(10)
+  
+  // Stats
+  totalTickets    Int   @default(0)
+  resolvedTickets Int   @default(0)
+  avgResponseTime Int?  // seconds
+  avgRating       Float @default(0)
+  
+  // Specialties
+  categories  String?  // JSON array
+  languages   String?  // JSON array
+  
+  lastActiveAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([isOnline, isAvailable])
+}
+
+model CannedResponse {
+  id          String   @id @default(cuid())
+  title       String
+  shortcut    String   @unique // /greeting, /refund, etc.
+  content     String
+  category    String   // greeting, order, payment, technical
+  language    String   @default("tr")
+  isActive    Boolean  @default(true)
+  usageCount  Int      @default(0)
+  
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([category])
+  @@index([shortcut])
+}
+
+// Legacy ChatMessage (keep for backwards compatibility)
 model ChatMessage {
   id          String   @id @default(cuid())
-  userId      String?  // Null for guest users
-  sessionId   String   // Session identifier for guest tracking
+  userId      String?
+  sessionId   String
   message     String
   response    String
-  intent      String?  // order_status, return, shipping, etc.
-  sentiment   String?  // positive, negative, neutral
+  intent      String?
+  sentiment   String?
   isResolved  Boolean  @default(false)
   needsHuman  Boolean  @default(false)
-  assignedTo  String?  // Admin/Support user ID
+  assignedTo  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   

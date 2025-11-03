@@ -6,127 +6,18 @@ export default function CustomerRelationsPage() {
 	const [activeTab, setActiveTab] = useState('overview');
 	const [selectedSegment, setSelectedSegment] = useState('all');
 
-	const customers = [
-		{
-			id: 'CUST-001',
-			name: 'Ahmet Yılmaz',
-			email: 'ahmet@example.com',
-			phone: '+90 532 123 4567',
-			segment: 'VIP',
-			totalOrders: 24,
-			totalSpent: 45680,
-			lastOrder: '2024-01-15',
-			lifetimeValue: 52340,
-			status: 'active',
-			tags: ['anime-fan', 'frequent-buyer', 'loyal']
-		},
-		{
-			id: 'CUST-002',
-			name: 'Fatma Demir',
-			email: 'fatma@example.com',
-			phone: '+90 533 456 7890',
-			segment: 'Regular',
-			totalOrders: 8,
-			totalSpent: 15420,
-			lastOrder: '2024-01-12',
-			lifetimeValue: 18650,
-			status: 'active',
-			tags: ['vintage-collector', 'new-customer']
-		},
-		{
-			id: 'CUST-003',
-			name: 'Mehmet Kaya',
-			email: 'mehmet@example.com',
-			phone: '+90 534 789 0123',
-			segment: 'At Risk',
-			totalOrders: 15,
-			totalSpent: 28340,
-			lastOrder: '2023-11-20',
-			lifetimeValue: 31200,
-			status: 'inactive',
-			tags: ['tech-enthusiast', 'price-sensitive']
-		}
-	];
+	const customers: any[] = [];
 
-	const campaigns = [
-		{
-			id: 'CAMP-001',
-			name: 'VIP Müşteri Ödülleri',
-			type: 'Email',
-			target: 'VIP',
-			status: 'active',
-			sent: 156,
-			opened: 124,
-			clicked: 45,
-			converted: 12,
-			revenue: 15680,
-			startDate: '2024-01-10',
-			endDate: '2024-01-31'
-		},
-		{
-			id: 'CAMP-002',
-			name: 'Geri Kazanma Kampanyası',
-			type: 'SMS + Email',
-			target: 'At Risk',
-			status: 'completed',
-			sent: 89,
-			opened: 56,
-			clicked: 23,
-			converted: 8,
-			revenue: 5420,
-			startDate: '2024-01-05',
-			endDate: '2024-01-15'
-		}
-	];
+	const campaigns: any[] = [];
 
-	const interactions = [
-		{
-			id: 'INT-001',
-			customerId: 'CUST-001',
-			customerName: 'Ahmet Yılmaz',
-			type: 'email',
-			channel: 'Email Desteği',
-			subject: 'Ürün iade talebi',
-			status: 'resolved',
-			priority: 'medium',
-			assignedTo: 'Müşteri Hizmetleri',
-			createdAt: '2024-01-15 14:30:25',
-			resolvedAt: '2024-01-15 16:45:12'
-		},
-		{
-			id: 'INT-002',
-			customerId: 'CUST-002',
-			customerName: 'Fatma Demir',
-			type: 'phone',
-			channel: 'Telefon',
-			subject: 'Sipariş durumu sorgusu',
-			status: 'resolved',
-			priority: 'low',
-			assignedTo: 'Satış Ekibi',
-			createdAt: '2024-01-14 11:20:15',
-			resolvedAt: '2024-01-14 11:35:40'
-		},
-		{
-			id: 'INT-003',
-			customerId: 'CUST-003',
-			customerName: 'Mehmet Kaya',
-			type: 'chat',
-			channel: 'Canlı Destek',
-			subject: 'Ürün önerisi talebi',
-			status: 'open',
-			priority: 'high',
-			assignedTo: 'Satış Danışmanı',
-			createdAt: '2024-01-15 09:15:30',
-			resolvedAt: null
-		}
-	];
+	const interactions: any[] = [];
 
 	const segments = [
-		{ id: 'all', name: 'Tüm Müşteriler', count: 8934, color: 'bg-gray-100 text-gray-800' },
-		{ id: 'VIP', name: 'VIP Müşteriler', count: 234, color: 'bg-purple-100 text-purple-800' },
-		{ id: 'Regular', name: 'Düzenli Müşteriler', count: 3456, color: 'bg-blue-100 text-blue-800' },
-		{ id: 'New', name: 'Yeni Müşteriler', count: 1890, color: 'bg-green-100 text-green-800' },
-		{ id: 'At Risk', name: 'Risk Altındaki', count: 456, color: 'bg-red-100 text-red-800' }
+		{ id: 'all', name: 'Tüm Müşteriler', count: 0, color: 'bg-gray-100 text-gray-800' },
+		{ id: 'VIP', name: 'VIP Müşteriler', count: 0, color: 'bg-purple-100 text-purple-800' },
+		{ id: 'Regular', name: 'Düzenli Müşteriler', count: 0, color: 'bg-blue-100 text-blue-800' },
+		{ id: 'New', name: 'Yeni Müşteriler', count: 0, color: 'bg-green-100 text-green-800' },
+		{ id: 'At Risk', name: 'Risk Altındaki', count: 0, color: 'bg-red-100 text-red-800' }
 	];
 
 	const formatCurrency = (amount: number) => {

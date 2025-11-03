@@ -7,12 +7,12 @@ export default function SecurityManagementPage() {
 	const [alertLevel, setAlertLevel] = useState('all');
 
 	const securityStats = {
-		totalThreats: 1247,
-		blockedAttacks: 1198,
-		activeAlerts: 12,
-		resolvedIncidents: 235,
-		vulnerabilities: 8,
-		securityScore: 94,
+		totalThreats: 0,
+		blockedAttacks: 0,
+		activeAlerts: 0,
+		resolvedIncidents: 0,
+		vulnerabilities: 0,
+		securityScore: 0,
 		lastScan: '2024-01-15 14:30:00',
 		nextScan: '2024-01-15 20:00:00'
 	};

@@ -18,16 +18,35 @@ export async function middleware(request: NextRequest) {
   // If it's a custom domain, handle multi-tenant routing
   if (!isMainDomain) {
     try {
-      // In production, you would query your database here to find the seller
-      // For now, we'll pass the hostname in headers
-      const response = NextResponse.next();
-      response.headers.set('x-custom-domain', hostname);
-      response.headers.set('x-is-custom-domain', 'true');
+      // Query database to find verified domain
+      // Note: In production, cache this lookup for performance
+      const domainData = await fetch(`${request.nextUrl.origin}/api/domains/resolve?hostname=${hostname}`, {
+        headers: {
+          'x-internal-request': 'true'
+        }
+      }).then(res => res.json()).catch(() => null);
       
-      // Rewrite to the store page
-      return NextResponse.rewrite(new URL(`/store/${currentHost}${pathname}`, request.url));
+      if (domainData && domainData.seller) {
+        // Valid custom domain found
+        const response = NextResponse.next();
+        response.headers.set('x-custom-domain', hostname);
+        response.headers.set('x-is-custom-domain', 'true');
+        response.headers.set('x-seller-id', domainData.seller.id);
+        response.headers.set('x-seller-slug', domainData.seller.storeSlug);
+        response.headers.set('x-store-name', domainData.seller.storeName);
+        
+        // Rewrite to the store page with seller context
+        return NextResponse.rewrite(
+          new URL(`/store/${domainData.seller.storeSlug}${pathname}`, request.url)
+        );
+      } else {
+        // Domain not found or not verified
+        return NextResponse.redirect(new URL('https://tdcmarket.com', request.url));
+      }
     } catch (error) {
       console.error('Multi-tenant routing error:', error);
+      // Fallback to main domain
+      return NextResponse.redirect(new URL('https://tdcmarket.com', request.url));
     }
   }
 
@@ -53,7 +72,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Partner panel protection (Seller + Influencer)
+  // Partner panel protection (Seller + Influencer + Multi-role support)
   if (pathname.startsWith('/partner')) {
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
     
@@ -61,8 +80,15 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/giris?redirect=/partner', request.url));
     }
 
+    // Multi-role support: Check both role and roles fields
     const userRole = token.role as string;
-    if (!['SELLER', 'INFLUENCER', 'ADMIN'].includes(userRole)) {
+    const userRoles = token.roles ? JSON.parse(token.roles as string) : [userRole];
+    
+    const hasPermission = ['SELLER', 'INFLUENCER', 'ADMIN'].some(role => 
+      userRoles.includes(role)
+    );
+    
+    if (!hasPermission) {
       return NextResponse.redirect(new URL('/403', request.url));
     }
   }
