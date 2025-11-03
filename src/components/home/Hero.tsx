@@ -25,9 +25,9 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
     }
   };
 
-  const handleSellerPortal = () => {
-    // Redirect to seller registration or login
-    window.location.href = '/seller/register';
+  const handleFiguresCategory = () => {
+    // Redirect to Figures & Collection category
+    window.location.href = '/categories/figur-koleksiyon';
   };
 
   return (
@@ -170,7 +170,7 @@ export default function Hero({ onSearch, onCollectionClick }: HeroProps) {
               <motion.button
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={handleSellerPortal}
+                onClick={handleFiguresCategory}
                 className="group relative px-6 sm:px-8 py-3 sm:py-4 border-2 border-ink-300 text-ink-700 rounded-2xl font-semibold text-base sm:text-lg hover:border-indigo-400 hover:text-indigo-600 transition-all duration-300 bg-white/50 backdrop-blur-sm touch-manipulation min-h-[48px]"
               >
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-50 to-coral-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

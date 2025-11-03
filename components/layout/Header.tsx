@@ -10,6 +10,7 @@ import { Search, Heart, ShoppingCart, User, Menu } from "lucide-react";
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isPartnerDropdownOpen, setIsPartnerDropdownOpen] = useState(false);
 
   // Handle scroll effect
   useEffect(() => {
@@ -123,60 +124,82 @@ export default function Header() {
           <motion.div 
             whileHover={{ scale: 1.05 }} 
             whileTap={{ scale: 0.95 }}
-            className="relative group"
+            className="relative"
+            onMouseEnter={() => setIsPartnerDropdownOpen(true)}
+            onMouseLeave={() => setIsPartnerDropdownOpen(false)}
           >
-            <button className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium text-sm hover:shadow-lg transition-all flex items-center space-x-1">
+            <button 
+              onClick={() => setIsPartnerDropdownOpen(!isPartnerDropdownOpen)}
+              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium text-sm hover:shadow-lg transition-all flex items-center space-x-1"
+            >
               <span>👥</span>
               <span>Partner Girişi</span>
-              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg 
+                className={`w-4 h-4 ml-1 transition-transform duration-200 ${isPartnerDropdownOpen ? 'rotate-180' : ''}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
             
             {/* Dropdown */}
-            <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border-2 border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              <div className="p-2">
-                <Link
-                  href="/giris?type=seller"
-                  className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-indigo-50 transition-all"
-                >
-                  <span className="text-xl">🏪</span>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-900">Satıcı Girişi</div>
-                    <div className="text-xs text-gray-500">Mağazanızı yönetin</div>
-                  </div>
-                </Link>
-                <Link
-                  href="/giris?type=influencer"
-                  className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-pink-50 transition-all"
-                >
-                  <span className="text-xl">⭐</span>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-900">Influencer Girişi</div>
-                    <div className="text-xs text-gray-500">Kampanyalarınızı yönetin</div>
-                  </div>
-                </Link>
-                <div className="border-t border-gray-200 my-2"></div>
-                <Link
-                  href="/partner/satici-ol"
-                  className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-all"
-                >
-                  <span className="text-xl">📝</span>
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-700 text-sm">Satıcı Ol</div>
-                  </div>
-                </Link>
-                <Link
-                  href="/partner/influencer-ol"
-                  className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-all"
-                >
-                  <span className="text-xl">✨</span>
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-700 text-sm">Influencer Ol</div>
-                  </div>
-                </Link>
-              </div>
-            </div>
+            {isPartnerDropdownOpen && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border-2 border-gray-200 z-50"
+              >
+                <div className="p-2">
+                  <Link
+                    href="/giris?type=seller"
+                    onClick={() => setIsPartnerDropdownOpen(false)}
+                    className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-indigo-50 transition-all"
+                  >
+                    <span className="text-xl">🏪</span>
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">Satıcı Girişi</div>
+                      <div className="text-xs text-gray-500">Mağazanızı yönetin</div>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/giris?type=influencer"
+                    onClick={() => setIsPartnerDropdownOpen(false)}
+                    className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-pink-50 transition-all"
+                  >
+                    <span className="text-xl">⭐</span>
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">Influencer Girişi</div>
+                      <div className="text-xs text-gray-500">Kampanyalarınızı yönetin</div>
+                    </div>
+                  </Link>
+                  <div className="border-t border-gray-200 my-2"></div>
+                  <Link
+                    href="/partner/satici-ol"
+                    onClick={() => setIsPartnerDropdownOpen(false)}
+                    className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-all"
+                  >
+                    <span className="text-xl">📝</span>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-700 text-sm">Satıcı Ol</div>
+                    </div>
+                  </Link>
+                  <Link
+                    href="/partner/influencer-ol"
+                    onClick={() => setIsPartnerDropdownOpen(false)}
+                    className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-all"
+                  >
+                    <span className="text-xl">✨</span>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-700 text-sm">Influencer Ol</div>
+                    </div>
+                  </Link>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
 
           <motion.button
