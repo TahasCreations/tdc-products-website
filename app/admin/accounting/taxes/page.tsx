@@ -5,35 +5,7 @@ import { useState } from 'react';
 export default function TaxesPage() {
 	const [selectedPeriod, setSelectedPeriod] = useState('2024-01');
 
-	const taxReturns = [
-		{
-			id: 'KDV-2024-01',
-			period: 'Ocak 2024',
-			type: 'KDV Beyannamesi',
-			dueDate: '2024-02-26',
-			status: 'Hazırlandı',
-			taxAmount: '₺12,450.00',
-			penalty: '₺0.00'
-		},
-		{
-			id: 'GV-2023-12',
-			period: 'Aralık 2023',
-			type: 'Gelir Vergisi',
-			dueDate: '2024-01-25',
-			status: 'Verildi',
-			taxAmount: '₺8,900.00',
-			penalty: '₺0.00'
-		},
-		{
-			id: 'KDV-2023-12',
-			period: 'Aralık 2023',
-			type: 'KDV Beyannamesi',
-			dueDate: '2024-01-26',
-			status: 'Gecikti',
-			taxAmount: '₺15,670.00',
-			penalty: '₺450.00'
-		}
-	];
+	const [taxReturns, setTaxReturns] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -62,19 +34,19 @@ export default function TaxesPage() {
 			{/* Tax Summary */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-blue-600">₺36,120</div>
+					<div className="text-lg font-semibold text-blue-600">₺0</div>
 					<div className="text-sm text-gray-600">Bu Yıl KDV</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-green-600">₺18,900</div>
+					<div className="text-lg font-semibold text-green-600">₺0</div>
 					<div className="text-sm text-gray-600">Gelir Vergisi</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-red-600">₺450</div>
+					<div className="text-lg font-semibold text-red-600">₺0</div>
 					<div className="text-sm text-gray-600">Gecikme Cezası</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">₺55,470</div>
+					<div className="text-lg font-semibold text-purple-600">₺0</div>
 					<div className="text-sm text-gray-600">Toplam Vergi</div>
 				</div>
 			</div>
@@ -150,42 +122,52 @@ export default function TaxesPage() {
 							</tr>
 						</thead>
 						<tbody className="bg-white divide-y divide-gray-200">
-							{taxReturns.map((tax) => (
-								<tr key={tax.id} className="hover:bg-gray-50">
-									<td className="px-6 py-4 whitespace-nowrap">
-										<div className="font-medium text-gray-900">{tax.type}</div>
-										<div className="text-sm text-gray-500">{tax.id}</div>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{tax.period}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{tax.dueDate}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-										{tax.taxAmount}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">
-										{tax.penalty}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap">
-										<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(tax.status)}`}>
-											{tax.status}
-										</span>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-										<button className="text-indigo-600 hover:text-indigo-900 mr-3">
-											Görüntüle
-										</button>
-										<button className="text-green-600 hover:text-green-900 mr-3">
-											İndir
-										</button>
-										<button className="text-blue-600 hover:text-blue-900">
-											Gönder
-										</button>
+							{taxReturns.length === 0 ? (
+								<tr>
+									<td colSpan={7} className="px-6 py-12 text-center">
+										<div className="text-6xl mb-4">📋</div>
+										<p className="text-gray-500 text-lg mb-2">Henüz Vergi Beyannamesi Yok</p>
+										<p className="text-gray-400 text-sm">Vergi beyannameleriniz burada görünecek</p>
 									</td>
 								</tr>
-							))}
+							) : (
+								taxReturns.map((tax) => (
+									<tr key={tax.id} className="hover:bg-gray-50">
+										<td className="px-6 py-4 whitespace-nowrap">
+											<div className="font-medium text-gray-900">{tax.type}</div>
+											<div className="text-sm text-gray-500">{tax.id}</div>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{tax.period}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{tax.dueDate}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+											{tax.taxAmount}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">
+											{tax.penalty}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap">
+											<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(tax.status)}`}>
+												{tax.status}
+											</span>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+											<button className="text-indigo-600 hover:text-indigo-900 mr-3">
+												Görüntüle
+											</button>
+											<button className="text-green-600 hover:text-green-900 mr-3">
+												İndir
+											</button>
+											<button className="text-blue-600 hover:text-blue-900">
+												Gönder
+											</button>
+										</td>
+									</tr>
+								))
+							)}
 						</tbody>
 					</table>
 				</div>

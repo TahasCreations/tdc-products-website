@@ -8,80 +8,29 @@ export default function ForecastingPage() {
 	const [activeTab, setActiveTab] = useState('revenue');
 
 	const models = [
-		{ id: 'autoarima', name: 'Auto ARIMA', accuracy: 95.3, description: 'Otomatik zaman serisi analizi' },
-		{ id: 'lstm', name: 'LSTM Neural Network', accuracy: 92.1, description: 'Derin öğrenme tabanlı tahmin' },
-		{ id: 'prophet', name: 'Facebook Prophet', accuracy: 89.7, description: 'Mevsimsel trend analizi' },
-		{ id: 'regression', name: 'Regression Model', accuracy: 87.4, description: 'Doğrusal regresyon tabanlı' }
+		{ id: 'autoarima', name: 'Auto ARIMA', accuracy: 0, description: 'Otomatik zaman serisi analizi' },
+		{ id: 'lstm', name: 'LSTM Neural Network', accuracy: 0, description: 'Derin öğrenme tabanlı tahmin' },
+		{ id: 'prophet', name: 'Facebook Prophet', accuracy: 0, description: 'Mevsimsel trend analizi' },
+		{ id: 'regression', name: 'Regression Model', accuracy: 0, description: 'Doğrusal regresyon tabanlı' }
 	];
 
 	const forecastData = {
 		revenue: {
-			historical: [
-				{ month: 'Ocak', actual: 125000, forecast: null },
-				{ month: 'Şubat', actual: 132000, forecast: null },
-				{ month: 'Mart', actual: 128000, forecast: null },
-				{ month: 'Nisan', actual: 145000, forecast: null },
-				{ month: 'Mayıs', actual: 156000, forecast: null },
-				{ month: 'Haziran', actual: 148000, forecast: null }
-			],
-			predictions: [
-				{ month: 'Temmuz', actual: null, forecast: 162000, confidence: { min: 148000, max: 176000 } },
-				{ month: 'Ağustos', actual: null, forecast: 167000, confidence: { min: 151000, max: 183000 } },
-				{ month: 'Eylül', actual: null, forecast: 159000, confidence: { min: 140000, max: 178000 } },
-				{ month: 'Ekim', actual: null, forecast: 171000, confidence: { min: 149000, max: 193000 } },
-				{ month: 'Kasım', actual: null, forecast: 185000, confidence: { min: 161000, max: 209000 } },
-				{ month: 'Aralık', actual: null, forecast: 198000, confidence: { min: 172000, max: 224000 } }
-			]
+			historical: [],
+			predictions: []
 		},
 		users: {
-			growth: { monthly: 15.4, expected: 18.2, confidence: 94.5 },
-			churn: { current: 3.2, predicted: 2.8, confidence: 87.9 },
-			ltv: { current: 450, predicted: 520, confidence: 91.2 }
+			growth: { monthly: 0, expected: 0, confidence: 0 },
+			churn: { current: 0, predicted: 0, confidence: 0 },
+			ltv: { current: 0, predicted: 0, confidence: 0 }
 		},
 		inventory: {
-			stockouts: { current: 12, predicted: 8, confidence: 89.1 },
-			demandSpikes: [
-				{ product: 'Anime Figür Set', probability: 78, expectedIncrease: 145 },
-				{ product: 'Vintage Poster', probability: 65, expectedIncrease: 89 },
-				{ product: 'Teknoloji Gadget', probability: 92, expectedIncrease: 267 }
-			]
+			stockouts: { current: 0, predicted: 0, confidence: 0 },
+			demandSpikes: []
 		}
 	};
 
-	const insights = [
-		{
-			type: 'revenue',
-			title: 'Gelir Artış Trendi',
-			description: 'Önümüzdeki 3 ayda %23 büyüme bekleniyor',
-			confidence: 94.2,
-			impact: 'Yüksek',
-			color: 'green'
-		},
-		{
-			type: 'seasonal',
-			title: 'Mevsimsel Etkiler',
-			description: 'Aralık ayında %15-20 artış öngörülüyor',
-			confidence: 89.7,
-			impact: 'Orta',
-			color: 'blue'
-		},
-		{
-			type: 'risk',
-			title: 'Risk Faktörleri',
-			description: 'Enflasyon geliri %5-8 etkileyebilir',
-			confidence: 76.3,
-			impact: 'Orta',
-			color: 'yellow'
-		},
-		{
-			type: 'opportunity',
-			title: 'Büyüme Fırsatları',
-			description: 'Yeni ürün kategorisinde %40 potansiyel',
-			confidence: 82.1,
-			impact: 'Yüksek',
-			color: 'purple'
-		}
-	];
+	const insights: any[] = [];
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('tr-TR', {
@@ -168,7 +117,14 @@ export default function ForecastingPage() {
 
 			{/* Key Insights */}
 			<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-				{insights.map((insight, index) => (
+				{insights.length === 0 ? (
+					<div className="col-span-4 text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+						<div className="text-4xl mb-4">🎯</div>
+						<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz İçgörü Yok</h3>
+						<p className="text-gray-600">Tahmin modelleri çalıştırıldığında içgörüler burada görünecek.</p>
+					</div>
+				) : (
+					insights.map((insight, index) => (
 					<div key={index} className={`p-4 rounded-lg border ${getInsightColor(insight.color)}`}>
 						<div className="flex items-start justify-between mb-2">
 							<h3 className="font-semibold text-gray-900">{insight.title}</h3>
@@ -182,7 +138,8 @@ export default function ForecastingPage() {
 							<span className="font-medium">%{insight.confidence}</span>
 						</div>
 					</div>
-				))}
+					))
+				)}
 			</div>
 
 			{/* Forecast Tabs */}
@@ -217,18 +174,18 @@ export default function ForecastingPage() {
 							<div className="grid md:grid-cols-3 gap-6">
 								<div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
 									<h3 className="text-lg font-semibold text-green-900 mb-2">Bu Ay Tahmini</h3>
-									<div className="text-3xl font-bold text-green-700">₺162,000</div>
-									<div className="text-sm text-green-600 mt-1">%12.8 artış bekleniyor</div>
+									<div className="text-3xl font-bold text-green-700">₺0</div>
+									<div className="text-sm text-green-600 mt-1">%0 artış bekleniyor</div>
 								</div>
 								<div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
 									<h3 className="text-lg font-semibold text-blue-900 mb-2">3 Ay Toplam</h3>
-									<div className="text-3xl font-bold text-blue-700">₺488,000</div>
-									<div className="text-sm text-blue-600 mt-1">%15.4 büyüme trendi</div>
+									<div className="text-3xl font-bold text-blue-700">₺0</div>
+									<div className="text-sm text-blue-600 mt-1">%0 büyüme trendi</div>
 								</div>
 								<div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
 									<h3 className="text-lg font-semibold text-purple-900 mb-2">Yıl Sonu Hedef</h3>
-									<div className="text-3xl font-bold text-purple-700">₺2,1M</div>
-									<div className="text-sm text-purple-600 mt-1">%23.5 hedef aşım</div>
+									<div className="text-3xl font-bold text-purple-700">₺0</div>
+									<div className="text-sm text-purple-600 mt-1">%0 hedef aşım</div>
 								</div>
 							</div>
 
@@ -249,8 +206,14 @@ export default function ForecastingPage() {
 										<h4 className="font-semibold text-gray-900">Tahmin Detayları</h4>
 									</div>
 									<div className="p-4">
-										<div className="space-y-3">
-											{forecastData.revenue.predictions.slice(0, 3).map((item, index) => (
+										{forecastData.revenue.predictions.length === 0 ? (
+											<div className="text-center py-8">
+												<div className="text-gray-400 mb-2">📈</div>
+												<p className="text-gray-500">Henüz tahmin verisi yok</p>
+											</div>
+										) : (
+											<div className="space-y-3">
+												{forecastData.revenue.predictions.slice(0, 3).map((item, index) => (
 												<div key={index} className="flex justify-between items-center">
 													<span className="text-gray-700">{item.month}</span>
 													<div className="text-right">
@@ -260,8 +223,9 @@ export default function ForecastingPage() {
 														</div>
 													</div>
 												</div>
-											))}
-										</div>
+												))}
+											</div>
+										)}
 									</div>
 								</div>
 
@@ -273,19 +237,19 @@ export default function ForecastingPage() {
 										<div className="space-y-4">
 											<div className="flex justify-between">
 												<span>Doğruluk Oranı</span>
-												<span className="font-medium text-green-600">%95.3</span>
+												<span className="font-medium text-green-600">%0</span>
 											</div>
 											<div className="flex justify-between">
 												<span>Ortalama Hata</span>
-												<span className="font-medium text-blue-600">%2.1</span>
+												<span className="font-medium text-blue-600">%0</span>
 											</div>
 											<div className="flex justify-between">
 												<span>Güven Aralığı</span>
-												<span className="font-medium text-purple-600">%94.2</span>
+												<span className="font-medium text-purple-600">%0</span>
 											</div>
 											<div className="flex justify-between">
 												<span>Son Güncelleme</span>
-												<span className="font-medium text-gray-600">2 saat önce</span>
+												<span className="font-medium text-gray-600">Henüz güncelleme yok</span>
 											</div>
 										</div>
 									</div>
@@ -384,8 +348,14 @@ export default function ForecastingPage() {
 
 								<div className="bg-white border rounded-lg p-6">
 									<h3 className="font-semibold text-gray-900 mb-4">Talep Artışı Tahminleri</h3>
-									<div className="space-y-3">
-										{forecastData.inventory.demandSpikes.map((item, index) => (
+									{forecastData.inventory.demandSpikes.length === 0 ? (
+										<div className="text-center py-8">
+											<div className="text-gray-400 mb-2">📦</div>
+											<p className="text-gray-500">Henüz talep tahmini yok</p>
+										</div>
+									) : (
+										<div className="space-y-3">
+											{forecastData.inventory.demandSpikes.map((item, index) => (
 											<div key={index} className="flex justify-between items-center">
 												<div>
 													<div className="font-medium text-gray-900">{item.product}</div>
@@ -396,8 +366,9 @@ export default function ForecastingPage() {
 													<div className="text-xs text-gray-500">talep artışı</div>
 												</div>
 											</div>
-										))}
-									</div>
+											))}
+										</div>
+									)}
 								</div>
 							</div>
 
@@ -461,19 +432,19 @@ export default function ForecastingPage() {
 									<div className="space-y-2">
 										<div className="flex justify-between">
 											<span className="text-green-700">Gelir Artışı:</span>
-											<span className="font-bold text-green-800">%35</span>
+											<span className="font-bold text-green-800">%0</span>
 										</div>
 										<div className="flex justify-between">
 											<span className="text-green-700">Müşteri Artışı:</span>
-											<span className="font-bold text-green-800">%28</span>
+											<span className="font-bold text-green-800">%0</span>
 										</div>
 										<div className="flex justify-between">
 											<span className="text-green-700">Olasılık:</span>
-											<span className="font-bold text-green-800">%25</span>
+											<span className="font-bold text-green-800">%0</span>
 										</div>
 									</div>
 									<div className="mt-4 text-xs text-green-600">
-										Yeni pazarlara başarılı giriş, viral marketing kampanyası
+										Henüz veri yok
 									</div>
 								</div>
 
@@ -482,19 +453,19 @@ export default function ForecastingPage() {
 									<div className="space-y-2">
 										<div className="flex justify-between">
 											<span className="text-blue-700">Gelir Artışı:</span>
-											<span className="font-bold text-blue-800">%18</span>
+											<span className="font-bold text-blue-800">%0</span>
 										</div>
 										<div className="flex justify-between">
 											<span className="text-blue-700">Müşteri Artışı:</span>
-											<span className="font-bold text-blue-800">%15</span>
+											<span className="font-bold text-blue-800">%0</span>
 										</div>
 										<div className="flex justify-between">
 											<span className="text-blue-700">Olasılık:</span>
-											<span className="font-bold text-blue-800">%60</span>
+											<span className="font-bold text-blue-800">%0</span>
 										</div>
 									</div>
 									<div className="mt-4 text-xs text-blue-600">
-										Mevcut trend devam ediyor, normal büyüme
+										Henüz veri yok
 									</div>
 								</div>
 
@@ -503,19 +474,19 @@ export default function ForecastingPage() {
 									<div className="space-y-2">
 										<div className="flex justify-between">
 											<span className="text-orange-700">Gelir Artışı:</span>
-											<span className="font-bold text-orange-800">%5</span>
+											<span className="font-bold text-orange-800">%0</span>
 										</div>
 										<div className="flex justify-between">
 											<span className="text-orange-700">Müşteri Artışı:</span>
-											<span className="font-bold text-orange-800">%3</span>
+											<span className="font-bold text-orange-800">%0</span>
 										</div>
 										<div className="flex justify-between">
 											<span className="text-orange-700">Olasılık:</span>
-											<span className="font-bold text-orange-800">%15</span>
+											<span className="font-bold text-orange-800">%0</span>
 										</div>
 									</div>
 									<div className="mt-4 text-xs text-orange-600">
-										Ekonomik durgunluk, rekabet artışı
+										Henüz veri yok
 									</div>
 								</div>
 							</div>

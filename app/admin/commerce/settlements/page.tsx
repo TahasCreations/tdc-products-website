@@ -5,42 +5,19 @@ import { useState } from 'react';
 export default function SettlementsPage() {
 	const [activeTab, setActiveTab] = useState('pending');
 	const [searchTerm, setSearchTerm] = useState('');
+	const [settlements, setSettlements] = useState<Array<{
+		id: string;
+		seller: string;
+		amount: number;
+		commission: number;
+		netAmount: number;
+		period: string;
+		status: string;
+		dueDate: string;
+		orders: number;
+	}>>([]);
 
-	const settlements = [
-		{
-			id: 'SET001',
-			seller: 'Satıcı A',
-			amount: 15420.50,
-			commission: 1542.05,
-			netAmount: 13878.45,
-			period: '2024-01',
-			status: 'pending',
-			dueDate: '2024-02-15',
-			orders: 45
-		},
-		{
-			id: 'SET002',
-			seller: 'Satıcı B',
-			amount: 8750.00,
-			commission: 875.00,
-			netAmount: 7875.00,
-			period: '2024-01',
-			status: 'paid',
-			dueDate: '2024-02-15',
-			orders: 28
-		},
-		{
-			id: 'SET003',
-			seller: 'Satıcı C',
-			amount: 22100.75,
-			commission: 2210.08,
-			netAmount: 19890.67,
-			period: '2024-01',
-			status: 'processing',
-			dueDate: '2024-02-15',
-			orders: 67
-		}
-	];
+	// Demo veriler kaldırıldı - gerçek veriler veritabanından gelecek
 
 	const filteredSettlements = settlements.filter(settlement => {
 		const matchesSearch = settlement.seller.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -77,10 +54,10 @@ export default function SettlementsPage() {
 	};
 
 	const totalStats = {
-		totalAmount: settlements.reduce((sum, s) => sum + s.amount, 0),
-		totalCommission: settlements.reduce((sum, s) => sum + s.commission, 0),
-		totalNet: settlements.reduce((sum, s) => sum + s.netAmount, 0),
-		pendingCount: settlements.filter(s => s.status === 'pending').length
+		totalAmount: 0,
+		totalCommission: 0,
+		totalNet: 0,
+		pendingCount: 0
 	};
 
 	return (
@@ -171,128 +148,104 @@ export default function SettlementsPage() {
 					</nav>
 				</div>
 
-				<div className="overflow-x-auto">
-					<table className="min-w-full divide-y divide-gray-200">
-						<thead className="bg-gray-50">
-							<tr>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Ödeme ID
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Satıcı
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Dönem
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Sipariş Sayısı
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Brüt Tutar
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Komisyon
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Net Tutar
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Vade Tarihi
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Durum
-								</th>
-								<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İşlemler
-								</th>
-							</tr>
-						</thead>
-						<tbody className="bg-white divide-y divide-gray-200">
-							{filteredSettlements.map((settlement) => (
-								<tr key={settlement.id} className="hover:bg-gray-50">
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-										{settlement.id}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{settlement.seller}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-										{settlement.period}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-										{settlement.orders}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{formatCurrency(settlement.amount)}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
-										-{formatCurrency(settlement.commission)}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">
-										{formatCurrency(settlement.netAmount)}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-										{settlement.dueDate}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap">
-										<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(settlement.status)}`}>
-											{getStatusText(settlement.status)}
-										</span>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-										{settlement.status === 'pending' && (
-											<button className="text-green-600 hover:text-green-900 mr-3">
-												Öde
-											</button>
-										)}
-										<button className="text-indigo-600 hover:text-indigo-900 mr-3">
-											Detaylar
-										</button>
-										<button className="text-blue-600 hover:text-blue-900">
-											Fatura
-										</button>
-									</td>
+				{filteredSettlements.length === 0 ? (
+					<div className="p-12 text-center">
+						<div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+							<span className="text-4xl">💰</span>
+						</div>
+						<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Ödeme Yok</h3>
+						<p className="text-gray-600 text-sm">
+							Satıcı ödemeleri burada görünecek
+						</p>
+					</div>
+				) : (
+					<div className="overflow-x-auto">
+						<table className="min-w-full divide-y divide-gray-200">
+							<thead className="bg-gray-50">
+								<tr>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Ödeme ID
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Satıcı
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Dönem
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Sipariş Sayısı
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Brüt Tutar
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Komisyon
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Net Tutar
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Vade Tarihi
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Durum
+									</th>
+									<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İşlemler
+									</th>
 								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			{/* Payment Methods */}
-			<div className="grid md:grid-cols-3 gap-6">
-				<div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
-					<div className="flex items-center mb-4">
-						<span className="text-2xl mr-3">🏦</span>
-						<h3 className="text-lg font-semibold text-green-900">Banka Havalesi</h3>
+							</thead>
+							<tbody className="bg-white divide-y divide-gray-200">
+								{filteredSettlements.map((settlement) => (
+									<tr key={settlement.id} className="hover:bg-gray-50">
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+											{settlement.id}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{settlement.seller}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+											{settlement.period}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+											{settlement.orders}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{formatCurrency(settlement.amount)}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+											-{formatCurrency(settlement.commission)}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">
+											{formatCurrency(settlement.netAmount)}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+											{settlement.dueDate}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap">
+											<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(settlement.status)}`}>
+												{getStatusText(settlement.status)}
+											</span>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+											{settlement.status === 'pending' && (
+												<button className="text-green-600 hover:text-green-900 mr-3">
+													Öde
+												</button>
+											)}
+											<button className="text-indigo-600 hover:text-indigo-900 mr-3">
+												Detaylar
+											</button>
+											<button className="text-blue-600 hover:text-blue-900">
+												Fatura
+											</button>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
 					</div>
-					<p className="text-green-700 mb-4">Geleneksel banka havalesi ile ödeme.</p>
-					<button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-						Havale Başlat
-					</button>
-				</div>
-
-				<div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
-					<div className="flex items-center mb-4">
-						<span className="text-2xl mr-3">💳</span>
-						<h3 className="text-lg font-semibold text-blue-900">Dijital Cüzdan</h3>
-					</div>
-					<p className="text-blue-700 mb-4">PayPal, Stripe gibi dijital ödemeler.</p>
-					<button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-						Dijital Ödeme
-					</button>
-				</div>
-
-				<div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
-					<div className="flex items-center mb-4">
-						<span className="text-2xl mr-3">⚡</span>
-						<h3 className="text-lg font-semibold text-purple-900">Otomatik Ödeme</h3>
-					</div>
-					<p className="text-purple-700 mb-4">Periyodik otomatik ödeme kurulumu.</p>
-					<button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
-						Otomasyon Kur
-					</button>
-				</div>
+				)}
 			</div>
 		</div>
 	);

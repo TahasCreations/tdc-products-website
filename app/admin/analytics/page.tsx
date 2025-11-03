@@ -1,26 +1,57 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function AnalyticsPage() {
 	const [activeTab, setActiveTab] = useState('overview');
 	const [selectedPeriod, setSelectedPeriod] = useState('30d');
+	const [loading, setLoading] = useState(true);
+	const [analyticsData, setAnalyticsData] = useState({
+		totalRevenue: 0,
+		totalOrders: 0,
+		avgOrderValue: 0,
+		conversionRate: 0,
+		customerCount: 0,
+		returnRate: 0
+	});
+	const [topProducts, setTopProducts] = useState<Array<{
+		name: string;
+		sales: number;
+		revenue: number;
+		growth: number;
+	}>>([]);
 
-	const analyticsData = {
-		totalRevenue: 2847500,
-		totalOrders: 15420,
-		avgOrderValue: 184.50,
-		conversionRate: 3.2,
-		customerCount: 8940,
-		returnRate: 2.8
+	const fetchAnalyticsData = async () => {
+		try {
+			setLoading(true);
+			// TODO: API endpoint'i oluşturulacak
+			// const response = await fetch(`/api/admin/analytics?period=${selectedPeriod}`);
+			// const data = await response.json();
+			// setAnalyticsData(data.analytics);
+			// setTopProducts(data.topProducts);
+			
+			// Demo veriler temizlendi - gerçek veriler 0'dan başlıyor
+			setAnalyticsData({
+				totalRevenue: 0,
+				totalOrders: 0,
+				avgOrderValue: 0,
+				conversionRate: 0,
+				customerCount: 0,
+				returnRate: 0
+			});
+			setTopProducts([]);
+		} catch (error) {
+			console.error('Analytics verisi yüklenemedi:', error);
+		} finally {
+			setLoading(false);
+		}
 	};
 
-	const topProducts = [
-		{ name: 'Anime Figür Koleksiyonu', sales: 1240, revenue: 186000, growth: 15.2 },
-		{ name: 'Vintage Poster Set', sales: 890, revenue: 134000, growth: 8.7 },
-		{ name: 'Teknoloji Gadget', sales: 567, revenue: 98000, growth: 22.1 },
-		{ name: 'Ev Dekorasyon', sales: 445, revenue: 67000, growth: -3.4 }
-	];
+	// Gerçek verileri yükle
+	useEffect(() => {
+		fetchAnalyticsData();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedPeriod]);
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('tr-TR', {
@@ -142,22 +173,29 @@ export default function AnalyticsPage() {
 									<h4 className="font-semibold text-gray-900">En Çok Satan Ürünler</h4>
 								</div>
 								<div className="p-4">
-									<div className="space-y-4">
-										{topProducts.map((product, index) => (
-											<div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-												<div>
-													<h5 className="font-medium text-gray-900">{product.name}</h5>
-													<p className="text-sm text-gray-600">{product.sales} satış</p>
-												</div>
-												<div className="text-right">
-													<div className="font-semibold text-green-600">{formatCurrency(product.revenue)}</div>
-													<div className={`text-sm ${product.growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
-														{product.growth > 0 ? '+' : ''}{product.growth}%
+									{topProducts.length > 0 ? (
+										<div className="space-y-4">
+											{topProducts.map((product, index) => (
+												<div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+													<div>
+														<h5 className="font-medium text-gray-900">{product.name}</h5>
+														<p className="text-sm text-gray-600">{product.sales} satış</p>
+													</div>
+													<div className="text-right">
+														<div className="font-semibold text-green-600">{formatCurrency(product.revenue)}</div>
+														<div className={`text-sm ${product.growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+															{product.growth > 0 ? '+' : ''}{product.growth}%
+														</div>
 													</div>
 												</div>
-											</div>
-										))}
-									</div>
+											))}
+										</div>
+									) : (
+										<div className="text-center py-8">
+											<div className="text-gray-400 mb-2">📦</div>
+											<p className="text-gray-500">Henüz satış verisi bulunmuyor</p>
+										</div>
+									)}
 								</div>
 							</div>
 						</div>

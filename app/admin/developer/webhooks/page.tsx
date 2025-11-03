@@ -6,38 +6,7 @@ export default function WebhooksPage() {
 	const [activeTab, setActiveTab] = useState('all');
 	const [isTestingWebhook, setIsTestingWebhook] = useState<string | null>(null);
 
-	const webhooks = [
-		{
-			id: 'WH-001',
-			name: 'Sipariş Bildirimi',
-			url: 'https://api.example.com/webhooks/orders',
-			events: ['order.created', 'order.updated', 'order.cancelled'],
-			status: 'Aktif',
-			lastTriggered: '2024-01-15 14:30:25',
-			successRate: '98.5%',
-			totalCalls: 1247
-		},
-		{
-			id: 'WH-002',
-			name: 'Ödeme Webhook',
-			url: 'https://payment.service.com/notify',
-			events: ['payment.completed', 'payment.failed'],
-			status: 'Aktif',
-			lastTriggered: '2024-01-15 13:45:12',
-			successRate: '99.2%',
-			totalCalls: 892
-		},
-		{
-			id: 'WH-003',
-			name: 'Stok Uyarısı',
-			url: 'https://inventory.system.com/alerts',
-			events: ['inventory.low', 'inventory.out'],
-			status: 'Pasif',
-			lastTriggered: '2024-01-10 09:15:30',
-			successRate: '95.8%',
-			totalCalls: 456
-		}
-	];
+	const webhooks: any[] = [];
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -95,11 +64,11 @@ export default function WebhooksPage() {
 					<div className="text-sm text-gray-600">Aktif Webhook</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">2,595</div>
+					<div className="text-lg font-semibold text-purple-600">0</div>
 					<div className="text-sm text-gray-600">Toplam Çağrı</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-orange-600">98.1%</div>
+					<div className="text-lg font-semibold text-orange-600">0%</div>
 					<div className="text-sm text-gray-600">Başarı Oranı</div>
 				</div>
 			</div>
@@ -138,34 +107,41 @@ export default function WebhooksPage() {
 
 				{/* Webhooks Table */}
 				<div className="overflow-x-auto">
-					<table className="w-full">
-						<thead className="bg-gray-50">
-							<tr>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Webhook
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									URL
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Olaylar
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Performans
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Son Çağrı
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Durum
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İşlemler
-								</th>
-							</tr>
-						</thead>
-						<tbody className="bg-white divide-y divide-gray-200">
-							{filteredWebhooks.map((webhook) => (
+					{filteredWebhooks.length === 0 ? (
+						<div className="text-center py-12">
+							<div className="text-6xl mb-4">🔗</div>
+							<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Webhook Yok</h3>
+							<p className="text-gray-600">İlk webhook oluşturduğunuzda burada görünecek</p>
+						</div>
+					) : (
+						<table className="w-full">
+							<thead className="bg-gray-50">
+								<tr>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Webhook
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										URL
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Olaylar
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Performans
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Son Çağrı
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Durum
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İşlemler
+									</th>
+								</tr>
+							</thead>
+							<tbody className="bg-white divide-y divide-gray-200">
+								{filteredWebhooks.map((webhook) => (
 								<tr key={webhook.id} className="hover:bg-gray-50">
 									<td className="px-6 py-4 whitespace-nowrap">
 										<div>
@@ -221,9 +197,10 @@ export default function WebhooksPage() {
 										</button>
 									</td>
 								</tr>
-							))}
-						</tbody>
-					</table>
+								))}
+							</tbody>
+						</table>
+					)}
 				</div>
 			</div>
 

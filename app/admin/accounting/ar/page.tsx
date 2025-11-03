@@ -1,33 +1,9 @@
+"use client";
+
+import { useState } from 'react';
+
 export default function AccountsReceivablePage() {
-	const receivables = [
-		{
-			id: 'ALC-2024-001',
-			customer: 'Ahmet Yılmaz',
-			invoiceNo: 'FAT-2024-0156',
-			amount: '₺2,450.00',
-			dueDate: '2024-02-15',
-			daysOverdue: 0,
-			status: 'Vadeli'
-		},
-		{
-			id: 'ALC-2024-002',
-			customer: 'TechCorp Ltd.',
-			invoiceNo: 'FAT-2024-0145',
-			amount: '₺8,900.00',
-			dueDate: '2024-01-30',
-			daysOverdue: 15,
-			status: 'Gecikmiş'
-		},
-		{
-			id: 'ALC-2024-003',
-			customer: 'Fatma Kaya',
-			invoiceNo: 'FAT-2024-0134',
-			amount: '₺1,250.00',
-			dueDate: '2024-01-20',
-			daysOverdue: 25,
-			status: 'Gecikmiş'
-		}
-	];
+	const [receivables, setReceivables] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -61,19 +37,19 @@ export default function AccountsReceivablePage() {
 			{/* Summary Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-blue-600">₺89,450</div>
+					<div className="text-lg font-semibold text-blue-600">₺0</div>
 					<div className="text-sm text-gray-600">Toplam Alacak</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-green-600">₺67,200</div>
+					<div className="text-lg font-semibold text-green-600">₺0</div>
 					<div className="text-sm text-gray-600">Vadeli Alacaklar</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-red-600">₺22,250</div>
+					<div className="text-lg font-semibold text-red-600">₺0</div>
 					<div className="text-sm text-gray-600">Gecikmiş Alacaklar</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">18</div>
+					<div className="text-lg font-semibold text-purple-600">0</div>
 					<div className="text-sm text-gray-600">Ortalama Vade (gün)</div>
 				</div>
 			</div>
@@ -83,23 +59,23 @@ export default function AccountsReceivablePage() {
 				<h3 className="text-lg font-semibold mb-4">Yaşlandırma Analizi</h3>
 				<div className="grid md:grid-cols-5 gap-4">
 					<div className="text-center p-4 bg-green-50 rounded-lg">
-						<div className="text-2xl font-bold text-green-600">₺45,200</div>
+						<div className="text-2xl font-bold text-green-600">₺0</div>
 						<div className="text-sm text-green-700">0-30 Gün</div>
 					</div>
 					<div className="text-center p-4 bg-yellow-50 rounded-lg">
-						<div className="text-2xl font-bold text-yellow-600">₺28,900</div>
+						<div className="text-2xl font-bold text-yellow-600">₺0</div>
 						<div className="text-sm text-yellow-700">31-60 Gün</div>
 					</div>
 					<div className="text-center p-4 bg-orange-50 rounded-lg">
-						<div className="text-2xl font-bold text-orange-600">₺12,350</div>
+						<div className="text-2xl font-bold text-orange-600">₺0</div>
 						<div className="text-sm text-orange-700">61-90 Gün</div>
 					</div>
 					<div className="text-center p-4 bg-red-50 rounded-lg">
-						<div className="text-2xl font-bold text-red-600">₺3,000</div>
+						<div className="text-2xl font-bold text-red-600">₺0</div>
 						<div className="text-sm text-red-700">90+ Gün</div>
 					</div>
 					<div className="text-center p-4 bg-gray-50 rounded-lg">
-						<div className="text-2xl font-bold text-gray-600">₺89,450</div>
+						<div className="text-2xl font-bold text-gray-600">₺0</div>
 						<div className="text-sm text-gray-700">Toplam</div>
 					</div>
 				</div>
@@ -152,44 +128,54 @@ export default function AccountsReceivablePage() {
 							</tr>
 						</thead>
 						<tbody className="bg-white divide-y divide-gray-200">
-							{receivables.map((item) => (
-								<tr key={item.id} className="hover:bg-gray-50">
-									<td className="px-6 py-4 whitespace-nowrap">
-										<div className="font-medium text-gray-900">{item.customer}</div>
-										<div className="text-sm text-gray-500">{item.id}</div>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{item.invoiceNo}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-										{item.amount}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{item.dueDate}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap">
-										<span className={`text-sm font-semibold ${getOverdueColor(item.daysOverdue)}`}>
-											{item.daysOverdue === 0 ? 'Vadeli' : `${item.daysOverdue} gün`}
-										</span>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap">
-										<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
-											{item.status}
-										</span>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-										<button className="text-green-600 hover:text-green-900 mr-3">
-											Tahsil Et
-										</button>
-										<button className="text-indigo-600 hover:text-indigo-900 mr-3">
-											Detay
-										</button>
-										<button className="text-yellow-600 hover:text-yellow-900">
-											Hatırlatma
-										</button>
+							{receivables.length === 0 ? (
+								<tr>
+									<td colSpan={7} className="px-6 py-12 text-center">
+										<div className="text-6xl mb-4">💰</div>
+										<p className="text-gray-500 text-lg mb-2">Henüz Alacak Kaydı Yok</p>
+										<p className="text-gray-400 text-sm">Müşteri alacaklarınız burada görünecek</p>
 									</td>
 								</tr>
-							))}
+							) : (
+								receivables.map((item) => (
+									<tr key={item.id} className="hover:bg-gray-50">
+										<td className="px-6 py-4 whitespace-nowrap">
+											<div className="font-medium text-gray-900">{item.customer}</div>
+											<div className="text-sm text-gray-500">{item.id}</div>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{item.invoiceNo}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+											{item.amount}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{item.dueDate}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap">
+											<span className={`text-sm font-semibold ${getOverdueColor(item.daysOverdue)}`}>
+												{item.daysOverdue === 0 ? 'Vadeli' : `${item.daysOverdue} gün`}
+											</span>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap">
+											<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
+												{item.status}
+											</span>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+											<button className="text-green-600 hover:text-green-900 mr-3">
+												Tahsil Et
+											</button>
+											<button className="text-indigo-600 hover:text-indigo-900 mr-3">
+												Detay
+											</button>
+											<button className="text-yellow-600 hover:text-yellow-900">
+												Hatırlatma
+											</button>
+										</td>
+									</tr>
+								))
+							)}
 						</tbody>
 					</table>
 				</div>

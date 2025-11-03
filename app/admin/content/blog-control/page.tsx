@@ -4,45 +4,7 @@ import { useState } from 'react';
 
 export default function BlogControlPage() {
 	const [activeTab, setActiveTab] = useState('all');
-
-	const blogPosts = [
-		{
-			id: 'POST-001',
-			title: 'Anime Figürlerinin Tarihi ve Koleksiyonculuk',
-			author: 'Admin',
-			category: 'Koleksiyon',
-			status: 'Yayında',
-			publishDate: '2024-01-15',
-			views: 1245,
-			comments: 23,
-			likes: 89,
-			featured: true
-		},
-		{
-			id: 'POST-002',
-			title: 'El Yapımı Ürünlerde Kalite Nasıl Anlaşılır?',
-			author: 'İçerik Editörü',
-			category: 'Rehber',
-			status: 'Taslak',
-			publishDate: null,
-			views: 0,
-			comments: 0,
-			likes: 0,
-			featured: false
-		},
-		{
-			id: 'POST-003',
-			title: 'Vintage Dekorasyon Trendleri 2024',
-			author: 'Tasarım Uzmanı',
-			category: 'Trend',
-			status: 'İncelemede',
-			publishDate: null,
-			views: 0,
-			comments: 0,
-			likes: 0,
-			featured: false
-		}
-	];
+	const [blogPosts, setBlogPosts] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -89,19 +51,19 @@ export default function BlogControlPage() {
 			{/* Summary Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-blue-600">156</div>
+					<div className="text-lg font-semibold text-blue-600">0</div>
 					<div className="text-sm text-gray-600">Toplam Yazı</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-green-600">89</div>
+					<div className="text-lg font-semibold text-green-600">0</div>
 					<div className="text-sm text-gray-600">Yayında</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-yellow-600">23</div>
+					<div className="text-lg font-semibold text-yellow-600">0</div>
 					<div className="text-sm text-gray-600">İncelemede</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">12,450</div>
+					<div className="text-lg font-semibold text-purple-600">0</div>
 					<div className="text-sm text-gray-600">Toplam Görüntülenme</div>
 				</div>
 			</div>
@@ -141,34 +103,44 @@ export default function BlogControlPage() {
 
 				{/* Blog Posts Table */}
 				<div className="overflow-x-auto">
-					<table className="w-full">
-						<thead className="bg-gray-50">
-							<tr>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Yazı
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Yazar
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Kategori
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Durum
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Performans
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Tarih
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İşlemler
-								</th>
-							</tr>
-						</thead>
-						<tbody className="bg-white divide-y divide-gray-200">
-							{filteredPosts.map((post) => (
+					{filteredPosts.length === 0 ? (
+						<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+							<div className="text-4xl mb-4">📝</div>
+							<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Blog Yazısı Yok</h3>
+							<p className="text-gray-600 mb-4">İlk blog yazınızı oluşturarak başlayın.</p>
+							<button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+								İlk Yazıyı Oluştur
+							</button>
+						</div>
+					) : (
+						<table className="w-full">
+							<thead className="bg-gray-50">
+								<tr>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Yazı
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Yazar
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Kategori
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Durum
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Performans
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Tarih
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İşlemler
+									</th>
+								</tr>
+							</thead>
+							<tbody className="bg-white divide-y divide-gray-200">
+								{filteredPosts.map((post) => (
 								<tr key={post.id} className="hover:bg-gray-50">
 									<td className="px-6 py-4">
 										<div className="flex items-center">
@@ -223,9 +195,10 @@ export default function BlogControlPage() {
 										</button>
 									</td>
 								</tr>
-							))}
-						</tbody>
-					</table>
+								))}
+							</tbody>
+						</table>
+					)}
 				</div>
 			</div>
 

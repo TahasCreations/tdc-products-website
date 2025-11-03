@@ -5,88 +5,9 @@ import { useState } from 'react';
 export default function AutomationPage() {
 	const [activeTab, setActiveTab] = useState('workflows');
 
-	const workflows = [
-		{
-			id: 'WF001',
-			name: 'Sipariş İşleme Otomasyonu',
-			description: 'Yeni siparişleri otomatik olarak işle ve stok güncelle',
-			status: 'active',
-			trigger: 'Yeni sipariş',
-			actions: ['Stok kontrolü', 'Ödeme doğrulama', 'Kargo etiketleme'],
-			executions: 1250,
-			successRate: 98.5,
-			lastRun: '2024-01-15 14:30'
-		},
-		{
-			id: 'WF002',
-			name: 'Müşteri Onboarding',
-			description: 'Yeni müşterilere hoş geldin e-postası ve rehber gönder',
-			status: 'active',
-			trigger: 'Yeni kayıt',
-			actions: ['Hoş geldin e-postası', 'Rehber gönderimi', 'İlk alışveriş kuponu'],
-			executions: 892,
-			successRate: 96.2,
-			lastRun: '2024-01-15 12:15'
-		},
-		{
-			id: 'WF003',
-			name: 'Sepet Terk Etme Kampanyası',
-			description: 'Sepeti terk eden müşterilere hatırlatma e-postası gönder',
-			status: 'active',
-			trigger: 'Sepet terk etme (24 saat)',
-			actions: ['Hatırlatma e-postası', 'İndirim kuponu', 'Ürün önerileri'],
-			executions: 567,
-			successRate: 87.3,
-			lastRun: '2024-01-15 10:45'
-		},
-		{
-			id: 'WF004',
-			name: 'Stok Uyarı Sistemi',
-			description: 'Stok seviyesi düştüğünde otomatik uyarı gönder',
-			status: 'paused',
-			trigger: 'Stok < 10 adet',
-			actions: ['E-posta uyarısı', 'Slack bildirimi', 'Tedarikçi bildirimi'],
-			executions: 234,
-			successRate: 100,
-			lastRun: '2024-01-14 16:20'
-		}
-	];
-
-	const triggers = [
-		{ name: 'Yeni sipariş', count: 45, icon: '📦' },
-		{ name: 'Yeni müşteri kaydı', count: 23, icon: '👤' },
-		{ name: 'Sepet terk etme', count: 67, icon: '🛒' },
-		{ name: 'Stok azalması', count: 12, icon: '📊' },
-		{ name: 'Ödeme başarısızlığı', count: 8, icon: '💳' },
-		{ name: 'Müşteri desteği talebi', count: 19, icon: '💬' }
-	];
-
-	const templates = [
-		{
-			name: 'E-ticaret Temel Paket',
-			description: 'Sipariş işleme, müşteri onboarding ve sepet terk etme otomasyonları',
-			workflows: 5,
-			category: 'E-ticaret'
-		},
-		{
-			name: 'Pazarlama Otomasyonu',
-			description: 'E-posta kampanyaları, segmentasyon ve lead nurturing',
-			workflows: 8,
-			category: 'Pazarlama'
-		},
-		{
-			name: 'Müşteri Hizmetleri',
-			description: 'Destek talepleri, FAQ otomatik yanıtları ve eskalasyon',
-			workflows: 6,
-			category: 'Destek'
-		},
-		{
-			name: 'Envanter Yönetimi',
-			description: 'Stok takibi, tedarikçi bildirimleri ve otomatik sipariş',
-			workflows: 4,
-			category: 'Operasyon'
-		}
-	];
+	const [workflows, setWorkflows] = useState<any[]>([]);
+	const [triggers, setTriggers] = useState<any[]>([]);
+	const [templates, setTemplates] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -128,21 +49,19 @@ export default function AutomationPage() {
 			{/* Summary Stats */}
 			<div className="grid md:grid-cols-4 gap-4">
 				<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-					<div className="text-2xl font-bold text-blue-700">{workflows.length}</div>
+					<div className="text-2xl font-bold text-blue-700">0</div>
 					<div className="text-sm text-blue-600">Toplam Workflow</div>
 				</div>
 				<div className="bg-green-50 p-4 rounded-lg border border-green-200">
-					<div className="text-2xl font-bold text-green-700">{workflows.filter(w => w.status === 'active').length}</div>
+					<div className="text-2xl font-bold text-green-700">0</div>
 					<div className="text-sm text-green-600">Aktif Workflow</div>
 				</div>
 				<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-					<div className="text-2xl font-bold text-purple-700">{workflows.reduce((sum, w) => sum + w.executions, 0).toLocaleString()}</div>
+					<div className="text-2xl font-bold text-purple-700">0</div>
 					<div className="text-sm text-purple-600">Toplam Çalıştırma</div>
 				</div>
 				<div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-					<div className="text-2xl font-bold text-orange-700">
-						{(workflows.reduce((sum, w) => sum + w.successRate, 0) / workflows.length).toFixed(1)}%
-					</div>
+					<div className="text-2xl font-bold text-orange-700">0%</div>
 					<div className="text-sm text-orange-600">Ortalama Başarı</div>
 				</div>
 			</div>
@@ -176,7 +95,17 @@ export default function AutomationPage() {
 				<div className="p-6">
 					{activeTab === 'workflows' && (
 						<div className="space-y-6">
-							{workflows.map((workflow) => (
+							{workflows.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">⚙️</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Workflow Yok</h3>
+									<p className="text-gray-600 mb-4">İlk iş akışınızı oluşturarak otomasyona başlayın.</p>
+									<button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+										Yeni Workflow Oluştur
+									</button>
+								</div>
+							) : (
+								workflows.map((workflow) => (
 								<div key={workflow.id} className="border rounded-lg p-6">
 									<div className="flex items-start justify-between mb-4">
 										<div className="flex-1">
@@ -241,7 +170,8 @@ export default function AutomationPage() {
 										)}
 									</div>
 								</div>
-							))}
+								))
+							)}
 						</div>
 					)}
 
@@ -249,8 +179,15 @@ export default function AutomationPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Tetikleyici Türleri</h3>
 							
-							<div className="grid md:grid-cols-3 gap-6">
-								{triggers.map((trigger, index) => (
+							{triggers.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">🎯</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Tetikleyici Yok</h3>
+									<p className="text-gray-600 mb-4">İş akışlarınızı tetikleyecek olayları tanımlayın.</p>
+								</div>
+							) : (
+								<div className="grid md:grid-cols-3 gap-6">
+									{triggers.map((trigger, index) => (
 									<div key={index} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
 										<div className="flex items-center mb-4">
 											<span className="text-3xl mr-3">{trigger.icon}</span>
@@ -263,8 +200,9 @@ export default function AutomationPage() {
 											Workflow Oluştur
 										</button>
 									</div>
-								))}
-							</div>
+									))}
+								</div>
+							)}
 
 							<div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
 								<h4 className="font-semibold text-blue-900 mb-3">Özel Tetikleyici Oluştur</h4>
@@ -282,8 +220,15 @@ export default function AutomationPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Hazır Şablonlar</h3>
 							
-							<div className="grid md:grid-cols-2 gap-6">
-								{templates.map((template, index) => (
+							{templates.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">📋</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Şablon Yok</h3>
+									<p className="text-gray-600 mb-4">Hazır şablonları kullanarak hızlıca başlayın.</p>
+								</div>
+							) : (
+								<div className="grid md:grid-cols-2 gap-6">
+									{templates.map((template, index) => (
 									<div key={index} className="border rounded-lg p-6">
 										<div className="flex items-start justify-between mb-4">
 											<div>
@@ -306,8 +251,9 @@ export default function AutomationPage() {
 											</button>
 										</div>
 									</div>
-								))}
-							</div>
+									))}
+								</div>
+							)}
 						</div>
 					)}
 

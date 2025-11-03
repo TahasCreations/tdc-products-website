@@ -92,74 +92,9 @@ export default function PermissionManagementPage() {
 		}
 	];
 
-	const users = [
-		{
-			id: 1,
-			name: 'Ahmet Yılmaz',
-			email: 'ahmet@tdcmarket.com',
-			role: 'super-admin',
-			department: 'IT',
-			lastLogin: '2 dakika önce',
-			status: 'active'
-		},
-		{
-			id: 2,
-			name: 'Ayşe Demir',
-			email: 'ayse@tdcmarket.com',
-			role: 'admin',
-			department: 'Operasyon',
-			lastLogin: '1 saat önce',
-			status: 'active'
-		},
-		{
-			id: 3,
-			name: 'Mehmet Can',
-			email: 'mehmet@tdcmarket.com',
-			role: 'manager',
-			department: 'Satış',
-			lastLogin: '3 saat önce',
-			status: 'active'
-		},
-		{
-			id: 4,
-			name: 'Fatma Öz',
-			email: 'fatma@tdcmarket.com',
-			role: 'employee',
-			department: 'Müşteri Hizmetleri',
-			lastLogin: '1 gün önce',
-			status: 'inactive'
-		}
-	];
+	const users: any[] = [];
 
-	const auditLogs = [
-		{
-			id: 1,
-			user: 'Ahmet Yılmaz',
-			action: 'Rol Güncellendi',
-			target: 'Ayşe Demir -> Admin',
-			timestamp: '2 dakika önce',
-			ip: '192.168.1.1',
-			status: 'success'
-		},
-		{
-			id: 2,
-			user: 'Ayşe Demir',
-			action: 'Yetki Verildi',
-			target: 'Mehmet Can -> Ürün Yönetimi',
-			timestamp: '15 dakika önce',
-			ip: '192.168.1.5',
-			status: 'success'
-		},
-		{
-			id: 3,
-			user: 'System',
-			action: 'Oturum Sonlandırıldı',
-			target: 'Fatma Öz',
-			timestamp: '1 saat önce',
-			ip: '192.168.1.8',
-			status: 'warning'
-		}
-	];
+	const auditLogs: any[] = [];
 
 	const getRoleColor = (color: string) => {
 		const colors = {
@@ -205,15 +140,15 @@ export default function PermissionManagementPage() {
 					<div className="text-sm text-blue-600">Toplam Rol</div>
 				</div>
 				<div className="bg-green-50 p-4 rounded-lg border border-green-200">
-					<div className="text-2xl font-bold text-green-700">68</div>
+					<div className="text-2xl font-bold text-green-700">0</div>
 					<div className="text-sm text-green-600">Aktif Kullanıcı</div>
 				</div>
 				<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-					<div className="text-2xl font-bold text-purple-700">47</div>
+					<div className="text-2xl font-bold text-purple-700">0</div>
 					<div className="text-sm text-purple-600">Toplam İzin</div>
 				</div>
 				<div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-					<div className="text-2xl font-bold text-orange-700">12</div>
+					<div className="text-2xl font-bold text-orange-700">0</div>
 					<div className="text-sm text-orange-600">Son 24s Aktivite</div>
 				</div>
 			</div>
@@ -356,7 +291,16 @@ export default function PermissionManagementPage() {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-200">
-										{users.map((user) => (
+										{users.length === 0 ? (
+											<tr>
+												<td colSpan={7} className="px-6 py-12 text-center">
+													<div className="text-6xl mb-4">👤</div>
+													<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Kullanıcı Yok</h3>
+													<p className="text-gray-600">Kullanıcılar eklendiğinde burada görünecek</p>
+												</td>
+											</tr>
+										) : (
+											users.map((user) => (
 											<tr key={user.id} className="hover:bg-gray-50">
 												<td className="px-6 py-4 whitespace-nowrap">
 													<div className="flex items-center">
@@ -386,7 +330,8 @@ export default function PermissionManagementPage() {
 													<button className="text-red-600 hover:text-red-900">Sil</button>
 												</td>
 											</tr>
-										))}
+											))
+										)}
 									</tbody>
 								</table>
 							</div>
@@ -410,7 +355,16 @@ export default function PermissionManagementPage() {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-200">
-										{auditLogs.map((log) => (
+										{auditLogs.length === 0 ? (
+											<tr>
+												<td colSpan={6} className="px-6 py-12 text-center">
+													<div className="text-6xl mb-4">📋</div>
+													<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Log Yok</h3>
+													<p className="text-gray-600">Aktiviteler gerçekleştikçe burada görünecek</p>
+												</td>
+											</tr>
+										) : (
+											auditLogs.map((log) => (
 											<tr key={log.id} className="hover:bg-gray-50">
 												<td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{log.user}</td>
 												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{log.action}</td>
@@ -423,7 +377,8 @@ export default function PermissionManagementPage() {
 													</span>
 												</td>
 											</tr>
-										))}
+											))
+										)}
 									</tbody>
 								</table>
 							</div>

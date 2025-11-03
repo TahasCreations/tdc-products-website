@@ -6,71 +6,18 @@ export default function SystemLogsPage() {
 	const [activeTab, setActiveTab] = useState('recent');
 	const [logLevel, setLogLevel] = useState('all');
 
-	const logs = [
-		{
-			id: 1,
-			timestamp: '2024-01-15 14:23:45',
-			level: 'error',
-			source: 'Authentication',
-			message: 'Failed login attempt for user: admin@example.com',
-			ip: '192.168.1.100',
-			details: 'Multiple failed attempts detected'
-		},
-		{
-			id: 2,
-			timestamp: '2024-01-15 14:22:12',
-			level: 'info',
-			source: 'Order Processing',
-			message: 'Order #12345 successfully processed',
-			ip: '192.168.1.50',
-			details: 'Payment confirmed, inventory updated'
-		},
-		{
-			id: 3,
-			timestamp: '2024-01-15 14:21:33',
-			level: 'warning',
-			source: 'Database',
-			message: 'Slow query detected: SELECT * FROM products',
-			ip: 'localhost',
-			details: 'Query execution time: 5.2 seconds'
-		},
-		{
-			id: 4,
-			timestamp: '2024-01-15 14:20:01',
-			level: 'debug',
-			source: 'API',
-			message: 'API rate limit check for client: mobile_app',
-			ip: '203.45.67.89',
-			details: 'Current usage: 850/1000 requests/hour'
-		},
-		{
-			id: 5,
-			timestamp: '2024-01-15 14:19:15',
-			level: 'critical',
-			source: 'System',
-			message: 'High memory usage detected: 89%',
-			ip: 'localhost',
-			details: 'Available memory: 2.1GB, Used: 16.8GB'
-		}
-	];
+	const logs: any[] = [];
 
 	const logStats = {
-		total: 28740,
-		critical: 12,
-		error: 156,
-		warning: 423,
-		info: 25890,
-		debug: 2259
+		total: 0,
+		critical: 0,
+		error: 0,
+		warning: 0,
+		info: 0,
+		debug: 0
 	};
 
-	const sources = [
-		{ name: 'Authentication', count: 1240 },
-		{ name: 'Order Processing', count: 2890 },
-		{ name: 'Database', count: 8900 },
-		{ name: 'API', count: 4567 },
-		{ name: 'System', count: 3420 },
-		{ name: 'Payment', count: 1890 }
-	];
+	const sources: any[] = [];
 
 	const getLevelColor = (level: string) => {
 		switch (level) {
@@ -184,8 +131,16 @@ export default function SystemLogsPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Son Sistem Logları</h3>
 
-							<div className="space-y-3">
-								{filteredLogs.map((log) => (
+							{filteredLogs.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">📋</div>
+									<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Log Yok</h3>
+									<p className="text-gray-600">Sistem logları oluştuğunda burada görünecek</p>
+								</div>
+							) : (
+								<>
+									<div className="space-y-3">
+										{filteredLogs.map((log) => (
 									<div key={log.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
 										<div className="flex items-start justify-between">
 											<div className="flex items-start space-x-3 flex-1">
@@ -210,14 +165,16 @@ export default function SystemLogsPage() {
 											</button>
 										</div>
 									</div>
-								))}
-							</div>
+										))}
+									</div>
 
-							<div className="flex justify-center">
-								<button className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">
-									Daha Fazla Yükle
-								</button>
-							</div>
+									<div className="flex justify-center">
+										<button className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">
+											Daha Fazla Yükle
+										</button>
+									</div>
+								</>
+							)}
 						</div>
 					)}
 
@@ -242,8 +199,13 @@ export default function SystemLogsPage() {
 										<h4 className="font-semibold text-gray-900">Kaynak Dağılımı</h4>
 									</div>
 									<div className="p-4">
-										<div className="space-y-3">
-											{sources.map((source, index) => (
+										{sources.length === 0 ? (
+											<div className="text-center py-12">
+												<p className="text-gray-500">Henüz kaynak verisi yok</p>
+											</div>
+										) : (
+											<div className="space-y-3">
+												{sources.map((source, index) => (
 												<div key={index} className="flex justify-between items-center">
 													<span className="text-gray-700">{source.name}</span>
 													<div className="flex items-center space-x-2">
@@ -256,8 +218,9 @@ export default function SystemLogsPage() {
 														<span className="text-sm font-medium text-gray-900">{source.count}</span>
 													</div>
 												</div>
-											))}
-										</div>
+												))}
+											</div>
+										)}
 									</div>
 								</div>
 							</div>

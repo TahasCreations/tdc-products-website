@@ -4,78 +4,8 @@ import { useState } from 'react';
 
 export default function ContentApprovalWorkflowsPage() {
 	const [activeTab, setActiveTab] = useState('workflows');
-
-	const workflows = [
-		{
-			id: 1,
-			name: 'Blog Post Onay Süreci',
-			type: 'Blog',
-			steps: 4,
-			status: 'active',
-			pendingItems: 12,
-			avgTime: '2 saat',
-			lastUpdated: '2 gün önce'
-		},
-		{
-			id: 2,
-			name: 'Ürün İçeriği Onayı',
-			type: 'Product',
-			steps: 3,
-			status: 'active',
-			pendingItems: 8,
-			avgTime: '45 dakika',
-			lastUpdated: '1 gün önce'
-		},
-		{
-			id: 3,
-			name: 'Kullanıcı Yorumu Moderasyonu',
-			type: 'Comment',
-			steps: 2,
-			status: 'active',
-			pendingItems: 34,
-			avgTime: '15 dakika',
-			lastUpdated: '3 saat önce'
-		}
-	];
-
-	const pendingApprovals = [
-		{
-			id: 1,
-			title: 'Anime Figür Koleksiyonu Rehberi',
-			type: 'Blog Post',
-			author: 'content_writer',
-			workflow: 'Blog Post Onay Süreci',
-			currentStep: 'Editor Review',
-			assignedTo: 'Ayşe Demir',
-			submittedAt: '2 saat önce',
-			deadline: '1 gün',
-			priority: 'normal'
-		},
-		{
-			id: 2,
-			title: 'Vintage Poster Ürün Açıklaması',
-			type: 'Product Content',
-			author: 'product_manager',
-			workflow: 'Ürün İçeriği Onayı',
-			currentStep: 'Legal Review',
-			assignedTo: 'Mehmet Can',
-			submittedAt: '4 saat önce',
-			deadline: '2 gün',
-			priority: 'high'
-		},
-		{
-			id: 3,
-			title: 'Kullanıcı Yorumu - Teknoloji Ürünü',
-			type: 'Comment',
-			author: 'tech_user',
-			workflow: 'Kullanıcı Yorumu Moderasyonu',
-			currentStep: 'Content Review',
-			assignedTo: 'Fatma Öz',
-			submittedAt: '1 saat önce',
-			deadline: '6 saat',
-			priority: 'urgent'
-		}
-	];
+	const [workflows] = useState<any[]>([]);
+	const [pendingApprovals] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -116,23 +46,23 @@ export default function ContentApprovalWorkflowsPage() {
 			{/* Statistics */}
 			<div className="grid md:grid-cols-5 gap-4">
 				<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-					<div className="text-2xl font-bold text-blue-700">54</div>
+					<div className="text-2xl font-bold text-blue-700">0</div>
 					<div className="text-sm text-blue-600">Bekleyen Onay</div>
 				</div>
 				<div className="bg-green-50 p-4 rounded-lg border border-green-200">
-					<div className="text-2xl font-bold text-green-700">3</div>
+					<div className="text-2xl font-bold text-green-700">0</div>
 					<div className="text-sm text-green-600">Aktif Workflow</div>
 				</div>
 				<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-					<div className="text-2xl font-bold text-purple-700">1.2 saat</div>
+					<div className="text-2xl font-bold text-purple-700">0 saat</div>
 					<div className="text-sm text-purple-600">Ortalama Süre</div>
 				</div>
 				<div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-					<div className="text-2xl font-bold text-orange-700">96%</div>
+					<div className="text-2xl font-bold text-orange-700">0%</div>
 					<div className="text-sm text-orange-600">Onay Oranı</div>
 				</div>
 				<div className="bg-red-50 p-4 rounded-lg border border-red-200">
-					<div className="text-2xl font-bold text-red-700">6</div>
+					<div className="text-2xl font-bold text-red-700">0</div>
 					<div className="text-sm text-red-600">Acil Durum</div>
 				</div>
 			</div>
@@ -168,8 +98,18 @@ export default function ContentApprovalWorkflowsPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Onay Workflow\'ları</h3>
 
-							<div className="space-y-4">
-								{workflows.map((workflow) => (
+							{workflows.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">🔄</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Workflow Yok</h3>
+									<p className="text-gray-600 mb-4">İçerik onay süreçleri için workflow oluşturun.</p>
+									<button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+										İlk Workflow'u Oluştur
+									</button>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{workflows.map((workflow) => (
 									<div key={workflow.id} className="border rounded-lg p-6">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
@@ -218,7 +158,8 @@ export default function ContentApprovalWorkflowsPage() {
 										</div>
 									</div>
 								))}
-							</div>
+								</div>
+							)}
 						</div>
 					)}
 
@@ -226,8 +167,15 @@ export default function ContentApprovalWorkflowsPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Bekleyen Onaylar</h3>
 
-							<div className="space-y-4">
-								{pendingApprovals.map((item) => (
+							{pendingApprovals.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">⏳</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Bekleyen Onay Yok</h3>
+									<p className="text-gray-600">Onay bekleyen içerikler burada görünecek.</p>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{pendingApprovals.map((item) => (
 									<div key={item.id} className="border rounded-lg p-6">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
@@ -271,7 +219,8 @@ export default function ContentApprovalWorkflowsPage() {
 										</div>
 									</div>
 								))}
-							</div>
+								</div>
+							)}
 						</div>
 					)}
 
@@ -310,19 +259,19 @@ export default function ContentApprovalWorkflowsPage() {
 								<div className="p-4">
 									<div className="grid md:grid-cols-4 gap-6">
 										<div className="text-center">
-											<div className="text-2xl font-bold text-green-600">96%</div>
+											<div className="text-2xl font-bold text-green-600">0%</div>
 											<div className="text-sm text-gray-600">Onay Oranı</div>
 										</div>
 										<div className="text-center">
-											<div className="text-2xl font-bold text-blue-600">1.2 saat</div>
+											<div className="text-2xl font-bold text-blue-600">0 saat</div>
 											<div className="text-sm text-gray-600">Ortalama Süre</div>
 										</div>
 										<div className="text-center">
-											<div className="text-2xl font-bold text-purple-600">2.1 gün</div>
+											<div className="text-2xl font-bold text-purple-600">0 gün</div>
 											<div className="text-sm text-gray-600">Ortalama Bekleme</div>
 										</div>
 										<div className="text-center">
-											<div className="text-2xl font-bold text-orange-600">4%</div>
+											<div className="text-2xl font-bold text-orange-600">0%</div>
 											<div className="text-sm text-gray-600">Red Oranı</div>
 										</div>
 									</div>

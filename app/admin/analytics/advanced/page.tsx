@@ -14,10 +14,10 @@ export default function AdvancedAnalyticsPage() {
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {[
-            { label: 'Toplam Ziyaretçi', value: '12,547', change: '+12%', icon: Users, color: 'blue' },
-            { label: 'Dönüşüm Oranı', value: '%3.2', change: '+0.8%', icon: TrendingUp, color: 'green' },
-            { label: 'Ortalama Sepet', value: '₺458', change: '+₺23', icon: ShoppingCart, color: 'purple' },
-            { label: 'Sayfa Görüntüleme', value: '45,234', change: '+8%', icon: Eye, color: 'orange' },
+            { label: 'Toplam Ziyaretçi', value: '0', change: '0%', icon: Users, color: 'blue' },
+            { label: 'Dönüşüm Oranı', value: '%0', change: '0%', icon: TrendingUp, color: 'green' },
+            { label: 'Ortalama Sepet', value: '₺0', change: '₺0', icon: ShoppingCart, color: 'purple' },
+            { label: 'Sayfa Görüntüleme', value: '0', change: '0%', icon: Eye, color: 'orange' },
           ].map((metric, i) => {
             const Icon = metric.icon;
             return (
@@ -56,13 +56,9 @@ export default function AdvancedAnalyticsPage() {
             <h3 className="text-lg font-bold text-gray-900 mb-4">
               En Çok Tıklanan Ürünler
             </h3>
-            <div className="space-y-3">
-              {['Anime Figür Set', 'Limited Edition', 'Premium Collection'].map((product, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <span className="font-semibold">{product}</span>
-                  <span className="text-purple-600 font-bold">{234 - i * 30} tıklama</span>
-                </div>
-              ))}
+            <div className="text-center py-8">
+              <div className="text-gray-400 mb-2 text-4xl">📊</div>
+              <p className="text-gray-500">Henüz tıklama verisi bulunmuyor</p>
             </div>
           </div>
         </div>

@@ -4,48 +4,26 @@ import { useState } from 'react';
 
 export default function SellersPage() {
 	const [activeTab, setActiveTab] = useState('all');
+	const [sellers, setSellers] = useState<Array<{
+		id: string;
+		name: string;
+		company: string;
+		email: string;
+		phone: string;
+		status: string;
+		joinDate: string;
+		totalSales: string;
+		commission: string;
+		products: number;
+		rating: number;
+	}>>([]);
 
-	const sellers = [
-		{
-			id: 'SELL-001',
-			name: 'Ahmet Yılmaz',
-			company: 'Yılmaz Elektronik',
-			email: 'ahmet@yilmazelektronik.com',
-			phone: '+90 532 123 4567',
-			status: 'Aktif',
-			joinDate: '2023-05-15',
-			totalSales: '₺45,680',
-			commission: '₺3,254',
-			products: 23,
-			rating: 4.8
-		},
-		{
-			id: 'SELL-002',
-			name: 'Fatma Kaya',
-			company: 'Kaya Tasarım',
-			email: 'fatma@kayatasarim.com',
-			phone: '+90 533 987 6543',
-			status: 'Beklemede',
-			joinDate: '2024-01-10',
-			totalSales: '₺12,340',
-			commission: '₺864',
-			products: 8,
-			rating: 4.5
-		},
-		{
-			id: 'SELL-003',
-			name: 'Mehmet Demir',
-			company: 'Demir Hobi',
-			email: 'mehmet@demirhobi.com',
-			phone: '+90 534 555 7890',
-			status: 'Askıda',
-			joinDate: '2023-11-20',
-			totalSales: '₺78,920',
-			commission: '₺5,524',
-			products: 45,
-			rating: 4.2
-		}
-	];
+	// TODO: API'den gerçek satıcı verileri çekilecek
+	// useEffect(() => {
+	//   fetchSellers();
+	// }, []);
+	
+	// Demo veriler kaldırıldı - gerçek veriler veritabanından gelecek
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -82,19 +60,19 @@ export default function SellersPage() {
 			{/* Summary Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-blue-600">156</div>
+					<div className="text-lg font-semibold text-blue-600">{sellers.length}</div>
 					<div className="text-sm text-gray-600">Toplam Satıcı</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-green-600">134</div>
+					<div className="text-lg font-semibold text-green-600">{sellers.filter(s => s.status === 'Aktif').length}</div>
 					<div className="text-sm text-gray-600">Aktif Satıcı</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-yellow-600">12</div>
+					<div className="text-lg font-semibold text-yellow-600">{sellers.filter(s => s.status === 'Beklemede').length}</div>
 					<div className="text-sm text-gray-600">Onay Bekleyen</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">₺1.2M</div>
+					<div className="text-lg font-semibold text-purple-600">₺0</div>
 					<div className="text-sm text-gray-600">Toplam Satış</div>
 				</div>
 			</div>
@@ -132,83 +110,97 @@ export default function SellersPage() {
 					</nav>
 				</div>
 
-				{/* Sellers Table */}
-				<div className="overflow-x-auto">
-					<table className="w-full">
-						<thead className="bg-gray-50">
-							<tr>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Satıcı
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İletişim
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Performans
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Satışlar
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Durum
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İşlemler
-								</th>
-							</tr>
-						</thead>
-						<tbody className="bg-white divide-y divide-gray-200">
-							{filteredSellers.map((seller) => (
-								<tr key={seller.id} className="hover:bg-gray-50">
-									<td className="px-6 py-4 whitespace-nowrap">
-										<div className="flex items-center">
-											<div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-												<span className="text-indigo-600 font-semibold">
-													{seller.name.split(' ').map(n => n[0]).join('')}
-												</span>
-											</div>
-											<div className="ml-4">
-												<div className="text-sm font-medium text-gray-900">{seller.name}</div>
-												<div className="text-sm text-gray-500">{seller.company}</div>
-											</div>
-										</div>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										<div>{seller.email}</div>
-										<div className="text-gray-500">{seller.phone}</div>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										<div className="flex items-center">
-											<span className="text-yellow-500">★</span>
-											<span className="ml-1">{seller.rating}</span>
-										</div>
-										<div className="text-gray-500">{seller.products} ürün</div>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										<div className="font-semibold">{seller.totalSales}</div>
-										<div className="text-gray-500">Komisyon: {seller.commission}</div>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap">
-										<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(seller.status)}`}>
-											{seller.status}
-										</span>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-										<button className="text-indigo-600 hover:text-indigo-900 mr-3">
-											Görüntüle
-										</button>
-										<button className="text-green-600 hover:text-green-900 mr-3">
-											Onayla
-										</button>
-										<button className="text-red-600 hover:text-red-900">
-											Askıya Al
-										</button>
-									</td>
+				{/* Sellers Table or Empty State */}
+				{filteredSellers.length === 0 ? (
+					<div className="p-12 text-center">
+						<div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+							<span className="text-4xl">👥</span>
+						</div>
+						<h3 className="text-lg font-semibold text-gray-900 mb-2">
+							Henüz Satıcı Yok
+						</h3>
+						<p className="text-gray-600 text-sm max-w-md mx-auto mb-4">
+							İlk satıcı başvurusu geldiğinde burada görünecek
+						</p>
+					</div>
+				) : (
+					<div className="overflow-x-auto">
+						<table className="w-full">
+							<thead className="bg-gray-50">
+								<tr>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Satıcı
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İletişim
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Performans
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Satışlar
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Durum
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İşlemler
+									</th>
 								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
+							</thead>
+							<tbody className="bg-white divide-y divide-gray-200">
+								{filteredSellers.map((seller) => (
+									<tr key={seller.id} className="hover:bg-gray-50">
+										<td className="px-6 py-4 whitespace-nowrap">
+											<div className="flex items-center">
+												<div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+													<span className="text-indigo-600 font-semibold">
+														{seller.name.split(' ').map(n => n[0]).join('')}
+													</span>
+												</div>
+												<div className="ml-4">
+													<div className="text-sm font-medium text-gray-900">{seller.name}</div>
+													<div className="text-sm text-gray-500">{seller.company}</div>
+												</div>
+											</div>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											<div>{seller.email}</div>
+											<div className="text-gray-500">{seller.phone}</div>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											<div className="flex items-center">
+												<span className="text-yellow-500">★</span>
+												<span className="ml-1">{seller.rating}</span>
+											</div>
+											<div className="text-gray-500">{seller.products} ürün</div>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											<div className="font-semibold">{seller.totalSales}</div>
+											<div className="text-gray-500">Komisyon: {seller.commission}</div>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap">
+											<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(seller.status)}`}>
+												{seller.status}
+											</span>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+											<button className="text-indigo-600 hover:text-indigo-900 mr-3">
+												Görüntüle
+											</button>
+											<button className="text-green-600 hover:text-green-900 mr-3">
+												Onayla
+											</button>
+											<button className="text-red-600 hover:text-red-900">
+												Askıya Al
+											</button>
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				)}
 			</div>
 
 			{/* Quick Actions */}

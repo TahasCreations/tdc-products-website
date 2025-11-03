@@ -5,36 +5,7 @@ import { useState } from 'react';
 export default function VisualQualityPage() {
 	const [isAnalyzing, setIsAnalyzing] = useState(false);
 	const [selectedImages, setSelectedImages] = useState<string[]>([]);
-
-	const analysisResults = [
-		{
-			id: 'IMG-001',
-			filename: 'anime-figur-naruto.jpg',
-			product: 'Anime Figür - Naruto',
-			qualityScore: 92,
-			issues: ['Düşük çözünürlük'],
-			recommendations: ['4K çözünürlükte yeniden çek', 'Arka plan temizle'],
-			status: 'Onaylandı'
-		},
-		{
-			id: 'IMG-002',
-			filename: 'seramik-vazo-el-yapimi.jpg',
-			product: 'El Yapımı Seramik Vazo',
-			qualityScore: 76,
-			issues: ['Kötü aydınlatma', 'Bulanık görüntü'],
-			recommendations: ['Profesyonel aydınlatma kullan', 'Tripod kullan'],
-			status: 'Düzeltme Gerekli'
-		},
-		{
-			id: 'IMG-003',
-			filename: 'vintage-poster-set.jpg',
-			product: 'Vintage Poster Seti',
-			qualityScore: 88,
-			issues: ['Renk dengesizliği'],
-			recommendations: ['Renk düzeltmesi yap', 'Kontrast artır'],
-			status: 'İnceleniyor'
-		}
-	];
+	const [analysisResults, setAnalysisResults] = useState<any[]>([]);
 
 	const getScoreColor = (score: number) => {
 		if (score >= 90) return 'text-green-600';
@@ -79,19 +50,19 @@ export default function VisualQualityPage() {
 			{/* Summary Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-blue-600">1,247</div>
+					<div className="text-lg font-semibold text-blue-600">0</div>
 					<div className="text-sm text-gray-600">Analiz Edilen Görsel</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-green-600">85.2</div>
+					<div className="text-lg font-semibold text-green-600">0</div>
 					<div className="text-sm text-gray-600">Ortalama Kalite Skoru</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-yellow-600">156</div>
+					<div className="text-lg font-semibold text-yellow-600">0</div>
 					<div className="text-sm text-gray-600">Düzeltme Gerekli</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-red-600">23</div>
+					<div className="text-lg font-semibold text-red-600">0</div>
 					<div className="text-sm text-gray-600">Reddedilen</div>
 				</div>
 			</div>
@@ -158,7 +129,16 @@ export default function VisualQualityPage() {
 							</tr>
 						</thead>
 						<tbody className="bg-white divide-y divide-gray-200">
-							{analysisResults.map((result) => (
+							{analysisResults.length === 0 ? (
+								<tr>
+									<td colSpan={8} className="px-6 py-12 text-center">
+										<div className="text-4xl mb-4">📸</div>
+										<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Analiz Yok</h3>
+										<p className="text-gray-600">Görsel yükleyerek AI kalite kontrolüne başlayın.</p>
+									</td>
+								</tr>
+							) : (
+								analysisResults.map((result) => (
 								<tr key={result.id} className="hover:bg-gray-50">
 									<td className="px-6 py-4 whitespace-nowrap">
 										<input type="checkbox" className="rounded" />
@@ -219,7 +199,8 @@ export default function VisualQualityPage() {
 										</button>
 									</td>
 								</tr>
-							))}
+								))
+							)}
 						</tbody>
 					</table>
 				</div>

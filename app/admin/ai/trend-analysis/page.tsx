@@ -113,19 +113,19 @@ export default function TrendAnalysisPage() {
 			{/* Summary Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-green-600">+18%</div>
+					<div className="text-lg font-semibold text-green-600">0%</div>
 					<div className="text-sm text-gray-600">Genel Trend</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-blue-600">156</div>
+					<div className="text-lg font-semibold text-blue-600">0</div>
 					<div className="text-sm text-gray-600">Takip Edilen Kelime</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">23</div>
+					<div className="text-lg font-semibold text-purple-600">0</div>
 					<div className="text-sm text-gray-600">Yükselen Trend</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-orange-600">89</div>
+					<div className="text-lg font-semibold text-orange-600">0</div>
 					<div className="text-sm text-gray-600">Fırsat Skoru</div>
 				</div>
 			</div>
@@ -203,7 +203,16 @@ export default function TrendAnalysisPage() {
 							</tr>
 						</thead>
 						<tbody className="bg-white divide-y divide-gray-200">
-							{(results?.trends || trendData).map((item: any, i: number) => (
+							{(results?.trends || trendData).length === 0 ? (
+								<tr>
+									<td colSpan={8} className="px-6 py-12 text-center">
+										<div className="text-4xl mb-4">📈</div>
+										<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Trend Verisi Yok</h3>
+										<p className="text-gray-600">Analiz başlatarak trendleri keşfedin.</p>
+									</td>
+								</tr>
+							) : (
+								(results?.trends || trendData).map((item: any, i: number) => (
 								<tr key={i} className="hover:bg-gray-50">
 									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
 										{item.keyword}
@@ -241,7 +250,8 @@ export default function TrendAnalysisPage() {
 										</button>
 									</td>
 								</tr>
-							))}
+								))
+							)}
 						</tbody>
 					</table>
 				</div>

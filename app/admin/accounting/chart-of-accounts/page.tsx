@@ -5,45 +5,7 @@ import { useState } from 'react';
 export default function ChartOfAccountsPage() {
 	const [expandedGroups, setExpandedGroups] = useState<string[]>(['100', '200']);
 
-	const accounts = [
-		{
-			code: '100',
-			name: 'VARLIKLAR',
-			type: 'group',
-			children: [
-				{ code: '100.01', name: 'Kasa', balance: '₺15,450', type: 'account' },
-				{ code: '100.02', name: 'Banka - TL', balance: '₺234,567', type: 'account' },
-				{ code: '100.03', name: 'Banka - USD', balance: '$12,340', type: 'account' },
-			]
-		},
-		{
-			code: '120',
-			name: 'TİCARİ ALACAKLAR',
-			type: 'group',
-			children: [
-				{ code: '120.01', name: 'Müşteriler', balance: '₺89,450', type: 'account' },
-				{ code: '120.02', name: 'Alacak Senetleri', balance: '₺45,600', type: 'account' },
-			]
-		},
-		{
-			code: '200',
-			name: 'YÜKÜMLÜLÜKLER',
-			type: 'group',
-			children: [
-				{ code: '200.01', name: 'Satıcılar', balance: '₺67,890', type: 'account' },
-				{ code: '200.02', name: 'Borç Senetleri', balance: '₺23,450', type: 'account' },
-			]
-		},
-		{
-			code: '300',
-			name: 'ÖZKAYNAKLAR',
-			type: 'group',
-			children: [
-				{ code: '300.01', name: 'Sermaye', balance: '₺500,000', type: 'account' },
-				{ code: '300.02', name: 'Geçmiş Yıl Kârları', balance: '₺156,780', type: 'account' },
-			]
-		}
-	];
+	const [accounts, setAccounts] = useState<any[]>([]);
 
 	const toggleGroup = (code: string) => {
 		setExpandedGroups(prev => 
@@ -70,19 +32,19 @@ export default function ChartOfAccountsPage() {
 			{/* Summary Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-green-600">₺789,457</div>
+					<div className="text-lg font-semibold text-green-600">₺0</div>
 					<div className="text-sm text-gray-600">Toplam Varlıklar</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-red-600">₺91,340</div>
+					<div className="text-lg font-semibold text-red-600">₺0</div>
 					<div className="text-sm text-gray-600">Toplam Yükümlülükler</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-blue-600">₺656,780</div>
+					<div className="text-lg font-semibold text-blue-600">₺0</div>
 					<div className="text-sm text-gray-600">Toplam Özkaynaklar</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">42</div>
+					<div className="text-lg font-semibold text-purple-600">0</div>
 					<div className="text-sm text-gray-600">Aktif Hesap Sayısı</div>
 				</div>
 			</div>
@@ -93,61 +55,69 @@ export default function ChartOfAccountsPage() {
 					<h3 className="text-lg font-semibold">Hesap Hiyerarşisi</h3>
 				</div>
 				<div className="p-6">
-					<div className="space-y-2">
-						{accounts.map((group) => (
-							<div key={group.code}>
-								{/* Group Header */}
-								<div 
-									className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
-									onClick={() => toggleGroup(group.code)}
-								>
-									<div className="flex items-center space-x-3">
-										<span className="text-gray-400">
-											{expandedGroups.includes(group.code) ? '▼' : '▶'}
-										</span>
-										<span className="font-semibold text-gray-900">
-											{group.code} - {group.name}
-										</span>
+					{accounts.length === 0 ? (
+						<div className="text-center py-12">
+							<div className="text-6xl mb-4">📊</div>
+							<p className="text-gray-500 text-lg mb-2">Henüz Hesap Tanımlanmamış</p>
+							<p className="text-gray-400 text-sm">Hesap planınızı oluşturun</p>
+						</div>
+					) : (
+						<div className="space-y-2">
+							{accounts.map((group) => (
+								<div key={group.code}>
+									{/* Group Header */}
+									<div 
+										className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100"
+										onClick={() => toggleGroup(group.code)}
+									>
+										<div className="flex items-center space-x-3">
+											<span className="text-gray-400">
+												{expandedGroups.includes(group.code) ? '▼' : '▶'}
+											</span>
+											<span className="font-semibold text-gray-900">
+												{group.code} - {group.name}
+											</span>
+										</div>
+										<div className="text-sm text-gray-500">
+											{group.children.length} hesap
+										</div>
 									</div>
-									<div className="text-sm text-gray-500">
-										{group.children.length} hesap
-									</div>
-								</div>
 
-								{/* Group Children */}
-								{expandedGroups.includes(group.code) && (
-									<div className="ml-8 space-y-1">
-										{group.children.map((account) => (
-											<div key={account.code} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
-												<div className="flex items-center space-x-3">
-													<span className="text-gray-400">📄</span>
-													<span className="text-gray-900">
-														{account.code} - {account.name}
-													</span>
-												</div>
-												<div className="flex items-center space-x-4">
-													<span className="font-semibold text-gray-900">
-														{account.balance}
-													</span>
-													<div className="flex space-x-2">
-														<button className="text-indigo-600 hover:text-indigo-900 text-sm">
-															Düzenle
-														</button>
-														<button className="text-green-600 hover:text-green-900 text-sm">
-															Hareket
-														</button>
-														<button className="text-red-600 hover:text-red-900 text-sm">
-															Sil
-														</button>
+									{/* Group Children */}
+									{expandedGroups.includes(group.code) && (
+										<div className="ml-8 space-y-1">
+											{group.children.map((account) => (
+												<div key={account.code} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+													<div className="flex items-center space-x-3">
+														<span className="text-gray-400">📄</span>
+														<span className="text-gray-900">
+															{account.code} - {account.name}
+														</span>
+													</div>
+													<div className="flex items-center space-x-4">
+														<span className="font-semibold text-gray-900">
+															{account.balance}
+														</span>
+														<div className="flex space-x-2">
+															<button className="text-indigo-600 hover:text-indigo-900 text-sm">
+																Düzenle
+															</button>
+															<button className="text-green-600 hover:text-green-900 text-sm">
+																Hareket
+															</button>
+															<button className="text-red-600 hover:text-red-900 text-sm">
+																Sil
+															</button>
+														</div>
 													</div>
 												</div>
-											</div>
-										))}
-									</div>
-								)}
-							</div>
-						))}
-					</div>
+											))}
+										</div>
+									)}
+								</div>
+							))}
+						</div>
+					)}
 				</div>
 			</div>
 

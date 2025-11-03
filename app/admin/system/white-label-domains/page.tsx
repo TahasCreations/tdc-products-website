@@ -6,125 +6,11 @@ export default function WhiteLabelDomainsPage() {
 	const [activeTab, setActiveTab] = useState('domains');
 	const [isAddingDomain, setIsAddingDomain] = useState(false);
 
-	const domains = [
-		{
-			id: 'DOM-001',
-			domain: 'shop.animestoretu.com',
-			sellerId: 'SEL-001',
-			sellerName: 'Anime Store Turkey',
-			status: 'active',
-			sslStatus: 'valid',
-			sslExpiry: '2024-12-15',
-			createdAt: '2024-01-15',
-			monthlyVisits: 12450,
-			conversionRate: 3.2,
-			revenue: 45680,
-			customizations: {
-				logo: true,
-				colors: true,
-				theme: 'dark',
-				favicon: true
-			}
-		},
-		{
-			id: 'DOM-002',
-			domain: 'store.vintagetr.com',
-			sellerId: 'SEL-002',
-			sellerName: 'Vintage Collections',
-			status: 'active',
-			sslStatus: 'expiring',
-			sslExpiry: '2024-02-28',
-			createdAt: '2024-01-10',
-			monthlyVisits: 8950,
-			conversionRate: 2.8,
-			revenue: 28340,
-			customizations: {
-				logo: true,
-				colors: true,
-				theme: 'light',
-				favicon: false
-			}
-		},
-		{
-			id: 'DOM-003',
-			domain: 'tech.gadgetspro.com',
-			sellerId: 'SEL-003',
-			sellerName: 'Tech Gadgets Pro',
-			status: 'pending',
-			sslStatus: 'pending',
-			sslExpiry: null,
-			createdAt: '2024-01-20',
-			monthlyVisits: 0,
-			conversionRate: 0,
-			revenue: 0,
-			customizations: {
-				logo: false,
-				colors: false,
-				theme: 'default',
-				favicon: false
-			}
-		}
-	];
+	const domains: any[] = [];
 
-	const dnsRecords = [
-		{
-			id: 'DNS-001',
-			domainId: 'DOM-001',
-			type: 'A',
-			name: '@',
-			value: '192.168.1.100',
-			ttl: 3600,
-			status: 'active'
-		},
-		{
-			id: 'DNS-002',
-			domainId: 'DOM-001',
-			type: 'CNAME',
-			name: 'www',
-			value: 'shop.animestoretu.com',
-			ttl: 3600,
-			status: 'active'
-		},
-		{
-			id: 'DNS-003',
-			domainId: 'DOM-002',
-			type: 'A',
-			name: '@',
-			value: '192.168.1.101',
-			ttl: 3600,
-			status: 'active'
-		}
-	];
+	const dnsRecords: any[] = [];
 
-	const subdomainTemplates = [
-		{
-			id: 'TPL-001',
-			name: 'E-ticaret Mağaza',
-			description: 'Tam özellikli online mağaza şablonu',
-			features: ['Ürün Katalogu', 'Sepet Sistemi', 'Ödeme Entegrasyonu', 'Stok Yönetimi'],
-			price: 299,
-			setupTime: '24 saat',
-			category: 'E-ticaret'
-		},
-		{
-			id: 'TPL-002',
-			name: 'Showcase Sitesi',
-			description: 'Ürün tanıtımı için basit vitrin sitesi',
-			features: ['Ürün Galerisi', 'İletişim Formu', 'Sosyal Medya Entegrasyonu'],
-			price: 99,
-			setupTime: '4 saat',
-			category: 'Vitrin'
-		},
-		{
-			id: 'TPL-003',
-			name: 'Premium Store',
-			description: 'Gelişmiş özellikler ve özelleştirmeler',
-			features: ['Tüm E-ticaret Özellikleri', 'Özel Tasarım', 'Analitik Dashboard', 'API Erişimi'],
-			price: 599,
-			setupTime: '48 saat',
-			category: 'Premium'
-		}
-	];
+	const subdomainTemplates: any[] = [];
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('tr-TR', {
@@ -236,22 +122,29 @@ export default function WhiteLabelDomainsPage() {
 				<div className="p-6">
 					{activeTab === 'domains' && (
 						<div className="space-y-4">
-							<div className="overflow-x-auto">
-								<table className="w-full">
-									<thead className="bg-gray-50">
-										<tr>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Domain</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Satıcı</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Durum</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">SSL</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Ziyaret</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Dönüşüm</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Gelir</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">İşlemler</th>
-										</tr>
-									</thead>
-									<tbody className="divide-y divide-gray-200">
-										{domains.map((domain) => (
+							{domains.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">🌐</div>
+									<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Domain Yok</h3>
+									<p className="text-gray-600">İlk domain eklendiğinde burada görünecek</p>
+								</div>
+							) : (
+								<div className="overflow-x-auto">
+									<table className="w-full">
+										<thead className="bg-gray-50">
+											<tr>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Domain</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Satıcı</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Durum</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">SSL</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Ziyaret</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Dönüşüm</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Gelir</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">İşlemler</th>
+											</tr>
+										</thead>
+										<tbody className="divide-y divide-gray-200">
+											{domains.map((domain) => (
 											<tr key={domain.id} className="hover:bg-gray-50">
 												<td className="px-4 py-3">
 													<div>
@@ -303,10 +196,11 @@ export default function WhiteLabelDomainsPage() {
 													</div>
 												</td>
 											</tr>
-										))}
-									</tbody>
-								</table>
-							</div>
+											))}
+										</tbody>
+									</table>
+								</div>
+							)}
 						</div>
 					)}
 
@@ -326,21 +220,28 @@ export default function WhiteLabelDomainsPage() {
 								</p>
 							</div>
 
-							<div className="overflow-x-auto">
-								<table className="w-full">
-									<thead className="bg-gray-50">
-										<tr>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Domain</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Tip</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Name</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Value</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">TTL</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Durum</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">İşlemler</th>
-										</tr>
-									</thead>
-									<tbody className="divide-y divide-gray-200">
-										{dnsRecords.map((record) => {
+							{dnsRecords.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">🔧</div>
+									<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz DNS Kaydı Yok</h3>
+									<p className="text-gray-600">DNS kayıtları oluşturduğunuzda burada görünecek</p>
+								</div>
+							) : (
+								<div className="overflow-x-auto">
+									<table className="w-full">
+										<thead className="bg-gray-50">
+											<tr>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Domain</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Tip</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Name</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Value</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">TTL</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Durum</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">İşlemler</th>
+											</tr>
+										</thead>
+										<tbody className="divide-y divide-gray-200">
+											{dnsRecords.map((record) => {
 											const domain = domains.find(d => d.id === record.domainId);
 											return (
 												<tr key={record.id} className="hover:bg-gray-50">
@@ -374,10 +275,11 @@ export default function WhiteLabelDomainsPage() {
 													</td>
 												</tr>
 											);
-										})}
-									</tbody>
-								</table>
-							</div>
+											})}
+										</tbody>
+									</table>
+								</div>
+							)}
 						</div>
 					)}
 
@@ -390,8 +292,15 @@ export default function WhiteLabelDomainsPage() {
 								</button>
 							</div>
 
-							<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-								{subdomainTemplates.map((template) => (
+							{subdomainTemplates.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">📄</div>
+									<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Şablon Yok</h3>
+									<p className="text-gray-600">Domain şablonları oluşturduğunuzda burada görünecek</p>
+								</div>
+							) : (
+								<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+									{subdomainTemplates.map((template) => (
 									<div key={template.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
@@ -432,8 +341,9 @@ export default function WhiteLabelDomainsPage() {
 											</button>
 										</div>
 									</div>
-								))}
-							</div>
+									))}
+								</div>
+							)}
 						</div>
 					)}
 

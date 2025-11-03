@@ -6,63 +6,7 @@ export default function ProcessAutomationPage() {
 	const [activeTab, setActiveTab] = useState('workflows');
 	const [selectedWorkflow, setSelectedWorkflow] = useState('order-processing');
 
-	const workflows = [
-		{
-			id: 'order-processing',
-			name: 'Sipariş İşleme Otomasyonu',
-			status: 'active',
-			triggers: 3,
-			actions: 8,
-			success_rate: 98.5,
-			executions: 15420,
-			last_run: '2 dakika önce',
-			description: 'Yeni siparişleri otomatik olarak işler, stok kontrolü yapar ve kargo sürecini başlatır'
-		},
-		{
-			id: 'customer-onboarding',
-			name: 'Müşteri Onboarding',
-			status: 'active',
-			triggers: 2,
-			actions: 12,
-			success_rate: 94.2,
-			executions: 3421,
-			last_run: '5 dakika önce',
-			description: 'Yeni kayıt olan müşterileri karşılar ve hoş geldin e-posta serisini başlatır'
-		},
-		{
-			id: 'inventory-management',
-			name: 'Envanter Yönetimi',
-			status: 'active',
-			triggers: 4,
-			actions: 6,
-			success_rate: 99.1,
-			executions: 8970,
-			last_run: '1 dakika önce',
-			description: 'Stok seviyelerini takip eder, kritik seviyede uyarı gönderir ve otomatik sipariş verir'
-		},
-		{
-			id: 'churn-prevention',
-			name: 'Churn Önleme',
-			status: 'paused',
-			triggers: 5,
-			actions: 10,
-			success_rate: 87.3,
-			executions: 2134,
-			last_run: '2 saat önce',
-			description: 'Risk altındaki müşterileri tespit eder ve retention kampanyaları başlatır'
-		},
-		{
-			id: 'price-monitoring',
-			name: 'Fiyat İzleme',
-			status: 'active',
-			triggers: 2,
-			actions: 4,
-			success_rate: 96.8,
-			executions: 12400,
-			last_run: '30 saniye önce',
-			description: 'Rakip fiyatlarını takip eder ve dinamik fiyatlandırma önerileri sunar'
-		}
-	];
+	const workflows: any[] = [];
 
 	const automationTypes = [
 		{
@@ -107,52 +51,9 @@ export default function ProcessAutomationPage() {
 		}
 	];
 
-	const triggers = [
-		{ name: 'Yeni Sipariş', count: 1234, icon: '🛒' },
-		{ name: 'Stok Azaldı', count: 89, icon: '📦' },
-		{ name: 'Müşteri Kaydı', count: 567, icon: '👤' },
-		{ name: 'Ödeme Alındı', count: 891, icon: '💰' },
-		{ name: 'Şikayet Geldi', count: 23, icon: '⚠️' },
-		{ name: 'Kampanya Bitti', count: 12, icon: '📅' }
-	];
+	const triggers: any[] = [];
 
-	const recentExecutions = [
-		{
-			workflow: 'Sipariş İşleme',
-			trigger: 'Yeni sipariş #12345',
-			status: 'success',
-			duration: '2.3s',
-			timestamp: '2 dakika önce'
-		},
-		{
-			workflow: 'Envanter Yönetimi',
-			trigger: 'Stok seviyesi düştü',
-			status: 'success',
-			duration: '1.8s',
-			timestamp: '3 dakika önce'
-		},
-		{
-			workflow: 'Müşteri Onboarding',
-			trigger: 'Yeni kullanıcı kaydı',
-			status: 'success',
-			duration: '4.1s',
-			timestamp: '5 dakika önce'
-		},
-		{
-			workflow: 'Fiyat İzleme',
-			trigger: 'Rakip fiyat değişti',
-			status: 'warning',
-			duration: '6.2s',
-			timestamp: '8 dakika önce'
-		},
-		{
-			workflow: 'Churn Önleme',
-			trigger: 'Risk skorları güncellendi',
-			status: 'error',
-			duration: '0.5s',
-			timestamp: '15 dakika önce'
-		}
-	];
+	const recentExecutions: any[] = [];
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -206,19 +107,19 @@ export default function ProcessAutomationPage() {
 					<div className="text-sm text-blue-600">Aktif Workflow</div>
 				</div>
 				<div className="bg-green-50 p-4 rounded-lg border border-green-200">
-					<div className="text-2xl font-bold text-green-700">42,945</div>
+					<div className="text-2xl font-bold text-green-700">0</div>
 					<div className="text-sm text-green-600">Bugün Çalıştırılan</div>
 				</div>
 				<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-					<div className="text-2xl font-bold text-purple-700">96.4%</div>
+					<div className="text-2xl font-bold text-purple-700">0%</div>
 					<div className="text-sm text-purple-600">Başarı Oranı</div>
 				</div>
 				<div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-					<div className="text-2xl font-bold text-orange-700">2.1s</div>
+					<div className="text-2xl font-bold text-orange-700">0s</div>
 					<div className="text-sm text-orange-600">Ortalama Süre</div>
 				</div>
 				<div className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-					<div className="text-2xl font-bold text-indigo-700">₺127K</div>
+					<div className="text-2xl font-bold text-indigo-700">₺0</div>
 					<div className="text-sm text-indigo-600">Aylık Tasarruf</div>
 				</div>
 			</div>
@@ -255,8 +156,16 @@ export default function ProcessAutomationPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Aktif İş Akışları</h3>
 
-							<div className="space-y-4">
-								{workflows.map((workflow) => (
+							{workflows.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">🔄</div>
+									<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Workflow Yok</h3>
+									<p className="text-gray-600">İlk workflow oluşturduğunuzda burada görünecek</p>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{workflows.map((workflow) => {
+										return (
 									<div key={workflow.id} className="border rounded-lg p-6 hover:bg-gray-50 transition-colors">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
@@ -325,8 +234,10 @@ export default function ProcessAutomationPage() {
 											</button>
 										</div>
 									</div>
-								))}
-							</div>
+										);
+									})}
+								</div>
+							)}
 						</div>
 					)}
 
@@ -334,8 +245,15 @@ export default function ProcessAutomationPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Tetikleyici Aktivitesi</h3>
 
-							<div className="grid md:grid-cols-3 gap-6">
-								{triggers.map((trigger, index) => (
+							{triggers.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">⚡</div>
+									<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Tetikleyici Yok</h3>
+									<p className="text-gray-600">Workflow'lar çalıştıkça tetikleyici aktivitesi burada görünecek</p>
+								</div>
+							) : (
+								<div className="grid md:grid-cols-3 gap-6">
+									{triggers.map((trigger, index) => (
 									<div key={index} className="bg-white border rounded-lg p-6">
 										<div className="flex items-center justify-between mb-4">
 											<div className="flex items-center space-x-3">
@@ -344,18 +262,20 @@ export default function ProcessAutomationPage() {
 											</div>
 											<span className="text-2xl font-bold text-indigo-600">{trigger.count}</span>
 										</div>
-										<div className="text-sm text-gray-600">Son 24 saatte tetiklendi</div>
+									<div className="text-sm text-gray-600">Son 24 saatte tetiklendi</div>
 									</div>
 								))}
-							</div>
-
-							<div className="bg-white border rounded-lg">
-								<div className="p-4 border-b border-gray-200">
-									<h4 className="font-semibold text-gray-900">Son Çalışmalar</h4>
 								</div>
-								<div className="p-4">
-									<div className="space-y-4">
-										{recentExecutions.map((execution, index) => (
+							)}
+
+							{recentExecutions.length > 0 && (
+								<div className="bg-white border rounded-lg">
+									<div className="p-4 border-b border-gray-200">
+										<h4 className="font-semibold text-gray-900">Son Çalışmalar</h4>
+									</div>
+									<div className="p-4">
+										<div className="space-y-4">
+											{recentExecutions.map((execution, index) => (
 											<div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
 												<div className="flex items-center space-x-4">
 													<span className="text-xl">{getExecutionStatusIcon(execution.status)}</span>
@@ -371,10 +291,11 @@ export default function ProcessAutomationPage() {
 													<div className="text-xs text-gray-500">{execution.timestamp}</div>
 												</div>
 											</div>
-										))}
+											))}
+										</div>
 									</div>
 								</div>
-							</div>
+							)}
 						</div>
 					)}
 
@@ -423,27 +344,27 @@ export default function ProcessAutomationPage() {
 												<span className="text-gray-700">CPU Kullanımı</span>
 												<div className="flex items-center space-x-2">
 													<div className="w-32 bg-gray-200 rounded-full h-2">
-														<div className="bg-blue-600 h-2 rounded-full" style={{ width: '23%' }}></div>
+														<div className="bg-blue-600 h-2 rounded-full" style={{ width: '0%' }}></div>
 													</div>
-													<span className="text-sm font-medium text-blue-600">23%</span>
+													<span className="text-sm font-medium text-blue-600">0%</span>
 												</div>
 											</div>
 											<div className="flex justify-between items-center">
 												<span className="text-gray-700">Bellek Kullanımı</span>
 												<div className="flex items-center space-x-2">
 													<div className="w-32 bg-gray-200 rounded-full h-2">
-														<div className="bg-green-600 h-2 rounded-full" style={{ width: '45%' }}></div>
+														<div className="bg-green-600 h-2 rounded-full" style={{ width: '0%' }}></div>
 													</div>
-													<span className="text-sm font-medium text-green-600">45%</span>
+													<span className="text-sm font-medium text-green-600">0%</span>
 												</div>
 											</div>
 											<div className="flex justify-between items-center">
 												<span className="text-gray-700">Aktif İş Akışı</span>
-												<span className="text-lg font-bold text-indigo-600">12</span>
+												<span className="text-lg font-bold text-indigo-600">0</span>
 											</div>
 											<div className="flex justify-between items-center">
 												<span className="text-gray-700">Bekleyen Görev</span>
-												<span className="text-lg font-bold text-orange-600">847</span>
+												<span className="text-lg font-bold text-orange-600">0</span>
 											</div>
 										</div>
 									</div>
@@ -454,37 +375,8 @@ export default function ProcessAutomationPage() {
 										<h4 className="font-semibold text-gray-900">Hata İzleme</h4>
 									</div>
 									<div className="p-4">
-										<div className="space-y-3">
-											<div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-												<div className="flex items-center space-x-2">
-													<span className="text-red-600">❌</span>
-													<span className="font-medium text-red-900">Connection Timeout</span>
-												</div>
-												<div className="text-sm text-red-700 mt-1">
-													Churn Önleme workflow'unda API bağlantı hatası
-												</div>
-												<div className="text-xs text-red-600 mt-1">2 dakika önce</div>
-											</div>
-											<div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-												<div className="flex items-center space-x-2">
-													<span className="text-yellow-600">⚠️</span>
-													<span className="font-medium text-yellow-900">Rate Limit Warning</span>
-												</div>
-												<div className="text-sm text-yellow-700 mt-1">
-													Email servisi rate limit'e yaklaşıyor
-												</div>
-												<div className="text-xs text-yellow-600 mt-1">5 dakika önce</div>
-											</div>
-											<div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-												<div className="flex items-center space-x-2">
-													<span className="text-blue-600">ℹ️</span>
-													<span className="font-medium text-blue-900">High Volume Alert</span>
-												</div>
-												<div className="text-sm text-blue-700 mt-1">
-													Sipariş işleme workflow'u yoğun trafikte
-												</div>
-												<div className="text-xs text-blue-600 mt-1">8 dakika önce</div>
-											</div>
+										<div className="text-center py-8 text-gray-500">
+											Henüz hata bulunmuyor
 										</div>
 									</div>
 								</div>
@@ -510,34 +402,34 @@ export default function ProcessAutomationPage() {
 							<div className="grid md:grid-cols-3 gap-6">
 								<div className="bg-green-50 border border-green-200 rounded-lg p-6">
 									<h4 className="font-semibold text-green-900 mb-4">💰 Maliyet Tasarrufu</h4>
-									<div className="text-3xl font-bold text-green-700 mb-2">₺127,340</div>
+									<div className="text-3xl font-bold text-green-700 mb-2">₺0</div>
 									<div className="text-sm text-green-600">Bu ay tasarruf edilen</div>
 									<div className="mt-3 text-xs text-green-700">
-										• Manuel işlem süresi: -78%<br/>
-										• Hata oranı: -92%<br/>
-										• İşlem maliyeti: -65%
+										• Manuel işlem süresi: -0%<br/>
+										• Hata oranı: -0%<br/>
+										• İşlem maliyeti: -0%
 									</div>
 								</div>
 
 								<div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
 									<h4 className="font-semibold text-blue-900 mb-4">⏱️ Zaman Kazanımı</h4>
-									<div className="text-3xl font-bold text-blue-700 mb-2">456 saat</div>
+									<div className="text-3xl font-bold text-blue-700 mb-2">0 saat</div>
 									<div className="text-sm text-blue-600">Bu ay kazanılan zaman</div>
 									<div className="mt-3 text-xs text-blue-700">
-										• Ortalama işlem süresi: 2.1s<br/>
-										• Manuel süre: 8.3 dakika<br/>
-										• Verimlilik artışı: %340
+										• Ortalama işlem süresi: 0s<br/>
+										• Manuel süre: 0 dakika<br/>
+										• Verimlilik artışı: %0
 									</div>
 								</div>
 
 								<div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
 									<h4 className="font-semibold text-purple-900 mb-4">📈 Performans</h4>
-									<div className="text-3xl font-bold text-purple-700 mb-2">%96.4</div>
+									<div className="text-3xl font-bold text-purple-700 mb-2">%0</div>
 									<div className="text-sm text-purple-600">Genel başarı oranı</div>
 									<div className="mt-3 text-xs text-purple-700">
-										• Uptime: %99.8<br/>
-										• Ortalama yanıt: 1.2s<br/>
-										• SLA uyumluluk: %100
+										• Uptime: %0<br/>
+										• Ortalama yanıt: 0s<br/>
+										• SLA uyumluluk: %0
 									</div>
 								</div>
 							</div>
@@ -573,19 +465,19 @@ export default function ProcessAutomationPage() {
 								<div className="p-4">
 									<div className="grid md:grid-cols-4 gap-6">
 										<div className="text-center">
-											<div className="text-2xl font-bold text-green-600">₺89K</div>
+											<div className="text-2xl font-bold text-green-600">₺0</div>
 											<div className="text-sm text-gray-600">Otomasyon Yatırımı</div>
 										</div>
 										<div className="text-center">
-											<div className="text-2xl font-bold text-blue-600">₺347K</div>
+											<div className="text-2xl font-bold text-blue-600">₺0</div>
 											<div className="text-sm text-gray-600">Toplam Tasarruf</div>
 										</div>
 										<div className="text-center">
-											<div className="text-2xl font-bold text-purple-600">390%</div>
+											<div className="text-2xl font-bold text-purple-600">0%</div>
 											<div className="text-sm text-gray-600">ROI Oranı</div>
 										</div>
 										<div className="text-center">
-											<div className="text-2xl font-bold text-orange-600">3.2 ay</div>
+											<div className="text-2xl font-bold text-orange-600">0 ay</div>
 											<div className="text-sm text-gray-600">Geri Ödeme Süresi</div>
 										</div>
 									</div>

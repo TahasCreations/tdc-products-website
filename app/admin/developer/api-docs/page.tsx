@@ -83,11 +83,11 @@ export default function ApiDocsPage() {
 					<div className="text-sm text-gray-600">API Versiyonu</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">99.9%</div>
+					<div className="text-lg font-semibold text-purple-600">0%</div>
 					<div className="text-sm text-gray-600">Uptime</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-orange-600">156ms</div>
+					<div className="text-lg font-semibold text-orange-600">0ms</div>
 					<div className="text-sm text-gray-600">Ortalama Yanıt</div>
 				</div>
 			</div>

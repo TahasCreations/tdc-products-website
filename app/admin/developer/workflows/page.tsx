@@ -6,63 +6,9 @@ export default function WorkflowsPage() {
 	const [activeTab, setActiveTab] = useState('active');
 	const [isCreatingWorkflow, setIsCreatingWorkflow] = useState(false);
 
-	const workflows = [
-		{
-			id: 'WF-001',
-			name: 'Sipariş Onay Süreci',
-			description: 'Yeni siparişlerin otomatik onay ve işleme süreci',
-			trigger: 'order.created',
-			status: 'Aktif',
-			lastRun: '2024-01-15 14:30:25',
-			totalRuns: 1247,
-			successRate: '98.5%',
-			steps: 5,
-			category: 'E-ticaret'
-		},
-		{
-			id: 'WF-002',
-			name: 'Stok Uyarı Sistemi',
-			description: 'Düşük stok seviyelerinde otomatik bildirim gönderme',
-			trigger: 'inventory.low',
-			status: 'Aktif',
-			lastRun: '2024-01-15 13:45:12',
-			totalRuns: 892,
-			successRate: '99.2%',
-			steps: 3,
-			category: 'Envanter'
-		},
-		{
-			id: 'WF-003',
-			name: 'Müşteri Hoşgeldin Serisi',
-			description: 'Yeni müşterilere hoşgeldin e-posta serisi gönderme',
-			trigger: 'user.registered',
-			status: 'Taslak',
-			lastRun: null,
-			totalRuns: 0,
-			successRate: '0%',
-			steps: 4,
-			category: 'Pazarlama'
-		}
-	];
+	const workflows: any[] = [];
 
-	const workflowTemplates = [
-		{
-			id: 'TPL-001',
-			name: 'Ödeme Hatırlatma',
-			description: 'Ödenmemiş faturalar için otomatik hatırlatma',
-			category: 'Finans',
-			steps: 3,
-			popularity: 'Yüksek'
-		},
-		{
-			id: 'TPL-002',
-			name: 'Ürün İnceleme Talebi',
-			description: 'Teslim edilen ürünler için inceleme talebi',
-			category: 'Müşteri İlişkileri',
-			steps: 2,
-			popularity: 'Orta'
-		}
-	];
+	const workflowTemplates: any[] = [];
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -120,11 +66,11 @@ export default function WorkflowsPage() {
 					<div className="text-sm text-gray-600">Aktif Workflow</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">2,139</div>
+					<div className="text-lg font-semibold text-purple-600">0</div>
 					<div className="text-sm text-gray-600">Toplam Çalıştırma</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-orange-600">98.9%</div>
+					<div className="text-lg font-semibold text-orange-600">0%</div>
 					<div className="text-sm text-gray-600">Başarı Oranı</div>
 				</div>
 			</div>
@@ -164,8 +110,15 @@ export default function WorkflowsPage() {
 
 				<div className="p-6">
 					{activeTab !== 'templates' ? (
-						<div className="space-y-4">
-							{filteredWorkflows.map((workflow) => (
+						filteredWorkflows.length === 0 ? (
+							<div className="text-center py-12">
+								<div className="text-6xl mb-4">📋</div>
+								<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Workflow Yok</h3>
+								<p className="text-gray-600">İlk workflow oluşturduğunuzda burada görünecek</p>
+							</div>
+						) : (
+							<div className="space-y-4">
+								{filteredWorkflows.map((workflow) => (
 								<div key={workflow.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
 									<div className="flex items-start justify-between mb-4">
 										<div className="flex-1">
@@ -214,11 +167,19 @@ export default function WorkflowsPage() {
 										</div>
 									</div>
 								</div>
-							))}
-						</div>
+								))}
+							</div>
+						)
 					) : (
-						<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-							{workflowTemplates.map((template) => (
+						workflowTemplates.length === 0 ? (
+							<div className="text-center py-12">
+								<div className="text-6xl mb-4">📋</div>
+								<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Şablon Yok</h3>
+								<p className="text-gray-600">Workflow şablonları burada görünecek</p>
+							</div>
+						) : (
+							<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+								{workflowTemplates.map((template) => (
 								<div key={template.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
 									<div className="flex items-start justify-between mb-4">
 										<div className="flex-1">
@@ -240,8 +201,9 @@ export default function WorkflowsPage() {
 										</button>
 									</div>
 								</div>
-							))}
-						</div>
+								))}
+							</div>
+						)
 					)}
 				</div>
 			</div>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateChatbotResponse, detectIntent, analyzeSentiment } from '@/lib/chatbot';
+import { generateChatbotResponse, detectUserIntent, analyzeSentiment } from '@/lib/chatbot';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Detect intent and sentiment
-    const intent = detectIntent(message);
+    const intent = detectUserIntent(message);
     const sentiment = analyzeSentiment(message);
 
     // Generate response

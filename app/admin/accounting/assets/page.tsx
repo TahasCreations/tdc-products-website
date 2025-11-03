@@ -6,38 +6,7 @@ export default function AssetsPage() {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterCategory, setFilterCategory] = useState('all');
 
-	const assets = [
-		{
-			id: 'AST001',
-			name: 'Ofis Mobilyaları',
-			category: 'furniture',
-			purchaseDate: '2022-01-15',
-			cost: 50000,
-			depreciation: 10000,
-			currentValue: 40000,
-			status: 'active'
-		},
-		{
-			id: 'AST002',
-			name: 'Bilgisayar Ekipmanları',
-			category: 'electronics',
-			purchaseDate: '2022-03-01',
-			cost: 30000,
-			depreciation: 12000,
-			currentValue: 18000,
-			status: 'active'
-		},
-		{
-			id: 'AST003',
-			name: 'Depo Raf Sistemi',
-			category: 'furniture',
-			purchaseDate: '2021-06-20',
-			cost: 25000,
-			depreciation: 15000,
-			currentValue: 10000,
-			status: 'active'
-		}
-	];
+	const [assets, setAssets] = useState<any[]>([]);
 
 	const categories = [
 		{ value: 'all', label: 'Tüm Kategoriler' },
@@ -76,19 +45,19 @@ export default function AssetsPage() {
 			{/* Summary Cards */}
 			<div className="grid md:grid-cols-4 gap-4">
 				<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-					<div className="text-2xl font-bold text-blue-700">{formatCurrency(105000)}</div>
+					<div className="text-2xl font-bold text-blue-700">{formatCurrency(0)}</div>
 					<div className="text-sm text-blue-600">Toplam Maliyet</div>
 				</div>
 				<div className="bg-green-50 p-4 rounded-lg border border-green-200">
-					<div className="text-2xl font-bold text-green-700">{formatCurrency(68000)}</div>
+					<div className="text-2xl font-bold text-green-700">{formatCurrency(0)}</div>
 					<div className="text-sm text-green-600">Mevcut Değer</div>
 				</div>
 				<div className="bg-red-50 p-4 rounded-lg border border-red-200">
-					<div className="text-2xl font-bold text-red-700">{formatCurrency(37000)}</div>
+					<div className="text-2xl font-bold text-red-700">{formatCurrency(0)}</div>
 					<div className="text-sm text-red-600">Toplam Amortisman</div>
 				</div>
 				<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-					<div className="text-2xl font-bold text-purple-700">3</div>
+					<div className="text-2xl font-bold text-purple-700">{assets.length}</div>
 					<div className="text-sm text-purple-600">Aktif Kıymet</div>
 				</div>
 			</div>
@@ -155,46 +124,56 @@ export default function AssetsPage() {
 							</tr>
 						</thead>
 						<tbody className="bg-white divide-y divide-gray-200">
-							{filteredAssets.map((asset) => (
-								<tr key={asset.id} className="hover:bg-gray-50">
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-										{asset.id}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{asset.name}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-										{categories.find(c => c.value === asset.category)?.label || asset.category}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-										{asset.purchaseDate}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{formatCurrency(asset.cost)}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
-										{formatCurrency(asset.depreciation)}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">
-										{formatCurrency(asset.currentValue)}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap">
-										<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-											asset.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-										}`}>
-											{asset.status === 'active' ? 'Aktif' : 'Pasif'}
-										</span>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-										<button className="text-indigo-600 hover:text-indigo-900 mr-3">
-											Düzenle
-										</button>
-										<button className="text-red-600 hover:text-red-900">
-											Sil
-										</button>
+							{filteredAssets.length === 0 ? (
+								<tr>
+									<td colSpan={9} className="px-6 py-12 text-center">
+										<div className="text-6xl mb-4">📦</div>
+										<p className="text-gray-500 text-lg mb-2">Henüz Varlık Yok</p>
+										<p className="text-gray-400 text-sm">Sabit kıymetleriniz burada görünecek</p>
 									</td>
 								</tr>
-							))}
+							) : (
+								filteredAssets.map((asset) => (
+									<tr key={asset.id} className="hover:bg-gray-50">
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+											{asset.id}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{asset.name}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+											{categories.find(c => c.value === asset.category)?.label || asset.category}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+											{asset.purchaseDate}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{formatCurrency(asset.cost)}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+											{formatCurrency(asset.depreciation)}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-medium">
+											{formatCurrency(asset.currentValue)}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap">
+											<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+												asset.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+											}`}>
+												{asset.status === 'active' ? 'Aktif' : 'Pasif'}
+											</span>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+											<button className="text-indigo-600 hover:text-indigo-900 mr-3">
+												Düzenle
+											</button>
+											<button className="text-red-600 hover:text-red-900">
+												Sil
+											</button>
+										</td>
+									</tr>
+								))
+							)}
 						</tbody>
 					</table>
 				</div>

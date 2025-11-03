@@ -5,72 +5,9 @@ import { useState } from 'react';
 export default function PluginsPage() {
 	const [activeTab, setActiveTab] = useState('installed');
 
-	const plugins = [
-		{
-			id: 'PLG-001',
-			name: 'Advanced Analytics',
-			description: 'Gelişmiş analitik ve raporlama özellikleri',
-			version: '2.1.4',
-			author: 'TDC Team',
-			category: 'Analytics',
-			status: 'Aktif',
-			lastUpdated: '2024-01-15',
-			downloads: 1247,
-			rating: 4.8,
-			size: '2.4 MB'
-		},
-		{
-			id: 'PLG-002',
-			name: 'SEO Optimizer',
-			description: 'Otomatik SEO optimizasyonu ve meta tag yönetimi',
-			version: '1.8.2',
-			author: 'SEO Pro',
-			category: 'SEO',
-			status: 'Aktif',
-			lastUpdated: '2024-01-10',
-			downloads: 892,
-			rating: 4.6,
-			size: '1.8 MB'
-		},
-		{
-			id: 'PLG-003',
-			name: 'Social Media Integration',
-			description: 'Sosyal medya platformları ile entegrasyon',
-			version: '3.0.1',
-			author: 'Social Connect',
-			category: 'Social',
-			status: 'Pasif',
-			lastUpdated: '2024-01-05',
-			downloads: 654,
-			rating: 4.2,
-			size: '3.1 MB'
-		}
-	];
+	const plugins: any[] = [];
 
-	const availablePlugins = [
-		{
-			id: 'PLG-NEW-001',
-			name: 'AI Content Generator',
-			description: 'Yapay zeka ile otomatik içerik üretimi',
-			version: '1.0.0',
-			author: 'AI Solutions',
-			category: 'AI',
-			price: '₺299/ay',
-			rating: 4.9,
-			downloads: 2341
-		},
-		{
-			id: 'PLG-NEW-002',
-			name: 'Multi-Currency Support',
-			description: 'Çoklu para birimi desteği ve döviz kurları',
-			version: '2.5.0',
-			author: 'Currency Pro',
-			category: 'Commerce',
-			price: 'Ücretsiz',
-			rating: 4.7,
-			downloads: 1876
-		}
-	];
+	const availablePlugins: any[] = [];
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -126,11 +63,11 @@ export default function PluginsPage() {
 					<div className="text-sm text-gray-600">Aktif Plugin</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-yellow-600">2</div>
+					<div className="text-lg font-semibold text-yellow-600">0</div>
 					<div className="text-sm text-gray-600">Güncelleme Mevcut</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">7.3 MB</div>
+					<div className="text-lg font-semibold text-purple-600">0 MB</div>
 					<div className="text-sm text-gray-600">Toplam Boyut</div>
 				</div>
 			</div>
@@ -142,7 +79,7 @@ export default function PluginsPage() {
 						{[
 							{ key: 'installed', label: 'Yüklü Pluginler', count: plugins.length },
 							{ key: 'available', label: 'Mevcut Pluginler', count: availablePlugins.length },
-							{ key: 'updates', label: 'Güncellemeler', count: 2 }
+							{ key: 'updates', label: 'Güncellemeler', count: 0 }
 						].map((tab) => (
 							<button
 								key={tab.key}
@@ -161,8 +98,15 @@ export default function PluginsPage() {
 
 				<div className="p-6">
 					{activeTab === 'installed' && (
-						<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-							{plugins.map((plugin) => (
+						plugins.length === 0 ? (
+							<div className="text-center py-12">
+								<div className="text-6xl mb-4">📦</div>
+								<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Plugin Yok</h3>
+								<p className="text-gray-600">İlk plugin yüklediğinizde burada görünecek</p>
+							</div>
+						) : (
+							<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+								{plugins.map((plugin) => (
 								<div key={plugin.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
 									<div className="flex items-start justify-between mb-4">
 										<div className="flex-1">
@@ -208,13 +152,21 @@ export default function PluginsPage() {
 										</button>
 									</div>
 								</div>
-							))}
-						</div>
+								))}
+							</div>
+						)
 					)}
 
 					{activeTab === 'available' && (
-						<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-							{availablePlugins.map((plugin) => (
+						availablePlugins.length === 0 ? (
+							<div className="text-center py-12">
+								<div className="text-6xl mb-4">🔍</div>
+								<h3 className="text-lg font-semibold text-gray-900 mb-2">Plugin Bulunamadı</h3>
+								<p className="text-gray-600">Henüz mevcut plugin bulunmuyor</p>
+							</div>
+						) : (
+							<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+								{availablePlugins.map((plugin) => (
 								<div key={plugin.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
 									<div className="flex items-start justify-between mb-4">
 										<div className="flex-1">
@@ -251,55 +203,16 @@ export default function PluginsPage() {
 										</button>
 									</div>
 								</div>
-							))}
-						</div>
+								))}
+							</div>
+						)
 					)}
 
 					{activeTab === 'updates' && (
-						<div className="space-y-4">
-							<div className="border rounded-lg p-6">
-								<div className="flex items-center justify-between">
-									<div className="flex-1">
-										<h3 className="text-lg font-semibold text-gray-900 mb-1">Advanced Analytics</h3>
-										<p className="text-sm text-gray-600 mb-2">v2.1.4 → v2.2.0 güncelleme mevcut</p>
-										<div className="text-xs text-gray-500">
-											• Yeni dashboard widget'ları<br/>
-											• Performans iyileştirmeleri<br/>
-											• Bug düzeltmeleri
-										</div>
-									</div>
-									<div className="flex space-x-2">
-										<button className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 text-sm">
-											Güncelle
-										</button>
-										<button className="border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 text-sm">
-											Detaylar
-										</button>
-									</div>
-								</div>
-							</div>
-
-							<div className="border rounded-lg p-6">
-								<div className="flex items-center justify-between">
-									<div className="flex-1">
-										<h3 className="text-lg font-semibold text-gray-900 mb-1">SEO Optimizer</h3>
-										<p className="text-sm text-gray-600 mb-2">v1.8.2 → v1.9.0 güncelleme mevcut</p>
-										<div className="text-xs text-gray-500">
-											• Yeni SEO analiz araçları<br/>
-											• Google Core Web Vitals desteği<br/>
-											• Schema markup iyileştirmeleri
-										</div>
-									</div>
-									<div className="flex space-x-2">
-										<button className="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 text-sm">
-											Güncelle
-										</button>
-										<button className="border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 text-sm">
-											Detaylar
-										</button>
-									</div>
-								</div>
-							</div>
+						<div className="text-center py-12">
+							<div className="text-6xl mb-4">✅</div>
+							<h3 className="text-lg font-semibold text-gray-900 mb-2">Tüm Pluginler Güncel</h3>
+							<p className="text-gray-600">Henüz güncelleme bulunmuyor</p>
 						</div>
 					)}
 				</div>

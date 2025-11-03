@@ -6,46 +6,15 @@ export default function SecurityMonitoringPage() {
 	const [activeTab, setActiveTab] = useState('overview');
 
 	const securityMetrics = {
-		totalThreats: 847,
-		blockedAttacks: 23,
-		failedLogins: 156,
-		suspiciousActivities: 12,
-		systemUptime: 99.98,
-		securityScore: 94
+		totalThreats: 0,
+		blockedAttacks: 0,
+		failedLogins: 0,
+		suspiciousActivities: 0,
+		systemUptime: 0,
+		securityScore: 0
 	};
 
-	const threats = [
-		{
-			id: 1,
-			type: 'Brute Force Attack',
-			severity: 'high',
-			source: '192.168.1.100',
-			target: 'Admin Login',
-			attempts: 47,
-			status: 'blocked',
-			timestamp: '2 dakika önce'
-		},
-		{
-			id: 2,
-			type: 'SQL Injection',
-			severity: 'critical',
-			source: '10.0.0.25',
-			target: 'User Database',
-			attempts: 3,
-			status: 'blocked',
-			timestamp: '15 dakika önce'
-		},
-		{
-			id: 3,
-			type: 'Suspicious Login',
-			severity: 'medium',
-			source: '203.45.67.89',
-			target: 'User Account',
-			attempts: 1,
-			status: 'monitoring',
-			timestamp: '1 saat önce'
-		}
-	];
+	const threats: any[] = [];
 
 	const getSeverityColor = (severity: string) => {
 		switch (severity) {
@@ -205,8 +174,15 @@ export default function SecurityMonitoringPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Aktif Tehditler</h3>
 
-							<div className="space-y-4">
-								{threats.map((threat) => (
+							{threats.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">🛡️</div>
+									<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Tehdit Yok</h3>
+									<p className="text-gray-600">Güvenlik tehditleri tespit edildiğinde burada görünecek</p>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{threats.map((threat) => (
 									<div key={threat.id} className="border rounded-lg p-6">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
@@ -233,8 +209,9 @@ export default function SecurityMonitoringPage() {
 											</div>
 										</div>
 									</div>
-								))}
-							</div>
+									))}
+								</div>
+							)}
 						</div>
 					)}
 

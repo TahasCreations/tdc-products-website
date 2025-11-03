@@ -4,45 +4,7 @@ import { useState } from 'react';
 
 export default function PromotionsPage() {
 	const [activeTab, setActiveTab] = useState('all');
-
-	const promotions = [
-		{
-			id: 'PROMO-001',
-			name: 'Yeni Yıl İndirimi',
-			type: 'Yüzde İndirim',
-			discount: '%25',
-			code: 'YENIYIL25',
-			startDate: '2024-01-01',
-			endDate: '2024-01-31',
-			usageCount: 156,
-			usageLimit: 500,
-			status: 'Aktif'
-		},
-		{
-			id: 'PROMO-002',
-			name: 'Ücretsiz Kargo',
-			type: 'Kargo İndirimi',
-			discount: '₺15',
-			code: 'FREESHIP',
-			startDate: '2024-01-15',
-			endDate: '2024-02-15',
-			usageCount: 89,
-			usageLimit: 1000,
-			status: 'Aktif'
-		},
-		{
-			id: 'PROMO-003',
-			name: 'Figür Koleksiyonu Özel',
-			type: 'Kategori İndirimi',
-			discount: '%15',
-			code: 'FIGUR15',
-			startDate: '2023-12-01',
-			endDate: '2023-12-31',
-			usageCount: 234,
-			usageLimit: 300,
-			status: 'Sona Erdi'
-		}
-	];
+	const [promotions, setPromotions] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -88,19 +50,19 @@ export default function PromotionsPage() {
 			{/* Summary Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-green-600">12</div>
+					<div className="text-lg font-semibold text-green-600">0</div>
 					<div className="text-sm text-gray-600">Aktif Promosyon</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-blue-600">₺45,680</div>
+					<div className="text-lg font-semibold text-blue-600">₺0</div>
 					<div className="text-sm text-gray-600">Toplam İndirim</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-purple-600">1,247</div>
+					<div className="text-lg font-semibold text-purple-600">0</div>
 					<div className="text-sm text-gray-600">Kullanım Sayısı</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-orange-600">%18.5</div>
+					<div className="text-lg font-semibold text-orange-600">0%</div>
 					<div className="text-sm text-gray-600">Dönüşüm Oranı</div>
 				</div>
 			</div>
@@ -140,34 +102,44 @@ export default function PromotionsPage() {
 
 				{/* Promotions Table */}
 				<div className="overflow-x-auto">
-					<table className="w-full">
-						<thead className="bg-gray-50">
-							<tr>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Promosyon
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Tip
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İndirim
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Kod
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Kullanım
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Durum
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İşlemler
-								</th>
-							</tr>
-						</thead>
-						<tbody className="bg-white divide-y divide-gray-200">
-							{filteredPromotions.map((promo) => (
+					{filteredPromotions.length === 0 ? (
+						<div className="text-center py-12 bg-gray-50">
+							<div className="text-4xl mb-4">🎁</div>
+							<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Promosyon Yok</h3>
+							<p className="text-gray-600 mb-4">İlk promosyonunuzu oluşturarak başlayın.</p>
+							<button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+								Yeni Promosyon Oluştur
+							</button>
+						</div>
+					) : (
+						<table className="w-full">
+							<thead className="bg-gray-50">
+								<tr>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Promosyon
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Tip
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İndirim
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Kod
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Kullanım
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Durum
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İşlemler
+									</th>
+								</tr>
+							</thead>
+							<tbody className="bg-white divide-y divide-gray-200">
+								{filteredPromotions.map((promo) => (
 								<tr key={promo.id} className="hover:bg-gray-50">
 									<td className="px-6 py-4 whitespace-nowrap">
 										<div>
@@ -217,9 +189,10 @@ export default function PromotionsPage() {
 										</button>
 									</td>
 								</tr>
-							))}
-						</tbody>
-					</table>
+								))}
+							</tbody>
+						</table>
+					)}
 				</div>
 			</div>
 

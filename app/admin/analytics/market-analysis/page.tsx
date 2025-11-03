@@ -9,207 +9,27 @@ export default function MarketAnalysisPage() {
 
 	const marketData = {
 		ecommerce: {
-			size: '847.8B',
-			growth: '14.2',
-			segments: [
-				{ name: 'Moda', size: '280B', growth: '12.8' },
-				{ name: 'Elektronik', size: '195B', growth: '18.4' },
-				{ name: 'Ev & Yaşam', size: '142B', growth: '15.2' },
-				{ name: 'Kitap & Medya', size: '89B', growth: '8.7' }
-			]
+			size: '0',
+			growth: '0',
+			segments: []
 		},
 		retail: {
-			size: '1.2T',
-			growth: '8.7',
-			segments: [
-				{ name: 'Geleneksel Mağaza', size: '620B', growth: '2.1' },
-				{ name: 'Hibrit Model', size: '380B', growth: '16.8' },
-				{ name: 'Pop-up Store', size: '95B', growth: '22.4' }
-			]
+			size: '0',
+			growth: '0',
+			segments: []
 		}
 	};
 
-	const competitors = [
-		{
-			name: 'Amazon TR',
-			marketShare: 28.5,
-			revenue: '2.8B',
-			growth: '15.2',
-			strengths: ['Lojistik', 'Ürün Çeşitliliği', 'Prime Üyelik'],
-			weaknesses: ['Yüksek Komisyon', 'Müşteri Hizmetleri'],
-			rating: 4.2,
-			traffic: '145M'
-		},
-		{
-			name: 'Hepsiburada',
-			marketShare: 22.1,
-			revenue: '2.1B',
-			growth: '18.7',
-			strengths: ['Yerel Pazar', 'Ödeme Sistemleri', 'Mobil App'],
-			weaknesses: ['Uluslararası Marka', 'Premium Segment'],
-			rating: 4.1,
-			traffic: '89M'
-		},
-		{
-			name: 'Trendyol',
-			marketShare: 19.8,
-			revenue: '1.9B',
-			growth: '24.3',
-			strengths: ['Moda', 'Genç Kitle', 'Sosyal Medya'],
-			weaknesses: ['Kalite Kontrolü', 'B2B Segment'],
-			rating: 3.9,
-			traffic: '112M'
-		},
-		{
-			name: 'GittiGidiyor',
-			marketShare: 8.2,
-			revenue: '780M',
-			growth: '6.1',
-			strengths: ['C2C Model', 'Düşük Komisyon'],
-			weaknesses: ['Güven', 'Teknoloji', 'Pazarlama'],
-			rating: 3.4,
-			traffic: '34M'
-		}
-	];
-
-	const trends = [
-		{
-			name: 'Sürdürülebilirlik',
-			impact: 92,
-			growth: '45%',
-			category: 'Sosyal Trend',
-			timeframe: 'Uzun Vadeli',
-			description: 'Çevre dostu ürünlere artan talep'
-		},
-		{
-			name: 'Sosyal Ticaret',
-			impact: 87,
-			growth: '78%',
-			category: 'Teknoloji',
-			timeframe: 'Kısa Vadeli',
-			description: 'Instagram ve TikTok üzerinden alışveriş'
-		},
-		{
-			name: 'AR/VR Deneyimi',
-			impact: 74,
-			growth: '156%',
-			category: 'Teknoloji',
-			timeframe: 'Orta Vadeli',
-			description: 'Sanal deneme ve 3D ürün görüntüleme'
-		},
-		{
-			name: 'Mikro-İnfluencer',
-			impact: 83,
-			growth: '34%',
-			category: 'Pazarlama',
-			timeframe: 'Kısa Vadeli',
-			description: 'Küçük ama etkili influencer pazarlaması'
-		},
-		{
-			name: 'Same-Day Delivery',
-			impact: 79,
-			growth: '89%',
-			category: 'Lojistik',
-			timeframe: 'Kısa Vadeli',
-			description: 'Aynı gün teslimat beklentisi'
-		}
-	];
-
-	const opportunities = [
-		{
-			title: 'Niş Pazar Segmentleri',
-			potential: 'Yüksek',
-			investment: 'Orta',
-			timeline: '6-12 ay',
-			revenue: '4.5M',
-			probability: 78,
-			description: 'Koleksiyonculuk ve hobi ürünlerinde büyüme fırsatı'
-		},
-		{
-			title: 'B2B E-ticaret',
-			potential: 'Çok Yüksek',
-			investment: 'Yüksek',
-			timeline: '12-18 ay',
-			revenue: '12.3M',
-			probability: 65,
-			description: 'İşletmeler arası toptan satış platformu'
-		},
-		{
-			title: 'Abonelik Modeli',
-			potential: 'Orta',
-			investment: 'Düşük',
-			timeline: '3-6 ay',
-			revenue: '2.1M',
-			probability: 84,
-			description: 'Düzenli ürün teslimatı ve üyelik sistemleri'
-		},
-		{
-			title: 'Uluslararası Expansion',
-			potential: 'Yüksek',
-			investment: 'Çok Yüksek',
-			timeline: '18-24 ay',
-			revenue: '8.7M',
-			probability: 42,
-			description: 'Balkan ülkeleri ve Orta Asya pazarları'
-		}
-	];
-
-	const threats = [
-		{
-			title: 'Global Platform Girişi',
-			severity: 'Yüksek',
-			probability: 72,
-			impact: 'Market payında %15-20 azalma',
-			timeline: '6-12 ay',
-			mitigation: 'Yerel avantajları güçlendir, müşteri sadakatini artır'
-		},
-		{
-			title: 'Ekonomik Durgunluk',
-			severity: 'Orta',
-			probability: 45,
-			impact: 'Satışlarda %25-30 düşüş',
-			timeline: '3-9 ay',
-			mitigation: 'Esnek fiyatlandırma, ekonomik ürün segmenti'
-		},
-		{
-			title: 'Regülasyon Değişiklikleri',
-			severity: 'Orta',
-			probability: 38,
-			impact: 'Operasyonel maliyetlerde artış',
-			timeline: '12-18 ay',
-			mitigation: 'Yasal uyum süreçlerini güçlendir'
-		}
-	];
+	const competitors: any[] = [];
+	const trends: any[] = [];
+	const opportunities: any[] = [];
+	const threats: any[] = [];
 
 	const swotAnalysis = {
-		strengths: [
-			'Güçlü teknoloji altyapısı',
-			'Esnek organizasyon yapısı',
-			'Müşteri odaklı yaklaşım',
-			'Kaliteli ürün portföyü',
-			'Hızlı karar alma mekanizması'
-		],
-		weaknesses: [
-			'Sınırlı pazarlama bütçesi',
-			'Marka bilinirliği düşük',
-			'Lojistik ağ eksikliği',
-			'İnsan kaynakları kısıtı',
-			'Uluslararası deneyim eksikliği'
-		],
-		opportunities: [
-			'Dijital dönüşüm trendleri',
-			'Genç nüfus potansiyeli',
-			'Niş pazar boşlukları',
-			'Teknoloji entegrasyonu',
-			'Sürdürülebilirlik odağı'
-		],
-		threats: [
-			'Yoğun rekabet ortamı',
-			'Ekonomik belirsizlikler',
-			'Platform bağımlılığı',
-			'Siber güvenlik riskleri',
-			'Regülasyon değişiklikleri'
-		]
+		strengths: [],
+		weaknesses: [],
+		opportunities: [],
+		threats: []
 	};
 
 	const formatCurrency = (amount: string) => {
@@ -295,13 +115,13 @@ export default function MarketAnalysisPage() {
 				</div>
 				<div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
 					<h3 className="text-lg font-semibold text-purple-900 mb-2">Rakip Sayısı</h3>
-					<div className="text-3xl font-bold text-purple-700">{competitors.length}</div>
+					<div className="text-3xl font-bold text-purple-700">0</div>
 					<div className="text-sm text-purple-600 mt-1">Ana rakip</div>
 				</div>
 				<div className="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl border border-orange-200">
 					<h3 className="text-lg font-semibold text-orange-900 mb-2">Pazar Payımız</h3>
-					<div className="text-3xl font-bold text-orange-700">%3.2</div>
-					<div className="text-sm text-orange-600 mt-1">Hedef: %5.8</div>
+					<div className="text-3xl font-bold text-orange-700">%0</div>
+					<div className="text-sm text-orange-600 mt-1">Hedef: %0</div>
 				</div>
 			</div>
 
@@ -343,8 +163,14 @@ export default function MarketAnalysisPage() {
 										<h4 className="font-semibold text-gray-900">Segment Dağılımı</h4>
 									</div>
 									<div className="p-4">
-										<div className="space-y-4">
-											{marketData[selectedMarket as keyof typeof marketData]?.segments.map((segment, index) => (
+										{marketData[selectedMarket as keyof typeof marketData]?.segments.length === 0 ? (
+											<div className="text-center py-8">
+												<div className="text-gray-400 mb-2">📊</div>
+												<p className="text-gray-500">Henüz segment verisi yok</p>
+											</div>
+										) : (
+											<div className="space-y-4">
+												{marketData[selectedMarket as keyof typeof marketData]?.segments.map((segment, index) => (
 												<div key={index} className="flex justify-between items-center">
 													<div>
 														<div className="font-medium text-gray-900">{segment.name}</div>
@@ -355,8 +181,9 @@ export default function MarketAnalysisPage() {
 														<div className="text-xs text-gray-500">büyüme</div>
 													</div>
 												</div>
-											))}
-										</div>
+												))}
+											</div>
+										)}
 									</div>
 								</div>
 
@@ -419,8 +246,15 @@ export default function MarketAnalysisPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Rakip Analizi Detayları</h3>
 
-							<div className="space-y-6">
-								{competitors.map((competitor, index) => (
+							{competitors.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">🏢</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Rakip Verisi Yok</h3>
+									<p className="text-gray-600">Rakip eklendiğinde detaylı analizler burada görünecek.</p>
+								</div>
+							) : (
+								<div className="space-y-6">
+									{competitors.map((competitor, index) => (
 									<div key={index} className="border rounded-lg p-6">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
@@ -475,8 +309,9 @@ export default function MarketAnalysisPage() {
 											</div>
 										</div>
 									</div>
-								))}
-							</div>
+									))}
+								</div>
+							)}
 
 							<div className="bg-white border rounded-lg">
 								<div className="p-4 border-b border-gray-200">
@@ -495,8 +330,15 @@ export default function MarketAnalysisPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Pazar Trend Analizi</h3>
 
-							<div className="grid gap-6">
-								{trends.map((trend, index) => (
+							{trends.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">📈</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Trend Verisi Yok</h3>
+									<p className="text-gray-600">Pazar trendleri analiz edildiğinde burada görünecek.</p>
+								</div>
+							) : (
+								<div className="grid gap-6">
+									{trends.map((trend, index) => (
 									<div key={index} className="border rounded-lg p-6">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
@@ -527,8 +369,9 @@ export default function MarketAnalysisPage() {
 											></div>
 										</div>
 									</div>
-								))}
-							</div>
+									))}
+								</div>
+							)}
 
 							<div className="grid md:grid-cols-2 gap-6">
 								<div className="bg-white border rounded-lg">
@@ -564,8 +407,14 @@ export default function MarketAnalysisPage() {
 								{/* Opportunities */}
 								<div>
 									<h4 className="text-lg font-semibold text-green-900 mb-4">🎯 Fırsatlar</h4>
-									<div className="space-y-4">
-										{opportunities.map((opp, index) => (
+									{opportunities.length === 0 ? (
+										<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+											<div className="text-4xl mb-4">🎯</div>
+											<p className="text-gray-600">Henüz fırsat verisi yok</p>
+										</div>
+									) : (
+										<div className="space-y-4">
+											{opportunities.map((opp, index) => (
 											<div key={index} className="border border-green-200 rounded-lg p-4 bg-green-50">
 												<div className="flex items-start justify-between mb-3">
 													<h5 className="font-semibold text-green-900">{opp.title}</h5>
@@ -593,15 +442,22 @@ export default function MarketAnalysisPage() {
 													</div>
 												</div>
 											</div>
-										))}
-									</div>
+											))}
+										</div>
+									)}
 								</div>
 
 								{/* Threats */}
 								<div>
 									<h4 className="text-lg font-semibold text-red-900 mb-4">⚠️ Tehditler</h4>
-									<div className="space-y-4">
-										{threats.map((threat, index) => (
+									{threats.length === 0 ? (
+										<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+											<div className="text-4xl mb-4">⚠️</div>
+											<p className="text-gray-600">Henüz tehdit verisi yok</p>
+										</div>
+									) : (
+										<div className="space-y-4">
+											{threats.map((threat, index) => (
 											<div key={index} className="border border-red-200 rounded-lg p-4 bg-red-50">
 												<div className="flex items-start justify-between mb-3">
 													<h5 className="font-semibold text-red-900">{threat.title}</h5>
@@ -619,8 +475,9 @@ export default function MarketAnalysisPage() {
 													<div className="text-xs text-red-800">{threat.mitigation}</div>
 												</div>
 											</div>
-										))}
-									</div>
+											))}
+										</div>
+									)}
 								</div>
 							</div>
 						</div>
@@ -637,14 +494,20 @@ export default function MarketAnalysisPage() {
 										<span className="mr-2">💪</span>
 										Güçlü Yanlar (Strengths)
 									</h4>
-									<div className="space-y-3">
-										{swotAnalysis.strengths.map((strength, index) => (
+									{swotAnalysis.strengths.length === 0 ? (
+										<div className="text-center py-8">
+											<p className="text-gray-500">Henüz veri yok</p>
+										</div>
+									) : (
+										<div className="space-y-3">
+											{swotAnalysis.strengths.map((strength, index) => (
 											<div key={index} className="flex items-center space-x-3">
 												<span className="w-2 h-2 bg-green-600 rounded-full"></span>
 												<span className="text-green-800">{strength}</span>
 											</div>
-										))}
-									</div>
+											))}
+										</div>
+									)}
 								</div>
 
 								{/* Weaknesses */}
@@ -653,14 +516,20 @@ export default function MarketAnalysisPage() {
 										<span className="mr-2">🎯</span>
 										Zayıf Yanlar (Weaknesses)
 									</h4>
-									<div className="space-y-3">
-										{swotAnalysis.weaknesses.map((weakness, index) => (
+									{swotAnalysis.weaknesses.length === 0 ? (
+										<div className="text-center py-8">
+											<p className="text-gray-500">Henüz veri yok</p>
+										</div>
+									) : (
+										<div className="space-y-3">
+											{swotAnalysis.weaknesses.map((weakness, index) => (
 											<div key={index} className="flex items-center space-x-3">
 												<span className="w-2 h-2 bg-red-600 rounded-full"></span>
 												<span className="text-red-800">{weakness}</span>
 											</div>
-										))}
-									</div>
+											))}
+										</div>
+									)}
 								</div>
 
 								{/* Opportunities */}
@@ -669,14 +538,20 @@ export default function MarketAnalysisPage() {
 										<span className="mr-2">🚀</span>
 										Fırsatlar (Opportunities)
 									</h4>
-									<div className="space-y-3">
-										{swotAnalysis.opportunities.map((opportunity, index) => (
+									{swotAnalysis.opportunities.length === 0 ? (
+										<div className="text-center py-8">
+											<p className="text-gray-500">Henüz veri yok</p>
+										</div>
+									) : (
+										<div className="space-y-3">
+											{swotAnalysis.opportunities.map((opportunity, index) => (
 											<div key={index} className="flex items-center space-x-3">
 												<span className="w-2 h-2 bg-blue-600 rounded-full"></span>
 												<span className="text-blue-800">{opportunity}</span>
 											</div>
-										))}
-									</div>
+											))}
+										</div>
+									)}
 								</div>
 
 								{/* Threats */}
@@ -685,14 +560,20 @@ export default function MarketAnalysisPage() {
 										<span className="mr-2">⚠️</span>
 										Tehditler (Threats)
 									</h4>
-									<div className="space-y-3">
-										{swotAnalysis.threats.map((threat, index) => (
+									{swotAnalysis.threats.length === 0 ? (
+										<div className="text-center py-8">
+											<p className="text-gray-500">Henüz veri yok</p>
+										</div>
+									) : (
+										<div className="space-y-3">
+											{swotAnalysis.threats.map((threat, index) => (
 											<div key={index} className="flex items-center space-x-3">
 												<span className="w-2 h-2 bg-orange-600 rounded-full"></span>
 												<span className="text-orange-800">{threat}</span>
 											</div>
-										))}
-									</div>
+											))}
+										</div>
+									)}
 								</div>
 							</div>
 

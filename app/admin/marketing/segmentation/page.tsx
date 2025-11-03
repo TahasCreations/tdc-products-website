@@ -5,45 +5,7 @@ import { useState } from 'react';
 export default function SegmentationPage() {
 	const [activeTab, setActiveTab] = useState('overview');
 	const [selectedSegment, setSelectedSegment] = useState('high-value');
-
-	const segments = [
-		{
-			id: 'high-value',
-			name: 'Yüksek Değerli Müşteriler',
-			count: 1245,
-			percentage: 8.3,
-			avgOrderValue: 450,
-			ltv: 1890,
-			churnRate: 2.1
-		},
-		{
-			id: 'frequent-buyers',
-			name: 'Sıkça Alışveriş Yapanlar',
-			count: 2890,
-			percentage: 19.2,
-			avgOrderValue: 180,
-			ltv: 1240,
-			churnRate: 3.8
-		},
-		{
-			id: 'price-sensitive',
-			name: 'Fiyat Hassası Müşteriler',
-			count: 4567,
-			percentage: 30.4,
-			avgOrderValue: 85,
-			ltv: 380,
-			churnRate: 15.2
-		},
-		{
-			id: 'new-customers',
-			name: 'Yeni Müşteriler',
-			count: 3421,
-			percentage: 22.8,
-			avgOrderValue: 120,
-			ltv: 180,
-			churnRate: 45.6
-		}
-	];
+	const [segments, setSegments] = useState<any[]>([]);
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('tr-TR', {
@@ -70,8 +32,24 @@ export default function SegmentationPage() {
 			</div>
 
 			{/* Segment Overview Cards */}
-			<div className="grid md:grid-cols-4 gap-4">
-				{segments.map((segment) => (
+			{segments.length === 0 ? (
+				<div className="col-span-4 text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+					<div className="text-4xl mb-4">👥</div>
+					<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Segment Yok</h3>
+					<p className="text-gray-600 mb-4">Müşterilerinizi segmentlere ayırarak hedefli pazarlama yapın.</p>
+					<div className="flex justify-center space-x-3">
+						<button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+							AI Segmentasyon
+						</button>
+						<button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+							Yeni Segment
+						</button>
+					</div>
+				</div>
+			) : (
+				<>
+					<div className="grid md:grid-cols-4 gap-4">
+						{segments.map((segment) => (
 					<div 
 						key={segment.id}
 						className={`p-4 rounded-lg border cursor-pointer transition-colors ${
@@ -90,12 +68,12 @@ export default function SegmentationPage() {
 							<span className="text-green-600">AOV: {formatCurrency(segment.avgOrderValue)}</span>
 							<span className="text-blue-600">LTV: {formatCurrency(segment.ltv)}</span>
 						</div>
+						</div>
+					))}
 					</div>
-				))}
-			</div>
 
-			{/* Key Insights */}
-			<div className="grid md:grid-cols-4 gap-4">
+					{/* Key Insights */}
+					<div className="grid md:grid-cols-4 gap-4">
 				<div className="bg-green-50 border border-green-200 rounded-lg p-4">
 					<h3 className="font-semibold text-green-900 mb-2">Segment Büyümesi</h3>
 					<p className="text-sm text-green-700 mb-2">Yüksek değerli müşteri segmenti %23 büyüdü</p>
@@ -115,8 +93,10 @@ export default function SegmentationPage() {
 					<h3 className="font-semibold text-purple-900 mb-2">Mobil Trend</h3>
 					<p className="text-sm text-purple-700 mb-2">Mobil app kullanımı tüm segmentlerde artıyor</p>
 					<div className="text-xs text-purple-600">Mobil deneyim optimize edilmeli</div>
+					</div>
 				</div>
-			</div>
+				</>
+			)}
 
 			{/* Main Content */}
 			<div className="bg-white rounded-lg border">

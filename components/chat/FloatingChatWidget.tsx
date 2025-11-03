@@ -256,7 +256,7 @@ export default function FloatingChatWidget() {
                       onChange={(e) => setInputValue(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                       placeholder="Mesajınızı yazın..."
-                      className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-full focus:border-indigo-500 outline-none text-sm"
+                      className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-full focus:border-indigo-500 outline-none text-sm text-gray-900 placeholder:text-gray-400"
                     />
                     <button
                       onClick={handleSendMessage}

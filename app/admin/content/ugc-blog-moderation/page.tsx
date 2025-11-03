@@ -5,64 +5,9 @@ import { useState } from 'react';
 export default function UGCBlogModerationPage() {
 	const [activeTab, setActiveTab] = useState('pending');
 
-	const pendingPosts = [
-		{
-			id: 1,
-			title: 'En İyi Anime Figür Koleksiyonu Rehberi',
-			author: 'otaku_master',
-			content: 'Bu yazıda anime figür koleksiyonu yapmaya başlamak isteyenler için...',
-			tags: ['anime', 'figür', 'koleksiyon'],
-			submittedAt: '2 saat önce',
-			status: 'pending',
-			aiScore: 85,
-			flaggedTerms: []
-		},
-		{
-			id: 2,
-			title: 'Vintage Poster Yatırımı Yapılır mı?',
-			author: 'collector_pro',
-			content: 'Vintage posterler son zamanlarda popüler yatırım araçları haline geldi...',
-			tags: ['vintage', 'poster', 'yatırım'],
-			submittedAt: '4 saat önce',
-			status: 'pending',
-			aiScore: 78,
-			flaggedTerms: ['finansal tavsiye']
-		},
-		{
-			id: 3,
-			title: 'İnanılmaz Teknoloji Ürünleri!!!',
-			author: 'tech_lover',
-			content: 'Bu ürünler hayatınızı değiştirecek!!! Hemen satın alın...',
-			tags: ['teknoloji', 'ürün'],
-			submittedAt: '6 saat önce',
-			status: 'flagged',
-			aiScore: 35,
-			flaggedTerms: ['spam', 'aşırı promosyon', 'yanıltıcı']
-		}
-	];
+	const [pendingPosts] = useState<any[]>([]);
 
-	const moderationQueue = [
-		{
-			id: 1,
-			type: 'Comment',
-			content: 'Bu ürün gerçekten harika! Kesinlikle tavsiye ederim.',
-			author: 'happy_customer',
-			post: 'En İyi Anime Figür Rehberi',
-			aiScore: 92,
-			flaggedTerms: [],
-			submittedAt: '1 saat önce'
-		},
-		{
-			id: 2,
-			type: 'Comment',
-			content: 'Bu site dolandırıcı, para vermeyin!',
-			author: 'angry_user',
-			post: 'Vintage Poster Yatırımı',
-			aiScore: 15,
-			flaggedTerms: ['hakaret', 'karalama'],
-			submittedAt: '3 saat önce'
-		}
-	];
+	const [moderationQueue] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -100,23 +45,23 @@ export default function UGCBlogModerationPage() {
 			{/* Statistics */}
 			<div className="grid md:grid-cols-5 gap-4">
 				<div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-					<div className="text-2xl font-bold text-yellow-700">24</div>
+					<div className="text-2xl font-bold text-yellow-700">0</div>
 					<div className="text-sm text-yellow-600">Bekleyen İçerik</div>
 				</div>
 				<div className="bg-green-50 p-4 rounded-lg border border-green-200">
-					<div className="text-2xl font-bold text-green-700">156</div>
+					<div className="text-2xl font-bold text-green-700">0</div>
 					<div className="text-sm text-green-600">Onaylandı</div>
 				</div>
 				<div className="bg-red-50 p-4 rounded-lg border border-red-200">
-					<div className="text-2xl font-bold text-red-700">12</div>
+					<div className="text-2xl font-bold text-red-700">0</div>
 					<div className="text-sm text-red-600">Reddedildi</div>
 				</div>
 				<div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-					<div className="text-2xl font-bold text-orange-700">8</div>
+					<div className="text-2xl font-bold text-orange-700">0</div>
 					<div className="text-sm text-orange-600">Bayraklandı</div>
 				</div>
 				<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-					<div className="text-2xl font-bold text-blue-700">89%</div>
+					<div className="text-2xl font-bold text-blue-700">0%</div>
 					<div className="text-sm text-blue-600">AI Doğruluk</div>
 				</div>
 			</div>
@@ -126,10 +71,10 @@ export default function UGCBlogModerationPage() {
 				<div className="border-b border-gray-200">
 					<nav className="flex space-x-8 px-6">
 						{[
-							{ key: 'pending', label: 'Bekleyen İçerikler', icon: '⏳', count: 24 },
-							{ key: 'flagged', label: 'Bayraklandı', icon: '🚩', count: 8 },
-							{ key: 'approved', label: 'Onaylandı', icon: '✅', count: 156 },
-							{ key: 'rejected', label: 'Reddedildi', icon: '❌', count: 12 }
+							{ key: 'pending', label: 'Bekleyen İçerikler', icon: '⏳', count: 0 },
+							{ key: 'flagged', label: 'Bayraklandı', icon: '🚩', count: 0 },
+							{ key: 'approved', label: 'Onaylandı', icon: '✅', count: 0 },
+							{ key: 'rejected', label: 'Reddedildi', icon: '❌', count: 0 }
 						].map((tab) => (
 							<button
 								key={tab.key}
@@ -153,8 +98,15 @@ export default function UGCBlogModerationPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Moderasyon Bekleyen İçerikler</h3>
 
-							<div className="space-y-4">
-								{pendingPosts.map((post) => (
+							{pendingPosts.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">⏳</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Bekleyen İçerik Yok</h3>
+									<p className="text-gray-600">Moderasyon bekleyen içerikler burada görünecek.</p>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{pendingPosts.map((post) => (
 									<div key={post.id} className="border rounded-lg p-6">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
@@ -207,7 +159,8 @@ export default function UGCBlogModerationPage() {
 										</div>
 									</div>
 								))}
-							</div>
+								</div>
+							)}
 						</div>
 					)}
 

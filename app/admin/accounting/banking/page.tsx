@@ -5,38 +5,8 @@ import { useState } from 'react';
 export default function BankingPage() {
 	const [selectedAccount, setSelectedAccount] = useState('all');
 
-	const bankAccounts = [
-		{ id: 'TR123456789', name: 'İş Bankası - TL', balance: '₺234,567.89', type: 'Vadesiz' },
-		{ id: 'TR987654321', name: 'Garanti BBVA - USD', balance: '$12,340.50', type: 'Vadesiz' },
-		{ id: 'TR456789123', name: 'Yapı Kredi - Vadeli', balance: '₺500,000.00', type: 'Vadeli' }
-	];
-
-	const transactions = [
-		{
-			id: 'TXN-001',
-			date: '2024-01-15',
-			description: 'Müşteri ödemesi - Ahmet Yılmaz',
-			amount: '+₺2,450.00',
-			balance: '₺236,567.89',
-			type: 'Gelen Havale'
-		},
-		{
-			id: 'TXN-002',
-			date: '2024-01-15',
-			description: 'Tedarikçi ödemesi - ABC Ltd.',
-			amount: '-₺8,900.00',
-			balance: '₺234,117.89',
-			type: 'Giden Havale'
-		},
-		{
-			id: 'TXN-003',
-			date: '2024-01-14',
-			description: 'Kira ödemesi',
-			amount: '-₺3,500.00',
-			balance: '₺243,017.89',
-			type: 'Otomatik Ödeme'
-		}
-	];
+	const [bankAccounts, setBankAccounts] = useState<any[]>([]);
+	const [transactions, setTransactions] = useState<any[]>([]);
 
 	return (
 		<div className="p-6 space-y-6">
@@ -54,28 +24,36 @@ export default function BankingPage() {
 
 			{/* Bank Accounts Overview */}
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-				{bankAccounts.map((account) => (
-					<div key={account.id} className="bg-white p-6 rounded-xl shadow-sm border">
-						<div className="flex items-center justify-between mb-4">
-							<h3 className="font-semibold text-gray-900">{account.name}</h3>
-							<span className={`px-2 py-1 text-xs rounded-full ${
-								account.type === 'Vadeli' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-							}`}>
-								{account.type}
-							</span>
-						</div>
-						<div className="text-2xl font-bold text-gray-900 mb-2">{account.balance}</div>
-						<div className="text-sm text-gray-500 mb-4">{account.id}</div>
-						<div className="flex space-x-2">
-							<button className="flex-1 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm">
-								İşlemler
-							</button>
-							<button className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 text-sm">
-								Detay
-							</button>
-						</div>
+				{bankAccounts.length === 0 ? (
+					<div className="col-span-3 text-center py-12 bg-white rounded-xl border">
+						<div className="text-6xl mb-4">🏦</div>
+						<p className="text-gray-500 text-lg mb-2">Henüz Banka Hesabı Yok</p>
+						<p className="text-gray-400 text-sm">Banka hesaplarınızı ekleyin</p>
 					</div>
-				))}
+				) : (
+					bankAccounts.map((account) => (
+						<div key={account.id} className="bg-white p-6 rounded-xl shadow-sm border">
+							<div className="flex items-center justify-between mb-4">
+								<h3 className="font-semibold text-gray-900">{account.name}</h3>
+								<span className={`px-2 py-1 text-xs rounded-full ${
+									account.type === 'Vadeli' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+								}`}>
+									{account.type}
+								</span>
+							</div>
+							<div className="text-2xl font-bold text-gray-900 mb-2">{account.balance}</div>
+							<div className="text-sm text-gray-500 mb-4">{account.id}</div>
+							<div className="flex space-x-2">
+								<button className="flex-1 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 text-sm">
+									İşlemler
+								</button>
+								<button className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 text-sm">
+									Detay
+								</button>
+							</div>
+						</div>
+					))
+				)}
 			</div>
 
 			{/* Cash Flow Summary */}
@@ -83,19 +61,19 @@ export default function BankingPage() {
 				<h3 className="text-lg font-semibold mb-4">Nakit Akış Özeti (Bu Ay)</h3>
 				<div className="grid md:grid-cols-4 gap-4">
 					<div className="text-center p-4 bg-green-50 rounded-lg">
-						<div className="text-2xl font-bold text-green-600">₺156,780</div>
+						<div className="text-2xl font-bold text-green-600">₺0</div>
 						<div className="text-sm text-green-700">Gelen Ödemeler</div>
 					</div>
 					<div className="text-center p-4 bg-red-50 rounded-lg">
-						<div className="text-2xl font-bold text-red-600">₺89,450</div>
+						<div className="text-2xl font-bold text-red-600">₺0</div>
 						<div className="text-sm text-red-700">Giden Ödemeler</div>
 					</div>
 					<div className="text-center p-4 bg-blue-50 rounded-lg">
-						<div className="text-2xl font-bold text-blue-600">₺67,330</div>
+						<div className="text-2xl font-bold text-blue-600">₺0</div>
 						<div className="text-sm text-blue-700">Net Nakit Akış</div>
 					</div>
 					<div className="text-center p-4 bg-purple-50 rounded-lg">
-						<div className="text-2xl font-bold text-purple-600">₺747,908</div>
+						<div className="text-2xl font-bold text-purple-600">₺0</div>
 						<div className="text-sm text-purple-700">Toplam Bakiye</div>
 					</div>
 				</div>
@@ -149,37 +127,47 @@ export default function BankingPage() {
 							</tr>
 						</thead>
 						<tbody className="bg-white divide-y divide-gray-200">
-							{transactions.map((txn) => (
-								<tr key={txn.id} className="hover:bg-gray-50">
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{txn.date}
-									</td>
-									<td className="px-6 py-4 text-sm text-gray-900">
-										{txn.description}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap">
-										<span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-											{txn.type}
-										</span>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">
-										<span className={txn.amount.startsWith('+') ? 'text-green-600' : 'text-red-600'}>
-											{txn.amount}
-										</span>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-										{txn.balance}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-										<button className="text-indigo-600 hover:text-indigo-900 mr-3">
-											Detay
-										</button>
-										<button className="text-green-600 hover:text-green-900">
-											Yazdır
-										</button>
+							{transactions.length === 0 ? (
+								<tr>
+									<td colSpan={6} className="px-6 py-12 text-center">
+										<div className="text-6xl mb-4">💸</div>
+										<p className="text-gray-500 text-lg mb-2">Henüz İşlem Yok</p>
+										<p className="text-gray-400 text-sm">Banka işlemleriniz burada görünecek</p>
 									</td>
 								</tr>
-							))}
+							) : (
+								transactions.map((txn) => (
+									<tr key={txn.id} className="hover:bg-gray-50">
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{txn.date}
+										</td>
+										<td className="px-6 py-4 text-sm text-gray-900">
+											{txn.description}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap">
+											<span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+												{txn.type}
+											</span>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold">
+											<span className={txn.amount.startsWith('+') ? 'text-green-600' : 'text-red-600'}>
+												{txn.amount}
+											</span>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+											{txn.balance}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+											<button className="text-indigo-600 hover:text-indigo-900 mr-3">
+												Detay
+											</button>
+											<button className="text-green-600 hover:text-green-900">
+												Yazdır
+											</button>
+										</td>
+									</tr>
+								))
+							)}
 						</tbody>
 					</table>
 				</div>

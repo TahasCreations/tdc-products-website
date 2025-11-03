@@ -4,92 +4,8 @@ import { useState } from 'react';
 
 export default function SegmentsPage() {
 	const [activeTab, setActiveTab] = useState('segments');
-
-	const segments = [
-		{
-			id: 'SEG001',
-			name: 'VIP Müşteriler',
-			description: 'Yüksek harcama yapan sadık müşteriler',
-			criteria: 'Toplam harcama > ₺10,000 VE Sipariş sayısı > 10',
-			customerCount: 245,
-			avgOrderValue: 1250.50,
-			conversionRate: 8.5,
-			status: 'active',
-			lastUpdated: '2024-01-15'
-		},
-		{
-			id: 'SEG002',
-			name: 'Yeni Müşteriler',
-			description: 'Son 30 günde kayıt olan müşteriler',
-			criteria: 'Kayıt tarihi >= 30 gün önce',
-			customerCount: 892,
-			avgOrderValue: 320.75,
-			conversionRate: 3.2,
-			status: 'active',
-			lastUpdated: '2024-01-14'
-		},
-		{
-			id: 'SEG003',
-			name: 'Sepet Terk Eden',
-			description: 'Sepete ürün ekleyip satın almayan müşteriler',
-			criteria: 'Sepet oluşturma tarihi >= 7 gün VE Satın alma yok',
-			customerCount: 1567,
-			avgOrderValue: 0,
-			conversionRate: 0,
-			status: 'active',
-			lastUpdated: '2024-01-13'
-		},
-		{
-			id: 'SEG004',
-			name: 'Pasif Müşteriler',
-			description: 'Son 90 günde alışveriş yapmayan müşteriler',
-			criteria: 'Son sipariş tarihi <= 90 gün önce',
-			customerCount: 2341,
-			avgOrderValue: 450.25,
-			conversionRate: 1.8,
-			status: 'paused',
-			lastUpdated: '2024-01-10'
-		}
-	];
-
-	const campaigns = [
-		{
-			id: 'CAM001',
-			name: 'VIP Özel İndirim',
-			segment: 'VIP Müşteriler',
-			type: 'email',
-			status: 'active',
-			sent: 245,
-			opened: 198,
-			clicked: 89,
-			converted: 23,
-			revenue: 28750.50
-		},
-		{
-			id: 'CAM002',
-			name: 'Hoş Geldin Kampanyası',
-			segment: 'Yeni Müşteriler',
-			type: 'email',
-			status: 'completed',
-			sent: 892,
-			opened: 534,
-			clicked: 156,
-			converted: 45,
-			revenue: 14433.75
-		},
-		{
-			id: 'CAM003',
-			name: 'Sepet Hatırlatma',
-			segment: 'Sepet Terk Eden',
-			type: 'email',
-			status: 'active',
-			sent: 1567,
-			opened: 625,
-			clicked: 187,
-			converted: 78,
-			revenue: 25012.50
-		}
-	];
+	const [segments, setSegments] = useState<any[]>([]);
+	const [campaigns, setCampaigns] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -133,19 +49,19 @@ export default function SegmentsPage() {
 			{/* Summary Stats */}
 			<div className="grid md:grid-cols-4 gap-4">
 				<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-					<div className="text-2xl font-bold text-blue-700">{segments.length}</div>
+					<div className="text-2xl font-bold text-blue-700">0</div>
 					<div className="text-sm text-blue-600">Toplam Segment</div>
 				</div>
 				<div className="bg-green-50 p-4 rounded-lg border border-green-200">
-					<div className="text-2xl font-bold text-green-700">{segments.filter(s => s.status === 'active').length}</div>
+					<div className="text-2xl font-bold text-green-700">0</div>
 					<div className="text-sm text-green-600">Aktif Segment</div>
 				</div>
 				<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-					<div className="text-2xl font-bold text-purple-700">{segments.reduce((sum, s) => sum + s.customerCount, 0).toLocaleString()}</div>
+					<div className="text-2xl font-bold text-purple-700">0</div>
 					<div className="text-sm text-purple-600">Toplam Müşteri</div>
 				</div>
 				<div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-					<div className="text-2xl font-bold text-orange-700">{campaigns.length}</div>
+					<div className="text-2xl font-bold text-orange-700">0</div>
 					<div className="text-sm text-orange-600">Aktif Kampanya</div>
 				</div>
 			</div>
@@ -179,7 +95,17 @@ export default function SegmentsPage() {
 				<div className="p-6">
 					{activeTab === 'segments' && (
 						<div className="space-y-6">
-							{segments.map((segment) => (
+							{segments.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">🎯</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Segment Yok</h3>
+									<p className="text-gray-600 mb-4">Müşteri segmentleri oluşturarak hedefli pazarlama yapın.</p>
+									<button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+										Yeni Segment Oluştur
+									</button>
+								</div>
+							) : (
+								segments.map((segment) => (
 								<div key={segment.id} className="border rounded-lg p-6">
 									<div className="flex items-start justify-between mb-4">
 										<div className="flex-1">
@@ -236,14 +162,25 @@ export default function SegmentsPage() {
 										)}
 									</div>
 								</div>
-							))}
+								))
+							)}
 						</div>
 					)}
 
 					{activeTab === 'campaigns' && (
 						<div className="space-y-6">
-							<div className="overflow-x-auto">
-								<table className="min-w-full divide-y divide-gray-200">
+							{campaigns.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">📧</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Kampanya Yok</h3>
+									<p className="text-gray-600 mb-4">Segmentlere özel kampanyalar oluşturun.</p>
+									<button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+										Kampanya Oluştur
+									</button>
+								</div>
+							) : (
+								<div className="overflow-x-auto">
+									<table className="min-w-full divide-y divide-gray-200">
 									<thead className="bg-gray-50">
 										<tr>
 											<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -327,8 +264,9 @@ export default function SegmentsPage() {
 											</tr>
 										))}
 									</tbody>
-								</table>
-							</div>
+									</table>
+								</div>
+							)}
 						</div>
 					)}
 

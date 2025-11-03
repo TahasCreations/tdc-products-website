@@ -35,62 +35,40 @@ export default function ContentReportsPage() {
 
 	const contentMetrics = {
 		overview: {
-			totalContent: 1247,
-			publishedContent: 1089,
-			draftContent: 158,
-			totalViews: 45680,
-			totalEngagement: 8934,
-			avgReadTime: '3:45'
+			totalContent: 0,
+			publishedContent: 0,
+			draftContent: 0,
+			totalViews: 0,
+			totalEngagement: 0,
+			avgReadTime: '0:00'
 		},
 		blog: {
-			totalPosts: 89,
-			publishedPosts: 76,
-			draftPosts: 13,
-			totalViews: 23450,
-			avgViews: 308,
-			topPost: 'Anime Figürlerinin Tarihi'
+			totalPosts: 0,
+			publishedPosts: 0,
+			draftPosts: 0,
+			totalViews: 0,
+			avgViews: 0,
+			topPost: '-'
 		},
 		userContent: {
-			totalReviews: 456,
-			approvedReviews: 398,
-			pendingReviews: 58,
-			avgRating: 4.2,
-			totalComments: 234,
-			moderationRate: '98.5%'
+			totalReviews: 0,
+			approvedReviews: 0,
+			pendingReviews: 0,
+			avgRating: 0,
+			totalComments: 0,
+			moderationRate: '0%'
 		},
 		seo: {
-			indexedPages: 234,
-			avgPosition: 12.5,
-			organicTraffic: 15680,
-			clickThroughRate: '3.2%',
-			topKeywords: 15,
-			featuredSnippets: 8
+			indexedPages: 0,
+			avgPosition: 0,
+			organicTraffic: 0,
+			clickThroughRate: '0%',
+			topKeywords: 0,
+			featuredSnippets: 0
 		}
 	};
 
-	const topContent = [
-		{
-			title: 'Anime Figürlerinin Tarihi ve Koleksiyonculuk',
-			type: 'Blog',
-			views: 2340,
-			engagement: 456,
-			date: '2024-01-10'
-		},
-		{
-			title: 'El Yapımı Ürünlerde Kalite Nasıl Anlaşılır?',
-			type: 'Rehber',
-			views: 1890,
-			engagement: 234,
-			date: '2024-01-08'
-		},
-		{
-			title: 'Vintage Dekorasyon Trendleri 2024',
-			type: 'Blog',
-			views: 1567,
-			engagement: 189,
-			date: '2024-01-05'
-		}
-	];
+	const [topContent] = useState<any[]>([]);
 
 	const renderOverviewReport = () => (
 		<div className="space-y-6">
@@ -118,7 +96,7 @@ export default function ContentReportsPage() {
 						{contentMetrics.overview.totalViews.toLocaleString()}
 					</div>
 					<div className="text-sm text-green-700">
-						Son 30 günde %15 artış
+						Son 30 günde %0 artış
 					</div>
 				</div>
 
@@ -147,42 +125,50 @@ export default function ContentReportsPage() {
 			{/* Top Performing Content */}
 			<div className="bg-white p-6 rounded-xl border">
 				<h3 className="text-lg font-semibold mb-4">En Başarılı İçerikler</h3>
-				<div className="overflow-x-auto">
-					<table className="w-full">
-						<thead className="bg-gray-50">
-							<tr>
-								<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">İçerik</th>
-								<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Tip</th>
-								<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Görüntülenme</th>
-								<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Etkileşim</th>
-								<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Tarih</th>
-							</tr>
-						</thead>
-						<tbody className="divide-y divide-gray-200">
-							{topContent.map((content, i) => (
-								<tr key={i} className="hover:bg-gray-50">
-									<td className="px-4 py-3 text-sm font-medium text-gray-900">
-										{content.title}
-									</td>
-									<td className="px-4 py-3 text-sm text-gray-600">
-										<span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-											{content.type}
-										</span>
-									</td>
-									<td className="px-4 py-3 text-sm text-gray-900">
-										{content.views.toLocaleString()}
-									</td>
-									<td className="px-4 py-3 text-sm text-gray-900">
-										{content.engagement}
-									</td>
-									<td className="px-4 py-3 text-sm text-gray-600">
-										{content.date}
-									</td>
+				{topContent.length === 0 ? (
+					<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+						<div className="text-4xl mb-4">📊</div>
+						<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz İçerik Yok</h3>
+						<p className="text-gray-600">İçerik performans verileri burada görünecek.</p>
+					</div>
+				) : (
+					<div className="overflow-x-auto">
+						<table className="w-full">
+							<thead className="bg-gray-50">
+								<tr>
+									<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">İçerik</th>
+									<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Tip</th>
+									<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Görüntülenme</th>
+									<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Etkileşim</th>
+									<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Tarih</th>
 								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
+							</thead>
+							<tbody className="divide-y divide-gray-200">
+								{topContent.map((content, i) => (
+									<tr key={i} className="hover:bg-gray-50">
+										<td className="px-4 py-3 text-sm font-medium text-gray-900">
+											{content.title}
+										</td>
+										<td className="px-4 py-3 text-sm text-gray-600">
+											<span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+												{content.type}
+											</span>
+										</td>
+										<td className="px-4 py-3 text-sm text-gray-900">
+											{content.views.toLocaleString()}
+										</td>
+										<td className="px-4 py-3 text-sm text-gray-900">
+											{content.engagement}
+										</td>
+										<td className="px-4 py-3 text-sm text-gray-600">
+											{content.date}
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				)}
 			</div>
 		</div>
 	);

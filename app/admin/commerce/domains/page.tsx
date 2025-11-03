@@ -5,39 +5,18 @@ import { useState } from 'react';
 export default function DomainsPage() {
 	const [activeTab, setActiveTab] = useState('domains');
 	const [newDomain, setNewDomain] = useState('');
+	const [domains, setDomains] = useState<Array<{
+		id: string;
+		domain: string;
+		seller: string;
+		status: string;
+		sslStatus: string;
+		lastCheck: string;
+		traffic: number;
+		orders: number;
+	}>>([]);
 
-	const domains = [
-		{
-			id: 'DOM001',
-			domain: 'shop.example.com',
-			seller: 'Satıcı A',
-			status: 'active',
-			sslStatus: 'valid',
-			lastCheck: '2024-01-15 10:30',
-			traffic: 1250,
-			orders: 45
-		},
-		{
-			id: 'DOM002',
-			domain: 'store.brand.net',
-			seller: 'Satıcı B',
-			status: 'pending',
-			sslStatus: 'pending',
-			lastCheck: '2024-01-15 09:15',
-			traffic: 0,
-			orders: 0
-		},
-		{
-			id: 'DOM003',
-			domain: 'market.company.org',
-			seller: 'Satıcı C',
-			status: 'error',
-			sslStatus: 'expired',
-			lastCheck: '2024-01-14 16:45',
-			traffic: 890,
-			orders: 23
-		}
-	];
+	// Demo veriler kaldırıldı - gerçek veriler veritabanından gelecek
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -107,40 +86,6 @@ export default function DomainsPage() {
 				</div>
 			</div>
 
-			{/* Add New Domain */}
-			<div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-200">
-				<div className="flex items-center mb-4">
-					<span className="text-2xl mr-3">🌐</span>
-					<h3 className="text-lg font-semibold text-indigo-900">Yeni Domain Ekle</h3>
-				</div>
-				<div className="flex space-x-4">
-					<div className="flex-1">
-						<input
-							type="text"
-							value={newDomain}
-							onChange={(e) => setNewDomain(e.target.value)}
-							placeholder="ör: shop.markaadi.com"
-							className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-						/>
-					</div>
-					<select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-						<option value="">Satıcı Seçin</option>
-						<option value="seller1">Satıcı A</option>
-						<option value="seller2">Satıcı B</option>
-						<option value="seller3">Satıcı C</option>
-					</select>
-					<button
-						onClick={handleAddDomain}
-						className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700"
-					>
-						Ekle
-					</button>
-				</div>
-				<p className="text-sm text-indigo-700 mt-3">
-					💡 Domain ekledikten sonra DNS ayarlarında CNAME kaydını <code>tdcmarket.com</code> olarak ayarlayın.
-				</p>
-			</div>
-
 			{/* Main Content */}
 			<div className="bg-white rounded-lg border">
 				<div className="border-b border-gray-200">
@@ -168,158 +113,20 @@ export default function DomainsPage() {
 				</div>
 
 				<div className="p-6">
-					{activeTab === 'domains' && (
-						<div className="space-y-6">
-							<div className="overflow-x-auto">
-								<table className="min-w-full divide-y divide-gray-200">
-									<thead className="bg-gray-50">
-										<tr>
-											<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												Domain
-											</th>
-											<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												Satıcı
-											</th>
-											<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												Durum
-											</th>
-											<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												SSL Durumu
-											</th>
-											<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												Trafik
-											</th>
-											<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												Siparişler
-											</th>
-											<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-												Son Kontrol
-											</th>
-											<th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-												İşlemler
-											</th>
-										</tr>
-									</thead>
-									<tbody className="bg-white divide-y divide-gray-200">
-										{domains.map((domain) => (
-											<tr key={domain.id} className="hover:bg-gray-50">
-												<td className="px-6 py-4 whitespace-nowrap">
-													<div className="flex items-center">
-														<span className="text-2xl mr-2">🌐</span>
-														<div>
-															<div className="text-sm font-medium text-gray-900">{domain.domain}</div>
-															<div className="text-sm text-gray-500">{domain.id}</div>
-														</div>
-													</div>
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-													{domain.seller}
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap">
-													<span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(domain.status)}`}>
-														{getStatusText(domain.status)}
-													</span>
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap">
-													<div className="flex items-center">
-														<span className={`text-lg mr-1 ${getSSLColor(domain.sslStatus)}`}>
-															{domain.sslStatus === 'valid' ? '🔒' : domain.sslStatus === 'expired' ? '🔓' : '⏳'}
-														</span>
-														<span className={`text-sm ${getSSLColor(domain.sslStatus)}`}>
-															{domain.sslStatus === 'valid' ? 'Geçerli' : domain.sslStatus === 'expired' ? 'Süresi Dolmuş' : 'Beklemede'}
-														</span>
-													</div>
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-													{domain.traffic.toLocaleString()}
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-													{domain.orders}
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-													{domain.lastCheck}
-												</td>
-												<td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-													<button className="text-indigo-600 hover:text-indigo-900 mr-3">
-														Düzenle
-													</button>
-													<button className="text-blue-600 hover:text-blue-900 mr-3">
-														Test Et
-													</button>
-													<button className="text-red-600 hover:text-red-900">
-														Sil
-													</button>
-												</td>
-											</tr>
-										))}
-									</tbody>
-								</table>
+					{domains.length === 0 && (
+						<div className="text-center py-12">
+							<div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+								<span className="text-4xl">🌐</span>
 							</div>
+							<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Domain Yok</h3>
+							<p className="text-gray-600 text-sm mb-4">
+								Satıcılar için white label domain ekleyin
+							</p>
+							<button className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">
+								İlk Domain'i Ekle
+							</button>
 						</div>
 					)}
-
-					{activeTab === 'ssl' && (
-						<div className="space-y-6">
-							<h3 className="text-lg font-semibold text-gray-900">SSL Sertifika Yönetimi</h3>
-							<div className="text-center text-gray-500">
-								<p>SSL sertifika yönetimi ve otomatik yenileme ayarları burada görünecek...</p>
-							</div>
-						</div>
-					)}
-
-					{activeTab === 'dns' && (
-						<div className="space-y-6">
-							<h3 className="text-lg font-semibold text-gray-900">DNS Ayarları</h3>
-							<div className="text-center text-gray-500">
-								<p>DNS kayıtları ve yönlendirme ayarları burada görünecek...</p>
-							</div>
-						</div>
-					)}
-
-					{activeTab === 'analytics' && (
-						<div className="space-y-6">
-							<h3 className="text-lg font-semibold text-gray-900">Domain Performans Analitik</h3>
-							<div className="text-center text-gray-500">
-								<p>Domain bazlı trafik ve performans analizleri burada görünecek...</p>
-							</div>
-						</div>
-					)}
-				</div>
-			</div>
-
-			{/* Quick Actions */}
-			<div className="grid md:grid-cols-3 gap-6">
-				<div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
-					<div className="flex items-center mb-4">
-						<span className="text-2xl mr-3">🔒</span>
-						<h3 className="text-lg font-semibold text-green-900">SSL Otomasyonu</h3>
-					</div>
-					<p className="text-green-700 mb-4">Otomatik SSL sertifika yenileme kurulumu.</p>
-					<button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-						Otomasyon Kur
-					</button>
-				</div>
-
-				<div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
-					<div className="flex items-center mb-4">
-						<span className="text-2xl mr-3">🔍</span>
-						<h3 className="text-lg font-semibold text-blue-900">Domain Sağlık Kontrolü</h3>
-					</div>
-					<p className="text-blue-700 mb-4">Tüm domainlerin sağlık durumunu kontrol et.</p>
-					<button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-						Kontrol Başlat
-					</button>
-				</div>
-
-				<div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
-					<div className="flex items-center mb-4">
-						<span className="text-2xl mr-3">📊</span>
-						<h3 className="text-lg font-semibold text-purple-900">Performans Raporu</h3>
-					</div>
-					<p className="text-purple-700 mb-4">Domain performans raporu oluştur.</p>
-					<button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
-						Rapor Oluştur
-					</button>
 				</div>
 			</div>
 		</div>

@@ -6,83 +6,19 @@ export default function UserGeneratedContentPage() {
 	const [activeTab, setActiveTab] = useState('overview');
 
 	const ugcStats = {
-		totalContent: 2847,
-		pendingReview: 34,
-		approved: 2650,
-		rejected: 163,
-		userSubmissions: 156,
-		avgRating: 4.2
+		totalContent: 0,
+		pendingReview: 0,
+		approved: 0,
+		rejected: 0,
+		userSubmissions: 0,
+		avgRating: 0
 	};
 
-	const contentTypes = [
-		{ type: 'Ürün Yorumu', count: 1245, approved: 1198, pending: 15, rejected: 32 },
-		{ type: 'Blog Yazısı', count: 567, approved: 534, pending: 12, rejected: 21 },
-		{ type: 'Ürün Resmi', count: 423, approved: 401, pending: 4, rejected: 18 },
-		{ type: 'Video Review', count: 234, approved: 221, pending: 2, rejected: 11 },
-		{ type: 'Q&A', count: 378, approved: 296, pending: 1, rejected: 81 }
-	];
+	const [contentTypes] = useState<any[]>([]);
 
-	const recentSubmissions = [
-		{
-			id: 1,
-			type: 'Ürün Yorumu',
-			title: 'Harika Anime Figürü!',
-			author: 'anime_lover',
-			product: 'Naruto Uzumaki Figürü',
-			content: 'Bu figür gerçekten kaliteli. Detayları muhteşem ve...',
-			rating: 5,
-			submittedAt: '2 saat önce',
-			status: 'pending',
-			likes: 12,
-			reports: 0
-		},
-		{
-			id: 2,
-			type: 'Blog Yazısı',
-			title: 'Vintage Poster Koleksiyonu Rehberi',
-			author: 'collector_pro',
-			content: 'Vintage poster koleksiyonu yapmaya başlamak isteyenler için...',
-			submittedAt: '4 saat önce',
-			status: 'approved',
-			likes: 45,
-			reports: 0
-		},
-		{
-			id: 3,
-			type: 'Ürün Resmi',
-			title: 'Teknoloji Ürünü Unboxing',
-			author: 'tech_reviewer',
-			product: 'Kablosuz Kulaklık XYZ',
-			submittedAt: '6 saat önce',
-			status: 'pending',
-			likes: 8,
-			reports: 1
-		}
-	];
+	const [recentSubmissions] = useState<any[]>([]);
 
-	const topContributors = [
-		{
-			username: 'anime_lover',
-			totalSubmissions: 47,
-			approvalRate: 94,
-			avgRating: 4.6,
-			badges: ['Trusted Reviewer', 'Anime Expert']
-		},
-		{
-			username: 'collector_pro',
-			totalSubmissions: 32,
-			approvalRate: 88,
-			avgRating: 4.3,
-			badges: ['Collector', 'Quality Content']
-		},
-		{
-			username: 'tech_reviewer',
-			totalSubmissions: 28,
-			approvalRate: 92,
-			avgRating: 4.5,
-			badges: ['Tech Expert', 'Video Creator']
-		}
-	];
+	const [topContributors] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -182,8 +118,15 @@ export default function UserGeneratedContentPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">İçerik Türleri Dağılımı</h3>
 
-							<div className="space-y-4">
-								{contentTypes.map((item, index) => (
+							{contentTypes.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">📊</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz İçerik Yok</h3>
+									<p className="text-gray-600">Kullanıcı içerikleri burada görünecek.</p>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{contentTypes.map((item, index) => (
 									<div key={index} className="border rounded-lg p-6">
 										<div className="flex items-center justify-between mb-4">
 											<div className="flex items-center space-x-3">
@@ -217,7 +160,8 @@ export default function UserGeneratedContentPage() {
 										</div>
 									</div>
 								))}
-							</div>
+								</div>
+							)}
 						</div>
 					)}
 
@@ -225,8 +169,15 @@ export default function UserGeneratedContentPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Son Kullanıcı Gönderileri</h3>
 
-							<div className="space-y-4">
-								{recentSubmissions.map((submission) => (
+							{recentSubmissions.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">📝</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Gönderi Yok</h3>
+									<p className="text-gray-600">Kullanıcı gönderileri burada görünecek.</p>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{recentSubmissions.map((submission) => (
 									<div key={submission.id} className="border rounded-lg p-6">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
@@ -274,20 +225,28 @@ export default function UserGeneratedContentPage() {
 											<button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
 												Detay
 											</button>
-											<button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
-												Kullanıcı Profili
-											</button>
-										</div>
+										<button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+											Kullanıcı Profili
+										</button>
 									</div>
-								))}
+								</div>
+							))}
 							</div>
-						</div>
-					)}
+						)}
+					</div>
+				)}
 
-					{activeTab === 'contributors' && (
-						<div className="space-y-6">
-							<h3 className="text-lg font-semibold text-gray-900">En Aktif Katkıcılar</h3>
+				{activeTab === 'contributors' && (
+					<div className="space-y-6">
+						<h3 className="text-lg font-semibold text-gray-900">En Aktif Katkıcılar</h3>
 
+						{topContributors.length === 0 ? (
+							<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+								<div className="text-4xl mb-4">👥</div>
+								<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Katkıcı Yok</h3>
+								<p className="text-gray-600">En aktif katkıcılar burada görünecek.</p>
+							</div>
+						) : (
 							<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 								{topContributors.map((contributor, index) => (
 									<div key={index} className="border rounded-lg p-6">
@@ -322,10 +281,11 @@ export default function UserGeneratedContentPage() {
 									</div>
 								))}
 							</div>
-						</div>
-					)}
+						)}
+					</div>
+				)}
 
-					{activeTab === 'campaigns' && (
+				{activeTab === 'campaigns' && (
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">UGC Kampanyaları</h3>
 							<div className="text-center text-gray-500">
@@ -365,22 +325,22 @@ export default function UserGeneratedContentPage() {
 							<div className="grid md:grid-cols-4 gap-6">
 								<div className="bg-blue-50 p-6 rounded-lg border border-blue-200">
 									<h4 className="font-semibold text-blue-900 mb-2">Engagement</h4>
-									<div className="text-2xl font-bold text-blue-700">87.3%</div>
+									<div className="text-2xl font-bold text-blue-700">0%</div>
 									<div className="text-sm text-blue-600">Ortalama etkileşim oranı</div>
 								</div>
 								<div className="bg-green-50 p-6 rounded-lg border border-green-200">
 									<h4 className="font-semibold text-green-900 mb-2">Kalite Skoru</h4>
-									<div className="text-2xl font-bold text-green-700">4.2/5</div>
+									<div className="text-2xl font-bold text-green-700">0/5</div>
 									<div className="text-sm text-green-600">Ortalama içerik kalitesi</div>
 								</div>
 								<div className="bg-purple-50 p-6 rounded-lg border border-purple-200">
 									<h4 className="font-semibold text-purple-900 mb-2">Aktif Kullanıcı</h4>
-									<div className="text-2xl font-bold text-purple-700">1,247</div>
+									<div className="text-2xl font-bold text-purple-700">0</div>
 									<div className="text-sm text-purple-600">Son 30 gün içinde</div>
 								</div>
 								<div className="bg-orange-50 p-6 rounded-lg border border-orange-200">
 									<h4 className="font-semibold text-orange-900 mb-2">Dönüşüm</h4>
-									<div className="text-2xl font-bold text-orange-700">23.4%</div>
+									<div className="text-2xl font-bold text-orange-700">0%</div>
 									<div className="text-sm text-orange-600">UGC'den satış dönüşümü</div>
 								</div>
 							</div>

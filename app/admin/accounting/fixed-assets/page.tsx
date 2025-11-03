@@ -6,100 +6,9 @@ export default function FixedAssetsPage() {
 	const [activeTab, setActiveTab] = useState('assets');
 	const [isAddingAsset, setIsAddingAsset] = useState(false);
 
-	const fixedAssets = [
-		{
-			id: 'FA-001',
-			name: 'Ofis Bilgisayarları (10 Adet)',
-			category: 'Bilgi İşlem Ekipmanları',
-			purchaseDate: '2023-03-15',
-			purchasePrice: 150000,
-			currentValue: 112500,
-			depreciationRate: 25,
-			usefulLife: 4,
-			location: 'Ana Ofis - IT Departmanı',
-			status: 'Aktif',
-			lastMaintenance: '2024-01-15'
-		},
-		{
-			id: 'FA-002',
-			name: 'Depo Forklift',
-			category: 'Taşıma Araçları',
-			purchaseDate: '2022-08-20',
-			purchasePrice: 85000,
-			currentValue: 59500,
-			depreciationRate: 15,
-			usefulLife: 10,
-			location: 'Ana Depo',
-			status: 'Aktif',
-			lastMaintenance: '2024-01-10'
-		},
-		{
-			id: 'FA-003',
-			name: 'Ofis Mobilyaları',
-			category: 'Mobilya ve Demirbaş',
-			purchaseDate: '2023-01-10',
-			purchasePrice: 45000,
-			currentValue: 40500,
-			depreciationRate: 10,
-			usefulLife: 10,
-			location: 'Ana Ofis',
-			status: 'Aktif',
-			lastMaintenance: null
-		},
-		{
-			id: 'FA-004',
-			name: 'Güvenlik Kamera Sistemi',
-			category: 'Güvenlik Ekipmanları',
-			purchaseDate: '2023-06-01',
-			purchasePrice: 25000,
-			currentValue: 21250,
-			depreciationRate: 15,
-			usefulLife: 8,
-			location: 'Tüm Lokasyonlar',
-			status: 'Aktif',
-			lastMaintenance: '2024-01-08'
-		}
-	];
-
-	const depreciationSchedule = [
-		{
-			year: 2023,
-			openingValue: 150000,
-			depreciation: 37500,
-			closingValue: 112500,
-			assetId: 'FA-001'
-		},
-		{
-			year: 2024,
-			openingValue: 112500,
-			depreciation: 28125,
-			closingValue: 84375,
-			assetId: 'FA-001'
-		}
-	];
-
-	const maintenanceSchedule = [
-		{
-			id: 'MT-001',
-			assetId: 'FA-001',
-			assetName: 'Ofis Bilgisayarları',
-			type: 'Periyodik Bakım',
-			scheduledDate: '2024-04-15',
-			cost: 2500,
-			status: 'Planlandı',
-			vendor: 'TechCare Servis'
-		},
-		{
-			id: 'MT-002',
-			assetId: 'FA-002',
-			assetName: 'Depo Forklift',
-			type: 'Yıllık Muayene',
-			scheduledDate: '2024-02-20',
-			cost: 1500,
-			status: 'Tamamlandı',
-			vendor: 'ForkliftCare Ltd.'
-		}
-	];
+	const [fixedAssets, setFixedAssets] = useState<any[]>([]);
+	const [depreciationSchedule, setDepreciationSchedule] = useState<any[]>([]);
+	const [maintenanceSchedule, setMaintenanceSchedule] = useState<any[]>([]);
 
 	const categories = [
 		'Bilgi İşlem Ekipmanları',
@@ -232,42 +141,52 @@ export default function FixedAssetsPage() {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-200">
-										{fixedAssets.map((asset) => (
-											<tr key={asset.id} className="hover:bg-gray-50">
-												<td className="px-4 py-3">
-													<div>
-														<div className="font-medium text-gray-900">{asset.name}</div>
-														<div className="text-sm text-gray-500">{asset.id}</div>
-														<div className="text-xs text-gray-400">{asset.location}</div>
-													</div>
-												</td>
-												<td className="px-4 py-3 text-sm text-gray-900">{asset.category}</td>
-												<td className="px-4 py-3 text-sm text-gray-900">
-													{new Date(asset.purchaseDate).toLocaleDateString('tr-TR')}
-												</td>
-												<td className="px-4 py-3 text-sm font-medium text-gray-900">
-													{formatCurrency(asset.purchasePrice)}
-												</td>
-												<td className="px-4 py-3 text-sm font-medium text-green-600">
-													{formatCurrency(asset.currentValue)}
-												</td>
-												<td className="px-4 py-3 text-sm text-gray-900">
-													{calculateAge(asset.purchaseDate)}
-												</td>
-												<td className="px-4 py-3">
-													<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(asset.status)}`}>
-														{asset.status}
-													</span>
-												</td>
-												<td className="px-4 py-3 text-sm">
-													<div className="flex space-x-2">
-														<button className="text-indigo-600 hover:text-indigo-900">Düzenle</button>
-														<button className="text-blue-600 hover:text-blue-900">Detay</button>
-														<button className="text-green-600 hover:text-green-900">Bakım</button>
-													</div>
+										{fixedAssets.length === 0 ? (
+											<tr>
+												<td colSpan={8} className="px-4 py-12 text-center">
+													<div className="text-6xl mb-4">🏭</div>
+													<p className="text-gray-500 text-lg mb-2">Henüz Sabit Kıymet Yok</p>
+													<p className="text-gray-400 text-sm">Sabit kıymetlerinizi ekleyin</p>
 												</td>
 											</tr>
-										))}
+										) : (
+											fixedAssets.map((asset) => (
+												<tr key={asset.id} className="hover:bg-gray-50">
+													<td className="px-4 py-3">
+														<div>
+															<div className="font-medium text-gray-900">{asset.name}</div>
+															<div className="text-sm text-gray-500">{asset.id}</div>
+															<div className="text-xs text-gray-400">{asset.location}</div>
+														</div>
+													</td>
+													<td className="px-4 py-3 text-sm text-gray-900">{asset.category}</td>
+													<td className="px-4 py-3 text-sm text-gray-900">
+														{new Date(asset.purchaseDate).toLocaleDateString('tr-TR')}
+													</td>
+													<td className="px-4 py-3 text-sm font-medium text-gray-900">
+														{formatCurrency(asset.purchasePrice)}
+													</td>
+													<td className="px-4 py-3 text-sm font-medium text-green-600">
+														{formatCurrency(asset.currentValue)}
+													</td>
+													<td className="px-4 py-3 text-sm text-gray-900">
+														{calculateAge(asset.purchaseDate)}
+													</td>
+													<td className="px-4 py-3">
+														<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(asset.status)}`}>
+															{asset.status}
+														</span>
+													</td>
+													<td className="px-4 py-3 text-sm">
+														<div className="flex space-x-2">
+															<button className="text-indigo-600 hover:text-indigo-900">Düzenle</button>
+															<button className="text-blue-600 hover:text-blue-900">Detay</button>
+															<button className="text-green-600 hover:text-green-900">Bakım</button>
+														</div>
+													</td>
+												</tr>
+											))
+										)}
 									</tbody>
 								</table>
 							</div>
@@ -346,35 +265,45 @@ export default function FixedAssetsPage() {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-200">
-										{maintenanceSchedule.map((maintenance) => (
-											<tr key={maintenance.id} className="hover:bg-gray-50">
-												<td className="px-4 py-3">
-													<div>
-														<div className="font-medium text-gray-900">{maintenance.assetName}</div>
-														<div className="text-sm text-gray-500">{maintenance.assetId}</div>
-													</div>
-												</td>
-												<td className="px-4 py-3 text-sm text-gray-900">{maintenance.type}</td>
-												<td className="px-4 py-3 text-sm text-gray-900">
-													{new Date(maintenance.scheduledDate).toLocaleDateString('tr-TR')}
-												</td>
-												<td className="px-4 py-3 text-sm font-medium text-gray-900">
-													{formatCurrency(maintenance.cost)}
-												</td>
-												<td className="px-4 py-3 text-sm text-gray-900">{maintenance.vendor}</td>
-												<td className="px-4 py-3">
-													<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMaintenanceStatusColor(maintenance.status)}`}>
-														{maintenance.status}
-													</span>
-												</td>
-												<td className="px-4 py-3 text-sm">
-													<div className="flex space-x-2">
-														<button className="text-indigo-600 hover:text-indigo-900">Düzenle</button>
-														<button className="text-green-600 hover:text-green-900">Tamamla</button>
-													</div>
+										{maintenanceSchedule.length === 0 ? (
+											<tr>
+												<td colSpan={7} className="px-4 py-12 text-center">
+													<div className="text-6xl mb-4">🔧</div>
+													<p className="text-gray-500 text-lg mb-2">Henüz Bakım Planı Yok</p>
+													<p className="text-gray-400 text-sm">Bakım planlarınızı oluşturun</p>
 												</td>
 											</tr>
-										))}
+										) : (
+											maintenanceSchedule.map((maintenance) => (
+												<tr key={maintenance.id} className="hover:bg-gray-50">
+													<td className="px-4 py-3">
+														<div>
+															<div className="font-medium text-gray-900">{maintenance.assetName}</div>
+															<div className="text-sm text-gray-500">{maintenance.assetId}</div>
+														</div>
+													</td>
+													<td className="px-4 py-3 text-sm text-gray-900">{maintenance.type}</td>
+													<td className="px-4 py-3 text-sm text-gray-900">
+														{new Date(maintenance.scheduledDate).toLocaleDateString('tr-TR')}
+													</td>
+													<td className="px-4 py-3 text-sm font-medium text-gray-900">
+														{formatCurrency(maintenance.cost)}
+													</td>
+													<td className="px-4 py-3 text-sm text-gray-900">{maintenance.vendor}</td>
+													<td className="px-4 py-3">
+														<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getMaintenanceStatusColor(maintenance.status)}`}>
+															{maintenance.status}
+														</span>
+													</td>
+													<td className="px-4 py-3 text-sm">
+														<div className="flex space-x-2">
+															<button className="text-indigo-600 hover:text-indigo-900">Düzenle</button>
+															<button className="text-green-600 hover:text-green-900">Tamamla</button>
+														</div>
+													</td>
+												</tr>
+											))
+										)}
 									</tbody>
 								</table>
 							</div>

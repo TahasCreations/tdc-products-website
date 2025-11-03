@@ -5,35 +5,7 @@ import { useState } from 'react';
 export default function JournalsPage() {
 	const [selectedPeriod, setSelectedPeriod] = useState('2024-01');
 
-	const journalEntries = [
-		{
-			id: 'YEV-2024-001',
-			date: '2024-01-15',
-			description: 'Satış geliri kaydı',
-			reference: 'FAT-2024-0156',
-			debit: '₺1,250.00',
-			credit: '₺1,250.00',
-			status: 'Onaylandı'
-		},
-		{
-			id: 'YEV-2024-002',
-			date: '2024-01-15',
-			description: 'Kira gideri ödemesi',
-			reference: 'ÖDM-2024-0089',
-			debit: '₺3,500.00',
-			credit: '₺3,500.00',
-			status: 'Beklemede'
-		},
-		{
-			id: 'YEV-2024-003',
-			date: '2024-01-14',
-			description: 'Malzeme alımı',
-			reference: 'FAT-2024-0155',
-			debit: '₺890.50',
-			credit: '₺890.50',
-			status: 'Onaylandı'
-		}
-	];
+	const [journalEntries, setJournalEntries] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -67,15 +39,15 @@ export default function JournalsPage() {
 			{/* Summary Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-blue-600">156</div>
+					<div className="text-lg font-semibold text-blue-600">0</div>
 					<div className="text-sm text-gray-600">Toplam Kayıt</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-green-600">₺456,780</div>
+					<div className="text-lg font-semibold text-green-600">₺0</div>
 					<div className="text-sm text-gray-600">Toplam Borç</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-red-600">₺456,780</div>
+					<div className="text-lg font-semibold text-red-600">₺0</div>
 					<div className="text-sm text-gray-600">Toplam Alacak</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
@@ -141,44 +113,54 @@ export default function JournalsPage() {
 							</tr>
 						</thead>
 						<tbody className="bg-white divide-y divide-gray-200">
-							{journalEntries.map((entry) => (
-								<tr key={entry.id} className="hover:bg-gray-50">
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-										{entry.id}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-										{entry.date}
-									</td>
-									<td className="px-6 py-4 text-sm text-gray-900">
-										{entry.description}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-										{entry.reference}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">
-										{entry.debit}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-										{entry.credit}
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap">
-										<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(entry.status)}`}>
-											{entry.status}
-										</span>
-									</td>
-									<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-										<button className="text-indigo-600 hover:text-indigo-900 mr-3">
-											Görüntüle
-										</button>
-										<button className="text-green-600 hover:text-green-900 mr-3">
-											Düzenle
-										</button>
-										<button className="text-red-600 hover:text-red-900">
-											Sil
-										</button>
+							{journalEntries.length === 0 ? (
+								<tr>
+									<td colSpan={8} className="px-6 py-12 text-center">
+										<div className="text-6xl mb-4">📒</div>
+										<p className="text-gray-500 text-lg mb-2">Henüz Yevmiye Kaydı Yok</p>
+										<p className="text-gray-400 text-sm">Muhasebe kayıtlarınız burada görünecek</p>
 									</td>
 								</tr>
-							))}
+							) : (
+								journalEntries.map((entry) => (
+									<tr key={entry.id} className="hover:bg-gray-50">
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+											{entry.id}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+											{entry.date}
+										</td>
+										<td className="px-6 py-4 text-sm text-gray-900">
+											{entry.description}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+											{entry.reference}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">
+											{entry.debit}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+											{entry.credit}
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap">
+											<span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(entry.status)}`}>
+												{entry.status}
+											</span>
+										</td>
+										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+											<button className="text-indigo-600 hover:text-indigo-900 mr-3">
+												Görüntüle
+											</button>
+											<button className="text-green-600 hover:text-green-900 mr-3">
+												Düzenle
+											</button>
+											<button className="text-red-600 hover:text-red-900">
+												Sil
+											</button>
+										</td>
+									</tr>
+								))
+							)}
 						</tbody>
 					</table>
 				</div>

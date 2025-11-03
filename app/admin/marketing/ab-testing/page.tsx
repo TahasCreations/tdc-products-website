@@ -6,149 +6,10 @@ export default function ABTestingPage() {
 	const [activeTab, setActiveTab] = useState('tests');
 	const [isCreatingTest, setIsCreatingTest] = useState(false);
 
-	const tests = [
-		{
-			id: 'TEST-001',
-			name: 'Ürün Detay Sayfası CTA Butonu',
-			hypothesis: 'Yeşil "Sepete Ekle" butonu daha yüksek dönüşüm oranı sağlayacak',
-			status: 'running',
-			startDate: '2024-01-10',
-			endDate: '2024-01-24',
-			traffic: 50,
-			variants: [
-				{
-					name: 'Kontrol (Mavi Buton)',
-					visitors: 2450,
-					conversions: 147,
-					conversionRate: 6.0,
-					revenue: 15680
-				},
-				{
-					name: 'Varyant (Yeşil Buton)', 
-					visitors: 2380,
-					conversions: 167,
-					conversionRate: 7.0,
-					revenue: 18340
-				}
-			],
-			confidence: 92,
-			winner: 'variant',
-			category: 'UI/UX'
-		},
-		{
-			id: 'TEST-002',
-			name: 'E-posta Konu Satırı Testi',
-			hypothesis: 'Kişiselleştirilmiş konu satırları daha yüksek açılma oranı sağlayacak',
-			status: 'completed',
-			startDate: '2024-01-01',
-			endDate: '2024-01-08',
-			traffic: 50,
-			variants: [
-				{
-					name: 'Kontrol (Genel Konu)',
-					visitors: 5000,
-					conversions: 850,
-					conversionRate: 17.0,
-					revenue: 12340
-				},
-				{
-					name: 'Varyant (Kişisel Konu)',
-					visitors: 5000,
-					conversions: 1150,
-					conversionRate: 23.0,
-					revenue: 16780
-				}
-			],
-			confidence: 98,
-			winner: 'variant',
-			category: 'Email Marketing'
-		},
-		{
-			id: 'TEST-003',
-			name: 'Checkout Süreç Optimizasyonu',
-			hypothesis: 'Tek sayfalık checkout süreci terk oranını azaltacak',
-			status: 'draft',
-			startDate: '2024-01-25',
-			endDate: '2024-02-08',
-			traffic: 30,
-			variants: [
-				{
-					name: 'Kontrol (3 Adım)',
-					visitors: 0,
-					conversions: 0,
-					conversionRate: 0,
-					revenue: 0
-				},
-				{
-					name: 'Varyant (Tek Sayfa)',
-					visitors: 0,
-					conversions: 0,
-					conversionRate: 0,
-					revenue: 0
-				}
-			],
-			confidence: 0,
-			winner: null,
-			category: 'Conversion'
-		}
-	];
+	const [tests, setTests] = useState<any[]>([]);
+	const [testTemplates, setTestTemplates] = useState<any[]>([]);
 
-	const testTemplates = [
-		{
-			id: 'TPL-001',
-			name: 'CTA Buton Testi',
-			description: 'Farklı buton renkleri ve metinleri test et',
-			category: 'UI/UX',
-			elements: ['Buton Rengi', 'Buton Metni', 'Buton Boyutu'],
-			duration: '7-14 gün',
-			complexity: 'Kolay'
-		},
-		{
-			id: 'TPL-002',
-			name: 'Fiyatlandırma Testi',
-			description: 'Farklı fiyat gösterimi ve indirim stratejileri',
-			category: 'Pricing',
-			elements: ['Fiyat Formatı', 'İndirim Gösterimi', 'Karşılaştırma'],
-			duration: '14-21 gün',
-			complexity: 'Orta'
-		},
-		{
-			id: 'TPL-003',
-			name: 'Sayfa Layout Testi',
-			description: 'Farklı sayfa düzenleri ve içerik organizasyonu',
-			category: 'Layout',
-			elements: ['Header Düzeni', 'İçerik Sırası', 'Sidebar Pozisyonu'],
-			duration: '14-28 gün',
-			complexity: 'Zor'
-		}
-	];
-
-	const insights = [
-		{
-			id: 'INS-001',
-			title: 'Yeşil CTA Butonları %16 Daha Etkili',
-			description: 'Son 3 ay içinde yapılan testlerde yeşil renkli butonlar ortalama %16 daha yüksek dönüşüm oranı gösterdi.',
-			impact: 'high',
-			date: '2024-01-15',
-			category: 'UI/UX'
-		},
-		{
-			id: 'INS-002',
-			title: 'Kişiselleştirme Email Açılma Oranını %35 Artırıyor',
-			description: 'Kişiselleştirilmiş e-posta konuları genel konulara göre %35 daha fazla açılıyor.',
-			impact: 'high',
-			date: '2024-01-12',
-			category: 'Email Marketing'
-		},
-		{
-			id: 'INS-003',
-			title: 'Mobil Kullanıcılarda Farklı Davranış Paterni',
-			description: 'Mobil kullanıcılar desktop kullanıcılarından %23 daha hızlı karar veriyor.',
-			impact: 'medium',
-			date: '2024-01-08',
-			category: 'Mobile UX'
-		}
-	];
+	const [insights, setInsights] = useState<any[]>([]);
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('tr-TR', {
@@ -287,7 +148,14 @@ export default function ABTestingPage() {
 				<div className="p-6">
 					{activeTab === 'tests' && (
 						<div className="space-y-6">
-							{tests.map((test) => (
+							{tests.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">🧪</div>
+									<p className="text-gray-500 text-lg mb-2">Henüz A/B Test Yok</p>
+									<p className="text-gray-400 text-sm">Yeni test oluşturarak başlayın</p>
+								</div>
+							) : (
+								tests.map((test) => (
 								<div key={test.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
 									<div className="flex items-start justify-between mb-4">
 										<div className="flex-1">
@@ -367,7 +235,8 @@ export default function ABTestingPage() {
 										</button>
 									</div>
 								</div>
-							))}
+								))
+							)}
 						</div>
 					)}
 

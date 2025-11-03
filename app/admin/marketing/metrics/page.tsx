@@ -7,100 +7,19 @@ export default function MarketingMetricsPage() {
 	const [selectedPeriod, setSelectedPeriod] = useState('30d');
 
 	const metrics = {
-		reach: 145680,
-		impressions: 892340,
-		clicks: 15420,
-		ctr: 1.73,
-		cpc: 0.85,
-		conversions: 892,
-		conversionRate: 5.78,
-		roas: 4.2,
-		revenue: 67890
+		reach: 0,
+		impressions: 0,
+		clicks: 0,
+		ctr: 0,
+		cpc: 0,
+		conversions: 0,
+		conversionRate: 0,
+		roas: 0,
+		revenue: 0
 	};
 
-	const channels = [
-		{
-			name: 'Google Ads',
-			spend: 15680,
-			clicks: 8920,
-			conversions: 234,
-			revenue: 28450,
-			roas: 1.81,
-			cpc: 1.76
-		},
-		{
-			name: 'Facebook Ads',
-			spend: 12340,
-			clicks: 5670,
-			conversions: 189,
-			revenue: 23890,
-			roas: 1.94,
-			cpc: 2.18
-		},
-		{
-			name: 'Email Marketing',
-			spend: 890,
-			clicks: 2340,
-			conversions: 156,
-			revenue: 12340,
-			roas: 13.87,
-			cpc: 0.38
-		},
-		{
-			name: 'Social Media',
-			spend: 2340,
-			clicks: 4560,
-			conversions: 89,
-			revenue: 8900,
-			roas: 3.80,
-			cpc: 0.51
-		}
-	];
-
-	const campaigns = [
-		{
-			id: 'CAMP-001',
-			name: 'Anime Figür Koleksiyonu',
-			status: 'active',
-			budget: 5000,
-			spent: 4567,
-			impressions: 234560,
-			clicks: 3456,
-			conversions: 78,
-			revenue: 15680,
-			ctr: 1.47,
-			cpc: 1.32,
-			roas: 3.43
-		},
-		{
-			id: 'CAMP-002',
-			name: 'Vintage Poster Kampanyası',
-			status: 'active',
-			budget: 3000,
-			spent: 2890,
-			impressions: 156780,
-			clicks: 2340,
-			conversions: 45,
-			revenue: 8900,
-			ctr: 1.49,
-			cpc: 1.23,
-			roas: 3.08
-		},
-		{
-			id: 'CAMP-003',
-			name: 'Teknoloji Ürünleri',
-			status: 'paused',
-			budget: 4000,
-			spent: 3456,
-			impressions: 189430,
-			clicks: 2890,
-			conversions: 67,
-			revenue: 12340,
-			ctr: 1.53,
-			cpc: 1.20,
-			roas: 3.57
-		}
-	];
+	const [channels, setChannels] = useState<any[]>([]);
+	const [campaigns, setCampaigns] = useState<any[]>([]);
 
 	const formatCurrency = (amount: number) => {
 		return new Intl.NumberFormat('tr-TR', {
@@ -291,38 +210,49 @@ export default function MarketingMetricsPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">Pazarlama Kanalları Performansı</h3>
 
-							<div className="overflow-x-auto">
-								<table className="w-full">
-									<thead className="bg-gray-50">
-										<tr>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Kanal</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Harcama</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Tıklama</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">CPC</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Dönüşüm</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Gelir</th>
-											<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">ROAS</th>
-										</tr>
-									</thead>
-									<tbody className="divide-y divide-gray-200">
-										{channels.map((channel, index) => (
-											<tr key={index} className="hover:bg-gray-50">
-												<td className="px-4 py-3 font-medium text-gray-900">{channel.name}</td>
-												<td className="px-4 py-3 text-sm text-gray-900">{formatCurrency(channel.spend)}</td>
-												<td className="px-4 py-3 text-sm text-gray-900">{channel.clicks.toLocaleString()}</td>
-												<td className="px-4 py-3 text-sm text-gray-900">{formatCurrency(channel.cpc)}</td>
-												<td className="px-4 py-3 text-sm text-gray-900">{channel.conversions}</td>
-												<td className="px-4 py-3 text-sm font-medium text-green-600">{formatCurrency(channel.revenue)}</td>
-												<td className="px-4 py-3 text-sm">
-													<span className={`font-medium ${getPerformanceColor(channel.roas, 2.0)}`}>
-														{channel.roas}x
-													</span>
-												</td>
+							{channels.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">📢</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Kanal Verisi Yok</h3>
+									<p className="text-gray-600 mb-4">Pazarlama kanallarınızı ekleyerek performans takibine başlayın.</p>
+									<button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+										Kanal Ekle
+									</button>
+								</div>
+							) : (
+								<div className="overflow-x-auto">
+									<table className="w-full">
+										<thead className="bg-gray-50">
+											<tr>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Kanal</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Harcama</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Tıklama</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">CPC</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Dönüşüm</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Gelir</th>
+												<th className="px-4 py-3 text-left text-sm font-medium text-gray-500">ROAS</th>
 											</tr>
-										))}
-									</tbody>
-								</table>
-							</div>
+										</thead>
+										<tbody className="divide-y divide-gray-200">
+											{channels.map((channel, index) => (
+												<tr key={index} className="hover:bg-gray-50">
+													<td className="px-4 py-3 font-medium text-gray-900">{channel.name}</td>
+													<td className="px-4 py-3 text-sm text-gray-900">{formatCurrency(channel.spend)}</td>
+													<td className="px-4 py-3 text-sm text-gray-900">{channel.clicks.toLocaleString()}</td>
+													<td className="px-4 py-3 text-sm text-gray-900">{formatCurrency(channel.cpc)}</td>
+													<td className="px-4 py-3 text-sm text-gray-900">{channel.conversions}</td>
+													<td className="px-4 py-3 text-sm font-medium text-green-600">{formatCurrency(channel.revenue)}</td>
+													<td className="px-4 py-3 text-sm">
+														<span className={`font-medium ${getPerformanceColor(channel.roas, 2.0)}`}>
+															{channel.roas}x
+														</span>
+													</td>
+												</tr>
+											))}
+										</tbody>
+									</table>
+								</div>
+							)}
 
 							<div className="grid md:grid-cols-2 gap-6">
 								<div className="bg-white border rounded-lg">
@@ -359,8 +289,18 @@ export default function MarketingMetricsPage() {
 								</button>
 							</div>
 
-							<div className="space-y-4">
-								{campaigns.map((campaign) => (
+							{campaigns.length === 0 ? (
+								<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+									<div className="text-4xl mb-4">🎯</div>
+									<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Kampanya Yok</h3>
+									<p className="text-gray-600 mb-4">İlk kampanyanızı oluşturarak başlayın.</p>
+									<button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+										Kampanya Oluştur
+									</button>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{campaigns.map((campaign) => (
 									<div key={campaign.id} className="border rounded-lg p-6">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
@@ -434,7 +374,8 @@ export default function MarketingMetricsPage() {
 										</div>
 									</div>
 								))}
-							</div>
+								</div>
+							)}
 						</div>
 					)}
 

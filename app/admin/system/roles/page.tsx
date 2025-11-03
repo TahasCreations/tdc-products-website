@@ -112,7 +112,7 @@ export default function RolesPage() {
 					<div className="text-sm text-gray-600">Toplam Yetki</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-orange-600">5</div>
+					<div className="text-lg font-semibold text-orange-600">{Object.keys(groupedPermissions).length}</div>
 					<div className="text-sm text-gray-600">Kategori</div>
 				</div>
 			</div>

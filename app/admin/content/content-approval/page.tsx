@@ -4,45 +4,7 @@ import { useState } from 'react';
 
 export default function ContentApprovalPage() {
 	const [activeTab, setActiveTab] = useState('pending');
-
-	const contentItems = [
-		{
-			id: 'CNT-001',
-			title: 'Yeni Anime Figür Koleksiyonu Tanıtımı',
-			type: 'Blog Yazısı',
-			author: 'İçerik Editörü',
-			submittedDate: '2024-01-15',
-			category: 'Ürün Tanıtımı',
-			status: 'Onay Bekliyor',
-			priority: 'Yüksek',
-			wordCount: 850,
-			images: 5
-		},
-		{
-			id: 'CNT-002',
-			title: 'Vintage Dekorasyon Ürün Açıklaması',
-			type: 'Ürün İçeriği',
-			author: 'Ürün Uzmanı',
-			submittedDate: '2024-01-14',
-			category: 'Ürün Açıklaması',
-			status: 'Revizyon Gerekli',
-			priority: 'Orta',
-			wordCount: 320,
-			images: 3
-		},
-		{
-			id: 'CNT-003',
-			title: 'El Yapımı Takı Bakım Rehberi',
-			type: 'Rehber',
-			author: 'Uzman Yazar',
-			submittedDate: '2024-01-13',
-			category: 'Kullanım Rehberi',
-			status: 'Onaylandı',
-			priority: 'Düşük',
-			wordCount: 1200,
-			images: 8
-		}
-	];
+	const [contentItems, setContentItems] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -98,27 +60,19 @@ export default function ContentApprovalPage() {
 			{/* Summary Cards */}
 			<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-yellow-600">
-						{contentItems.filter(item => item.status === 'Onay Bekliyor').length}
-					</div>
+					<div className="text-lg font-semibold text-yellow-600">0</div>
 					<div className="text-sm text-gray-600">Onay Bekliyor</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-green-600">
-						{contentItems.filter(item => item.status === 'Onaylandı').length}
-					</div>
+					<div className="text-lg font-semibold text-green-600">0</div>
 					<div className="text-sm text-gray-600">Onaylandı</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-orange-600">
-						{contentItems.filter(item => item.status === 'Revizyon Gerekli').length}
-					</div>
+					<div className="text-lg font-semibold text-orange-600">0</div>
 					<div className="text-sm text-gray-600">Revizyon Gerekli</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-red-600">
-						{contentItems.filter(item => item.status === 'Reddedildi').length}
-					</div>
+					<div className="text-lg font-semibold text-red-600">0</div>
 					<div className="text-sm text-gray-600">Reddedildi</div>
 				</div>
 			</div>
@@ -186,37 +140,44 @@ export default function ContentApprovalPage() {
 
 				{/* Content Table */}
 				<div className="overflow-x-auto">
-					<table className="w-full">
-						<thead className="bg-gray-50">
-							<tr>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									<input type="checkbox" className="rounded" />
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İçerik
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Yazar
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Tip
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Öncelik
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İçerik Detayı
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Tarih
-								</th>
-								<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									İşlemler
-								</th>
-							</tr>
-						</thead>
-						<tbody className="bg-white divide-y divide-gray-200">
-							{filteredContent.map((item) => (
+					{filteredContent.length === 0 ? (
+						<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+							<div className="text-4xl mb-4">📄</div>
+							<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz İçerik Yok</h3>
+							<p className="text-gray-600">Onay bekleyen içerikler burada görünecek.</p>
+						</div>
+					) : (
+						<table className="w-full">
+							<thead className="bg-gray-50">
+								<tr>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										<input type="checkbox" className="rounded" />
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İçerik
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Yazar
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Tip
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Öncelik
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İçerik Detayı
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										Tarih
+									</th>
+									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+										İşlemler
+									</th>
+								</tr>
+							</thead>
+							<tbody className="bg-white divide-y divide-gray-200">
+								{filteredContent.map((item) => (
 								<tr key={item.id} className="hover:bg-gray-50">
 									<td className="px-6 py-4 whitespace-nowrap">
 										<input type="checkbox" className="rounded" />
@@ -271,9 +232,10 @@ export default function ContentApprovalPage() {
 										)}
 									</td>
 								</tr>
-							))}
-						</tbody>
-					</table>
+								))}
+							</tbody>
+						</table>
+					)}
 				</div>
 			</div>
 

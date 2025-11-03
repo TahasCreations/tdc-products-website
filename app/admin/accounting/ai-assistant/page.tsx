@@ -7,32 +7,7 @@ export default function AIAssistantPage() {
 	const [query, setQuery] = useState('');
 	const [isProcessing, setIsProcessing] = useState(false);
 
-	const vatSuggestions = [
-		{
-			id: 1,
-			type: 'warning',
-			title: 'KDV Beyanname Tarihi Yaklaşıyor',
-			description: 'Ocak ayı KDV beyannameniz 23 Şubat tarihine kadar verilmelidir.',
-			action: 'Beyanname Hazırla',
-			priority: 'high'
-		},
-		{
-			id: 2,
-			type: 'suggestion',
-			title: 'KDV İade Fırsatı',
-			description: 'Son 3 aydaki alımlarınızda %18 KDV iadesi alabilirsiniz.',
-			action: 'İade Başvurusu',
-			priority: 'medium'
-		},
-		{
-			id: 3,
-			type: 'info',
-			title: 'KDV Oranı Değişikliği',
-			description: 'Bazı ürün kategorilerinde KDV oranları güncellenmiştir.',
-			action: 'Detayları Gör',
-			priority: 'low'
-		}
-	];
+	const [vatSuggestions, setVatSuggestions] = useState<any[]>([]);
 
 	const recentQueries = [
 		'KDV beyanname nasıl hazırlanır?',
@@ -146,36 +121,44 @@ export default function AIAssistantPage() {
 						<div className="space-y-6">
 							<h3 className="text-lg font-semibold text-gray-900">KDV Yönetimi ve Öneriler</h3>
 							
-							<div className="space-y-4">
-								{vatSuggestions.map((suggestion) => (
-									<div key={suggestion.id} className={`border rounded-lg p-4 ${
-										suggestion.priority === 'high' ? 'border-red-200 bg-red-50' :
-										suggestion.priority === 'medium' ? 'border-yellow-200 bg-yellow-50' :
-										'border-blue-200 bg-blue-50'
-									}`}>
-										<div className="flex items-start justify-between">
-											<div className="flex-1">
-												<div className="flex items-center mb-2">
-													<span className={`w-3 h-3 rounded-full mr-2 ${
-														suggestion.priority === 'high' ? 'bg-red-500' :
-														suggestion.priority === 'medium' ? 'bg-yellow-500' :
-														'bg-blue-500'
-													}`}></span>
-													<h4 className="font-semibold text-gray-900">{suggestion.title}</h4>
+							{vatSuggestions.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">📋</div>
+									<p className="text-gray-500 text-lg mb-2">Henüz KDV Önerisi Yok</p>
+									<p className="text-gray-400 text-sm">İşlemleriniz analiz edildiğinde AI destekli öneriler burada görünecek</p>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{vatSuggestions.map((suggestion) => (
+										<div key={suggestion.id} className={`border rounded-lg p-4 ${
+											suggestion.priority === 'high' ? 'border-red-200 bg-red-50' :
+											suggestion.priority === 'medium' ? 'border-yellow-200 bg-yellow-50' :
+											'border-blue-200 bg-blue-50'
+										}`}>
+											<div className="flex items-start justify-between">
+												<div className="flex-1">
+													<div className="flex items-center mb-2">
+														<span className={`w-3 h-3 rounded-full mr-2 ${
+															suggestion.priority === 'high' ? 'bg-red-500' :
+															suggestion.priority === 'medium' ? 'bg-yellow-500' :
+															'bg-blue-500'
+														}`}></span>
+														<h4 className="font-semibold text-gray-900">{suggestion.title}</h4>
+													</div>
+													<p className="text-gray-700 mb-3">{suggestion.description}</p>
 												</div>
-												<p className="text-gray-700 mb-3">{suggestion.description}</p>
+												<button className={`px-4 py-2 rounded-lg text-sm font-medium ${
+													suggestion.priority === 'high' ? 'bg-red-600 text-white hover:bg-red-700' :
+													suggestion.priority === 'medium' ? 'bg-yellow-600 text-white hover:bg-yellow-700' :
+													'bg-blue-600 text-white hover:bg-blue-700'
+												}`}>
+													{suggestion.action}
+												</button>
 											</div>
-											<button className={`px-4 py-2 rounded-lg text-sm font-medium ${
-												suggestion.priority === 'high' ? 'bg-red-600 text-white hover:bg-red-700' :
-												suggestion.priority === 'medium' ? 'bg-yellow-600 text-white hover:bg-yellow-700' :
-												'bg-blue-600 text-white hover:bg-blue-700'
-											}`}>
-												{suggestion.action}
-											</button>
 										</div>
-									</div>
-								))}
-							</div>
+									))}
+								</div>
+							)}
 
 							<div className="grid md:grid-cols-2 gap-6">
 								<div className="border rounded-lg p-4">
@@ -253,19 +236,19 @@ export default function AIAssistantPage() {
 			{/* Quick Stats */}
 			<div className="grid md:grid-cols-4 gap-4">
 				<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-					<div className="text-2xl font-bold text-blue-700">₺45,230</div>
+					<div className="text-2xl font-bold text-blue-700">₺0</div>
 					<div className="text-sm text-blue-600">Bu Ay KDV</div>
 				</div>
 				<div className="bg-green-50 p-4 rounded-lg border border-green-200">
-					<div className="text-2xl font-bold text-green-700">₺12,450</div>
+					<div className="text-2xl font-bold text-green-700">₺0</div>
 					<div className="text-sm text-green-600">Stopaj</div>
 				</div>
 				<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-					<div className="text-2xl font-bold text-purple-700">₺89,100</div>
+					<div className="text-2xl font-bold text-purple-700">₺0</div>
 					<div className="text-sm text-purple-600">Kurumlar Vergisi</div>
 				</div>
 				<div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-					<div className="text-2xl font-bold text-orange-700">97%</div>
+					<div className="text-2xl font-bold text-orange-700">0%</div>
 					<div className="text-sm text-orange-600">Otomasyon Oranı</div>
 				</div>
 			</div>

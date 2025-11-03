@@ -32,12 +32,27 @@ export default function AdminDashboard() {
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
-      // TODO: API endpoint'i oluşturulacak
-      // const response = await fetch('/api/admin/dashboard/stats');
-      // const data = await response.json();
+      const response = await fetch('/api/admin/dashboard/stats');
+      const data = await response.json();
       
-      // Demo veriler temizlendi - Veritabanından gerçek veri gelecek
-      const mockStats: DashboardStats = {
+      if (data.success) {
+        setStats(data.stats);
+      } else {
+        // API'den hata gelirse, boş stats göster
+        setStats({
+          totalUsers: 0,
+          totalProducts: 0,
+          totalOrders: 0,
+          totalRevenue: 0,
+          pendingApplications: 0,
+          approvedApplications: 0,
+          rejectedApplications: 0
+        });
+      }
+    } catch (error) {
+      console.error('Dashboard verileri yüklenirken hata:', error);
+      // Hata durumunda boş stats göster
+      setStats({
         totalUsers: 0,
         totalProducts: 0,
         totalOrders: 0,
@@ -45,11 +60,7 @@ export default function AdminDashboard() {
         pendingApplications: 0,
         approvedApplications: 0,
         rejectedApplications: 0
-      };
-      
-      setStats(mockStats);
-    } catch (error) {
-      console.error('Dashboard verileri yüklenirken hata:', error);
+      });
     } finally {
       setLoading(false);
     }

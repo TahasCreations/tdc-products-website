@@ -5,86 +5,11 @@ import { useState } from 'react';
 export default function UserContentPage() {
 	const [activeTab, setActiveTab] = useState('reviews');
 
-	const userReviews = [
-		{
-			id: 'REV-001',
-			product: 'Anime Figür - Naruto',
-			user: 'Ahmet Y.',
-			rating: 5,
-			title: 'Mükemmel kalite!',
-			content: 'Ürün beklediğimden çok daha kaliteli geldi. Paketleme de çok özenli yapılmış.',
-			date: '2024-01-15',
-			status: 'Onaylandı',
-			helpful: 23,
-			reported: 0
-		},
-		{
-			id: 'REV-002',
-			product: 'El Yapımı Seramik Vazo',
-			user: 'Fatma K.',
-			rating: 4,
-			title: 'Güzel ama küçük',
-			content: 'Ürün güzel ama fotoğraflarda göründüğünden daha küçük. Yine de memnunum.',
-			date: '2024-01-14',
-			status: 'İncelemede',
-			helpful: 8,
-			reported: 1
-		},
-		{
-			id: 'REV-003',
-			product: 'Vintage Poster Seti',
-			user: 'Mehmet D.',
-			rating: 2,
-			title: 'Kalite düşük',
-			content: 'Posterler çok ince kağıtta basılmış, renkleri soluk. Bu fiyata beklediğim kalitede değil.',
-			date: '2024-01-13',
-			status: 'Reddedildi',
-			helpful: 5,
-			reported: 3
-		}
-	];
+	const [userReviews] = useState<any[]>([]);
 
-	const userComments = [
-		{
-			id: 'COM-001',
-			post: 'Anime Figürlerinin Tarihi',
-			user: 'Otaku123',
-			content: 'Çok bilgilendirici bir yazı olmuş. Özellikle 90\'lar dönemi hakkındaki bilgiler çok güzeldi.',
-			date: '2024-01-15 14:30',
-			status: 'Onaylandı',
-			replies: 3
-		},
-		{
-			id: 'COM-002',
-			post: 'El Yapımı Ürünlerde Kalite',
-			user: 'SanatSever',
-			content: 'Bu konuda çok deneyimim var. Yazıda bahsedilen ipuçları gerçekten işe yarıyor.',
-			date: '2024-01-14 16:45',
-			status: 'İncelemede',
-			replies: 1
-		}
-	];
+	const [userComments] = useState<any[]>([]);
 
-	const userPhotos = [
-		{
-			id: 'PHT-001',
-			product: 'Anime Figür - Naruto',
-			user: 'CollectorPro',
-			description: 'Koleksiyonumdaki yerini aldı!',
-			date: '2024-01-15',
-			status: 'Onaylandı',
-			likes: 45
-		},
-		{
-			id: 'PHT-002',
-			product: 'El Yapımı Seramik Vazo',
-			user: 'HomeDecor',
-			description: 'Salonumda harika duruyor',
-			date: '2024-01-14',
-			status: 'İncelemede',
-			likes: 12
-		}
-	];
+	const [userPhotos] = useState<any[]>([]);
 
 	const getStatusColor = (status: string) => {
 		switch (status) {
@@ -136,7 +61,7 @@ export default function UserContentPage() {
 					<div className="text-sm text-gray-600">Onaylandı</div>
 				</div>
 				<div className="bg-white p-4 rounded-lg border">
-					<div className="text-lg font-semibold text-red-600">4</div>
+					<div className="text-lg font-semibold text-red-600">0</div>
 					<div className="text-sm text-gray-600">Şikayet Edildi</div>
 				</div>
 			</div>
@@ -146,19 +71,19 @@ export default function UserContentPage() {
 				<h3 className="text-lg font-semibold mb-4">Moderasyon İstatistikleri (Son 30 Gün)</h3>
 				<div className="grid md:grid-cols-4 gap-4">
 					<div className="text-center p-4 bg-blue-50 rounded-lg">
-						<div className="text-2xl font-bold text-blue-600">156</div>
+						<div className="text-2xl font-bold text-blue-600">0</div>
 						<div className="text-sm text-blue-700">Yeni İnceleme</div>
 					</div>
 					<div className="text-center p-4 bg-green-50 rounded-lg">
-						<div className="text-2xl font-bold text-green-600">89</div>
+						<div className="text-2xl font-bold text-green-600">0</div>
 						<div className="text-sm text-green-700">Yeni Yorum</div>
 					</div>
 					<div className="text-center p-4 bg-purple-50 rounded-lg">
-						<div className="text-2xl font-bold text-purple-600">34</div>
+						<div className="text-2xl font-bold text-purple-600">0</div>
 						<div className="text-sm text-purple-700">Yeni Fotoğraf</div>
 					</div>
 					<div className="text-center p-4 bg-orange-50 rounded-lg">
-						<div className="text-2xl font-bold text-orange-600">98.2%</div>
+						<div className="text-2xl font-bold text-orange-600">0%</div>
 						<div className="text-sm text-orange-700">Onay Oranı</div>
 					</div>
 				</div>
@@ -190,8 +115,15 @@ export default function UserContentPage() {
 
 				<div className="p-6">
 					{activeTab === 'reviews' && (
-						<div className="space-y-4">
-							{userReviews.map((review) => (
+						userReviews.length === 0 ? (
+							<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+								<div className="text-4xl mb-4">⭐</div>
+								<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz İnceleme Yok</h3>
+								<p className="text-gray-600">Kullanıcı incelemeleri burada görünecek.</p>
+							</div>
+						) : (
+							<div className="space-y-4">
+								{userReviews.map((review) => (
 								<div key={review.id} className="border rounded-lg p-6">
 									<div className="flex items-start justify-between mb-4">
 										<div className="flex-1">
@@ -236,12 +168,20 @@ export default function UserContentPage() {
 									</div>
 								</div>
 							))}
-						</div>
+							</div>
+						)
 					)}
 
 					{activeTab === 'comments' && (
-						<div className="space-y-4">
-							{userComments.map((comment) => (
+						userComments.length === 0 ? (
+							<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+								<div className="text-4xl mb-4">💬</div>
+								<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Yorum Yok</h3>
+								<p className="text-gray-600">Blog yorumları burada görünecek.</p>
+							</div>
+						) : (
+							<div className="space-y-4">
+								{userComments.map((comment) => (
 								<div key={comment.id} className="border rounded-lg p-6">
 									<div className="flex items-start justify-between mb-4">
 										<div className="flex-1">
@@ -280,12 +220,20 @@ export default function UserContentPage() {
 									</div>
 								</div>
 							))}
-						</div>
+							</div>
+						)
 					)}
 
 					{activeTab === 'photos' && (
-						<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-							{userPhotos.map((photo) => (
+						userPhotos.length === 0 ? (
+							<div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+								<div className="text-4xl mb-4">📷</div>
+								<h3 className="text-lg font-medium text-gray-900 mb-2">Henüz Fotoğraf Yok</h3>
+								<p className="text-gray-600">Kullanıcı fotoğrafları burada görünecek.</p>
+							</div>
+						) : (
+							<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+								{userPhotos.map((photo) => (
 								<div key={photo.id} className="border rounded-lg p-4">
 									<div className="w-full h-48 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
 										<span className="text-gray-500">📷 Kullanıcı Fotoğrafı</span>
@@ -318,7 +266,8 @@ export default function UserContentPage() {
 									</div>
 								</div>
 							))}
-						</div>
+							</div>
+						)
 					)}
 				</div>
 			</div>

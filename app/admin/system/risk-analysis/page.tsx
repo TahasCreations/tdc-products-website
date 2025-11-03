@@ -7,85 +7,18 @@ export default function RiskAnalysisPage() {
 	const [selectedTimeframe, setSelectedTimeframe] = useState('7d');
 
 	const riskMetrics = {
-		overall: 75, // Risk score out of 100
-		fraud: 15,
-		security: 25,
-		operational: 35,
-		financial: 20
+		overall: 0,
+		fraud: 0,
+		security: 0,
+		operational: 0,
+		financial: 0
 	};
 
-	const alerts = [
-		{
-			id: 'ALERT-001',
-			type: 'fraud',
-			severity: 'high',
-			title: 'Şüpheli Ödeme Aktivitesi',
-			description: 'Aynı IP adresinden 10 dakika içinde 15 farklı kart ile ödeme denemesi',
-			timestamp: '2024-01-15 14:30:25',
-			status: 'active',
-			affectedOrders: ['ORD-001247', 'ORD-001248', 'ORD-001249'],
-			riskScore: 95
-		},
-		{
-			id: 'ALERT-002',
-			type: 'security',
-			severity: 'medium',
-			title: 'Anormal Giriş Denemesi',
-			description: 'Admin paneline farklı ülkelerden eş zamanlı giriş denemeleri',
-			timestamp: '2024-01-15 13:45:12',
-			status: 'investigating',
-			affectedUsers: ['admin@tdcmarket.com'],
-			riskScore: 65
-		},
-		{
-			id: 'ALERT-003',
-			type: 'operational',
-			severity: 'low',
-			title: 'Stok Seviyesi Riski',
-			description: 'Kritik ürünlerde stok seviyesi minimum eşiğin altına düştü',
-			timestamp: '2024-01-15 12:15:45',
-			status: 'resolved',
-			affectedProducts: ['PROD-001', 'PROD-045', 'PROD-156'],
-			riskScore: 30
-		}
-	];
+	const alerts: any[] = [];
 
-	const fraudPatterns = [
-		{
-			id: 'FP-001',
-			pattern: 'Çoklu Kart Kullanımı',
-			description: 'Aynı kullanıcının kısa süre içinde farklı kartlar kullanması',
-			frequency: 23,
-			accuracy: 94,
-			status: 'active'
-		},
-		{
-			id: 'FP-002',
-			pattern: 'Anormal Sipariş Miktarı',
-			description: 'Kullanıcının geçmiş davranışlarından farklı yüksek tutarlı siparişler',
-			frequency: 18,
-			accuracy: 88,
-			status: 'active'
-		},
-		{
-			id: 'FP-003',
-			pattern: 'Hızlı Satın Alma',
-			description: '30 saniyeden kısa sürede sipariş tamamlama',
-			frequency: 45,
-			accuracy: 76,
-			status: 'active'
-		}
-	];
+	const fraudPatterns: any[] = [];
 
-	const riskTrends = [
-		{ date: '2024-01-08', fraud: 12, security: 20, operational: 30, financial: 18 },
-		{ date: '2024-01-09', fraud: 15, security: 22, operational: 28, financial: 20 },
-		{ date: '2024-01-10', fraud: 18, security: 25, operational: 32, financial: 22 },
-		{ date: '2024-01-11', fraud: 14, security: 28, operational: 35, financial: 25 },
-		{ date: '2024-01-12', fraud: 16, security: 30, operational: 38, financial: 23 },
-		{ date: '2024-01-13', fraud: 13, security: 26, operational: 40, financial: 21 },
-		{ date: '2024-01-14', fraud: 15, security: 25, operational: 35, financial: 20 }
-	];
+	const riskTrends: any[] = [];
 
 	const getSeverityColor = (severity: string) => {
 		switch (severity) {
@@ -295,22 +228,30 @@ export default function RiskAnalysisPage() {
 									<h3 className="font-semibold text-gray-900">Son Yüksek Risk Olayları</h3>
 								</div>
 								<div className="p-4">
-									<div className="space-y-3">
-										{alerts.filter(alert => alert.severity === 'high').map((alert) => (
-											<div key={alert.id} className="flex items-center space-x-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-												<span className="text-2xl">{getTypeIcon(alert.type)}</span>
-												<div className="flex-1">
-													<h4 className="font-medium text-gray-900">{alert.title}</h4>
-													<p className="text-sm text-gray-600">{alert.description}</p>
-													<p className="text-xs text-gray-500">{alert.timestamp}</p>
+									{alerts.filter(alert => alert.severity === 'high').length === 0 ? (
+										<div className="text-center py-12">
+											<div className="text-6xl mb-4">🎯</div>
+											<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Yüksek Risk Olayı Yok</h3>
+											<p className="text-gray-600">Risk olayları tespit edildiğinde burada görünecek</p>
+										</div>
+									) : (
+										<div className="space-y-3">
+											{alerts.filter(alert => alert.severity === 'high').map((alert) => (
+												<div key={alert.id} className="flex items-center space-x-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+													<span className="text-2xl">{getTypeIcon(alert.type)}</span>
+													<div className="flex-1">
+														<h4 className="font-medium text-gray-900">{alert.title}</h4>
+														<p className="text-sm text-gray-600">{alert.description}</p>
+														<p className="text-xs text-gray-500">{alert.timestamp}</p>
+													</div>
+													<div className="text-right">
+														<div className="text-lg font-bold text-red-600">{alert.riskScore}%</div>
+														<div className="text-xs text-gray-500">Risk Skoru</div>
+													</div>
 												</div>
-												<div className="text-right">
-													<div className="text-lg font-bold text-red-600">{alert.riskScore}%</div>
-													<div className="text-xs text-gray-500">Risk Skoru</div>
-												</div>
-											</div>
-										))}
-									</div>
+											))}
+										</div>
+									)}
 								</div>
 							</div>
 						</div>
@@ -330,9 +271,16 @@ export default function RiskAnalysisPage() {
 								</div>
 							</div>
 
-							<div className="space-y-4">
-								{alerts.map((alert) => (
-									<div key={alert.id} className={`border rounded-lg p-6 ${getSeverityColor(alert.severity)}`}>
+							{alerts.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">✅</div>
+									<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Uyarı Yok</h3>
+									<p className="text-gray-600">Risk uyarıları oluştuğunda burada görünecek</p>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{alerts.map((alert) => (
+										<div key={alert.id} className={`border rounded-lg p-6 ${getSeverityColor(alert.severity)}`}>
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex items-start space-x-4">
 												<span className="text-2xl">{getTypeIcon(alert.type)}</span>
@@ -378,8 +326,9 @@ export default function RiskAnalysisPage() {
 											</button>
 										</div>
 									</div>
-								))}
-							</div>
+									))}
+								</div>
+							)}
 						</div>
 					)}
 
@@ -392,9 +341,16 @@ export default function RiskAnalysisPage() {
 								</button>
 							</div>
 
-							<div className="grid gap-6">
-								{fraudPatterns.map((pattern) => (
-									<div key={pattern.id} className="bg-white border rounded-lg p-6">
+							{fraudPatterns.length === 0 ? (
+								<div className="text-center py-12">
+									<div className="text-6xl mb-4">🕵️</div>
+									<h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz Desen Yok</h3>
+									<p className="text-gray-600">Dolandırıcılık desenleri oluşturduğunuzda burada görünecek</p>
+								</div>
+							) : (
+								<div className="grid gap-6">
+									{fraudPatterns.map((pattern) => (
+										<div key={pattern.id} className="bg-white border rounded-lg p-6">
 										<div className="flex items-start justify-between mb-4">
 											<div className="flex-1">
 												<h4 className="font-semibold text-gray-900 mb-2">{pattern.pattern}</h4>
@@ -432,8 +388,9 @@ export default function RiskAnalysisPage() {
 											</button>
 										</div>
 									</div>
-								))}
-							</div>
+									))}
+								</div>
+							)}
 						</div>
 					)}
 
@@ -492,19 +449,19 @@ export default function RiskAnalysisPage() {
 								<div className="p-4">
 									<div className="grid md:grid-cols-4 gap-6">
 										<div className="text-center">
-											<div className="text-2xl font-bold text-green-600">99.8%</div>
+											<div className="text-2xl font-bold text-green-600">0%</div>
 											<div className="text-sm text-gray-600">Sistem Uptime</div>
 										</div>
 										<div className="text-center">
-											<div className="text-2xl font-bold text-blue-600">156</div>
+											<div className="text-2xl font-bold text-blue-600">0</div>
 											<div className="text-sm text-gray-600">Aktif Session</div>
 										</div>
 										<div className="text-center">
-											<div className="text-2xl font-bold text-orange-600">23</div>
+											<div className="text-2xl font-bold text-orange-600">0</div>
 											<div className="text-sm text-gray-600">Bloklu IP</div>
 										</div>
 										<div className="text-center">
-											<div className="text-2xl font-bold text-red-600">4</div>
+											<div className="text-2xl font-bold text-red-600">0</div>
 											<div className="text-sm text-gray-600">Şüpheli İşlem</div>
 										</div>
 									</div>
