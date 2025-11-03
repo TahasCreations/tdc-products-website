@@ -10,7 +10,7 @@ import ExitIntentPopup from '@/components/ui/ExitIntentPopup';
 import AnalyticsProvider from '@/components/analytics/AnalyticsProvider';
 import InteractiveOnboarding from '@/components/onboarding/InteractiveOnboarding';
 // import LiveActivityWidget from '@/components/social-proof/LiveActivityWidget'; // DEVRE DIŞI
-import WhatsAppButton from '@/components/whatsapp/WhatsAppButton';
+// import WhatsAppButton from '@/components/whatsapp/WhatsAppButton'; // DEVRE DIŞI
 import DailyChallenges from '@/components/challenges/DailyChallenges';
 import VirtualShoppingAssistant from '@/components/ai/VirtualShoppingAssistant';
 
@@ -122,7 +122,7 @@ export default function RootLayout({
               <ExitIntentPopup />
               <InteractiveOnboarding />
               {/* <LiveActivityWidget /> */}
-              <WhatsAppButton />
+              {/* <WhatsAppButton /> */}
               <DailyChallenges />
               <VirtualShoppingAssistant />
             </Providers>
