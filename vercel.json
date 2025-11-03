@@ -3,15 +3,6 @@
   "framework": "nextjs",
   "installCommand": "npm install",
   "regions": ["iad1"],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "build": {
-    "env": {
-      "NEXT_PUBLIC_APP_URL": "@app_url",
-      "DATABASE_URL": "@database_url"
-    }
-  },
   "headers": [
     {
       "source": "/api/(.*)",
