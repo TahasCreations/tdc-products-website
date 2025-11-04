@@ -74,10 +74,7 @@ export default function AdminLoginPage() {
 		}
 	};
 
-	const fillDemoCredentials = () => {
-		setEmail('admin@tdcproducts.com');
-		setPassword('TDCAdmin2024!');
-	};
+	// Demo credentials removed - production admin only
 
 	// Show loading while checking authentication
 	if (isCheckingAuth) {
@@ -131,27 +128,7 @@ export default function AdminLoginPage() {
 						<p className="text-gray-300">Güvenli Yönetim Paneli</p>
 					</div>
 
-					{/* Demo Credentials Card */}
-					<motion.div
-						initial={{ opacity: 0, x: -20 }}
-						animate={{ opacity: 1, x: 0 }}
-						transition={{ delay: 0.4 }}
-						className="bg-gradient-to-r from-[#CBA135]/20 to-[#F4D03F]/20 border border-[#CBA135]/30 rounded-xl p-4 mb-6 backdrop-blur-sm"
-					>
-						<div className="flex items-center justify-between mb-2">
-							<h3 className="text-sm font-semibold text-[#F4D03F]">🔐 Admin Girişi</h3>
-							<button
-								onClick={fillDemoCredentials}
-								className="text-xs bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-black px-3 py-1 rounded-full hover:shadow-lg transition-all font-bold"
-							>
-								Otomatik Doldur
-							</button>
-						</div>
-						<div className="space-y-1 text-sm text-gray-300">
-							<p><span className="font-medium text-[#CBA135]">E-posta:</span> admin@tdcproducts.com</p>
-							<p><span className="font-medium text-[#CBA135]">Şifre:</span> TDCAdmin2024!</p>
-						</div>
-					</motion.div>
+					{/* Demo credentials removed - production only */}
 
 					{/* Form */}
 					<form onSubmit={onSubmit} className="space-y-6">

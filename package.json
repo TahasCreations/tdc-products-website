@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "db:test": "node scripts/test-db-connection.js",
+    "admin:create": "node scripts/create-admin-user.js",
     "reset:dry": "tsx prisma/factory-reset.ts --dry",
     "reset:all": "FACTORY_RESET=I_UNDERSTAND FACTORY_RESET_CONFIRM=TDC_MARKET tsx prisma/factory-reset.ts",
     "reset:force": "FACTORY_RESET=I_UNDERSTAND FACTORY_RESET_CONFIRM=TDC_MARKET tsx prisma/factory-reset.ts --force",
