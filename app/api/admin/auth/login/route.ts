@@ -60,17 +60,33 @@ export async function POST(req: NextRequest) {
       return response;
     }
 
-    // Also check database for admin users
-    const user = await prisma.user.findUnique({
-      where: { email },
-      select: { 
-        id: true, 
-        email: true, 
-        name: true, 
-        role: true,
-        password: true 
-      },
-    });
+    // Also check database for admin users (if table exists)
+    let user;
+    try {
+      user = await prisma.user.findUnique({
+        where: { email },
+        select: { 
+          id: true, 
+          email: true, 
+          name: true, 
+          role: true,
+          password: true 
+        },
+      });
+    } catch (dbError: any) {
+      // Database table doesn't exist yet
+      if (dbError.message?.includes('does not exist')) {
+        return NextResponse.json(
+          { 
+            error: 'Database henüz hazır değil',
+            message: 'Lütfen önce database tablolarını oluşturun: /admin/setup-database',
+            needsSetup: true
+          },
+          { status: 503 }
+        );
+      }
+      throw dbError;
+    }
 
     if (!user || user.role !== 'ADMIN') {
       return NextResponse.json(

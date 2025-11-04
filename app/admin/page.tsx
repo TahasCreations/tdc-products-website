@@ -12,6 +12,7 @@ export default function AdminLoginPage() {
 	const [rememberMe, setRememberMe] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState('');
+	const [needsSetup, setNeedsSetup] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
@@ -56,13 +57,14 @@ export default function AdminLoginPage() {
 				body: JSON.stringify({ email, password, rememberMe }),
 			});
 
-			const data = await response.json();
+		const data = await response.json();
 
-			if (!response.ok) {
-				setError(data.error || 'Giriş başarısız');
-				setIsLoading(false);
-				return;
-			}
+		if (!response.ok) {
+			setError(data.error || data.message || 'Giriş başarısız');
+			setNeedsSetup(data.needsSetup || false);
+			setIsLoading(false);
+			return;
+		}
 
 			// Success - redirect to dashboard
 			router.push('/admin/dashboard');
