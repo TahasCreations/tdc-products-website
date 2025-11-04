@@ -19,7 +19,14 @@ export default function AdminLoginPage() {
 	useEffect(() => {
 		const checkAuth = async () => {
 			try {
-				const response = await fetch('/api/admin/auth/verify');
+				const controller = new AbortController();
+				const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+				const response = await fetch('/api/admin/auth/verify', {
+					signal: controller.signal,
+				});
+				
+				clearTimeout(timeoutId);
 				const data = await response.json();
 
 				if (data.authenticated) {
@@ -31,6 +38,7 @@ export default function AdminLoginPage() {
 				}
 			} catch (error) {
 				console.error('Auth check error:', error);
+				// Always show login form if check fails
 				setIsCheckingAuth(false);
 			}
 		};
