@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import '../src/app/globals.css';
 import { Providers } from './providers';
-import FloatingChatWidget from '@/components/chat/FloatingChatWidget';
+// import FloatingChatWidget from '@/components/chat/FloatingChatWidget'; // DEVRE DIŞI - AI Asistan istenmiyor
 // import RecentSalesPopup from '@/components/social-proof/RecentSalesPopup'; // DEVRE DIŞI
 import { ToastProvider } from '@/components/ui/Toast';
 import ScrollToTop from '@/components/ui/ScrollToTop';
@@ -12,7 +12,7 @@ import InteractiveOnboarding from '@/components/onboarding/InteractiveOnboarding
 // import LiveActivityWidget from '@/components/social-proof/LiveActivityWidget'; // DEVRE DIŞI
 // import WhatsAppButton from '@/components/whatsapp/WhatsAppButton'; // DEVRE DIŞI
 import DailyChallengesWrapper from '@/components/challenges/DailyChallengesWrapper';
-// import VirtualShoppingAssistant from '@/components/ai/VirtualShoppingAssistant'; // KALDIRILDI - FloatingChatWidget zaten var
+import VirtualShoppingAssistant from '@/components/ai/VirtualShoppingAssistant'; // SANAL ASİSTAN (mavi robot)
 
 // Optimize font loading
 const inter = Inter({
@@ -116,7 +116,7 @@ export default function RootLayout({
           <AnalyticsProvider>
             <Providers>
               {children}
-              <FloatingChatWidget />
+              {/* <FloatingChatWidget /> */}
               {/* <RecentSalesPopup /> */}
               <ScrollToTop />
               {/* <ExitIntentPopup /> */}
@@ -124,7 +124,7 @@ export default function RootLayout({
               {/* <LiveActivityWidget /> */}
               {/* <WhatsAppButton /> */}
               <DailyChallengesWrapper />
-              {/* <VirtualShoppingAssistant /> */}
+              <VirtualShoppingAssistant />
             </Providers>
           </AnalyticsProvider>
         </ToastProvider>
