@@ -5,12 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ShoppingBag, Store, Check, Eye, EyeOff } from 'lucide-react';
+import { ShoppingBag, Store, Check, Eye, EyeOff, Sparkles } from 'lucide-react';
 
 function KayitForm() {
   const searchParams = useSearchParams();
-  const [userType, setUserType] = useState<'buyer' | 'seller'>(
-    (searchParams.get('type') as 'buyer' | 'seller') || 'buyer'
+  const [userType, setUserType] = useState<'buyer' | 'seller' | 'influencer'>(
+    (searchParams.get('type') as 'buyer' | 'seller' | 'influencer') || 'buyer'
   );
   const [formData, setFormData] = useState({
     name: '',
@@ -124,7 +124,9 @@ function KayitForm() {
           console.log('✅ Otomatik giriş başarılı!');
           // Redirect based on user type
           if (userType === 'seller') {
-            router.push('/seller/apply');
+            router.push('/partner/satici-ol');
+          } else if (userType === 'influencer') {
+            router.push('/partner/influencer-ol');
           } else {
             router.push('/');
           }
@@ -181,7 +183,7 @@ function KayitForm() {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               Hesap Tipi Seçin
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-3">
               <motion.button
                 type="button"
                 onClick={() => setUserType('buyer')}
@@ -263,6 +265,47 @@ function KayitForm() {
                   </motion.div>
                 )}
               </motion.button>
+
+              <motion.button
+                type="button"
+                onClick={() => setUserType('influencer')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`
+                  relative p-4 rounded-xl border-2 transition-all duration-300
+                  ${userType === 'influencer'
+                    ? 'border-[#CBA135] bg-[#CBA135]/10 dark:bg-[#CBA135]/20'
+                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                  }
+                `}
+              >
+                <div className="flex flex-col items-center space-y-2">
+                  <div className={`
+                    w-12 h-12 rounded-xl flex items-center justify-center
+                    ${userType === 'influencer' 
+                      ? 'bg-[#CBA135] text-black' 
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                    }
+                  `}>
+                    <Sparkles className="w-6 h-6" />
+                  </div>
+                  <div className="text-center">
+                    <p className={`font-semibold ${userType === 'influencer' ? 'text-[#CBA135]' : 'text-gray-700 dark:text-gray-300'}`}>
+                      Influencer
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Tanıtım için</p>
+                  </div>
+                </div>
+                {userType === 'influencer' && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-[#CBA135] rounded-full flex items-center justify-center"
+                  >
+                    <Check className="w-4 h-4 text-black" />
+                  </motion.div>
+                )}
+              </motion.button>
             </div>
             
             {userType === 'seller' && (
@@ -274,6 +317,19 @@ function KayitForm() {
               >
                 <p className="text-sm text-blue-700 dark:text-blue-300">
                   ℹ️ Satıcı olarak kayıt olduktan sonra mağaza bilgilerinizi tamamlamanız gerekecek.
+                </p>
+              </motion.div>
+            )}
+            
+            {userType === 'influencer' && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-3 p-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg"
+              >
+                <p className="text-sm text-purple-700 dark:text-purple-300">
+                  ⭐ Influencer olarak kayıt olduktan sonra sosyal medya bilgilerinizi tamamlamanız gerekecek.
                 </p>
               </motion.div>
             )}
