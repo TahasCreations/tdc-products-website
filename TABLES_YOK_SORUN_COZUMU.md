@@ -14,7 +14,7 @@ Bu hata, **tablolarınızın henüz oluşturulmadığını** gösteriyor.
 **Google Cloud SQL Console'da Cloud Shell açın:**
 
 ```bash
-gcloud sql connect [INSTANCE_ADI] --user=postgres
+gcloud sql connect tdc-products-db --user=postgres
 # Şifre: [postgres şifreniz]
 ```
 
