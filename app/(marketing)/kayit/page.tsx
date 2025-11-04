@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ShoppingBag, Store, Check } from 'lucide-react';
+import { ShoppingBag, Store, Check, Eye, EyeOff } from 'lucide-react';
 
 function KayitForm() {
   const searchParams = useSearchParams();
@@ -23,6 +23,8 @@ function KayitForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
   // reCAPTCHA widget ID
@@ -82,10 +84,11 @@ function KayitForm() {
       return;
     }
 
-    if (!recaptchaToken) {
-      setError('reCAPTCHA doğrulaması gerekli');
-      return;
-    }
+    // reCAPTCHA is optional - only check if it's loaded
+    // if (!recaptchaToken) {
+    //   setError('reCAPTCHA doğrulaması gerekli');
+    //   return;
+    // }
 
     setIsLoading(true);
 
@@ -290,7 +293,7 @@ function KayitForm() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
                 placeholder="Adınız ve soyadınız"
               />
             </div>
@@ -305,7 +308,7 @@ function KayitForm() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
                 placeholder="ornek@email.com"
               />
             </div>
@@ -320,7 +323,7 @@ function KayitForm() {
                 required={userType === 'seller'}
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
+                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
                 placeholder="0555 XXX XX XX"
               />
             </div>
@@ -329,31 +332,49 @@ function KayitForm() {
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Şifre
               </label>
-              <input
-                type="password"
-                id="password"
-                required
-                minLength={6}
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
-                placeholder="En az 6 karakter"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  required
+                  minLength={6}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full px-4 py-3 pr-12 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
+                  placeholder="En az 6 karakter"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Şifre Tekrar
               </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                required
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
-                placeholder="Şifrenizi tekrar girin"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  className="w-full px-4 py-3 pr-12 border border-gray-200 dark:border-gray-600 dark:bg-gray-700 text-gray-900 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CBA135] focus:border-transparent transition-all duration-300"
+                  placeholder="Şifrenizi tekrar girin"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
 
             <div className="flex items-start space-x-3">
@@ -376,10 +397,12 @@ function KayitForm() {
               </label>
             </div>
 
-            {/* reCAPTCHA */}
-            <div className="flex justify-center">
-              <div id="recaptcha-container"></div>
-            </div>
+            {/* reCAPTCHA - Optional */}
+            {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+              <div className="flex justify-center">
+                <div id="recaptcha-container"></div>
+              </div>
+            )}
 
             <motion.button
               type="submit"
