@@ -6,8 +6,14 @@ generator client {
 }
 
 datasource db {
+  // Development: SQLite (lokal) - .env yoksa
+  // Production: Google Cloud SQL PostgreSQL - .env varsa DATABASE_URL kullanılır
   provider = "sqlite"
   url      = "file:./dev.db"
+  
+  // Google Cloud SQL için:
+  // 1. Vercel'de DATABASE_URL ekleyin
+  // 2. postgresql://user:password@IP:5432/database?sslmode=require&connection_limit=10
 }
 
 // === USER MANAGEMENT ===
@@ -32,6 +38,8 @@ model User {
   email         String?  @unique
   emailVerified DateTime?
   image         String?
+  password      String?  // Şifre hash'i (manuel kayıt için, OAuth kullanıcılarında null)
+  phone         String?  // Telefon numarası
   role          Role     @default(BUYER) // Ana role (geriye dönük uyumluluk)
   roles         String?  // Multi-role: JSON array ["BUYER", "SELLER", "INFLUENCER"]
   isActive      Boolean  @default(true)

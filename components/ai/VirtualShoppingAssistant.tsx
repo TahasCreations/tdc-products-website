@@ -227,7 +227,7 @@ export default function VirtualShoppingAssistant() {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder="Sorunuzu yazın..."
-                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-full focus:border-cyan-500 outline-none text-sm"
+                  className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-full focus:border-cyan-500 outline-none text-sm text-gray-900 placeholder:text-gray-400"
                 />
                 <button
                   onClick={handleSendMessage}

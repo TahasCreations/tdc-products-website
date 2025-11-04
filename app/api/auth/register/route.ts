@@ -45,15 +45,16 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         email,
-        // password: hashedPassword,
-        // phone: phone || null,
-        role: 'BUYER', // Default role
+        password: hashedPassword, // Şifre hash'i kaydediliyor
+        phone: phone || null, // Telefon numarası (opsiyonel)
+        role: 'BUYER', // Default role (tüm kullanıcılar BUYER olarak başlar)
+        roles: JSON.stringify(['BUYER']), // Multi-role: Başlangıçta sadece BUYER
         emailVerified: null,
       },
     });
 
     // Remove password from response
-    const userWithoutPassword = user;
+    const { password: _, ...userWithoutPassword } = user;
 
     return NextResponse.json({
       success: true,

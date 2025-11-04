@@ -153,49 +153,6 @@ export default function SignInPage() {
             )}
           </motion.button>
 
-          {/* Divider */}
-          <motion.div className="relative my-8" variants={itemVariants}>
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/20" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-transparent text-gray-400">veya</span>
-            </div>
-          </motion.div>
-
-          {/* Demo Account */}
-          <motion.div 
-            className="bg-gradient-to-r from-[#CBA135]/20 to-[#F4D03F]/20 border border-[#CBA135]/30 p-6 rounded-xl"
-            variants={itemVariants}
-            whileHover={{ scale: 1.02 }}
-          >
-            <div className="flex items-center mb-4">
-              <Shield className="w-5 h-5 text-[#CBA135] mr-2" />
-              <h3 className="text-sm font-semibold text-white">Demo Hesap</h3>
-            </div>
-            
-            <p className="text-xs text-gray-300 mb-4">
-              Test için demo hesap bilgileri:
-            </p>
-            
-            <div className="space-y-2 mb-4">
-              <div className="flex items-center text-xs text-gray-300">
-                <Mail className="w-3 h-3 mr-2 text-[#CBA135]" />
-                <span>demo@tdcmarket.com</span>
-              </div>
-              <div className="flex items-center text-xs text-gray-300">
-                <Lock className="w-3 h-3 mr-2 text-[#CBA135]" />
-                <span>demo123</span>
-              </div>
-            </div>
-            
-            <button className="w-full px-4 py-3 bg-gradient-to-r from-[#CBA135] to-[#F4D03F] text-black font-medium rounded-lg hover:shadow-lg hover:shadow-[#CBA135]/25 transition-all duration-300 flex items-center justify-center group">
-              <Zap className="w-4 h-4 mr-2" />
-              Demo ile Giriş Yap
-              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </motion.div>
-
           {/* Sign Up Link */}
           <motion.div className="mt-8 text-center" variants={itemVariants}>
             <p className="text-gray-400 text-sm">

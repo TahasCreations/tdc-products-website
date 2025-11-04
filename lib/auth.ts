@@ -29,12 +29,17 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user) {
+        if (!user || !user.password) {
           return null;
         }
 
-        // For demo purposes, we'll skip password verification
-        // In production, use bcrypt.compare()
+        // Verify password using bcrypt
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        
+        if (!isPasswordValid) {
+          return null;
+        }
+
         return {
           id: user.id,
           email: user.email,
