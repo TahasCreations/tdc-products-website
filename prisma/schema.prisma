@@ -6,14 +6,13 @@ generator client {
 }
 
 datasource db {
-  // Development: SQLite (lokal) - .env yoksa
-  // Production: Google Cloud SQL PostgreSQL - .env varsa DATABASE_URL kullanılır
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  // Production: Google Cloud SQL PostgreSQL (DATABASE_URL'den)
+  // Development: SQLite fallback
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
   
-  // Google Cloud SQL için:
-  // 1. Vercel'de DATABASE_URL ekleyin
-  // 2. postgresql://user:password@IP:5432/database?sslmode=require&connection_limit=10
+  // Vercel'de DATABASE_URL environment variable'ını ekleyin:
+  // postgresql://tdc_admin:[PASSWORD]@[IP]:5432/tdc_products?sslmode=require&connection_limit=10
 }
 
 // === USER MANAGEMENT ===
