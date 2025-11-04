@@ -10,15 +10,21 @@ export default function SetupDatabasePage() {
   const [error, setError] = useState('');
 
   const handleSetup = async () => {
+    console.log('🔧 Setup butonu tıklandı');
+    
     if (!confirm('Database tablolarını oluşturmak istediğinize emin misiniz?\n\nBu işlem sadece 1 kez yapılmalıdır!')) {
+      console.log('❌ Kullanıcı iptal etti');
       return;
     }
 
+    console.log('✅ Onay alındı, API çağrısı başlıyor...');
     setIsLoading(true);
     setError('');
     setResult(null);
 
     try {
+      console.log('📡 API çağrısı: /api/admin/setup-database');
+      
       const response = await fetch('/api/admin/setup-database', {
         method: 'POST',
         headers: {
@@ -29,17 +35,24 @@ export default function SetupDatabasePage() {
         }),
       });
 
+      console.log('📥 Response alındı:', response.status);
+      
       const data = await response.json();
+      console.log('📦 Response data:', data);
 
       if (response.ok) {
+        console.log('✅ Başarılı!');
         setResult(data);
       } else {
+        console.error('❌ Hata:', data);
         setError(data.error || data.message || 'Beklenmeyen hata');
       }
     } catch (err: any) {
-      setError(err.message || 'Bağlantı hatası');
+      console.error('❌ Catch hatası:', err);
+      setError(err.message || 'Bağlantı hatası: API endpoint\'e ulaşılamıyor');
     } finally {
       setIsLoading(false);
+      console.log('🏁 İşlem tamamlandı');
     }
   };
 
