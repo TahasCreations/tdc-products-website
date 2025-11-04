@@ -110,25 +110,34 @@ function KayitForm() {
 
       if (response.ok) {
         // Auto login after successful registration
+        console.log('✅ Kayıt başarılı, otomatik giriş yapılıyor...');
+        
         const result = await signIn('credentials', {
           email: formData.email,
           password: formData.password,
           redirect: false,
         });
 
-        if (result?.ok) {
+        console.log('🔐 Giriş sonucu:', result);
+
+        if (result?.ok && !result?.error) {
+          console.log('✅ Otomatik giriş başarılı!');
           // Redirect based on user type
           if (userType === 'seller') {
             router.push('/seller/apply');
           } else {
-          router.push('/');
+            router.push('/');
           }
+          router.refresh(); // Force refresh to update session
         } else {
-          router.push('/giris?message=Kayıt başarılı, lütfen giriş yapın');
+          console.error('❌ Otomatik giriş başarısız:', result?.error);
+          // Show success message and redirect to login
+          router.push('/giris?success=Kayıt başarılı! Lütfen giriş yapın');
         }
       } else {
         const data = await response.json();
-        setError(data.message || 'Kayıt işlemi başarısız');
+        console.error('❌ Kayıt hatası:', data);
+        setError(data.error || data.message || 'Kayıt işlemi başarısız');
       }
     } catch (error) {
       setError('Bir hata oluştu, lütfen tekrar deneyin');

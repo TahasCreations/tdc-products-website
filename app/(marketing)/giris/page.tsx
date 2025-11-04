@@ -11,6 +11,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
   const typeParam = searchParams.get('type') as 'customer' | 'seller' | 'influencer' | null;
+  const successMessage = searchParams.get('success');
   
   const [userType, setUserType] = useState<'customer' | 'seller' | 'influencer'>(typeParam || 'customer');
   const [email, setEmail] = useState('');
@@ -189,6 +190,13 @@ export default function LoginPage() {
                 Şifremi Unuttum
               </Link>
             </div>
+
+            {/* Success Message */}
+            {successMessage && !error && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-600">✅ {successMessage}</p>
+              </div>
+            )}
 
             {/* Error Message */}
             {error && (
