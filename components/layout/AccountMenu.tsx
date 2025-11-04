@@ -55,32 +55,42 @@ export default function AccountMenu() {
   const role = me?.role || "BUYER";
 
   return (
-    <div className="relative">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/10"
-      >
-        {me?.image ? (
-          <img 
-            src={me.image} 
-            alt={me.name || "Kullanıcı"} 
-            className="w-6 h-6 rounded-full"
-          />
-        ) : (
-          <span className="text-lg">👤</span>
-        )}
-        <span className="text-sm text-black">
-          {me?.name || session.user?.name || "Hesap"}
-        </span>
-        <svg 
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
+    <div className="flex items-center gap-3">
+      {/* Points Display - Only for logged in users */}
+      {status === 'authenticated' && (
+        <div className="hidden md:block">
+          <PointsDisplay />
+        </div>
+      )}
+      
+      <div className="relative">
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2 px-3 py-2 rounded hover:bg-black/5 dark:hover:bg-white/10"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+          {me?.image ? (
+            <img 
+              src={me.image} 
+              alt={me.name || "Kullanıcı"} 
+              className="w-6 h-6 rounded-full"
+            />
+          ) : (
+            <span className="text-lg">👤</span>
+          )}
+          <div className="flex flex-col items-start">
+            <span className="text-sm text-black">
+              {me?.name || session.user?.name || "Hesap"}
+            </span>
+          </div>
+          <svg 
+            className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-64 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg z-50">
