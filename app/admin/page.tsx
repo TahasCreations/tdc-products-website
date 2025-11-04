@@ -12,7 +12,6 @@ export default function AdminLoginPage() {
 	const [rememberMe, setRememberMe] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [error, setError] = useState('');
-	const [needsSetup, setNeedsSetup] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
@@ -61,7 +60,6 @@ export default function AdminLoginPage() {
 
 		if (!response.ok) {
 			setError(data.error || data.message || 'Giriş başarısız');
-			setNeedsSetup(data.needsSetup || false);
 			setIsLoading(false);
 			return;
 		}
@@ -134,33 +132,15 @@ export default function AdminLoginPage() {
 
 					{/* Form */}
 					<form onSubmit={onSubmit} className="space-y-6">
-						{error && (
-							<motion.div
-								initial={{ opacity: 0, scale: 0.95 }}
-								animate={{ opacity: 1, scale: 1 }}
-								className="space-y-3"
-							>
-								<div className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl text-sm backdrop-blur-sm">
-									⚠️ {error}
-								</div>
-								{needsSetup && (
-									<div className="space-y-2">
-										<a
-											href="/admin/setup-database"
-											className="block w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 text-center text-sm"
-										>
-											🔧 1. Database Tablolarını Oluştur
-										</a>
-										<a
-											href="/admin/create-first-admin"
-											className="block w-full py-3 px-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 text-center text-sm"
-										>
-											👤 2. Admin Kullanıcısını Oluştur
-										</a>
-									</div>
-								)}
-							</motion.div>
-						)}
+					{error && (
+						<motion.div
+							initial={{ opacity: 0, scale: 0.95 }}
+							animate={{ opacity: 1, scale: 1 }}
+							className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl text-sm backdrop-blur-sm"
+						>
+							⚠️ {error}
+						</motion.div>
+					)}
 
 						<div className="space-y-4">
 							<div>

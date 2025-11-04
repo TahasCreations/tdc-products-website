@@ -74,13 +74,12 @@ export async function POST(req: NextRequest) {
         },
       });
     } catch (dbError: any) {
-      // Database table doesn't exist yet
+      // Database table doesn't exist yet - log but don't show setup buttons
       if (dbError.message?.includes('does not exist')) {
+        console.error('Database table error:', dbError.message);
         return NextResponse.json(
           { 
-            error: 'Database henüz hazır değil',
-            message: 'Lütfen önce database tablolarını oluşturun: /admin/setup-database',
-            needsSetup: true
+            error: 'Database bağlantı hatası. Lütfen database yöneticinizle iletişime geçin.',
           },
           { status: 503 }
         );
@@ -88,7 +87,16 @@ export async function POST(req: NextRequest) {
       throw dbError;
     }
 
-    if (!user || user.role !== 'ADMIN') {
+    if (!user) {
+      console.error('Admin login: User not found', { email });
+      return NextResponse.json(
+        { error: 'Geçersiz e-posta veya şifre' },
+        { status: 401 }
+      );
+    }
+
+    if (user.role !== 'ADMIN') {
+      console.error('Admin login: User is not admin', { email, role: user.role });
       return NextResponse.json(
         { error: 'Geçersiz e-posta veya şifre' },
         { status: 401 }
@@ -98,12 +106,24 @@ export async function POST(req: NextRequest) {
     // Verify password if user has one in database
     if (user.password) {
       const isValid = await bcrypt.compare(password, user.password);
+      console.log('Password check:', { 
+        email, 
+        hasPassword: !!user.password, 
+        isValid,
+        passwordLength: password.length 
+      });
       if (!isValid) {
         return NextResponse.json(
           { error: 'Geçersiz e-posta veya şifre' },
           { status: 401 }
         );
       }
+    } else {
+      console.error('Admin login: User has no password', { email });
+      return NextResponse.json(
+        { error: 'Kullanıcı şifresi bulunamadı' },
+        { status: 401 }
+      );
     }
 
     // Create JWT token
