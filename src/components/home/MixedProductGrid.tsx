@@ -2,11 +2,25 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { EmptyProductsState } from '../empty/EmptyState';
 
 export default function MixedProductGrid() {
-  // Empty products array - no demo data
-  const products: any[] = [];
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch products from API
+    fetch('/api/products?limit=6&featured=true')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.products) {
+          setProducts(data.products);
+        }
+      })
+      .catch(err => console.error('Failed to fetch products:', err))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <section className="py-16 bg-white">
@@ -26,7 +40,11 @@ export default function MixedProductGrid() {
           </p>
         </motion.div>
 
-        {products.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
+          </div>
+        ) : products.length === 0 ? (
           <EmptyProductsState />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

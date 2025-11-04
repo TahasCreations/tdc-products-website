@@ -11,8 +11,8 @@ import AnalyticsProvider from '@/components/analytics/AnalyticsProvider';
 import InteractiveOnboarding from '@/components/onboarding/InteractiveOnboarding';
 // import LiveActivityWidget from '@/components/social-proof/LiveActivityWidget'; // DEVRE DIŞI
 // import WhatsAppButton from '@/components/whatsapp/WhatsAppButton'; // DEVRE DIŞI
-import DailyChallenges from '@/components/challenges/DailyChallenges';
-import VirtualShoppingAssistant from '@/components/ai/VirtualShoppingAssistant';
+import DailyChallengesWrapper from '@/components/challenges/DailyChallengesWrapper';
+// import VirtualShoppingAssistant from '@/components/ai/VirtualShoppingAssistant'; // KALDIRILDI - FloatingChatWidget zaten var
 
 // Optimize font loading
 const inter = Inter({
@@ -123,8 +123,8 @@ export default function RootLayout({
               <InteractiveOnboarding />
               {/* <LiveActivityWidget /> */}
               {/* <WhatsAppButton /> */}
-              <DailyChallenges />
-              <VirtualShoppingAssistant />
+              <DailyChallengesWrapper />
+              {/* <VirtualShoppingAssistant /> */}
             </Providers>
           </AnalyticsProvider>
         </ToastProvider>

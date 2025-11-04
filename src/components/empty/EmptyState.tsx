@@ -119,15 +119,15 @@ export function EmptyProductsState() {
     <EmptyState
       icon={defaultIcons.products}
       title="Henüz ürün yok"
-      description="İlk ürününüzü ekleyerek mağazanızı kurmaya başlayın. Ürün eklemek için aşağıdaki butona tıklayın."
+      description="Satıcılarımız yakında ürünlerini ekleyecek. Güncel kalmak için bizi takip edin!"
       action={{
-        label: "İlk ürünü ekle",
-        href: "/admin/products/new",
+        label: "Kategorileri Keşfet",
+        href: "/categories",
         variant: "default"
       }}
       secondaryAction={{
-        label: "Ürün yönetimi",
-        href: "/admin/products",
+        label: "Satıcı Ol",
+        href: "/partner/satici-ol",
         variant: "outline"
       }}
     />
