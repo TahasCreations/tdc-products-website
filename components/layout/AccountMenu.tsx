@@ -219,6 +219,7 @@ export default function AccountMenu() {
           onClick={() => setIsOpen(false)}
         />
       )}
+      </div>
     </div>
   );
 }
