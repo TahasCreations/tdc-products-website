@@ -32,20 +32,25 @@ export default function PointsDisplay() {
         setPoints(data.points);
         setAnimatePoints(true);
         setTimeout(() => setAnimatePoints(false), 1000);
+      } else if (response.status === 401) {
+        // Not authenticated - don't show points
+        setPoints(null);
+      } else {
+        // Other error - don't show points
+        console.error('Failed to fetch points:', response.status);
+        setPoints(null);
       }
     } catch (error) {
       console.error('Failed to fetch points:', error);
+      setPoints(null);
     } finally {
       setLoading(false);
     }
   };
 
+  // Don't render anything while loading or if points unavailable
   if (loading || !points) {
-    return (
-      <div className="flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-xl">
-        <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return null;
   }
 
   const getTierColor = (tier: string) => {

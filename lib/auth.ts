@@ -4,6 +4,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { getServerSession } from 'next-auth';
 
 const prisma = new PrismaClient();
 
@@ -74,4 +75,9 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
+// Helper function to get session
+export async function auth() {
+  return await getServerSession(authOptions);
+}
 
