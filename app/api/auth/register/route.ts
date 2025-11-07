@@ -25,9 +25,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const normalizedEmail = email.toLowerCase().trim();
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.create({
       data: {
         name,
-        email,
+        email: normalizedEmail,
         password: hashedPassword, // Şifre hash'i kaydediliyor
         phone: phone || null, // Telefon numarası (opsiyonel)
         role: 'BUYER', // Default role (tüm kullanıcılar BUYER olarak başlar)

@@ -93,6 +93,8 @@ function KayitForm() {
     setIsLoading(true);
 
     try {
+      const normalizedEmail = formData.email.trim().toLowerCase();
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -100,7 +102,7 @@ function KayitForm() {
         },
         body: JSON.stringify({
           name: formData.name,
-          email: formData.email,
+          email: normalizedEmail,
           password: formData.password,
           phone: formData.phone,
           recaptchaToken,
@@ -113,7 +115,7 @@ function KayitForm() {
         console.log('✅ Kayıt başarılı, otomatik giriş yapılıyor...');
         
         const result = await signIn('credentials', {
-          email: formData.email,
+          email: normalizedEmail,
           password: formData.password,
           redirect: false,
         });
