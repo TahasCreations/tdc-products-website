@@ -881,17 +881,42 @@ model ShipmentItem {
 
 // === PARTNER APPLICATIONS ===
 model SellerApplication {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  storeName    String
-  taxId        String
-  iban         String
-  shippingPref String
-  agreement    Boolean  @default(false)
-  status       String   @default("pending") // pending|approved|rejected
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sellerType      String   @default("individual") // individual | company
+  storeName       String
+  storeSlug       String   @unique
+  description     String
+  storeCategory   String
+  businessYears   String?
+  contactName     String
+  contactEmail    String
+  phone           String
+  whatsapp        String?
+  address         String
+  city            String
+  district        String
+  postalCode      String
+  taxId           String
+  taxOffice       String
+  iban            String
+  bankName        String
+  shippingPref    String?
+  cargoCompanies  String?  // JSON string array
+  preparationTime String?
+  returnPolicy    String?
+  returnAddress   String?
+  documents       Json?
+  agreements      Json?
+  metadata        Json?
+  agreement       Boolean  @default(false)
+  status          String   @default("pending") // pending|approved|rejected
+  statusReason    String?
+  processedBy     String?
+  processedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model InfluencerApplication {

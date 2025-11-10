@@ -44,12 +44,61 @@ export default function SellerApplyPage() {
     setError('');
 
     const formData = new FormData(e.currentTarget);
+    const payload: Record<string, any> = {};
+
+    formData.forEach((value, key) => {
+      if (payload[key]) {
+        payload[key] = Array.isArray(payload[key])
+          ? [...payload[key], value]
+          : [payload[key], value];
+      } else {
+        payload[key] = value;
+      }
+    });
+
+    const booleanFields = [
+      'acceptTerms',
+      'acceptCommission',
+      'acceptKVKK',
+      'acceptQuality',
+    ] as const;
+
+    booleanFields.forEach((field) => {
+      payload[field] = payload[field] === 'on';
+    });
+
+    const cargoCompanies = payload.cargoCompanies
+      ? Array.isArray(payload.cargoCompanies)
+        ? payload.cargoCompanies
+        : [payload.cargoCompanies]
+      : [];
+
+    const normalizedEmail =
+      (payload.contactEmail as string | undefined)?.trim().toLowerCase() ??
+      undefined;
+
+    const cleanedSlug = (payload.storeSlug as string | undefined)
+      ?.trim()
+      .toLowerCase();
+
+    const formattedIBAN = (payload.iban as string | undefined)
+      ?.replace(/\s+/g, '')
+      .toUpperCase();
+
+    const submissionPayload = {
+      ...payload,
+      sellerType,
+      contactEmail: normalizedEmail,
+      storeSlug: cleanedSlug,
+      iban: formattedIBAN,
+      cargoCompanies,
+    };
 
     try {
       const response = await fetch("/api/partners/seller/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(formData)),
+        body: JSON.stringify(submissionPayload),
       });
       
       const data = await response.json();
