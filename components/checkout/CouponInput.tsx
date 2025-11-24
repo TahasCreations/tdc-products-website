@@ -29,11 +29,17 @@ export default function CouponInput({ onApply, onRemove, appliedCoupon }: Coupon
     setError('');
 
     try {
+      // Sepet toplamını al (parent component'ten geçirilmeli, şimdilik 0)
+      const cartTotal = 0; // TODO: Cart total'ı geçir
+      
       // API'ye kupon doğrulama isteği
       const response = await fetch('/api/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: couponCode.toUpperCase() }),
+        body: JSON.stringify({ 
+          code: couponCode.toUpperCase(),
+          cartTotal,
+        }),
       });
 
       const data = await response.json();

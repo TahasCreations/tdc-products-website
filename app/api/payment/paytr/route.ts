@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { z } from "zod";
+
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import paytrService from "@/lib/paytr";
-import { z } from "zod";
+import { createPayTRToken, PayTRBasketItem } from "@/lib/payments/paytr";
 
 const paytrPaymentSchema = z.object({
   orderId: z.string().min(1),
@@ -23,7 +24,7 @@ const paytrPaymentSchema = z.object({
   failUrl: z.string().url(),
 });
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions as any) as any;
     if (!session?.user?.email) {
@@ -57,32 +58,40 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    // PayTR token oluştur
     const clientIp = req.headers.get('x-forwarded-for') || 
                      req.headers.get('x-real-ip') || 
                      '127.0.0.1';
 
-    const paymentToken = await paytrService.createPaymentToken({
+    const basket: PayTRBasketItem[] = validatedData.basket.map((item) => ({
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+    }));
+
+    const tokenResponse = await createPayTRToken({
       orderId: validatedData.orderId,
       amount: validatedData.amount,
-      currency: validatedData.currency,
-      customerEmail: validatedData.customerEmail,
-      customerName: validatedData.customerName,
-      customerPhone: validatedData.customerPhone,
-      customerAddress: validatedData.customerAddress,
-      productName: validatedData.productName,
-      productCount: validatedData.basket.reduce((sum, item) => sum + item.quantity, 0),
-      basket: validatedData.basket,
+      currency: "TRY",
+      email: validatedData.customerEmail,
+      fullName: validatedData.customerName,
+      phone: validatedData.customerPhone,
+      address: validatedData.customerAddress,
+      basket,
       successUrl: validatedData.successUrl,
       failUrl: validatedData.failUrl,
       userIp: clientIp,
     });
 
+    await prisma.order.update({
+      where: { orderNumber: validatedData.orderId },
+      data: { status: "pending" },
+    });
+
     return NextResponse.json({
       success: true,
-      token: paymentToken.token,
-      iframeUrl: paymentToken.iframeUrl,
-      paymentUrl: paymentToken.paymentUrl,
+      token: tokenResponse.token,
+      iframeUrl: tokenResponse.iframeUrl,
+      paymentUrl: tokenResponse.redirectUrl,
     });
 
   } catch (error) {
@@ -92,62 +101,8 @@ export async function POST(req: Request) {
     
     console.error('PayTR payment token oluşturulurken hata:', error);
     return NextResponse.json({ 
-      error: "Ödeme token'ı oluşturulamadı",
+      error: "Ödeme işlemi başlatılamadı",
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
-  }
-}
-
-// PayTR callback endpoint
-export async function GET(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const merchantOrderId = searchParams.get('merchant_order_id');
-    const status = searchParams.get('status');
-    const totalAmount = searchParams.get('total_amount');
-    const hash = searchParams.get('hash');
-
-    if (!merchantOrderId || !status || !totalAmount || !hash) {
-      return NextResponse.json({ error: "Geçersiz callback parametreleri" }, { status: 400 });
-    }
-
-    // Hash doğrulama
-    const isValid = paytrService.verifyCallback({
-      merchantOrderId,
-      status,
-      totalAmount,
-      hash,
-    });
-
-    if (!isValid) {
-      return NextResponse.json({ error: "Geçersiz hash" }, { status: 400 });
-    }
-
-    // Sipariş durumunu güncelle
-    const orderStatus = status === 'success' ? 'paid' : 'failed';
-    
-    await prisma.order.update({
-      where: { orderNumber: merchantOrderId },
-      data: { 
-        status: orderStatus,
-        paymentRef: hash,
-      }
-    });
-
-    // Başarılı ödeme durumunda email gönder
-    if (status === 'success') {
-      // TODO: Email notification
-      console.log(`Payment successful for order: ${merchantOrderId}`);
-    }
-
-    return NextResponse.json({
-      success: true,
-      status: orderStatus,
-      orderId: merchantOrderId,
-    });
-
-  } catch (error) {
-    console.error('PayTR callback işlenirken hata:', error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -1,220 +1,301 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState, useTransition } from "react";
 
-interface PayoutEntry {
+type PayoutEntry = {
   id: string;
   amount: number;
   currency: string;
+  status: string;
+  meta?: Record<string, any> | null;
   createdAt: string;
-  meta?: {
-    method: string;
-    reference: string;
-  };
-}
+  processedAt: string | null;
+};
+
+type FinancialSnapshot = {
+  revenueTotal: number;
+  revenueDelivered: number;
+  pendingPayoutAmount: number;
+  paidPayoutAmount: number;
+  availableBalance: number;
+};
+
+const currencyFormatter = new Intl.NumberFormat("tr-TR", {
+  style: "currency",
+  currency: "TRY",
+});
 
 export default function PayoutsReportPage() {
   const [entries, setEntries] = useState<PayoutEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [financials, setFinancials] = useState<FinancialSnapshot | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    const today = new Date();
-    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-    
-    setStartDate(lastMonth.toISOString().split('T')[0]);
-    setEndDate(today.toISOString().split('T')[0]);
-    
-    fetchData(lastMonth, today);
-  }, []);
+    fetchData(page, statusFilter);
+  }, [page, statusFilter]);
 
-  const fetchData = async (start: Date, end: Date) => {
+  const fetchData = async (page: number, status: string) => {
     setLoading(true);
     try {
-      // Mock data - gerçek uygulamada API'den gelecek
-      setEntries([
-        {
-          id: '1',
-          amount: 1500.00,
-          currency: 'TRY',
-          createdAt: '2024-01-15T10:00:00Z',
-          meta: { method: 'IBAN', reference: 'PAY-001' }
-        },
-        {
-          id: '2',
-          amount: 750.50,
-          currency: 'TRY',
-          createdAt: '2024-01-10T15:30:00Z',
-          meta: { method: 'IBAN', reference: 'PAY-002' }
-        }
-      ]);
-    } catch (error) {
-      console.error('Error fetching payouts data:', error);
+      const params = new URLSearchParams({ page: page.toString(), pageSize: "20" });
+      if (status !== "all") params.append("status", status);
+
+      const response = await fetch(`/api/seller/payouts?${params.toString()}`);
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error || "Ödeme kayıtları alınamadı.");
+      }
+
+      const json = await response.json();
+      setEntries(json.data);
+      setTotalPages(json.meta.totalPages);
+      setFinancials(json.meta.financials);
+    } catch (error: any) {
+      console.error("Error fetching payouts data:", error);
+      window.alert(error.message || "Ödemeler yüklenirken hata oluştu.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDateChange = () => {
-    if (startDate && endDate) {
-      fetchData(new Date(startDate), new Date(endDate));
+  const handleRequestPayout = () => {
+    if (!financials || financials.availableBalance <= 0) {
+      window.alert("Talep edilebilir bakiye bulunmuyor.");
+      return;
     }
+
+    const input = window
+      .prompt(
+        `Talep edilecek tutarı girin (maksimum ${currencyFormatter.format(financials.availableBalance)}). Boş bırakılırsa tamamı talep edilir.`,
+      )
+      ?.trim();
+
+    let amount: number | undefined;
+    if (input && input.length > 0) {
+      const parsed = Number.parseFloat(input.replace(",", "."));
+      if (Number.isNaN(parsed) || parsed <= 0) {
+        window.alert("Geçerli bir tutar girin.");
+        return;
+      }
+      amount = parsed;
+    }
+
+    startTransition(async () => {
+      try {
+        const response = await fetch("/api/seller/payouts/request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount }),
+        });
+
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          throw new Error(body.error || "Ödeme isteği oluşturulamadı.");
+        }
+
+        window.alert("Ödeme isteğiniz oluşturuldu. Finans ekibi en kısa sürede işleyecektir.");
+        fetchData(1, statusFilter);
+        setPage(1);
+      } catch (error: any) {
+        console.error("Payout request error:", error);
+        window.alert(error.message || "Ödeme isteği oluşturulamadı.");
+      }
+    });
   };
 
-  const handleExport = () => {
-    const csvData = entries.map(entry => ({
-      'Tarih': new Date(entry.createdAt).toLocaleDateString('tr-TR'),
-      'Tutar': entry.amount,
-      'Para Birimi': entry.currency,
-      'Yöntem': entry.meta?.method || '',
-      'Referans': entry.meta?.reference || ''
-    }));
-    
-    const csv = generateCSV(csvData, 'payouts-report');
-    const link = document.createElement('a');
-    link.href = csv;
-    link.download = `payouts-report-${startDate}-${endDate}.csv`;
-    link.click();
-  };
+  const totals = useMemo(() => {
+    const totalAmount = entries.reduce((sum, entry) => sum + entry.amount, 0);
+    return { count: entries.length, totalAmount, average: entries.length ? totalAmount / entries.length : 0 };
+  }, [entries]);
 
-  const generateCSV = (data: any[], filename: string) => {
-    if (data.length === 0) return '';
-    
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-      headers.join(','),
-      ...data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
-    ].join('\n');
-    
-    return `data:text/csv;charset=utf-8,${encodeURIComponent(csvContent)}`;
-  };
+  const renderStatusTag = (status: string) => {
+    const map: Record<string, { label: string; className: string }> = {
+      scheduled: { label: "Planlandı", className: "bg-yellow-100 text-yellow-700" },
+      processing: { label: "İşleniyor", className: "bg-blue-100 text-blue-700" },
+      paid: { label: "Ödendi", className: "bg-green-100 text-green-700" },
+      failed: { label: "Başarısız", className: "bg-red-100 text-red-700" },
+    };
 
-  const totalPayouts = entries.reduce((sum, e) => sum + e.amount, 0);
+    const info = map[status] ?? { label: status, className: "bg-gray-100 text-gray-600" };
+    return <span className={`px-2 py-1 rounded-full text-xs font-semibold ${info.className}`}>{info.label}</span>;
+  };
 
   if (loading) {
     return (
       <div className="p-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div className="space-y-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-16 bg-gray-200 rounded"></div>
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-gray-200 rounded w-1/3" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-24 bg-gray-200 rounded-lg" />
             ))}
           </div>
+          <div className="h-64 bg-gray-200 rounded-lg" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Ödeme Raporları</h1>
-      
-      {/* Summary Card */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-sm font-medium text-gray-500">Toplam Ödeme</h3>
-          <p className="text-2xl font-bold text-green-600">₺{totalPayouts.toFixed(2)}</p>
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Ödeme Raporları</h1>
+          <p className="text-sm text-gray-500">Planlanan ve tamamlanan tüm ödemelerinizi görüntüleyin.</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-sm font-medium text-gray-500">Ödeme Sayısı</h3>
-          <p className="text-2xl font-bold text-blue-600">{entries.length}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-sm font-medium text-gray-500">Ortalama Ödeme</h3>
-          <p className="text-2xl font-bold text-purple-600">
-            ₺{entries.length > 0 ? (totalPayouts / entries.length).toFixed(2) : '0.00'}
-          </p>
+        <button
+          onClick={handleRequestPayout}
+          disabled={isPending}
+          className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
+        >
+          Ödeme Talep Et
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <SummaryCard title="Kullanılabilir Bakiye" value={financials ? currencyFormatter.format(financials.availableBalance) : "₺0,00"} tone="text-emerald-600" />
+        <SummaryCard title="Bekleyen Ödemeler" value={financials ? currencyFormatter.format(financials.pendingPayoutAmount) : "₺0,00"} tone="text-yellow-600" />
+        <SummaryCard title="Toplam Ödendi" value={financials ? currencyFormatter.format(financials.paidPayoutAmount) : "₺0,00"} tone="text-blue-600" />
+        <SummaryCard title="Ortalama Ödeme" value={currencyFormatter.format(totals.average)} tone="text-purple-600" />
+      </div>
+
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-medium text-gray-700">Durum</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="all">Tümü</option>
+              <option value="scheduled">Planlandı</option>
+              <option value="processing">İşleniyor</option>
+              <option value="paid">Ödendi</option>
+              <option value="failed">Başarısız</option>
+            </select>
+          </div>
+
+          <button
+            onClick={() => handleExport(entries)}
+            className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700"
+          >
+            CSV İndir
+          </button>
         </div>
       </div>
 
-      {/* Date Filter */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
-        <h2 className="text-lg font-semibold mb-4">Tarih Filtresi</h2>
-        <div className="flex space-x-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Başlangıç</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Bitiş</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-          <div className="flex items-end">
-            <button
-              onClick={handleDateChange}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-            >
-              Filtrele
-            </button>
-          </div>
-          <div className="flex items-end">
-            <button
-              onClick={handleExport}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            >
-              CSV İndir
-            </button>
-          </div>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Ödeme Detayları</h2>
+          <span className="text-sm text-gray-500">
+            {entries.length} kayıt · Toplam {currencyFormatter.format(totals.totalAmount)}
+          </span>
         </div>
-      </div>
 
-      {/* Entries Table */}
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold">Ödeme Detayları</h2>
-        </div>
-        
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tarih
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tutar
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Yöntem
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Referans
-                </th>
+                <Th>Tarih</Th>
+                <Th>Tutar</Th>
+                <Th>Durum</Th>
+                <Th>Not</Th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-gray-100">
               {entries.map((entry) => (
                 <tr key={entry.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(entry.createdAt).toLocaleDateString('tr-TR')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                    ₺{entry.amount.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {entry.meta?.method || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {entry.meta?.reference || '-'}
-                  </td>
+                  <Td>{new Date(entry.createdAt).toLocaleString("tr-TR")}</Td>
+                  <Td>{currencyFormatter.format(entry.amount)}</Td>
+                  <Td>{renderStatusTag(entry.status)}</Td>
+                  <Td>{entry.meta?.note || entry.meta?.reference || "-"}</Td>
                 </tr>
               ))}
+              {entries.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="py-12 text-center text-sm text-gray-500">
+                    Henüz ödeme kaydı bulunmuyor.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
+
+        {totalPages > 1 && (
+          <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+              className="px-3 py-1.5 text-sm rounded-lg border border-gray-300 text-gray-600 disabled:opacity-50"
+            >
+              Önceki
+            </button>
+            <span className="text-sm text-gray-500">
+              Sayfa {page} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={page === totalPages}
+              className="px-3 py-1.5 text-sm rounded-lg border border-gray-300 text-gray-600 disabled:opacity-50"
+            >
+              Sonraki
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+function SummaryCard({ title, value, tone }: { title: string; value: string; tone: string }) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+      <p className="text-sm font-medium text-gray-500">{title}</p>
+      <p className={`text-2xl font-bold mt-2 ${tone}`}>{value}</p>
+    </div>
+  );
+}
+
+function Th({ children }: { children: React.ReactNode }) {
+  return (
+    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+      {children}
+    </th>
+  );
+}
+
+function Td({ children }: { children: React.ReactNode }) {
+  return <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">{children}</td>;
+}
+
+function handleExport(entries: PayoutEntry[]) {
+  if (entries.length === 0) {
+    window.alert("Aktarılacak kayıt bulunmuyor.");
+    return;
+  }
+
+  const rows = [
+    ["Tarih", "Tutar", "Durum", "Not"],
+    ...entries.map((entry) => [
+      new Date(entry.createdAt).toLocaleString("tr-TR"),
+      entry.amount.toFixed(2),
+      entry.status,
+      entry.meta?.note || entry.meta?.reference || "",
+    ]),
+  ];
+
+  const csvContent = rows.map((row) => row.map((cell) => `"${cell}"`).join(",")).join("\n");
+  const link = document.createElement("a");
+  link.href = `data:text/csv;charset=utf-8,${encodeURIComponent(csvContent)}`;
+  link.download = `payouts-${Date.now()}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+

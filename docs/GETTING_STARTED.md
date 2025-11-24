@@ -131,33 +131,59 @@ Resim: Yüksek kaliteli ürün fotoğrafı
 
 ## 💳 Ödeme Sistemi
 
-### Desteklenen Ödeme Yöntemleri
+### Desteklenen Ödeme Sağlayıcıları
 
-1. **Kredi Kartı**
-   - Visa, Mastercard, Amex
-   - 3D Secure güvenlik
-   - Otomatik komisyon hesaplama
+| Sağlayıcı | Kullanım Alanı | Notlar |
+|-----------|----------------|--------|
+| **PayTR** | Mağaza siparişleri, abonelik ödemeleri | Yerel kart destekli, iframe yönlendirmesi; PayTR panelinde `MERCHANT_ID`, `MERCHANT_KEY`, `MERCHANT_SALT` alınır. |
+| **İyzico** | Kart ile ödeme (3D Secure/Non-3D) | Sandbox için https://sandbox-merchant.iyzipay.com/ adresinden API anahtarları gerekir. |
 
-2. **Banka Havalesi**
-   - IBAN ile transfer
-   - Manuel onay sistemi
-   - Komisyonsuz işlem
+> ⚠️ Eski dokümandaki “mobil ödeme”, “kripto” vb. seçenekler henüz kod içerisinde aktif değildir.
 
-3. **Mobil Ödeme**
-   - Papara, PayTR, İyzico
-   - Anında işlem
-   - Düşük komisyon
+### PayTR Kurulumu
 
-4. **Kripto Para**
-   - Bitcoin, Ethereum
-   - Otomatik dönüşüm
-   - Güvenli cüzdan
+1. PayTR panelinden `Merchant ID`, `Merchant Key`, `Merchant Salt` bilgilerini alın.  
+2. `.env.local` dosyanıza aşağıdaki değişkenleri ekleyin:
+   ```
+   PAYTR_MERCHANT_ID=...
+   PAYTR_MERCHANT_KEY=...
+   PAYTR_MERCHANT_SALT=...
+   PAYTR_TEST_MODE=1   # Sandbox için 1, üretim için 0
+   ```
+3. PayTR panelinde “Bildirim (Callback) URL” değerini ayarlayın:  
+   ```
+   https://<alan-adınız>/api/payment/paytr/callback
+   ```
+4. Sandbox testlerinde PayTR’ın test kartlarını kullanabilirsiniz: https://dev.paytr.com/ üzerinden erişilebilir.
+
+### İyzico Kurulumu
+
+1. İyzico (veya sandbox) panelinden `API Key` ve `Secret Key` değerlerini alın.  
+2. `.env.local` dosyanıza ekleyin:
+   ```
+   IYZICO_API_KEY=...
+   IYZICO_SECRET_KEY=...
+   ```
+3. Sandbox ortamında test kartları için İyzico’nun geliştirici dokümantasyonuna bakabilirsiniz: https://dev.iyzipay.com/tr/test-karti-nedir
+
+### Sipariş Süreci
+
+1. Müşteri siparişi oluşturur (`/api/orders`); sipariş durumu `pending` olur.  
+2. Kredi kartı ödemesi için PayTR veya İyzico seçilir.  
+3. PayTR:
+   - `/api/payment/paytr` uç noktası ödeme token’ı üretir.
+   - Müşteri PayTR iframe’ine yönlendirilir.
+   - PayTR sonucunu `POST /api/payment/paytr/callback` ile bildirir, sipariş durumu `paid`/`failed` olarak güncellenir.
+4. İyzico:
+   - `/api/payment/iyzico` uç noktası kart bilgilerini işleyerek doğrudan ödeme sonucunu döner.
+   - Başarılı işlemde sipariş `paid` olarak güncellenir.
 
 ### Ödeme İzleme
-- **Gerçek Zamanlı Durum**: Anlık güncelleme
-- **Komisyon Hesaplama**: Otomatik hesaplama
-- **İşlem Geçmişi**: Detaylı log
-- **Geri Ödeme**: Kolay iade sistemi
+- **Gerçek Zamanlı Durum**: PayTR callback ve İyzico yanıtı sipariş durumunu otomatik günceller.
+- **Komisyon Takibi**: Komisyon raporları admin panelinin finans modülünde listelenir.
+- **İade (Refund)**: İyzico ve PayTR için refund uçları temel iskelet düzeydedir; canlı kullanımda PSP paneli ile eşlenmelidir.
+
+> 🔐 Üretim ortamında tüm PSP ayarlarının (whitelist IP, callback URL, SSL) dogrulandigindan emin olun.
 
 ---
 

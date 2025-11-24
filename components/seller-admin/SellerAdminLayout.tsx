@@ -22,7 +22,8 @@ import {
   ChevronDown,
   Bell,
   Search,
-  LogOut
+  LogOut,
+  Tag
 } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 
@@ -63,6 +64,24 @@ const menuItems: MenuItem[] = [
     icon: ShoppingCart,
     href: '/seller/orders',
     badge: '3',
+  },
+  {
+    id: 'returns',
+    label: 'İade Talepleri',
+    icon: Package,
+    href: '/seller/returns',
+  },
+  {
+    id: 'coupons',
+    label: 'Kuponlar',
+    icon: Tag,
+    href: '/seller/coupons',
+  },
+  {
+    id: 'support',
+    label: 'Destek Talepleri',
+    icon: MessageSquare,
+    href: '/seller/support',
   },
   {
     id: 'customers',

@@ -53,7 +53,7 @@ interface CheckoutForm {
   district: string;
   postalCode: string;
   addressNote: string;
-  paymentMethod: 'credit' | 'bank' | 'cash';
+  paymentMethod: 'credit' | 'bank';
   cardNumber: string;
   cardName: string;
   expiryDate: string;
@@ -66,6 +66,7 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState<CheckoutStep>('info');
   const [isProcessing, setIsProcessing] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [agreedToDistanceSales, setAgreedToDistanceSales] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
     discount: number;
@@ -165,6 +166,11 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!agreedToDistanceSales) {
+      alert('Lütfen mesafeli satış sözleşmesini kabul edin');
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
@@ -188,6 +194,7 @@ export default function CheckoutPage() {
           },
           total: total,
           paymentMethod: form.paymentMethod,
+          couponCode: appliedCoupon?.code,
         }),
       });
 
@@ -420,7 +427,6 @@ export default function CheckoutPage() {
                     {[
                       { value: 'credit', label: 'Kredi Kartı', icon: CreditCard },
                       { value: 'bank', label: 'Banka Havalesi', icon: Lock },
-                      { value: 'cash', label: 'Kapıda Ödeme', icon: Package },
                     ].map((method) => (
                       <button
                         key={method.value}
@@ -509,6 +515,29 @@ export default function CheckoutPage() {
                 <div className="space-y-4">
                   <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Sipariş Özeti</h2>
                   
+                  {/* Mesafeli Satış Sözleşmesi Onayı */}
+                  <div className="bg-blue-50 border-2 border-blue-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
+                    <label className="flex items-start space-x-2 sm:space-x-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={agreedToDistanceSales}
+                        onChange={(e) => setAgreedToDistanceSales(e.target.checked)}
+                        className="mt-1 w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                      />
+                      <div className="flex-1">
+                        <p className="text-xs sm:text-sm font-medium text-gray-900">
+                          <Link href="/mesafeli-satis-sozlesmesi" target="_blank" className="text-indigo-600 hover:underline">
+                            Mesafeli Satış Sözleşmesi
+                          </Link>
+                          'ni okudum ve kabul ediyorum. *
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          Mesafeli satış sözleşmesini kabul etmeden sipariş veremezsiniz.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                  
                   <div className="space-y-3 text-sm sm:text-base">
                     <div className="p-3 sm:p-4 bg-gray-50 rounded-lg">
                       <p className="font-semibold text-gray-900 mb-2">Kişisel Bilgiler</p>
@@ -526,8 +555,7 @@ export default function CheckoutPage() {
                     <div className="p-3 sm:p-4 bg-gray-50 rounded-lg">
                       <p className="font-semibold text-gray-900 mb-2">Ödeme</p>
                       <p className="text-gray-700">
-                        {form.paymentMethod === 'credit' ? 'Kredi Kartı' : 
-                         form.paymentMethod === 'bank' ? 'Banka Havalesi' : 'Kapıda Ödeme'}
+                        {form.paymentMethod === 'credit' ? 'Kredi Kartı' : 'Banka Havalesi'}
                       </p>
                     </div>
 
@@ -564,7 +592,7 @@ export default function CheckoutPage() {
                 {currentStep === 'review' ? (
                   <button
                     onClick={handleSubmit}
-                    disabled={isProcessing || !agreedToTerms}
+                    disabled={isProcessing || !agreedToTerms || !agreedToDistanceSales}
                     className="flex-1 px-4 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all font-bold text-sm sm:text-base disabled:opacity-50 flex items-center justify-center space-x-2"
                   >
                     {isProcessing ? (

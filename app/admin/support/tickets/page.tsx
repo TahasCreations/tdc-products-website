@@ -1,210 +1,379 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { Search, Filter, MessageSquare, Clock, User, Tag, CheckCircle, XCircle, AlertCircle, Send } from 'lucide-react';
+import Link from 'next/link';
 
-interface SupportTicket {
+interface Ticket {
   id: string;
   ticketNumber: string;
   subject: string;
+  category: string;
   status: string;
   priority: string;
-  category: string;
   assignedTo?: string;
+  assignedAgent?: {
+    name: string;
+    email: string;
+  };
+  userId?: string;
   user?: {
     name: string;
     email: string;
   };
-  messages: Array<{
-    content: string;
-    senderType: string;
-    createdAt: string;
-  }>;
+  messageCount: number;
+  lastMessage?: string;
+  rating?: number;
+  tags: string[];
   createdAt: string;
   updatedAt: string;
+  resolvedAt?: string;
+  closedAt?: string;
 }
 
 export default function TicketsManagementPage() {
-  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedPriority, setSelectedPriority] = useState('all');
-  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [search, setSearch] = useState('');
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [ticketMessages, setTicketMessages] = useState<any[]>([]);
   const [replyMessage, setReplyMessage] = useState('');
 
   useEffect(() => {
     fetchTickets();
-  }, [selectedStatus, selectedPriority]);
+  }, [selectedStatus, selectedPriority, selectedCategory, search]);
 
   const fetchTickets = async () => {
-    setLoading(true);
     try {
-      // Mock data - gerçekte API'den gelecek
-      setTickets([]);
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (selectedStatus !== 'all') params.append('status', selectedStatus);
+      if (selectedPriority !== 'all') params.append('priority', selectedPriority);
+      if (selectedCategory !== 'all') params.append('category', selectedCategory);
+      if (search) params.append('search', search);
+
+      const response = await fetch(`/api/admin/support/tickets?${params.toString()}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setTickets(data.tickets);
+      }
     } catch (error) {
-      console.error('Error fetching tickets:', error);
+      console.error('Ticket yükleme hatası:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const config: Record<string, { label: string; color: string }> = {
-      OPEN: { label: 'Açık', color: 'bg-blue-100 text-blue-800' },
-      IN_PROGRESS: { label: 'İşlemde', color: 'bg-yellow-100 text-yellow-800' },
-      WAITING_CUSTOMER: { label: 'Müşteri Bekliyor', color: 'bg-purple-100 text-purple-800' },
-      RESOLVED: { label: 'Çözüldü', color: 'bg-green-100 text-green-800' },
-      CLOSED: { label: 'Kapalı', color: 'bg-gray-100 text-gray-800' }
-    };
-    
-    const { label, color } = config[status] || config.OPEN;
-    return <span className={`px-3 py-1 rounded-full text-xs font-medium ${color}`}>{label}</span>;
+  const fetchTicketDetails = async (ticketId: string) => {
+    try {
+      const response = await fetch(`/api/admin/support/tickets/${ticketId}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setSelectedTicket(data.ticket);
+        setTicketMessages(data.ticket.messages || []);
+      }
+    } catch (error) {
+      console.error('Ticket detay hatası:', error);
+    }
   };
 
-  const getPriorityBadge = (priority: string) => {
-    const config: Record<string, { label: string; color: string; icon: string }> = {
-      LOW: { label: 'Düşük', color: 'text-gray-600', icon: '⬇️' },
-      MEDIUM: { label: 'Orta', color: 'text-blue-600', icon: '➖' },
-      HIGH: { label: 'Yüksek', color: 'text-orange-600', icon: '⬆️' },
-      URGENT: { label: 'Acil', color: 'text-red-600', icon: '🚨' }
+  const handleReply = async () => {
+    if (!selectedTicket || !replyMessage.trim()) return;
+
+    try {
+      const response = await fetch(`/api/admin/support/tickets/${selectedTicket.id}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: replyMessage }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setReplyMessage('');
+        fetchTicketDetails(selectedTicket.id);
+        fetchTickets();
+      }
+    } catch (error) {
+      console.error('Mesaj gönderme hatası:', error);
+      alert('Mesaj gönderilemedi');
+    }
+  };
+
+  const handleStatusChange = async (ticketId: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/admin/support/tickets/${ticketId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        fetchTickets();
+        if (selectedTicket?.id === ticketId) {
+          fetchTicketDetails(ticketId);
+        }
+      }
+    } catch (error) {
+      console.error('Status güncelleme hatası:', error);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'OPEN': return 'bg-blue-100 text-blue-800';
+      case 'IN_PROGRESS': return 'bg-yellow-100 text-yellow-800';
+      case 'WAITING_CUSTOMER': return 'bg-orange-100 text-orange-800';
+      case 'RESOLVED': return 'bg-green-100 text-green-800';
+      case 'CLOSED': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'URGENT': return 'bg-red-100 text-red-800';
+      case 'HIGH': return 'bg-orange-100 text-orange-800';
+      case 'MEDIUM': return 'bg-yellow-100 text-yellow-800';
+      case 'LOW': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getCategoryText = (category: string) => {
+    const categories: Record<string, string> = {
+      order: 'Sipariş',
+      product: 'Ürün',
+      payment: 'Ödeme',
+      technical: 'Teknik',
+      other: 'Diğer',
     };
-    
-    const { label, color, icon } = config[priority] || config.MEDIUM;
-    return <span className={`text-sm font-medium ${color}`}>{icon} {label}</span>;
+    return categories[category] || category;
+  };
+
+  const stats = {
+    open: tickets.filter(t => t.status === 'OPEN').length,
+    inProgress: tickets.filter(t => t.status === 'IN_PROGRESS').length,
+    waiting: tickets.filter(t => t.status === 'WAITING_CUSTOMER').length,
+    resolved: tickets.filter(t => t.status === 'RESOLVED').length,
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Destek Ticket'ları</h1>
-          <p className="text-gray-600">Müşteri destek taleplerini yönetin</p>
-        </motion.div>
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Destek Ticket Yönetimi</h1>
+      </div>
 
-        {/* Stats */}
-        <div className="grid md:grid-cols-5 gap-4 mb-6">
-          {[
-            { label: 'Açık Ticket', value: tickets.filter(t => t.status === 'OPEN').length, color: 'from-blue-500 to-cyan-500' },
-            { label: 'İşlemde', value: tickets.filter(t => t.status === 'IN_PROGRESS').length, color: 'from-yellow-500 to-orange-500' },
-            { label: 'Müşteri Bekliyor', value: tickets.filter(t => t.status === 'WAITING_CUSTOMER').length, color: 'from-purple-500 to-pink-500' },
-            { label: 'Çözüldü', value: tickets.filter(t => t.status === 'RESOLVED').length, color: 'from-green-500 to-emerald-500' },
-            { label: 'Toplam', value: tickets.length, color: 'from-gray-500 to-gray-600' }
-          ].map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl shadow-md p-4 border border-gray-200"
-            >
-              <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center mb-3`}>
-                <span className="text-2xl font-bold text-white">{stat.value}</span>
-              </div>
-              <div className="text-sm text-gray-600">{stat.label}</div>
-            </motion.div>
-          ))}
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white p-4 rounded-lg border">
+          <div className="text-lg font-semibold text-blue-600">{stats.open}</div>
+          <div className="text-sm text-gray-600">Açık</div>
         </div>
-
-        {/* Filters */}
-        <div className="bg-white rounded-xl shadow-md p-4 mb-6 flex items-center space-x-4">
-          <div className="flex-1">
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-            >
-              <option value="all">Tüm Durumlar</option>
-              <option value="OPEN">Açık</option>
-              <option value="IN_PROGRESS">İşlemde</option>
-              <option value="WAITING_CUSTOMER">Müşteri Bekliyor</option>
-              <option value="RESOLVED">Çözüldü</option>
-              <option value="CLOSED">Kapalı</option>
-            </select>
-          </div>
-          <div className="flex-1">
-            <select
-              value={selectedPriority}
-              onChange={(e) => setSelectedPriority(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-            >
-              <option value="all">Tüm Öncelikler</option>
-              <option value="URGENT">🚨 Acil</option>
-              <option value="HIGH">⬆️ Yüksek</option>
-              <option value="MEDIUM">➖ Orta</option>
-              <option value="LOW">⬇️ Düşük</option>
-            </select>
-          </div>
+        <div className="bg-white p-4 rounded-lg border">
+          <div className="text-lg font-semibold text-yellow-600">{stats.inProgress}</div>
+          <div className="text-sm text-gray-600">İşlemde</div>
         </div>
+        <div className="bg-white p-4 rounded-lg border">
+          <div className="text-lg font-semibold text-orange-600">{stats.waiting}</div>
+          <div className="text-sm text-gray-600">Müşteri Bekliyor</div>
+        </div>
+        <div className="bg-white p-4 rounded-lg border">
+          <div className="text-lg font-semibold text-green-600">{stats.resolved}</div>
+          <div className="text-sm text-gray-600">Çözüldü</div>
+        </div>
+      </div>
 
+      {/* Filters */}
+      <div className="bg-white p-4 rounded-lg border">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex-1 min-w-[200px]">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Ticket numarası veya konu ara..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+          </div>
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="all">Tüm Durumlar</option>
+            <option value="OPEN">Açık</option>
+            <option value="IN_PROGRESS">İşlemde</option>
+            <option value="WAITING_CUSTOMER">Müşteri Bekliyor</option>
+            <option value="RESOLVED">Çözüldü</option>
+            <option value="CLOSED">Kapalı</option>
+          </select>
+          <select
+            value={selectedPriority}
+            onChange={(e) => setSelectedPriority(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="all">Tüm Öncelikler</option>
+            <option value="URGENT">Acil</option>
+            <option value="HIGH">Yüksek</option>
+            <option value="MEDIUM">Orta</option>
+            <option value="LOW">Düşük</option>
+          </select>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="all">Tüm Kategoriler</option>
+            <option value="order">Sipariş</option>
+            <option value="product">Ürün</option>
+            <option value="payment">Ödeme</option>
+            <option value="technical">Teknik</option>
+            <option value="other">Diğer</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Tickets List */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+        <div className="lg:col-span-2 bg-white rounded-lg border">
+          <div className="p-4 border-b">
+            <h2 className="font-semibold">Ticket'lar ({tickets.length})</h2>
           </div>
-        ) : tickets.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-12 text-center">
-            <div className="text-6xl mb-4">🎫</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Henüz Ticket Yok</h3>
-            <p className="text-gray-600">Müşteriler destek talebi oluşturduğunda burada görünecek</p>
+          <div className="divide-y">
+            {loading ? (
+              <div className="p-8 text-center text-gray-500">Yükleniyor...</div>
+            ) : tickets.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">Ticket bulunamadı</div>
+            ) : (
+              tickets.map((ticket) => (
+                <div
+                  key={ticket.id}
+                  onClick={() => fetchTicketDetails(ticket.id)}
+                  className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
+                    selectedTicket?.id === ticket.id ? 'bg-indigo-50' : ''
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="font-mono text-sm text-gray-600">{ticket.ticketNumber}</span>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(ticket.status)}`}>
+                          {ticket.status}
+                        </span>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(ticket.priority)}`}>
+                          {ticket.priority}
+                        </span>
+                      </div>
+                      <h3 className="font-medium text-gray-900">{ticket.subject}</h3>
+                      <p className="text-sm text-gray-500 mt-1">{ticket.lastMessage || 'Mesaj yok'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+                    <div className="flex items-center space-x-4">
+                      <span>{getCategoryText(ticket.category)}</span>
+                      <span className="flex items-center">
+                        <MessageSquare className="w-3 h-3 mr-1" />
+                        {ticket.messageCount}
+                      </span>
+                      {ticket.user && (
+                        <span className="flex items-center">
+                          <User className="w-3 h-3 mr-1" />
+                          {ticket.user.name}
+                        </span>
+                      )}
+                    </div>
+                    <span>{new Date(ticket.updatedAt).toLocaleDateString('tr-TR')}</span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-        ) : (
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ticket</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Müşteri</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Konu</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Durum</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Öncelik</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tarih</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">İşlem</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {tickets.map((ticket) => (
-                  <tr key={ticket.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="font-mono text-sm font-medium text-indigo-600">
-                        {ticket.ticketNumber}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">{ticket.user?.name || 'Misafir'}</div>
-                      <div className="text-xs text-gray-500">{ticket.user?.email || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate">{ticket.subject}</div>
-                      <div className="text-xs text-gray-500">{ticket.category}</div>
-                    </td>
-                    <td className="px-6 py-4">{getStatusBadge(ticket.status)}</td>
-                    <td className="px-6 py-4">{getPriorityBadge(ticket.priority)}</td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">
-                        {new Date(ticket.createdAt).toLocaleDateString('tr-TR')}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => setSelectedTicket(ticket)}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
-                      >
-                        Görüntüle
-                      </button>
-                    </td>
-                  </tr>
+        </div>
+
+        {/* Ticket Details */}
+        <div className="bg-white rounded-lg border">
+          {selectedTicket ? (
+            <div className="flex flex-col h-full">
+              <div className="p-4 border-b">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="font-semibold">{selectedTicket.ticketNumber}</h2>
+                  <select
+                    value={selectedTicket.status}
+                    onChange={(e) => handleStatusChange(selectedTicket.id, e.target.value)}
+                    className="text-xs px-2 py-1 border rounded"
+                  >
+                    <option value="OPEN">Açık</option>
+                    <option value="IN_PROGRESS">İşlemde</option>
+                    <option value="WAITING_CUSTOMER">Müşteri Bekliyor</option>
+                    <option value="RESOLVED">Çözüldü</option>
+                    <option value="CLOSED">Kapalı</option>
+                  </select>
+                </div>
+                <p className="text-sm text-gray-600">{selectedTicket.subject}</p>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {ticketMessages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`p-3 rounded-lg ${
+                      msg.senderType === 'user'
+                        ? 'bg-gray-100 ml-0'
+                        : msg.senderType === 'admin_internal'
+                        ? 'bg-yellow-50 border border-yellow-200'
+                        : 'bg-indigo-100 mr-0'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium">
+                        {msg.senderType === 'user' ? 'Müşteri' : msg.senderType === 'admin_internal' ? 'İç Not' : 'Admin'}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(msg.createdAt).toLocaleString('tr-TR')}
+                      </span>
+                    </div>
+                    <p className="text-sm">{msg.content}</p>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              </div>
+
+              <div className="p-4 border-t">
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={replyMessage}
+                    onChange={(e) => setReplyMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleReply()}
+                    placeholder="Yanıt yazın..."
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                  <button
+                    onClick={handleReply}
+                    disabled={!replyMessage.trim()}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-300 flex items-center space-x-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Gönder</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-8 text-center text-gray-500">
+              Bir ticket seçin
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-

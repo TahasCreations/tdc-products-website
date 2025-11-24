@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { getSellerDashboardData } from '@/lib/seller-dashboard';
 import SellerDashboardContent from '@/components/partner/seller/SellerDashboardContent';
 
 export const dynamic = 'force-dynamic';
@@ -18,72 +18,26 @@ export default async function SellerDashboardPage() {
     redirect('/403');
   }
 
-  // Get seller profile
-  const sellerProfile = await prisma.sellerProfile.findUnique({
-    where: { userId: user.id },
-    include: {
-      subscriptions: {
-        where: { status: 'active' },
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-      },
-    },
-  });
+  let dashboardData;
 
-  // Check if approved
-  if (sellerProfile && sellerProfile.status === 'pending') {
+  try {
+    dashboardData = await getSellerDashboardData(user.id);
+  } catch (error: any) {
+    if (error?.message === 'SELLER_PROFILE_NOT_FOUND' && user.role !== 'ADMIN') {
+      redirect('/seller/apply');
+    }
+    throw error;
+  }
+
+  const storeStatus = dashboardData.metrics.storeStatus?.toLowerCase() ?? 'approved';
+
+  if (storeStatus === 'pending') {
     redirect('/partner/pending');
   }
 
-  if (sellerProfile && sellerProfile.status === 'rejected') {
+  if (storeStatus === 'rejected') {
     redirect('/partner/rejected');
   }
-
-  if (!sellerProfile && user.role !== 'ADMIN') {
-    redirect('/seller/apply');
-  }
-
-  // Get dashboard data
-  const [products, orders, totalRevenue] = await Promise.all([
-    prisma.product.count({
-      where: { sellerId: sellerProfile?.id },
-    }),
-    prisma.order.count({
-      where: {
-        items: {
-          some: {
-            product: {
-              sellerId: sellerProfile?.id,
-            },
-          },
-        },
-      },
-    }),
-    prisma.order.aggregate({
-      where: {
-        items: {
-          some: {
-            product: {
-              sellerId: sellerProfile?.id,
-            },
-          },
-        },
-        status: { in: ['COMPLETED', 'DELIVERED'] },
-      },
-      _sum: {
-        total: true,
-      },
-    }),
-  ]);
-
-  const dashboardData = {
-    products,
-    orders,
-    revenue: totalRevenue._sum.total || 0,
-    plan: sellerProfile?.subscriptions[0]?.plan || 'FREE',
-    storeName: sellerProfile?.storeName || user.name,
-    rating: sellerProfile?.rating || 0,
-  };
 
   return <SellerDashboardContent data={dashboardData} />;
 }

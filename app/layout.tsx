@@ -13,6 +13,7 @@ import InteractiveOnboarding from '@/components/onboarding/InteractiveOnboarding
 // import WhatsAppButton from '@/components/whatsapp/WhatsAppButton'; // DEVRE DIŞI
 import DailyChallengesWrapper from '@/components/challenges/DailyChallengesWrapper';
 import VirtualShoppingAssistant from '@/components/ai/VirtualShoppingAssistant'; // SANAL ASİSTAN (mavi robot)
+import CookieConsentBanner from '@/components/kvkk/CookieConsentBanner';
 
 // Optimize font loading
 const inter = Inter({
@@ -125,6 +126,7 @@ export default function RootLayout({
               {/* <WhatsAppButton /> */}
               <DailyChallengesWrapper />
               <VirtualShoppingAssistant />
+              <CookieConsentBanner />
             </Providers>
           </AnalyticsProvider>
         </ToastProvider>

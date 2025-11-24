@@ -41,6 +41,31 @@ const iyzicoPaymentSchema = z.object({
   }),
 });
 
+function assertIyzicoConfigured() {
+  if (!process.env.IYZICO_API_KEY || !process.env.IYZICO_SECRET_KEY) {
+    throw new Error("Iyzico API anahtarları tanımlı değil.");
+  }
+}
+
+function sanitizeCardNumber(number: string) {
+  return number.replace(/\s+/g, "");
+}
+
+function splitExpiry(value: string) {
+  const sanitized = value.replace(/\D/g, "");
+  if (sanitized.length === 4) {
+    return {
+      month: sanitized.slice(0, 2),
+      year: sanitized.slice(2),
+    };
+  }
+
+  return {
+    month: sanitized.slice(0, 2),
+    year: sanitized.slice(2, 4),
+  };
+}
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions as any) as any;
@@ -79,10 +104,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
+    assertIyzicoConfigured();
+
     // Client IP'yi al
     const clientIp = req.headers.get('x-forwarded-for') || 
                      req.headers.get('x-real-ip') || 
                      '127.0.0.1';
+
+    const sanitizedCardNumber = sanitizeCardNumber(validatedData.cardNumber);
+    const { month, year } = splitExpiry(`${validatedData.expireMonth}${validatedData.expireYear}`);
 
     // Iyzico payment request oluştur
     const paymentRequest = {
@@ -92,9 +122,9 @@ export async function POST(req: Request) {
       currency: 'TRY',
       installment: validatedData.installment,
       cardHolderName: validatedData.cardHolderName,
-      cardNumber: validatedData.cardNumber,
-      expireMonth: validatedData.expireMonth,
-      expireYear: validatedData.expireYear,
+      cardNumber: sanitizedCardNumber,
+      expireMonth: month.padStart(2, "0"),
+      expireYear: year.padStart(2, "0"),
       cvc: validatedData.cvc,
       buyer: {
         ...validatedData.buyer,
@@ -118,15 +148,38 @@ export async function POST(req: Request) {
 
     if (paymentResult.success) {
       // Sipariş durumunu güncelle
-      await prisma.order.update({
+      const updatedOrder = await prisma.order.update({
         where: { orderNumber: validatedData.orderId },
         data: { 
           status: 'paid',
           paymentRef: paymentResult.paymentId,
-        }
+        },
+        include: {
+          user: { select: { name: true, email: true } },
+        },
       });
 
-      // TODO: Email notification
+      // Process post-payment operations (stock, commission, payout, emails)
+      try {
+        const { processPostPayment } = await import("@/lib/post-payment-processor");
+        const result = await processPostPayment({
+          orderId: updatedOrder.id,
+          orderNumber: validatedData.orderId,
+          paymentMethod: "Iyzico",
+        });
+
+        if (!result.success) {
+          console.error("Post-payment processing errors:", result.errors);
+        }
+        if (result.warnings.length > 0) {
+          console.warn("Post-payment processing warnings:", result.warnings);
+        }
+      } catch (postPaymentError) {
+        console.error("Post-payment processing failed:", postPaymentError);
+        // Don't fail the payment if post-payment processing fails
+        // The payment is already recorded, we can retry later
+      }
+
       console.log(`Iyzico payment successful for order: ${validatedData.orderId}`);
 
       return NextResponse.json({
@@ -153,6 +206,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Geçersiz veri", details: error.errors }, { status: 400 });
     }
     
+    if (error instanceof Error && error.message.includes("Iyzico API anahtarları")) {
+      return NextResponse.json(
+        { error: "Iyzico yapılandırması eksik", details: error.message },
+        { status: 503 },
+      );
+    }
+
     console.error('Iyzico payment error:', error);
     return NextResponse.json({ 
       error: "Ödeme işlemi sırasında hata oluştu",

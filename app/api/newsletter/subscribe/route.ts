@@ -45,17 +45,31 @@ export async function POST(req: NextRequest) {
     //   html: `Kupon Kodunuz: ${couponCode}`
     // });
 
-    // Save to newsletter subscribers (if model exists)
+    // Save to newsletter subscribers
     try {
-      // await prisma.newsletterSubscriber.create({
-      //   data: {
-      //     email,
-      //     couponCode,
-      //     isActive: true
-      //   }
-      // });
+      const existing = await prisma.newsletterSubscriber.findUnique({
+        where: { email },
+      });
+
+      if (!existing) {
+        await prisma.newsletterSubscriber.create({
+          data: {
+            email,
+            source: 'website',
+            status: 'active',
+          },
+        });
+      } else if (existing.status !== 'active') {
+        await prisma.newsletterSubscriber.update({
+          where: { email },
+          data: {
+            status: 'active',
+            unsubscribedAt: null,
+          },
+        });
+      }
     } catch (dbError) {
-      console.log('Newsletter model not available yet');
+      console.error('Newsletter subscription save error:', dbError);
     }
 
     return NextResponse.json({

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import ImageUpload from '@/components/upload/ImageUpload';
 
-interface ProductFormData {
+export interface ProductFormData {
   title: string;
   description: string;
   price: number;
@@ -17,7 +17,7 @@ interface ProductFormData {
 }
 
 interface ProductCreateFormProps {
-  onSubmit?: (data: ProductFormData) => void;
+  onSubmit?: (data: ProductFormData) => Promise<void> | void;
   loading?: boolean;
   initialData?: Partial<ProductFormData>;
 }
@@ -27,17 +27,21 @@ export default function ProductCreateForm({
   loading = false, 
   initialData = {} 
 }: ProductCreateFormProps) {
-  const [formData, setFormData] = useState<ProductFormData>({
+  const baseFormData: ProductFormData = {
     title: initialData.title || '',
     description: initialData.description || '',
     price: initialData.price || 0,
-    listPrice: initialData.listPrice || 0,
+    listPrice: initialData.listPrice ?? 0,
     category: initialData.category || '',
     stock: initialData.stock || 0,
     images: initialData.images || [],
     tags: initialData.tags || [],
     attributes: initialData.attributes || {},
     ...initialData
+  };
+
+  const [formData, setFormData] = useState<ProductFormData>({
+    ...baseFormData
   });
 
   const [tagInput, setTagInput] = useState('');
@@ -107,10 +111,16 @@ export default function ProductCreateForm({
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (onSubmit) {
-      onSubmit(formData);
+      await onSubmit(formData);
+      setFormData({
+        ...baseFormData,
+        images: [],
+        tags: [],
+        attributes: {},
+      });
     }
   };
 

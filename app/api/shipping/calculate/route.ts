@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getShippingManager } from "@/lib/shipping/shipping-manager";
 
 interface ShippingRequest {
   items: Array<{
@@ -96,15 +97,83 @@ export async function POST(req: Request) {
       }
     }
 
-    // Kargo seçeneklerini hesapla
-    const shippingOptions: ShippingOption[] = await calculateShippingOptions({
-      weight: totalWeight,
-      volume: totalVolume,
-      value: totalValue,
-      dimensions: maxDimensions,
-      destination,
-      origin
-    });
+    // Kargo seçeneklerini hesapla (gerçek API'lerle)
+    let shippingOptions: ShippingOption[] = [];
+    
+    try {
+      const shippingManager = getShippingManager();
+      
+      // Satıcı adres bilgilerini al (origin için)
+      const firstProduct = products[0];
+      if (firstProduct) {
+        const seller = await prisma.sellerProfile.findUnique({
+          where: { id: (firstProduct as any).sellerId },
+          select: { userId: true },
+        });
+        
+        if (seller) {
+          const sellerUser = await prisma.user.findUnique({
+            where: { id: seller.userId },
+            select: { name: true, email: true, phone: true },
+          });
+          
+          // Gerçek kargo API'lerinden quote al
+          const quotes = await shippingManager.getAllQuotes(
+            {
+              name: sellerUser?.name || 'Satıcı',
+              phone: sellerUser?.phone || '',
+              email: sellerUser?.email || '',
+              address: 'Satıcı Adresi', // TODO: Seller address
+              city: origin?.city || 'İstanbul',
+              district: origin?.district,
+              postalCode: origin?.postalCode,
+              country: 'Turkey',
+            },
+            {
+              name: 'Müşteri',
+              phone: '',
+              email: '',
+              address: destination.address || '',
+              city: destination.city,
+              district: destination.district,
+              postalCode: destination.postalCode,
+              country: destination.country || 'Turkey',
+            },
+            {
+              weight: totalWeight,
+              dimensions: maxDimensions.length > 0 ? maxDimensions : undefined,
+              value: totalValue,
+            }
+          );
+
+          // Quotes'u ShippingOption formatına çevir
+          shippingOptions = quotes.map(quote => ({
+            id: quote.carrier.toLowerCase().replace(/\s+/g, '-'),
+            name: quote.carrier,
+            code: quote.carrier.split(' ')[0].toUpperCase(),
+            price: quote.price,
+            estimatedDays: quote.estimatedDays,
+            deliveryTime: formatDeliveryTime(quote.estimatedDays.min, quote.estimatedDays.max),
+            features: quote.features || [],
+            trackingUrl: getTrackingUrl(quote.carrier),
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Kargo API hatası, fallback kullanılıyor:', error);
+    }
+
+    // Eğer gerçek API'lerden sonuç alınamadıysa, mock hesaplama kullan
+    if (shippingOptions.length === 0) {
+      shippingOptions = await calculateShippingOptions({
+        weight: totalWeight,
+        volume: totalVolume,
+        value: totalValue,
+        dimensions: maxDimensions,
+        destination,
+        origin
+      });
+    }
 
     // Önerilen seçeneği belirle (en hızlı ve uygun fiyatlı)
     if (shippingOptions.length > 0) {
@@ -307,4 +376,16 @@ function formatDeliveryTime(min: number, max: number): string {
     return `${min} iş günü`;
   }
   return `${min}-${max} iş günü`;
+}
+
+function getTrackingUrl(carrier: string): string {
+  const urls: Record<string, string> = {
+    'Yurtiçi Kargo': 'https://www.yurticikargo.com/tr/kargo-takip',
+    'Aras Kargo': 'https://www.araskargo.com.tr/kargo-takip',
+    'MNG Kargo': 'https://www.mngkargo.com.tr/kargo-takip',
+    'PTT Kargo': 'https://www.ptt.gov.tr/kargo-takip',
+    'UPS Kargo': 'https://www.ups.com/tr/kargo-takip',
+  };
+  
+  return urls[carrier] || '';
 }
