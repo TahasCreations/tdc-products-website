@@ -3,6 +3,11 @@
   "framework": "nextjs",
   "installCommand": "npm install",
   "regions": ["iad1"],
+  "functions": {
+    "app/api/**/*.{ts,tsx,js,jsx}": {
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/api/(.*)",
@@ -27,6 +32,10 @@
         {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
         }
       ]
     }

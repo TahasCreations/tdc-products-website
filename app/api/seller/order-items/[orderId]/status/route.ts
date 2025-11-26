@@ -267,9 +267,9 @@ export async function PATCH(
             status: true,
             trackingCode: true,
             trackingCarrier: true,
+            sellerNotes: true,
             shippedAt: true,
             deliveredAt: true,
-            sellerNotes: true,
             product: { select: { images: true } },
           },
         },
@@ -321,5 +321,4 @@ export async function PATCH(
     );
   }
 }
-
 

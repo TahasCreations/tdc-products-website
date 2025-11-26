@@ -73,20 +73,16 @@ const nextConfig = {
     ];
   },
 
-  // Ignore build errors for Vercel deployment
+  // TypeScript and ESLint configuration
   typescript: {
-    // Temporarily allow TypeScript errors during build
-    ignoreBuildErrors: true,
+    // Allow TypeScript errors during build (will still show warnings)
+    ignoreBuildErrors: false,
   },
   
   eslint: {
-    // Temporarily allow ESLint errors during build
-    ignoreDuringBuilds: true,
+    // Allow ESLint errors during build (will still show warnings)
+    ignoreDuringBuilds: false,
   },
-
-  // Output config - Standalone mode for Vercel
-  // This prevents static export errors for dynamic pages
-  output: 'standalone',
 };
 
 module.exports = nextConfig;
