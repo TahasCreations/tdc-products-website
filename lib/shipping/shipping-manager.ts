@@ -38,7 +38,7 @@ export class ShippingManager {
   async getAllQuotes(
     sender: ShippingAddress,
     recipient: ShippingAddress,
-    package: PackageInfo,
+    packageInfo: PackageInfo,
     carriers?: string[], // Belirli kargo firmaları için filtreleme
   ): Promise<ShippingQuote[]> {
     const quotes: ShippingQuote[] = [];
@@ -48,7 +48,7 @@ export class ShippingManager {
 
     // Paralel olarak tüm adapter'lardan quote al
     const quotePromises = adaptersToUse.map(adapter => 
-      adapter.getQuote(sender, recipient, package).catch(error => {
+      adapter.getQuote(sender, recipient, packageInfo).catch(error => {
         console.error(`Error getting quote from ${adapter.name}:`, error);
         return [];
       })

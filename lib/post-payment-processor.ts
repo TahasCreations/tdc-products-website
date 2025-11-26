@@ -11,7 +11,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { sendOrderConfirmation, sendSellerNewOrder } from "@/src/lib/email";
-import { updateStock } from "@/lib/stock/stock-manager";
 
 interface PostPaymentData {
   orderId: string;
@@ -118,13 +117,15 @@ export async function processPostPayment(
 /**
  * Update stock for order items
  */
-async function updateStock(
+async function updateStockForOrder(
   items: Array<{
     id: string;
     productId: string;
     qty: number;
+    variantId?: string;
     product: { id: string; title: string; stock: number };
   }>,
+  orderId: string,
 ): Promise<{ errors: string[]; warnings: string[] }> {
   const errors: string[] = [];
   const warnings: string[] = [];
