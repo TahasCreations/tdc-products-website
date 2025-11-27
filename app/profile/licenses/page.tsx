@@ -1,7 +1,7 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
 
+// Client components are dynamic by default
 import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { formatFileSize, getLicenseTypeInfo } from '@/lib/digital-products/license-manager';

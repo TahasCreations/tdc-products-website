@@ -1,7 +1,6 @@
 "use client";
 
-// Force dynamic rendering for checkout page (uses client-side context)
-export const dynamic = 'force-dynamic';
+// Client components are dynamic by default, no need for export const dynamic
 
 import { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';

@@ -1,7 +1,7 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
 
+// Client components are dynamic by default
 import { useState, Suspense } from 'react';
 
 export default function ContentApprovalWorkflowsPage() {

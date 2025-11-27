@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = 'force-dynamic';
+// Client components are dynamic by default
 
 import React, { Suspense, useState } from 'react';
 import { motion } from 'framer-motion';

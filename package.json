@@ -33,9 +33,6 @@
     "admin:reset": "tsx scripts/reset-admin-data.ts",
     "admin:reset:force": "set CONFIRM_RESET=YES_DELETE_ALL_DATA && tsx scripts/reset-admin-data.ts"
   },
-  "prisma": {
-    "seed": "node prisma/seed.js"
-  },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
     "@capacitor/cli": "^7.4.3",

@@ -83,6 +83,9 @@ const nextConfig = {
     // Allow ESLint errors during build (will still show warnings)
     ignoreDuringBuilds: false,
   },
+
+  // Output configuration for Vercel
+  output: 'standalone',
 };
 
 module.exports = nextConfig;
