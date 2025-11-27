@@ -96,7 +96,7 @@ export interface ShippingAdapter {
   getQuote(
     sender: ShippingAddress,
     recipient: ShippingAddress,
-    package: PackageInfo,
+    packageInfo: PackageInfo,
   ): Promise<ShippingQuote[]>;
 
   /**

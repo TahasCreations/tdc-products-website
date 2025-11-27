@@ -22,7 +22,7 @@ export class PTTAdapter implements ShippingAdapter {
   async getQuote(
     sender: ShippingAddress,
     recipient: ShippingAddress,
-    package: PackageInfo,
+    packageInfo: PackageInfo,
   ): Promise<ShippingQuote[]> {
     try {
       // API bilgileri yoksa mock response döndür
@@ -45,7 +45,7 @@ export class PTTAdapter implements ShippingAdapter {
         body: JSON.stringify({
           sender,
           recipient,
-          package,
+          package: packageInfo,
         }),
       });
 

@@ -27,11 +27,11 @@ export class MNGAdapter implements ShippingAdapter {
   async getQuote(
     sender: ShippingAddress,
     recipient: ShippingAddress,
-    package: PackageInfo,
+    packageInfo: PackageInfo,
   ): Promise<ShippingQuote[]> {
     try {
       if (!this.apiKey || !this.customerCode) {
-        return this.getMockQuote(sender, recipient, package);
+        return this.getMockQuote(sender, recipient, packageInfo);
       }
 
       const response = await fetch(`${this.apiUrl}/quote`, {
@@ -43,9 +43,9 @@ export class MNGAdapter implements ShippingAdapter {
         body: JSON.stringify({
           sender: { city: sender.city, district: sender.district },
           recipient: { city: recipient.city, district: recipient.district },
-          weight: package.weight,
-          dimensions: package.dimensions,
-          value: package.value,
+          weight: packageInfo.weight,
+          dimensions: packageInfo.dimensions,
+          value: packageInfo.value,
         }),
       });
 
@@ -69,7 +69,7 @@ export class MNGAdapter implements ShippingAdapter {
 
     } catch (error) {
       console.error('MNG Kargo quote error:', error);
-      return this.getMockQuote(sender, recipient, package);
+        return this.getMockQuote(sender, recipient, packageInfo);
     }
   }
 
@@ -238,11 +238,11 @@ export class MNGAdapter implements ShippingAdapter {
   private getMockQuote(
     sender: ShippingAddress,
     recipient: ShippingAddress,
-    package: PackageInfo,
+    packageInfo: PackageInfo,
   ): ShippingQuote[] {
     const basePrice = 22;
     const pricePerKg = 4.5;
-    const price = basePrice + (package.weight > 1 ? (package.weight - 1) * pricePerKg : 0);
+    const price = basePrice + (packageInfo.weight > 1 ? (packageInfo.weight - 1) * pricePerKg : 0);
 
     return [
       {

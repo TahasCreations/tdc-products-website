@@ -33,12 +33,12 @@ export class YurticiAdapter implements ShippingAdapter {
   async getQuote(
     sender: ShippingAddress,
     recipient: ShippingAddress,
-    package: PackageInfo,
+    packageInfo: PackageInfo,
   ): Promise<ShippingQuote[]> {
     try {
       // API bilgileri yoksa mock response döndür
       if (!this.apiKey || !this.customerCode) {
-        return this.getMockQuote(sender, recipient, package);
+        return this.getMockQuote(sender, recipient, packageInfo);
       }
 
       // Gerçek API çağrısı
@@ -59,9 +59,9 @@ export class YurticiAdapter implements ShippingAdapter {
             district: recipient.district,
             postalCode: recipient.postalCode,
           },
-          weight: package.weight,
-          dimensions: package.dimensions,
-          value: package.value,
+          weight: packageInfo.weight,
+          dimensions: packageInfo.dimensions,
+          value: packageInfo.value,
         }),
       });
 
@@ -86,7 +86,7 @@ export class YurticiAdapter implements ShippingAdapter {
     } catch (error) {
       console.error('Yurtiçi Kargo quote error:', error);
       // Hata durumunda mock quote döndür
-      return this.getMockQuote(sender, recipient, package);
+        return this.getMockQuote(sender, recipient, packageInfo);
     }
   }
 
@@ -284,11 +284,11 @@ export class YurticiAdapter implements ShippingAdapter {
   private getMockQuote(
     sender: ShippingAddress,
     recipient: ShippingAddress,
-    package: PackageInfo,
+    packageInfo: PackageInfo,
   ): ShippingQuote[] {
     const basePrice = 25;
     const pricePerKg = 5;
-    const price = basePrice + (package.weight > 1 ? (package.weight - 1) * pricePerKg : 0);
+    const price = basePrice + (packageInfo.weight > 1 ? (packageInfo.weight - 1) * pricePerKg : 0);
 
     return [
       {
