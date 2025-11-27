@@ -96,11 +96,78 @@ export async function PATCH(
     const { status, trackingCode, trackingCarrier, sellerNotes } = parsed.data;
     const now = new Date();
 
+    // Önce tracking code'ları oluştur (eğer gerekirse)
+    const trackingCodes: Record<string, string> = {};
+    
+    if (status === "shipped" && !trackingCode && trackingCarrier) {
+      // Kargo oluşturma işlemini transaction dışında yap
+      try {
+        const { getShippingManager } = await import("@/lib/shipping/shipping-manager");
+        const shippingManager = getShippingManager();
+        
+        // Her item için kargo oluştur
+        for (const item of order.items) {
+          const orderWithDetails = await prisma.order.findUnique({
+            where: { id: order.id },
+            include: {
+              user: { select: { name: true, email: true, phone: true } },
+              items: {
+                where: { id: item.id },
+                include: {
+                  product: { select: { title: true, weight: true } },
+                },
+              },
+            },
+          });
+          
+          if (orderWithDetails && orderWithDetails.items.length > 0) {
+            const orderItem = orderWithDetails.items[0];
+            const shippingAddress = orderWithDetails.shippingAddress as any;
+            
+            const shipmentResult = await shippingManager.createShipment(trackingCarrier, {
+              sender: {
+                name: sellerProfile?.storeName || 'Satıcı',
+                phone: '', // TODO: Seller phone
+                email: '', // TODO: Seller email
+                address: 'Satıcı Adresi',
+                city: 'İstanbul',
+                country: 'Turkey',
+              },
+              recipient: {
+                name: shippingAddress?.name || orderWithDetails.user?.name || 'Müşteri',
+                phone: shippingAddress?.phone || orderWithDetails.user?.phone || '',
+                email: orderWithDetails.user?.email || '',
+                address: shippingAddress?.address || '',
+                city: shippingAddress?.city || '',
+                district: shippingAddress?.district,
+                postalCode: shippingAddress?.postalCode,
+                country: 'Turkey',
+              },
+              package: {
+                weight: (orderItem.product?.weight as number) || 0.5,
+                value: orderItem.subtotal,
+                description: orderItem.product?.title || orderItem.title,
+              },
+              reference: orderWithDetails.orderNumber,
+            });
+            
+            if (shipmentResult.success && shipmentResult.trackingNumber) {
+              trackingCodes[item.id] = shipmentResult.trackingNumber;
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Otomatik kargo oluşturma hatası:", error);
+        // Hata durumunda devam et, tracking code olmadan güncelle
+      }
+    }
+
+    // Şimdi transaction ile güncellemeleri yap
     await prisma.$transaction(
       order.items.map((item) => {
         const data: any = {
           status,
-          trackingCode: trackingCode ?? item.trackingCode,
+          trackingCode: trackingCode ?? trackingCodes[item.id] ?? item.trackingCode,
           trackingCarrier: trackingCarrier ?? item.trackingCarrier,
           sellerNotes: sellerNotes ?? item.sellerNotes,
         };
@@ -111,67 +178,6 @@ export async function PATCH(
         } else if (status === "shipped") {
           data.shippedAt = item.shippedAt ?? now;
           data.deliveredAt = null;
-          
-          // Eğer tracking code yoksa ve carrier varsa, otomatik kargo oluştur
-          if (!data.trackingCode && trackingCarrier) {
-            try {
-              const { getShippingManager } = await import("@/lib/shipping/shipping-manager");
-              const shippingManager = getShippingManager();
-              
-              // Order bilgilerini al
-              const orderWithDetails = await prisma.order.findUnique({
-                where: { id: order.id },
-                include: {
-                  user: { select: { name: true, email: true, phone: true } },
-                  items: {
-                    where: { id: item.id },
-                    include: {
-                      product: { select: { title: true, weight: true } },
-                    },
-                  },
-                },
-              });
-              
-              if (orderWithDetails && orderWithDetails.items.length > 0) {
-                const orderItem = orderWithDetails.items[0];
-                const shippingAddress = orderWithDetails.shippingAddress as any;
-                
-                const shipmentResult = await shippingManager.createShipment(trackingCarrier, {
-                  sender: {
-                    name: sellerProfile.storeName,
-                    phone: '', // TODO: Seller phone
-                    email: '', // TODO: Seller email
-                    address: 'Satıcı Adresi',
-                    city: 'İstanbul',
-                    country: 'Turkey',
-                  },
-                  recipient: {
-                    name: shippingAddress?.name || orderWithDetails.user?.name || 'Müşteri',
-                    phone: shippingAddress?.phone || orderWithDetails.user?.phone || '',
-                    email: orderWithDetails.user?.email || '',
-                    address: shippingAddress?.address || '',
-                    city: shippingAddress?.city || '',
-                    district: shippingAddress?.district,
-                    postalCode: shippingAddress?.postalCode,
-                    country: 'Turkey',
-                  },
-                  package: {
-                    weight: (orderItem.product?.weight as number) || 0.5,
-                    value: orderItem.subtotal,
-                    description: orderItem.product?.title || orderItem.title,
-                  },
-                  reference: orderWithDetails.orderNumber,
-                });
-                
-                if (shipmentResult.success && shipmentResult.trackingNumber) {
-                  data.trackingCode = shipmentResult.trackingNumber;
-                }
-              }
-            } catch (error) {
-              console.error("Otomatik kargo oluşturma hatası:", error);
-              // Hata durumunda devam et, tracking code olmadan güncelle
-            }
-          }
         } else if (status === "delivered") {
           data.shippedAt = item.shippedAt ?? now;
           data.deliveredAt = now;
